@@ -1,0 +1,1747 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>수습 평가표 &amp; 본채용 거부 통지문 빌더</title>
+<meta
+  name="description"
+  content="수습 평가 항목을 설계해 평가표를 만들고 미달 시 서면 본채용 거부 통지문 초안까지 뽑는다"
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3c5a78;
+    --accent-strong: #2c4560;
+    --accent-tint: #eef3f8;
+    --accent-tint-2: #dbe6f1;
+    --ink: #1f242a;
+    --ink-soft: #454d56;
+    --ink-mute: #6a727c;
+    --paper: #f5f7f9;
+    --card: #ffffff;
+    --line: #e3e8ed;
+    --line-strong: #ccd5de;
+    --good: #2f6f4f;
+    --good-tint: #e7f1ec;
+    --good-line: #cfe4d8;
+    --warn: #8f6410;
+    --warn-tint: #fdf4e3;
+    --warn-line: #f0dcb4;
+    --bad: #a83f36;
+    --bad-tint: #f9ece9;
+    --bad-line: #f0d1cc;
+    --shadow: 0 1px 2px rgba(31, 36, 42, 0.05), 0 6px 20px rgba(31, 36, 42, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.68rem;
+    line-height: 1.3;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.01rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+  }
+  .field.col-span {
+    grid-column: 1 / -1;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  .text-in {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    color: var(--ink);
+    background: #fcfdfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 12px;
+    line-height: 1.4;
+    word-break: keep-all;
+  }
+  .text-in:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .text-in::placeholder {
+    color: #a6adb5;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* checkbox rows */
+  .checkrow {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 12px 13px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fcfdfe;
+    cursor: pointer;
+    margin-top: 12px;
+    min-height: 44px;
+  }
+  .checkrow input {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--accent);
+  }
+  .checkrow .cr-text {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .checkrow .cr-text b {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* ---------- items ---------- */
+  .items-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 78px 78px 44px;
+    gap: 8px;
+    padding: 0 2px 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+  }
+  .items-head span:nth-child(2),
+  .items-head span:nth-child(3) {
+    text-align: center;
+  }
+  .item-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 78px 78px 44px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .item-row .cell {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: #fcfdfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 11px;
+    min-height: 44px;
+  }
+  .item-row .cell:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .item-row .in-weight,
+  .item-row .in-score {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .rm {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink-mute);
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    padding: 0;
+  }
+  .rm:hover {
+    border-color: var(--bad-line);
+    color: var(--bad);
+    background: var(--bad-tint);
+  }
+  .add-item {
+    margin-top: 4px;
+    width: 100%;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border: 1px dashed var(--accent-tint-2);
+    border-radius: 11px;
+    padding: 12px;
+    font-family: inherit;
+    font-size: 0.94rem;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .add-item:hover {
+    background: var(--accent-tint-2);
+  }
+  .weight-note {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 10px 0 0;
+    font-weight: 600;
+  }
+  .weight-note.warn {
+    color: var(--warn);
+  }
+
+  .thresh-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 0 4px;
+    flex-wrap: wrap;
+  }
+  .thresh-wrap label {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .thresh-wrap input {
+    width: 92px;
+    text-align: center;
+  }
+  .thresh-wrap .unit {
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+  }
+
+  .validate {
+    display: none;
+    margin: 14px 0 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--bad);
+    background: var(--bad-tint);
+    border: 1px solid var(--bad-line);
+    border-radius: 10px;
+    padding: 11px 13px;
+  }
+  .validate.show {
+    display: block;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- disclaimer banner ---------- */
+  .disclaimer {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 12px;
+    padding: 13px 15px;
+    margin-bottom: 16px;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .disclaimer .dc-mark {
+    flex: none;
+    font-weight: 800;
+    color: var(--warn);
+    font-size: 0.86rem;
+    background: #fff;
+    border: 1px solid var(--warn-line);
+    border-radius: 6px;
+    padding: 1px 7px;
+  }
+  .disclaimer b {
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 24px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-pass {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict.tone-cond {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-fail {
+    background: var(--bad-tint);
+    border-color: var(--bad-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.36rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.32;
+  }
+  .verdict.tone-pass .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-cond .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-fail .verdict-title {
+    color: var(--bad);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .score-bar {
+    position: relative;
+    height: 14px;
+    background: #e6ebf0;
+    border-radius: 8px;
+    margin: 16px 0 8px;
+    overflow: hidden;
+  }
+  .score-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 8px;
+    transition: width 0.4s ease;
+  }
+  .tone-pass .score-fill {
+    background: var(--good);
+  }
+  .tone-cond .score-fill {
+    background: #cf9126;
+  }
+  .tone-fail .score-fill {
+    background: var(--bad);
+  }
+  .score-tick {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: var(--ink);
+    opacity: 0.55;
+  }
+  .score-caption {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin: 0;
+  }
+  .score-caption strong {
+    color: var(--ink);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* eval table */
+  .table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  table.eval {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 460px;
+  }
+  table.eval th,
+  table.eval td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+  table.eval thead th {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-weight: 700;
+    font-size: 0.84rem;
+    border-bottom: 1px solid var(--accent-tint-2);
+  }
+  table.eval td.num,
+  table.eval th.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  table.eval tr:last-child td {
+    border-bottom: none;
+  }
+  table.eval tfoot td {
+    font-weight: 800;
+    background: #fafbfc;
+    border-top: 2px solid var(--line-strong);
+    border-bottom: none;
+  }
+  .low-tag {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--bad);
+    background: var(--bad-tint);
+    border: 1px solid var(--bad-line);
+    border-radius: 5px;
+    padding: 0 6px;
+  }
+
+  /* cond note */
+  .cond-note {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 11px;
+    padding: 13px 15px;
+    margin: 0 0 6px;
+  }
+  .pass-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 11px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* compliance checklist */
+  ul.checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  li.chk {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 12px 14px;
+    background: #fcfdfe;
+  }
+  .chk-badge {
+    flex: none;
+    font-size: 0.72rem;
+    font-weight: 800;
+    border-radius: 6px;
+    padding: 3px 8px;
+    margin-top: 1px;
+    white-space: nowrap;
+  }
+  .chk-badge.ok {
+    color: var(--good);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+  }
+  .chk-badge.warn {
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+  }
+  .chk-badge.info {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .chk-body .chk-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 0 0 3px;
+  }
+  .chk-body .chk-note {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+
+  /* document / prompt boxes */
+  pre.doc {
+    margin: 0;
+    background: #fbfcfd;
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.9rem;
+    line-height: 1.72;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 460px;
+    overflow-y: auto;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #262c33;
+    color: #eef2f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.64;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.92rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 36, 42, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    width: 100%;
+    min-height: 180px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 12px;
+    resize: vertical;
+    word-break: keep-all;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  footer.foot p {
+    margin: 0 0 10px;
+  }
+
+  @media (max-width: 560px) {
+    .grid-2 {
+      grid-template-columns: 1fr;
+    }
+    .items-head {
+      display: none;
+    }
+    .item-row {
+      grid-template-columns: 1fr 1fr 44px;
+      grid-template-areas:
+        "name name name"
+        "w s rm";
+      row-gap: 8px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .item-row .in-name {
+      grid-area: name;
+    }
+    .item-row .in-weight {
+      grid-area: w;
+    }
+    .item-row .in-score {
+      grid-area: s;
+    }
+    .item-row .rm {
+      grid-area: rm;
+      justify-self: end;
+    }
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #step1,
+    #step2,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.doc,
+    pre.prompt {
+      background: #fff;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+    .disclaimer {
+      border: 1px solid #999;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">수습 평가 · 본채용 판단 보조</span>
+    <h1>수습 평가표 &amp; 본채용 거부 통지문 빌더</h1>
+    <p class="lede">
+      수습 평가 항목을 직접 설계해 가중 평가표를 만들고, 본채용 기준에 미달하면
+      근로기준법 요건을 반영한 서면 본채용 거부 통지문 초안과 절차 체크리스트까지
+      한 번에 뽑아 드립니다.
+    </p>
+  </header>
+
+  <!-- STEP 1 -->
+  <section class="panel" id="step1">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>기본 정보</h2>
+    </div>
+    <p class="panel-sub">
+      통지문에 들어갈 정보입니다. 비워 두면 초안에 [대괄호] 자리표시로 남습니다.
+    </p>
+
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label" for="f-company">회사명</label>
+        <input class="text-in" id="f-company" type="text" placeholder="예) 주식회사 가나다" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-name">대상자 성명</label>
+        <input class="text-in" id="f-name" type="text" placeholder="예) 홍길동" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-role">직무 / 부서</label>
+        <input class="text-in" id="f-role" type="text" placeholder="예) 개발팀 / 백엔드 개발" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-start">수습 시작일</label>
+        <input class="text-in" id="f-start" type="date" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-months">수습 기간 (개월)</label>
+        <input
+          class="text-in"
+          id="f-months"
+          type="number"
+          min="1"
+          max="24"
+          inputmode="numeric"
+          placeholder="예) 3"
+        />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-notice">통지 예정일</label>
+        <input class="text-in" id="f-notice" type="date" value="2026-07-09" />
+      </div>
+    </div>
+
+    <label class="checkrow" for="f-prior">
+      <input type="checkbox" id="f-prior" />
+      <span class="cr-text">
+        <b>입사 시 수습 평가기준을 서면으로 고지했다</b> (근로계약서 또는 별도 평가표).
+        본채용 거부의 정당성을 좌우하는 핵심 요건입니다.
+      </span>
+    </label>
+    <label class="checkrow" for="f-record">
+      <input type="checkbox" id="f-record" />
+      <span class="cr-text">
+        <b>수습 기간 중 평가 기록을 축적했다</b> (면담일지·피드백 메일 등).
+        분쟁 시 사유의 객관성을 입증하는 자료입니다.
+      </span>
+    </label>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="panel" id="step2">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>평가 항목 설계 &amp; 채점</h2>
+    </div>
+    <p class="panel-sub">
+      항목명을 바꾸고 가중치(%)와 점수(0~100)를 입력하세요. 항목은 추가·삭제할 수
+      있습니다. 가중치 합이 100이 아니어도 자동으로 정규화해 계산합니다.
+    </p>
+
+    <div class="items-head" aria-hidden="true">
+      <span>평가 항목</span>
+      <span>가중치%</span>
+      <span>점수</span>
+      <span></span>
+    </div>
+    <div id="items"></div>
+    <button class="add-item" id="addItem" type="button">+ 평가 항목 추가</button>
+    <p class="weight-note" id="weightNote"></p>
+
+    <div class="thresh-wrap">
+      <label for="f-threshold">본채용 기준 점수</label>
+      <input
+        class="text-in"
+        id="f-threshold"
+        type="number"
+        min="0"
+        max="100"
+        inputmode="numeric"
+        value="70"
+      />
+      <span class="unit">점 이상이면 본채용 적합</span>
+    </div>
+
+    <p class="validate" id="validate" role="alert"></p>
+
+    <div class="actions">
+      <button class="btn-primary" id="judge" type="button">평가표 &amp; 통지문 생성</button>
+      <button class="btn-ghost" id="reset" type="button">초기화</button>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="panel" id="step3">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>결과</h2>
+    </div>
+
+    <div class="disclaimer" role="note">
+      <span class="dc-mark">참고용</span>
+      <span>
+        <b>본 도구는 일반 정보 제공용 참고 자료이며 법적 효력이 있는 의견이 아닙니다.</b>
+        개별 사안의 최종 판단은 공인노무사·세무사·변호사 등 전문가 상담이 필요합니다.
+        표시된 법조항은 2026년 7월 기준이며, 개정 여부는 법제처·고용노동부에서 확인하세요.
+      </span>
+    </div>
+
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▤</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>항목을 채점하고 '평가표 &amp; 통지문 생성'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 근로기준법 제23조(해고 등의 제한, 정당한
+      이유 없는 해고 금지), 제27조(해고사유 등의 서면통지), 제35조 단서(수습 사용 중
+      근로기간 3개월 이내 해고예고 적용 제외), 대법원 2006다54266(수습기간 중
+      본채용 거부는 정규 해고보다 넓은 재량이 인정되나, 객관적·합리적 이유가 필요).
+      가중 평가는 항목별 점수를 가중치로 정규화한 가중평균 방식입니다. 조항 인용
+      범위는 사내 labor-law-advisor 스킬의 검증 항목을 따릅니다. (기준 시점: 2026년 7월)
+    </p>
+    <p>
+      이 도구는 담당자의 사고와 문서 작성을 돕는 보조 도구이며, 해고·본채용 거부의
+      정당성을 대신 확정해 주지 않습니다. 결과는 스스로 판단하고 검토할 재료로
+      활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select" type="button">전체 선택</button>
+      <button class="btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------- default evaluation items ----------
+  var DEFAULT_ITEMS = [
+    { name: "업무 수행 능력 (직무 지식·완성도)", weight: 30, score: "" },
+    { name: "성실성·근태 (출근·규칙 준수)", weight: 20, score: "" },
+    { name: "조직 적응·협업 (커뮤니케이션·팀워크)", weight: 20, score: "" },
+    { name: "지시 이해·학습 속도", weight: 15, score: "" },
+    { name: "책임감·성장 가능성", weight: 15, score: "" }
+  ];
+
+  var itemsEl = document.getElementById("items");
+
+  function makeRow(item) {
+    var row = document.createElement("div");
+    row.className = "item-row";
+    var nameIn = document.createElement("input");
+    nameIn.className = "cell in-name";
+    nameIn.type = "text";
+    nameIn.value = item.name || "";
+    nameIn.placeholder = "평가 항목명";
+    nameIn.setAttribute("aria-label", "평가 항목명");
+
+    var wIn = document.createElement("input");
+    wIn.className = "cell in-weight";
+    wIn.type = "number";
+    wIn.min = "0";
+    wIn.inputMode = "numeric";
+    wIn.value = item.weight === "" || item.weight == null ? "" : item.weight;
+    wIn.placeholder = "%";
+    wIn.setAttribute("aria-label", "가중치 퍼센트");
+
+    var sIn = document.createElement("input");
+    sIn.className = "cell in-score";
+    sIn.type = "number";
+    sIn.min = "0";
+    sIn.max = "100";
+    sIn.inputMode = "numeric";
+    sIn.value = item.score === "" || item.score == null ? "" : item.score;
+    sIn.placeholder = "0~100";
+    sIn.setAttribute("aria-label", "점수 0에서 100");
+
+    var rm = document.createElement("button");
+    rm.className = "rm";
+    rm.type = "button";
+    rm.setAttribute("aria-label", "항목 삭제");
+    rm.textContent = "×";
+    rm.addEventListener("click", function () {
+      if (itemsEl.querySelectorAll(".item-row").length <= 1) return;
+      row.parentNode.removeChild(row);
+      updateWeightNote();
+    });
+
+    wIn.addEventListener("input", updateWeightNote);
+
+    row.appendChild(nameIn);
+    row.appendChild(wIn);
+    row.appendChild(sIn);
+    row.appendChild(rm);
+    return row;
+  }
+
+  function renderItems(list) {
+    itemsEl.innerHTML = "";
+    list.forEach(function (it) {
+      itemsEl.appendChild(makeRow(it));
+    });
+    updateWeightNote();
+  }
+
+  function readRows() {
+    var rows = [];
+    Array.prototype.forEach.call(
+      itemsEl.querySelectorAll(".item-row"),
+      function (row) {
+        var name = row.querySelector(".in-name").value.trim();
+        var wRaw = row.querySelector(".in-weight").value.trim();
+        var sRaw = row.querySelector(".in-score").value.trim();
+        var weight = wRaw === "" ? 0 : Math.max(0, parseFloat(wRaw) || 0);
+        var hasScore = sRaw !== "";
+        var score = hasScore ? clamp(parseFloat(sRaw) || 0, 0, 100) : 0;
+        rows.push({ name: name, weight: weight, score: score, hasScore: hasScore, wRaw: wRaw });
+      }
+    );
+    return rows;
+  }
+
+  function clamp(v, lo, hi) {
+    return Math.min(hi, Math.max(lo, v));
+  }
+
+  function updateWeightNote() {
+    var rows = readRows();
+    var named = rows.filter(function (r) {
+      return r.name !== "";
+    });
+    var totalW = named.reduce(function (a, r) {
+      return a + r.weight;
+    }, 0);
+    var note = document.getElementById("weightNote");
+    if (named.length === 0) {
+      note.textContent = "";
+      note.className = "weight-note";
+      return;
+    }
+    var rounded = Math.round(totalW * 10) / 10;
+    if (rounded === 100) {
+      note.textContent = "가중치 합계: 100% (정상)";
+      note.className = "weight-note";
+    } else if (totalW === 0) {
+      note.textContent = "가중치가 모두 0입니다 — 판정 시 모든 항목을 동일 비중으로 계산합니다.";
+      note.className = "weight-note warn";
+    } else {
+      note.textContent =
+        "가중치 합계: " + rounded + "% — 100%가 아니어서 정규화하여 계산합니다.";
+      note.className = "weight-note warn";
+    }
+  }
+
+  document.getElementById("addItem").addEventListener("click", function () {
+    itemsEl.appendChild(makeRow({ name: "", weight: "", score: "" }));
+  });
+
+  renderItems(DEFAULT_ITEMS);
+
+  // ---------- helpers ----------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function val(id) {
+    return document.getElementById(id).value.trim();
+  }
+  function ph(v, placeholder) {
+    return v && v !== "" ? v : "[" + placeholder + "]";
+  }
+  function parseDate(v) {
+    if (!v) return null;
+    var d = new Date(v + "T00:00:00");
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function addMonths(d, n) {
+    var x = new Date(d.getTime());
+    var day = x.getDate();
+    x.setMonth(x.getMonth() + n);
+    if (x.getDate() < day) x.setDate(0);
+    return x;
+  }
+  function fmtDate(d) {
+    if (!d) return null;
+    return d.getFullYear() + "년 " + (d.getMonth() + 1) + "월 " + d.getDate() + "일";
+  }
+  function round1(v) {
+    return Math.round(v * 10) / 10;
+  }
+
+  var copyTexts = {};
+  var resultEl = document.getElementById("result");
+  var validateEl = document.getElementById("validate");
+
+  function showValidate(msg) {
+    validateEl.textContent = msg;
+    validateEl.classList.add("show");
+  }
+  function hideValidate() {
+    validateEl.classList.remove("show");
+  }
+
+  // ---------- bands ----------
+  function bandFor(score, threshold) {
+    var gap = 10;
+    if (score >= threshold) {
+      return {
+        tone: "pass",
+        key: "pass",
+        label: "본채용 적합",
+        title: "본채용 기준을 충족했습니다",
+        desc:
+          "가중 종합 점수가 기준을 넘었습니다. 본채용을 진행하되, 미흡 항목은 온보딩 피드백으로 이어 개선 계획을 함께 세우는 것을 권장합니다."
+      };
+    }
+    if (score >= threshold - gap) {
+      return {
+        tone: "cond",
+        key: "cond",
+        label: "경계선 · 재검토 권장",
+        title: "기준 경계선입니다",
+        desc:
+          "본채용 기준에 근소하게 미달했습니다. 곧바로 거부하기보다 수습 연장·재평가를 우선 검토하세요. 아래에 거부 통지문 초안을 함께 제공하되, 대안 절차를 먼저 고려하시기 바랍니다."
+      };
+    }
+    return {
+      tone: "fail",
+      key: "fail",
+      label: "기준 미달",
+      title: "본채용 기준에 미달했습니다",
+      desc:
+        "가중 종합 점수가 기준에 크게 못 미쳤습니다. 아래 서면 본채용 거부 통지문 초안과 절차 체크리스트를 확인하고, 평가 기록을 첨부해 검토하세요."
+    };
+  }
+
+  // ---------- eval table text ----------
+  function buildEvalText(ctx) {
+    var L = [];
+    L.push("■ " + ph(ctx.company, "회사명") + " 수습 평가표");
+    L.push("· 대상자: " + ph(ctx.name, "대상자") + " (" + ph(ctx.role, "직무/부서") + ")");
+    var period = "";
+    if (ctx.startFmt && ctx.endFmt) period = ctx.startFmt + " ~ " + ctx.endFmt;
+    else if (ctx.startFmt) period = ctx.startFmt + " ~ [만료일]";
+    else period = "[시작일] ~ [만료일]";
+    if (ctx.months) period += " (" + ctx.months + "개월)";
+    L.push("· 수습기간: " + period);
+    L.push("· 평가 기준일: " + (ctx.noticeFmt || "[통지 예정일]"));
+    L.push("");
+    L.push("[항목별 평가]");
+    ctx.items.forEach(function (it, i) {
+      var contrib = round1((it.score * it.normW) / 100);
+      L.push(
+        (i + 1) +
+          ") " +
+          it.name +
+          " — 가중치 " +
+          round1(it.normW) +
+          "%, 점수 " +
+          it.score +
+          "/100 (가중 " +
+          contrib +
+          ")"
+      );
+    });
+    L.push("");
+    L.push("[종합]");
+    L.push("· 가중 종합 점수: " + round1(ctx.weighted) + " / 100");
+    L.push("· 본채용 기준 점수: " + ctx.threshold);
+    L.push("· 판정: " + ctx.band.title + " (" + ctx.band.label + ")");
+    return L.join("\n");
+  }
+
+  // ---------- notice text ----------
+  function buildNoticeText(ctx) {
+    var L = [];
+    var company = ph(ctx.company, "회사명");
+    var name = ph(ctx.name, "대상자");
+    var role = ph(ctx.role, "직무/부서");
+    var start = ctx.startFmt || "[수습 시작일]";
+    var end = ctx.endFmt || "[수습 만료(예정)일]";
+    var notice = ctx.noticeFmt || "[통지일]";
+
+    L.push(company);
+    L.push("본채용 거부 통지서");
+    L.push("");
+    L.push("수신: " + name + " 귀하 (직무/부서: " + role + ")");
+    L.push("수습기간: " + start + " ~ " + end + (ctx.months ? " (" + ctx.months + "개월)" : ""));
+    L.push("통지일: " + notice);
+    L.push("");
+    L.push(
+      "1. 귀하는 " +
+        start +
+        "자로 당사에 수습사원으로 입사하여 수습기간 중 근무하였습니다."
+    );
+    L.push("");
+    L.push(
+      "2. 당사는 " +
+        (ctx.prior
+          ? "입사 시 서면으로 고지한 "
+          : "당사가 정한 ") +
+        "수습 평가기준에 따라 귀하의 업무수행능력, 근무태도, 조직적응도 등을 평가하였으며, 그 결과는 다음과 같습니다."
+    );
+    L.push("   - 가중 종합 점수: " + round1(ctx.weighted) + "점 / 100점 (본채용 기준: " + ctx.threshold + "점)");
+    if (ctx.lowItems.length) {
+      var lows = ctx.lowItems
+        .map(function (it) {
+          return it.name + "(" + it.score + "점)";
+        })
+        .join(", ");
+      L.push("   - 주요 미흡 항목: " + lows);
+    }
+    L.push("");
+    L.push(
+      "3. 위 평가 결과 귀하는 본채용 기준에 미달하였습니다. 이에 당사는 근로기준법 제23조가 정한 정당한 사유(대법원 2006다54266: 수습기간 중 본채용 거부는 객관적·합리적 이유가 있는 경우 인정됨)에 근거하여, " +
+        notice +
+        "자로 귀하에 대한 본채용을 거부함을 근로기준법 제27조에 따라 서면으로 통지합니다."
+    );
+    L.push("");
+    if (ctx.within3) {
+      L.push(
+        "4. 귀하는 수습 사용 중으로서 근로한 기간이 3개월 이내에 해당하여, 근로기준법 제35조 단서에 따라 해고예고의 적용이 제외됩니다."
+      );
+    } else {
+      L.push(
+        "4. 귀하의 수습 사용 기간이 3개월을 초과하였으므로, 30일 전 해고예고에 갈음하여 30일분의 통상임금을 예고수당으로 지급합니다."
+      );
+    }
+    L.push("");
+    L.push(
+      "5. 본 통지에 이의가 있으실 경우, 통지일로부터 3개월 이내에 관할 지방노동위원회에 부당해고 등의 구제를 신청하실 수 있습니다."
+    );
+    L.push("");
+    L.push(notice);
+    L.push(company);
+    L.push("대표이사              (인)");
+    L.push("");
+    L.push(
+      "※ 본 통지서는 초안입니다. 실제 교부 전 평가 기록을 첨부하고, 문구는 공인노무사 검토를 거치시기를 권장합니다."
+    );
+    return L.join("\n");
+  }
+
+  // ---------- compliance checklist ----------
+  function buildChecks(ctx) {
+    var c = [];
+    c.push({
+      s: "ok",
+      t: "서면통지 (근로기준법 제27조)",
+      n: "본 통지서를 서면 또는 이에 준하는 전자문서로 교부하면 서면통지 요건을 충족합니다. 구두 통보만으로는 무효 위험이 있습니다."
+    });
+    if (ctx.prior) {
+      c.push({
+        s: "ok",
+        t: "평가기준 사전 서면 고지",
+        n: "입사 시 평가기준을 서면으로 고지했다고 표시하셨습니다. 근로계약서·평가표 원본을 함께 보관하세요."
+      });
+    } else {
+      c.push({
+        s: "warn",
+        t: "평가기준 사전 서면 고지 미확인",
+        n: "입사 시 수습 평가기준을 서면(근로계약서·평가표)으로 고지하지 않았다면, 본채용 거부의 정당성이 크게 약해집니다. 지금이라도 근거 문서를 확보하세요."
+      });
+    }
+    if (ctx.record) {
+      c.push({
+        s: "ok",
+        t: "평가 기록 축적",
+        n: "면담일지·피드백 등 평가 기록을 통지서에 첨부하면 사유의 객관성이 높아집니다."
+      });
+    } else {
+      c.push({
+        s: "warn",
+        t: "평가 기록 미확인",
+        n: "구체적 평가 기록이 없으면 분쟁 시 거부 사유의 객관성 입증이 어렵습니다. 면담일지·피드백 자료를 정리하세요."
+      });
+    }
+    if (ctx.within3) {
+      c.push({
+        s: "info",
+        t: "해고예고 의무 — 수습 3개월 이내",
+        n: "근로기준법 제35조 단서에 따라 해고예고 의무가 면제됩니다. (통지일 기준 근로기간 3개월 이내)"
+      });
+    } else {
+      c.push({
+        s: "warn",
+        t: "해고예고 의무 — 수습 3개월 초과",
+        n: "30일 전 해고예고 또는 30일분 통상임금의 예고수당이 필요합니다. 통지문에 예고수당 지급 문구를 반영했습니다."
+      });
+    }
+    c.push({
+      s: "info",
+      t: "구제신청 안내 포함",
+      n: "통지일로부터 3개월 이내 노동위원회 부당해고 구제신청이 가능함을 통지문에 안내했습니다."
+    });
+    c.push({
+      s: "info",
+      t: "거부 사유의 구체성 최종 점검",
+      n: "'성실하지 않음' 같은 추상적 표현 대신, 평가표의 미흡 항목과 구체적 사례를 적시했는지 최종 확인하세요."
+    });
+    return c;
+  }
+
+  // ---------- AI prompt ----------
+  function buildPrompt(ctx) {
+    var L = [];
+    L.push("당신은 대한민국 노동법(근로기준법)에 정통한 노무 자문 코치입니다.");
+    L.push("아래 수습 평가 결과와 본채용 판단을 검토해 주세요.");
+    L.push("");
+    L.push("【사안 개요】");
+    L.push("- 회사: " + ph(ctx.company, "회사명"));
+    L.push("- 대상자/직무: " + ph(ctx.name, "대상자") + " / " + ph(ctx.role, "직무/부서"));
+    L.push(
+      "- 수습기간: " +
+        (ctx.startFmt || "[시작일]") +
+        " ~ " +
+        (ctx.endFmt || "[만료일]") +
+        (ctx.months ? " (" + ctx.months + "개월)" : "")
+    );
+    L.push(
+      "- 통지 예정일: " +
+        (ctx.noticeFmt || "[통지일]") +
+        " / 근로기간 3개월 " +
+        (ctx.within3 ? "이내(예고의무 면제)" : "초과(예고 또는 예고수당 필요)")
+    );
+    L.push("- 평가기준 사전 서면 고지: " + (ctx.prior ? "함" : "미확인"));
+    L.push("- 평가 기록 축적: " + (ctx.record ? "함" : "미확인"));
+    L.push("");
+    L.push("【평가 결과】");
+    ctx.items.forEach(function (it) {
+      L.push(
+        "- " + it.name + ": " + it.score + "/100 (가중치 " + round1(it.normW) + "%)"
+      );
+    });
+    L.push("- 가중 종합 점수: " + round1(ctx.weighted) + " / 100 (기준 " + ctx.threshold + "점)");
+    L.push("- 자체 판정: " + ctx.band.title + " (" + ctx.band.label + ")");
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 이 본채용 거부(또는 대안)의 정당성을 근로기준법 제23조, 제27조, 제35조 단서와 대법원 2006다54266 취지에 비추어 검토해 주세요."
+    );
+    L.push(
+      "2. 평가표의 미흡 항목을 '객관적·구체적 사유'로 바꿔 쓸 수 있도록, 서면 통지에 들어갈 사유 문구를 다듬어 주세요."
+    );
+    L.push(
+      "3. 절차상 빠진 부분(사전 고지, 기록, 예고, 서면통지, 구제신청 안내)이 있으면 지적하고 보완 순서를 제시해 주세요."
+    );
+    L.push(
+      "4. 결론을 단정하지 말고, 먼저 확인이 필요한 사실을 질문한 뒤 견해를 제시해 주세요. 확인되지 않은 조항·수치를 지어내지 마세요."
+    );
+    L.push(
+      "5. 해고 분쟁이 예상되거나 금전 규모가 크면, 공인노무사 대면 상담이 필요함을 명시해 주세요."
+    );
+    return L.join("\n");
+  }
+
+  // ---------- main ----------
+  document.getElementById("judge").addEventListener("click", function () {
+    hideValidate();
+    var rows = readRows();
+    var named = rows.filter(function (r) {
+      return r.name !== "";
+    });
+    if (named.length === 0) {
+      showValidate("평가 항목을 1개 이상 입력하세요.");
+      return;
+    }
+    var scored = named.filter(function (r) {
+      return r.hasScore;
+    });
+    if (scored.length === 0) {
+      showValidate("점수를 1개 이상 입력하세요. (0~100)");
+      return;
+    }
+
+    // weights: normalize; if all zero, equal-weight
+    var totalW = named.reduce(function (a, r) {
+      return a + r.weight;
+    }, 0);
+    var equal = totalW <= 0;
+    if (equal) totalW = named.length;
+
+    var items = named.map(function (r) {
+      var w = equal ? 1 : r.weight;
+      return {
+        name: r.name,
+        score: r.score,
+        rawW: w,
+        normW: (w / totalW) * 100
+      };
+    });
+
+    var weighted = items.reduce(function (a, it) {
+      return a + (it.score * it.normW) / 100;
+    }, 0);
+
+    var threshold = clamp(parseFloat(val("f-threshold")) || 70, 0, 100);
+    var band = bandFor(weighted, threshold);
+
+    var startD = parseDate(val("f-start"));
+    var noticeD = parseDate(val("f-notice"));
+    var monthsRaw = val("f-months");
+    var months = monthsRaw === "" ? null : Math.max(0, parseInt(monthsRaw, 10) || 0);
+    var endD = startD && months ? addMonths(startD, months) : null;
+
+    // within-3-months determination for 해고예고
+    var within3;
+    if (startD && noticeD) {
+      within3 = noticeD.getTime() <= addMonths(startD, 3).getTime();
+    } else if (months != null) {
+      within3 = months <= 3;
+    } else {
+      within3 = true; // conservative default: assume exemption but flag via checklist note
+    }
+
+    var lowItems = items
+      .filter(function (it) {
+        return it.score < threshold;
+      })
+      .sort(function (a, b) {
+        return a.score - b.score;
+      })
+      .slice(0, 4);
+
+    var ctx = {
+      company: val("f-company"),
+      name: val("f-name"),
+      role: val("f-role"),
+      months: months,
+      startFmt: fmtDate(startD),
+      endFmt: fmtDate(endD),
+      noticeFmt: fmtDate(noticeD),
+      prior: document.getElementById("f-prior").checked,
+      record: document.getElementById("f-record").checked,
+      within3: within3,
+      items: items,
+      weighted: weighted,
+      threshold: threshold,
+      band: band,
+      lowItems: lowItems
+    };
+
+    render(ctx);
+  });
+
+  function render(ctx) {
+    var html = "";
+    var band = ctx.band;
+
+    // verdict
+    var fill = clamp(round1(ctx.weighted), 0, 100);
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html +=
+      '<div class="score-bar" role="img" aria-label="종합 ' +
+      fill +
+      '점, 기준 ' +
+      ctx.threshold +
+      '점">';
+    html += '<div class="score-fill" style="width:' + fill + '%"></div>';
+    html += '<div class="score-tick" style="left:' + ctx.threshold + '%"></div>';
+    html += "</div>";
+    html +=
+      '<p class="score-caption"><span>가중 종합 <strong>' +
+      round1(ctx.weighted) +
+      "</strong> / 100</span><span>본채용 기준 <strong>" +
+      ctx.threshold +
+      "</strong></span></p>";
+    html += "</div>";
+
+    // eval table
+    html += '<div class="result-block-title">평가표</div>';
+    html += '<div class="table-scroll"><table class="eval">';
+    html +=
+      "<thead><tr><th>평가 항목</th><th class='num'>가중치</th><th class='num'>점수</th><th class='num'>가중점수</th></tr></thead><tbody>";
+    ctx.items.forEach(function (it) {
+      var contrib = round1((it.score * it.normW) / 100);
+      var low = it.score < ctx.threshold ? '<span class="low-tag">미흡</span>' : "";
+      html +=
+        "<tr><td>" +
+        esc(it.name) +
+        low +
+        "</td><td class='num'>" +
+        round1(it.normW) +
+        "%</td><td class='num'>" +
+        it.score +
+        "</td><td class='num'>" +
+        contrib +
+        "</td></tr>";
+    });
+    html += "</tbody><tfoot><tr><td>가중 종합 점수</td><td class='num'>100%</td><td class='num'></td><td class='num'>" +
+      round1(ctx.weighted) +
+      "</td></tr></tfoot>";
+    html += "</table></div>";
+
+    // eval copy
+    copyTexts.eval = buildEvalText(ctx);
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" data-copy="eval" type="button">평가표 복사</button>';
+    html +=
+      '<span class="copy-status" data-status="eval" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // pass path vs notice path
+    if (band.key === "pass") {
+      html +=
+        '<p class="pass-note" style="margin-top:22px">본채용 기준을 충족하여 별도의 거부 통지문은 생성하지 않았습니다. 미흡 항목이 있다면 온보딩 피드백·개선 목표로 이어가세요.</p>';
+    } else {
+      if (band.key === "cond") {
+        html +=
+          '<p class="cond-note" style="margin-top:22px"><b>경계선 안내:</b> 곧바로 거부하기보다 수습 연장·재평가가 우선 대안입니다. 수습 연장은 근로계약·취업규칙에 근거가 있거나 본인 동의가 있어야 안전합니다. 아래 초안은 거부를 최종 결정한 경우에만 사용하세요.</p>';
+      }
+
+      // notice draft
+      copyTexts.notice = buildNoticeText(ctx);
+      html += '<div class="result-block-title">서면 본채용 거부 통지문 (초안)</div>';
+      html += '<pre class="doc">' + esc(copyTexts.notice) + "</pre>";
+      html += '<div class="copy-row no-print">';
+      html += '<button class="btn-copy" data-copy="notice" type="button">통지문 복사</button>';
+      html += '<button class="btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+      html +=
+        '<span class="copy-status" data-status="notice" role="status" aria-live="polite"></span>';
+      html += "</div>";
+
+      // compliance checklist
+      html += '<div class="result-block-title">절차 적법성 체크리스트</div>';
+      html += '<ul class="checklist">';
+      buildChecks(ctx).forEach(function (c) {
+        var badge =
+          c.s === "ok" ? "충족" : c.s === "warn" ? "주의" : "안내";
+        html +=
+          '<li class="chk"><span class="chk-badge ' +
+          c.s +
+          '">' +
+          badge +
+          '</span><div class="chk-body"><p class="chk-title">' +
+          esc(c.t) +
+          '</p><p class="chk-note">' +
+          esc(c.n) +
+          "</p></div></li>";
+      });
+      html += "</ul>";
+    }
+
+    // AI prompt (all bands)
+    copyTexts.prompt = buildPrompt(ctx);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">이 결과를 ChatGPT·Claude 등에 붙여넣으면, 근로기준법 근거로 거부 사유와 절차를 함께 검토해 줍니다.</p>';
+    html += '<pre class="prompt">' + esc(copyTexts.prompt) + "</pre>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" data-copy="prompt" type="button">프롬프트 복사</button>';
+    html +=
+      '<span class="copy-status" data-status="prompt" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // ---------- reset ----------
+  document.getElementById("reset").addEventListener("click", function () {
+    hideValidate();
+    ["f-company", "f-name", "f-role", "f-start", "f-months"].forEach(function (id) {
+      document.getElementById(id).value = "";
+    });
+    document.getElementById("f-notice").value = "2026-07-09";
+    document.getElementById("f-threshold").value = "70";
+    document.getElementById("f-prior").checked = false;
+    document.getElementById("f-record").checked = false;
+    renderItems(DEFAULT_ITEMS);
+    copyTexts = {};
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>항목을 채점하고 '평가표 &amp; 통지문 생성'을 누르세요.</p></div>";
+    document.getElementById("step1").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+
+  // ---------- copy (3-tier fallback) ----------
+  function wireResultButtons() {
+    Array.prototype.forEach.call(
+      resultEl.querySelectorAll("[data-copy]"),
+      function (btn) {
+        btn.addEventListener("click", function () {
+          var key = btn.getAttribute("data-copy");
+          doCopy(copyTexts[key] || "", key);
+        });
+      }
+    );
+    var printBtn = document.getElementById("printBtn");
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(key, msg) {
+    var s = resultEl.querySelector('[data-status="' + key + '"]');
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy(text, key) {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(key, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, key);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, key);
+  }
+
+  function legacyCopy(text, key) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(key, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

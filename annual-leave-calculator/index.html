@@ -1,0 +1,1241 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>연차휴가 계산기 (2방식+주휴수당)</title>
+<meta
+  name="description"
+  content="입사일만 넣으면 입사일 기준과 회계연도 기준 두 방식의 연차 발생일수를 동시에 보여주고 소멸 시점과 주휴수당까지 표시합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #1d6f5f;
+    --accent-strong: #14574a;
+    --accent-tint: #e8f4f1;
+    --accent-tint-2: #d3e9e3;
+    --ink: #1f2523;
+    --ink-soft: #414945;
+    --ink-mute: #616a66;
+    --paper: #f6f8f7;
+    --card: #ffffff;
+    --line: #e2e8e5;
+    --line-strong: #cfd8d4;
+    --good: #1d6f5f;
+    --good-tint: #e8f4f1;
+    --warn: #9a5b12;
+    --warn-tint: #fbf1e3;
+    --warn-line: #f0dcc0;
+    --shadow: 0 1px 2px rgba(31, 37, 35, 0.05), 0 6px 20px rgba(31, 37, 35, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 22px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.68rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- form ---------- */
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 14px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+  }
+  .field.full {
+    grid-column: 1 / -1;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  label.field-label .req {
+    color: var(--accent);
+    margin-left: 3px;
+  }
+  input[type="date"],
+  input[type="number"],
+  select {
+    width: 100%;
+    min-height: 46px;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 11px 13px;
+  }
+  input:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .field-hint {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 7px 0 0;
+  }
+  .form-note {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 16px 0 0;
+    display: flex;
+    gap: 7px;
+    align-items: flex-start;
+  }
+  .form-note svg {
+    flex: none;
+    width: 15px;
+    height: 15px;
+    margin-top: 2px;
+    color: var(--accent);
+  }
+  .inline-error {
+    color: #a3341f;
+    background: #fbeae5;
+    border: 1px solid #f0cabf;
+    border-radius: 10px;
+    padding: 10px 13px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 14px 0 0;
+    display: none;
+  }
+  .inline-error.show {
+    display: block;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 46px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- disclaimer banner (always visible) ---------- */
+  .disclaimer {
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 12px;
+    padding: 13px 15px;
+    margin-bottom: 18px;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    color: #6f4a17;
+  }
+  .disclaimer strong {
+    color: var(--warn);
+  }
+  .disclaimer .basis {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: #86663a;
+    font-weight: 600;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 22px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* stat row */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .stat {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 12px;
+    padding: 13px 12px;
+    text-align: center;
+  }
+  .stat .k {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    font-weight: 700;
+    margin: 0 0 5px;
+  }
+  .stat .v {
+    font-size: 1.32rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin: 0;
+    line-height: 1.2;
+  }
+  .stat .u {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+
+  /* method cards */
+  .rcard {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 16px 18px;
+    margin-bottom: 16px;
+    background: #fff;
+  }
+  .rcard-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 4px;
+  }
+  .badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: var(--accent);
+    padding: 3px 9px;
+    border-radius: 6px;
+    flex: none;
+  }
+  .badge.b {
+    background: var(--ink-soft);
+  }
+  .rcard-head h3 {
+    margin: 0;
+    font-size: 1.06rem;
+    font-weight: 800;
+  }
+  .rcard-lead {
+    margin: 0 0 14px;
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+  }
+  .big-num {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 4px 0 12px;
+  }
+  .big-num .n {
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    line-height: 1;
+  }
+  .big-num .n.muted {
+    color: var(--ink-soft);
+  }
+  .big-num .cap {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  .kv {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .kv li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.92rem;
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 8px;
+  }
+  .kv li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .kv .lab {
+    color: var(--ink-soft);
+    flex: 1 1 auto;
+  }
+  .kv .val {
+    color: var(--ink);
+    font-weight: 700;
+    text-align: right;
+    flex: none;
+  }
+  .kv .val em {
+    font-style: normal;
+    color: var(--accent-strong);
+  }
+
+  .stage-tag {
+    display: inline-block;
+    margin: 2px 0 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 4px 10px;
+    border-radius: 7px;
+  }
+
+  /* table */
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 6px;
+  }
+  table.leave-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 340px;
+    font-size: 0.9rem;
+  }
+  table.leave-table th,
+  table.leave-table td {
+    text-align: center;
+    padding: 9px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  table.leave-table thead th {
+    background: #f1f5f3;
+    font-weight: 800;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+  }
+  table.leave-table tbody tr.grow td {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  table.leave-table td.days {
+    font-weight: 800;
+  }
+
+  .note-box {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    background: #f1f5f3;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: 14px;
+    line-height: 1.62;
+  }
+  .note-box strong {
+    color: var(--accent-strong);
+  }
+  .warn-box {
+    font-size: 0.9rem;
+    color: #6f4a17;
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: 14px;
+    line-height: 1.62;
+  }
+  .warn-box strong {
+    color: var(--warn);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #22302c;
+    color: #eef3f1;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.85rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 37, 35, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    width: 100%;
+    min-height: 150px;
+    overflow-y: auto;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    resize: vertical;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  footer.foot p {
+    margin: 0 0 10px;
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .field-grid {
+      grid-template-columns: 1fr;
+    }
+    .stat-row {
+      grid-template-columns: 1fr;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .big-num .n {
+      font-size: 1.8rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #action-panel .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">노무 계산 · 근로기준법 제60조</span>
+    <h1>연차휴가 계산기 (2방식 + 주휴수당)</h1>
+    <p class="lede">
+      입사일만 넣으면 <strong>입사일 기준</strong>과 <strong>회계연도 기준</strong>
+      두 방식의 연차 발생일수를 한 번에 계산합니다. 발생·소멸 시점과 주휴수당까지
+      함께 확인하세요.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>정보 입력</h2>
+    </div>
+    <p class="panel-sub">
+      입사일은 필수입니다. 나머지는 회사 상황에 맞게 조정하세요. 주휴수당은 주
+      소정근로시간과 시급을 넣으면 계산됩니다.
+    </p>
+
+    <div class="field-grid">
+      <div class="field">
+        <label class="field-label" for="hire">입사일<span class="req">*</span></label>
+        <input type="date" id="hire" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="asof">기준일 (계산 시점)</label>
+        <input type="date" id="asof" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="fiscal">회계연도 시작 월</label>
+        <select id="fiscal">
+          <option value="1" selected>1월 (매년 1/1 기준)</option>
+          <option value="2">2월</option>
+          <option value="3">3월</option>
+          <option value="4">4월</option>
+          <option value="5">5월</option>
+          <option value="6">6월</option>
+          <option value="7">7월</option>
+          <option value="8">8월</option>
+          <option value="9">9월</option>
+          <option value="10">10월</option>
+          <option value="11">11월</option>
+          <option value="12">12월</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label" for="weekhours">주 소정근로시간</label>
+        <input type="number" id="weekhours" min="0" max="68" step="0.5" value="40" />
+        <p class="field-hint">주휴수당 판정용 (통상 주 40시간).</p>
+      </div>
+      <div class="field full">
+        <label class="field-label" for="wage">시급 (원, 선택)</label>
+        <input type="number" id="wage" min="0" step="10" placeholder="예) 10030" />
+        <p class="field-hint">입력 시 주휴수당 금액까지 계산합니다. 비워도 됩니다.</p>
+      </div>
+    </div>
+
+    <p class="inline-error" id="err" role="alert"></p>
+
+    <p class="form-note">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M12 2a10 10 0 100 20 10 10 0 000-20z" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 8v0.01M11 12h1v4h1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>입력값은 이 브라우저 안에서만 계산되며, 서버나 외부로 전송되지 않습니다.</span>
+    </p>
+  </section>
+
+  <section class="panel" id="action-panel">
+    <div class="actions">
+      <button class="btn-primary" id="calc">연차 계산하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>계산 결과</h2>
+    </div>
+
+    <!-- 상시 면책 고지 배너 -->
+    <div class="disclaimer" role="note">
+      <strong>참고용 안내:</strong> 본 도구는 일반 정보 제공용 참고 자료이며 법적
+      효력이 있는 의견이 아닙니다. 개별 사안의 최종 판단은 공인노무사·세무사·변호사
+      등 전문가 상담이 필요합니다.
+      <span class="basis">
+        표시 수치·법조항 기준 시점: 2026년 7월 · 대한민국 근로기준법 기준 (구체적
+        수치·판례·행정해석은 별도 확인 필요).
+      </span>
+    </div>
+
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">＋</div>
+        <p><strong>아직 계산 전입니다.</strong></p>
+        <p>입사일을 입력하고 '연차 계산하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 대한민국 <em>근로기준법</em> 제60조(연차
+      유급휴가) 제1·2·4·7항, 제61조(연차 사용 촉진), 제55조(휴일) 및 시행령
+      제30조(주휴일), 제18조 제3항(초단시간 근로자 적용 제외), 제49조(임금채권
+      소멸시효). 1년 미만 연차와 1년차 연차의 병행 발생(2018년 개정) 및 1년 미만
+      연차의 사용기한(2020. 3. 31. 시행 제60조 제7항)을 반영했습니다.
+    </p>
+    <p>
+      이 도구는 연차·주휴 판단을 돕는 계산 보조 도구이며, 확정된 법적 의견을 대신
+      내려 주지 않습니다. 실제 부여·정산은 회사 취업규칙과 개별 근로계약, 최신
+      행정해석에 따라 달라질 수 있으니 결과는 검토 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  var DAY = 86400000;
+
+  // ---------- date helpers ----------
+  function parseInput(v) {
+    if (!v) return null;
+    var p = v.split("-");
+    if (p.length !== 3) return null;
+    var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    if (isNaN(d.getTime())) return null;
+    return d;
+  }
+  function toInputValue(d) {
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+  function fmtK(d) {
+    return d.getFullYear() + "년 " + (d.getMonth() + 1) + "월 " + d.getDate() + "일";
+  }
+  function addYears(d, n) {
+    return new Date(d.getFullYear() + n, d.getMonth(), d.getDate());
+  }
+  function diffDays(a, b) {
+    // whole days from a to b
+    return Math.round((b.getTime() - a.getTime()) / DAY);
+  }
+  // calendar breakdown from -> to (assumes to >= from)
+  function ymd(from, to) {
+    var y = to.getFullYear() - from.getFullYear();
+    var m = to.getMonth() - from.getMonth();
+    var d = to.getDate() - from.getDate();
+    if (d < 0) {
+      m -= 1;
+      var prevLen = new Date(to.getFullYear(), to.getMonth(), 0).getDate();
+      d += prevLen;
+    }
+    if (m < 0) {
+      y -= 1;
+      m += 12;
+    }
+    return { y: y, m: m, d: d };
+  }
+
+  // ---------- leave rules (근로기준법 제60조) ----------
+  // 만 근속연수 y(>=1)에 대한 연차 일수: 기본 15일, 3년 이상부터 매 2년 +1일, 최대 25일
+  function annualDaysForYear(y) {
+    if (y < 1) return 0;
+    var add = Math.floor((y - 1) / 2);
+    if (add < 0) add = 0;
+    return Math.min(15 + add, 25);
+  }
+
+  function won(n) {
+    return Math.round(n).toLocaleString("ko-KR");
+  }
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // ---------- init defaults ----------
+  var hireEl = document.getElementById("hire");
+  var asofEl = document.getElementById("asof");
+  var fiscalEl = document.getElementById("fiscal");
+  var weekEl = document.getElementById("weekhours");
+  var wageEl = document.getElementById("wage");
+  var errEl = document.getElementById("err");
+  var resultEl = document.getElementById("result");
+
+  asofEl.value = toInputValue(new Date());
+
+  function showErr(msg) {
+    errEl.textContent = msg;
+    errEl.classList.add("show");
+  }
+  function clearErr() {
+    errEl.textContent = "";
+    errEl.classList.remove("show");
+  }
+
+  var lastPrompt = "";
+
+  // ---------- core computation ----------
+  function compute() {
+    clearErr();
+    var hire = parseInput(hireEl.value);
+    var asof = parseInput(asofEl.value) || new Date();
+    if (!hire) {
+      showErr("입사일을 입력해 주세요.");
+      hireEl.focus();
+      return;
+    }
+    if (asof < hire) {
+      showErr("기준일이 입사일보다 빠릅니다. 날짜를 확인해 주세요.");
+      return;
+    }
+
+    var fsm = Number(fiscalEl.value) || 1;
+    var weekHours = parseFloat(weekEl.value);
+    if (isNaN(weekHours) || weekHours < 0) weekHours = 0;
+    var wage = parseFloat(wageEl.value);
+    if (isNaN(wage) || wage < 0) wage = 0;
+
+    var span = ymd(hire, asof);
+    var totalMonths = span.y * 12 + span.m;
+    var underOneYear = span.y < 1;
+
+    // ----- Method A: 입사일 기준 -----
+    var A = {};
+    A.monthly = Math.min(11, totalMonths); // 1년 미만 월 개근 연차 (최대 11)
+    A.oneYearExpire = addYears(hire, 1); // 입사 1주년 = 월차 사용기한
+    if (underOneYear) {
+      A.mode = "under";
+      A.current = A.monthly;
+    } else {
+      A.mode = "over";
+      A.serviceYears = span.y; // 만 근속연수
+      A.annual = annualDaysForYear(span.y);
+      A.vestDate = addYears(hire, span.y); // 직전 입사기념일 = 이번 연차 발생일
+      A.expireDate = addYears(hire, span.y + 1); // 다음 입사기념일 = 소멸일
+      A.current = A.annual;
+    }
+
+    // 향후 연차 progression 표 (근속연수 -> 연차)
+    var milestones = [1, 2, 3, 4, 5, 10, 15, 20, 21];
+    A.table = milestones.map(function (yy) {
+      return { y: yy, days: annualDaysForYear(yy) };
+    });
+
+    // ----- Method B: 회계연도 기준 -----
+    var B = {};
+    var thisYearFS = new Date(hire.getFullYear(), fsm - 1, 1);
+    var nextFS =
+      hire.getTime() >= thisYearFS.getTime()
+        ? new Date(hire.getFullYear() + 1, fsm - 1, 1)
+        : new Date(hire.getFullYear(), fsm - 1, 1);
+    var firstFYEnd = new Date(nextFS.getTime() - DAY); // 첫 회계연도 말일
+    var daysFirst = diffDays(hire, firstFYEnd) + 1; // 입사일~회계말일 재직일수(inclusive)
+    B.nextFS = nextFS;
+    B.firstFYEnd = firstFYEnd;
+    B.daysFirst = daysFirst;
+    B.propRaw = (15 * daysFirst) / 365;
+    B.prop = Math.round(B.propRaw * 10) / 10;
+    // 현재 기준일이 어느 회계연도 단계인지
+    var secondFSEnd = new Date(nextFS.getFullYear() + 1, fsm - 1, 1); // 둘째 회계연도 시작 = 셋째 시작 아님
+    if (asof < nextFS) {
+      B.stage = "first"; // 입사 부분 회계연도
+    } else if (asof < secondFSEnd) {
+      B.stage = "second"; // 비례연차 사용 회계연도
+    } else {
+      B.stage = "later";
+      // 후속 회계연도 연차: 기본 15 + 가산(입사일 기준 근속연수 적용 권장)
+      B.laterDays = annualDaysForYear(span.y < 1 ? 1 : span.y);
+    }
+
+    // ----- 주휴수당 (근로기준법 제55조 / 시행령 제30조 / 제18조3항) -----
+    var W = {};
+    W.hours = weekHours;
+    W.eligible = weekHours >= 15;
+    if (W.eligible) {
+      var payHours = (Math.min(weekHours, 40) / 40) * 8; // 주휴시간 = 1일 소정근로 상당
+      W.payHours = Math.round(payHours * 100) / 100;
+      if (wage > 0) {
+        W.weeklyPay = payHours * wage;
+        W.monthlyPay = W.weeklyPay * (365 / 12 / 7); // 월 평균 약 4.345주
+      }
+    }
+    W.wage = wage;
+
+    render({
+      hire: hire,
+      asof: asof,
+      span: span,
+      underOneYear: underOneYear,
+      fsm: fsm,
+      A: A,
+      B: B,
+      W: W,
+    });
+  }
+
+  // ---------- render ----------
+  function render(m) {
+    var A = m.A,
+      B = m.B,
+      W = m.W;
+    var span = m.span;
+    var svc = span.y + "년 " + span.m + "개월 " + span.d + "일";
+
+    var html = "";
+
+    // stat row
+    var aCurrentLabel = m.underOneYear ? "월 개근 연차(누적)" : "올해 연차(입사일 기준)";
+    var juhyuStat = W.eligible
+      ? W.wage > 0
+        ? won(W.weeklyPay) + "<span class='u'>원/주</span>"
+        : W.payHours + "<span class='u'>시간/주</span>"
+      : "미적용";
+    html += '<div class="stat-row">';
+    html += '<div class="stat"><p class="k">근속기간</p><p class="v">' + esc(span.y + "년 " + span.m + "개월") + "</p></div>";
+    html += '<div class="stat"><p class="k">' + aCurrentLabel + '</p><p class="v">' + A.current + '<span class="u">일</span></p></div>';
+    html += '<div class="stat"><p class="k">주휴수당</p><p class="v">' + juhyuStat + "</p></div>";
+    html += "</div>";
+
+    html += '<ul class="kv" style="margin-bottom:18px">';
+    html += '<li><span class="lab">입사일</span><span class="val">' + esc(fmtK(m.hire)) + "</span></li>";
+    html += '<li><span class="lab">기준일</span><span class="val">' + esc(fmtK(m.asof)) + "</span></li>";
+    html += '<li><span class="lab">근속기간</span><span class="val"><em>' + esc(svc) + "</em></span></li>";
+    html += "</ul>";
+
+    // ---- Method A ----
+    html += '<div class="rcard">';
+    html += '<div class="rcard-head"><span class="badge">방식 A</span><h3>입사일 기준</h3></div>';
+    html += '<p class="rcard-lead">개인 입사일을 기준으로 매년 갱신하는 원칙적 방식입니다.</p>';
+
+    if (m.underOneYear) {
+      html += '<span class="stage-tag">현재 단계 · 입사 1년 미만</span>';
+      html += '<div class="big-num"><span class="n">' + A.monthly + '</span><span class="cap">일 발생 (최대 11일)</span></div>';
+      html += '<ul class="kv">';
+      html += '<li><span class="lab">규정</span><span class="val">1개월 개근 시 1일 (제60조 제2항)</span></li>';
+      html += '<li><span class="lab">현재 발생</span><span class="val"><em>' + A.monthly + "일</em> / 최대 11일</span></li>";
+      html += '<li><span class="lab">만 1년 도달 시</span><span class="val">15일 별도 발생 (제60조 제1항)</span></li>';
+      html += '<li><span class="lab">월차 사용기한</span><span class="val">' + esc(fmtK(A.oneYearExpire)) + " (입사 1주년)</span></li>";
+      html += "</ul>";
+      html +=
+        '<div class="note-box"><strong>1년 미만 + 1년차 병행:</strong> 2018년 개정으로, 입사 첫 해에 받은 월 개근 연차(최대 11일)는 만 1년 시점의 15일과 별개입니다. 따라서 입사 초기 2년간 최대 <strong>26일</strong>을 쓸 수 있습니다. 다만 1년 미만 월차는 입사 1주년까지 쓰지 않으면 소멸됩니다(제60조 제7항, 2020. 3. 31. 시행).</div>';
+    } else {
+      html += '<span class="stage-tag">현재 단계 · 만 ' + A.serviceYears + "년차</span>";
+      html += '<div class="big-num"><span class="n">' + A.annual + '</span><span class="cap">일 (올해 사용 가능)</span></div>';
+      html += '<ul class="kv">';
+      html += '<li><span class="lab">산정</span><span class="val">기본 15일 + 가산 ' + (A.annual - 15) + "일</span></li>";
+      html += '<li><span class="lab">발생일 (직전 입사기념일)</span><span class="val">' + esc(fmtK(A.vestDate)) + "</span></li>";
+      html += '<li><span class="lab">소멸일 (사용기한)</span><span class="val"><em>' + esc(fmtK(A.expireDate)) + "</em></span></li>";
+      html += '<li><span class="lab">가산 규정</span><span class="val">3년 이상부터 2년마다 +1일 (제60조 제4항)</span></li>';
+      html += "</ul>";
+      html +=
+        '<div class="note-box"><strong>소멸·수당:</strong> 발생일로부터 1년간 미사용 시 소멸됩니다(제60조 제7항). 사용자가 연차 사용 촉진(제61조) 조치를 제대로 하지 않았다면 미사용분은 <strong>연차미사용수당</strong>으로 지급해야 하며, 이 수당은 임금이므로 청구권 소멸시효는 3년입니다(제49조).</div>';
+    }
+
+    // progression table
+    html += '<div class="result-block-title" style="margin-top:18px">근속연수별 연차 (가산 포함)</div>';
+    html += '<div class="table-scroll"><table class="leave-table">';
+    html += "<thead><tr><th>근속</th><th>연차 일수</th><th>가산</th></tr></thead><tbody>";
+    A.table.forEach(function (row) {
+      var isNow = !m.underOneYear && row.y === A.serviceYears;
+      var add = row.days - 15;
+      html +=
+        '<tr class="' + (add > 0 ? "grow" : "") + '">' +
+        "<td>만 " + row.y + "년" + (isNow ? " (현재)" : "") + "</td>" +
+        '<td class="days">' + row.days + "일</td>" +
+        "<td>" + (add > 0 ? "+" + add + "일" : "-") + "</td>" +
+        "</tr>";
+    });
+    html += "</tbody></table></div>";
+    html += '<div class="note-box">가산은 만 3년차 16일부터 2년마다 1일씩 늘어 <strong>만 21년차에 25일로 상한</strong>에 도달합니다.</div>';
+    html += "</div>"; // rcard A
+
+    // ---- Method B ----
+    html += '<div class="rcard">';
+    html += '<div class="rcard-head"><span class="badge b">방식 B</span><h3>회계연도 기준 (비례)</h3></div>';
+    html +=
+      '<p class="rcard-lead">노무 관리 편의상 전 직원의 연차 기산일을 회계연도(' +
+      m.fsm +
+      "월 " +
+      (m.fsm === 1 ? "1일" : "1일") +
+      ")로 통일하는 방식입니다.</p>";
+
+    var stageLabel =
+      B.stage === "first"
+        ? "현재 단계 · 입사 부분 회계연도"
+        : B.stage === "second"
+        ? "현재 단계 · 비례연차 사용 회계연도"
+        : "현재 단계 · 정상 회계연도";
+    html += '<span class="stage-tag">' + stageLabel + "</span>";
+
+    html += '<div class="big-num"><span class="n muted">' + B.prop + '</span><span class="cap">일 · 입사 첫 해 비례연차</span></div>';
+
+    html += '<ul class="kv">';
+    html += '<li><span class="lab">첫 회계연도 재직</span><span class="val">' + esc(fmtK(m.hire)) + " ~ " + esc(fmtK(B.firstFYEnd)) + "</span></li>";
+    html += '<li><span class="lab">재직일수</span><span class="val">' + B.daysFirst + "일</span></li>";
+    html += '<li><span class="lab">비례연차 계산</span><span class="val"><em>15 × (' + B.daysFirst + " ÷ 365) = " + B.prop + "일</em></span></li>";
+    html += '<li><span class="lab">비례연차 부여 시점</span><span class="val">' + esc(fmtK(B.nextFS)) + " (다음 회계연도)</span></li>";
+    html += '<li><span class="lab">1년 미만 월차</span><span class="val">최대 11일 (입사일 기준, 방식 공통)</span></li>";
+    if (B.stage === "later") {
+      html += '<li><span class="lab">이번 회계연도 연차</span><span class="val"><em>' + B.laterDays + "일</em> (기본 15 + 가산 " + (B.laterDays - 15) + ")</span></li>";
+    } else {
+      html += '<li><span class="lab">다음 회계연도부터</span><span class="val">15일 (+ 근속 가산)</span></li>";
+    }
+    html += "</ul>";
+
+    html +=
+      '<div class="warn-box"><strong>퇴직 시 재정산 주의:</strong> 회계연도 방식이 입사일 기준보다 근로자에게 <strong>불리하면 안 됩니다.</strong> 고용노동부 행정해석상 퇴직 시점에 입사일 기준으로 다시 계산해, 더 많은 쪽으로 정산(연차 또는 미사용수당)해야 합니다. 비례연차의 소수점 처리(올림/반올림)와 가산 기산도 회사 취업규칙에 따라 달라지므로 규정을 확인하세요.</div>';
+    html += "</div>"; // rcard B
+
+    // ---- 주휴수당 ----
+    html += '<div class="rcard">';
+    html += '<div class="rcard-head"><span class="badge">주휴수당</span><h3>주휴수당 (제55조)</h3></div>';
+    if (!W.eligible) {
+      html +=
+        '<div class="warn-box"><strong>주휴수당 미적용 (초단시간):</strong> 4주 평균 1주 소정근로시간이 <strong>15시간 미만</strong>인 근로자에게는 주휴일(제55조)과 연차 유급휴가(제60조)가 적용되지 않습니다(제18조 제3항). 현재 입력값은 주 ' +
+        esc(String(W.hours)) +
+        "시간입니다.</div>";
+    } else {
+      html += '<p class="rcard-lead">1주 소정근로시간이 15시간 이상이고 그 주를 개근하면 유급 주휴일이 발생합니다.</p>';
+      html += '<ul class="kv">';
+      html += '<li><span class="lab">주 소정근로시간</span><span class="val">' + esc(String(W.hours)) + "시간</span></li>";
+      html += '<li><span class="lab">주휴 시간</span><span class="val"><em>' + W.payHours + "시간</em> (= min(주,40)÷40 × 8)</span></li>";
+      if (W.wage > 0) {
+        html += '<li><span class="lab">주휴수당 (1주)</span><span class="val"><em>' + won(W.weeklyPay) + "원</em></span></li>";
+        html += '<li><span class="lab">월 환산 (약 4.345주)</span><span class="val">' + won(W.monthlyPay) + "원</span></li>";
+      } else {
+        html += '<li><span class="lab">주휴수당 금액</span><span class="val">시급 입력 시 계산</span></li>";
+      }
+      html += "</ul>";
+      html +=
+        '<div class="note-box"><strong>참고:</strong> 위 금액은 시급제·단시간 근로자 기준 계산입니다. 월급제는 통상 월 급여에 주휴수당이 이미 포함되어 있어 별도로 더하지 않습니다. 개근 요건을 채우지 못한 주는 주휴수당이 발생하지 않습니다.</div>';
+    }
+    html += "</div>"; // rcard 주휴
+
+    // ---- AI prompt ----
+    lastPrompt = buildPrompt(m);
+    html += '<div class="result-block-title">심화: 노무 검토용 AI 프롬프트</div>';
+    html += '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 계산을 바탕으로 연차·주휴 쟁점을 더 자세히 검토해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    document.getElementById("result-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // ---------- prompt builder ----------
+  function buildPrompt(m) {
+    var A = m.A,
+      B = m.B,
+      W = m.W;
+    var L = [];
+    L.push("당신은 대한민국 근로기준법에 정통한 공인노무사 수준의 노무 어시스턴트입니다.");
+    L.push("아래 근로자의 연차 유급휴가와 주휴수당을 검토해, 법적 근거(법명+조항)와 실무 액션 중심으로 정리해 주세요.");
+    L.push("");
+    L.push("【기본 정보】");
+    L.push("- 입사일: " + fmtK(m.hire));
+    L.push("- 기준일: " + fmtK(m.asof));
+    L.push("- 근속기간: " + m.span.y + "년 " + m.span.m + "개월 " + m.span.d + "일");
+    L.push("- 회계연도 시작 월: " + m.fsm + "월");
+    L.push("- 주 소정근로시간: " + W.hours + "시간" + (W.wage > 0 ? " / 시급 " + won(W.wage) + "원" : ""));
+    L.push("");
+    L.push("【자가 계산 결과】");
+    if (m.underOneYear) {
+      L.push("- 입사일 기준: 1년 미만, 월 개근 연차 현재 " + A.monthly + "일 발생(최대 11일), 만 1년 시 15일 별도");
+    } else {
+      L.push("- 입사일 기준: 만 " + A.serviceYears + "년차, 올해 연차 " + A.annual + "일 (발생 " + fmtK(A.vestDate) + " / 소멸 " + fmtK(A.expireDate) + ")");
+    }
+    L.push("- 회계연도 기준: 입사 첫 해 비례연차 15 × (" + B.daysFirst + "/365) = " + B.prop + "일, 부여 시점 " + fmtK(B.nextFS));
+    if (W.eligible) {
+      L.push("- 주휴수당: 주휴 " + W.payHours + "시간" + (W.wage > 0 ? " = " + won(W.weeklyPay) + "원/주" : ""));
+    } else {
+      L.push("- 주휴수당: 초단시간(주 15시간 미만)으로 주휴·연차 미적용 가능성");
+    }
+    L.push("");
+    L.push("【요청 사항】");
+    L.push("1. 위 두 방식(입사일 기준 / 회계연도 기준) 연차 일수와 발생·소멸 시점을 근로기준법 제60조에 근거해 검증해 주세요.");
+    L.push("2. 회계연도 방식이 입사일 기준보다 근로자에게 불리해지지 않는지, 퇴직 시 재정산 관점에서 점검해 주세요.");
+    L.push("3. 연차 사용 촉진(제61조) 미이행 시 미사용수당 지급 의무와 소멸시효(제49조, 3년)를 정리해 주세요.");
+    L.push("4. 주휴수당 발생 요건(제55조·시행령 제30조)과 초단시간 제외(제18조 제3항) 해당 여부를 확인해 주세요.");
+    L.push("5. 최저임금·요율 등 매년 바뀌는 수치나 최신 판례·행정해석이 필요한 부분은 '확인 필요'로 명시하고, 추측으로 조항이나 숫자를 지어내지 마세요.");
+    L.push("6. 마지막에 전문가(공인노무사) 대면 상담이 필요한 쟁점이 있으면 별도로 표시해 주세요.");
+    return L.join("\n");
+  }
+
+  // ---------- events ----------
+  document.getElementById("calc").addEventListener("click", compute);
+  document.getElementById("reset").addEventListener("click", function () {
+    clearErr();
+    hireEl.value = "";
+    asofEl.value = toInputValue(new Date());
+    fiscalEl.value = "1";
+    weekEl.value = "40";
+    wageEl.value = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">＋</div>' +
+      "<p><strong>아직 계산 전입니다.</strong></p>" +
+      "<p>입사일을 입력하고 '연차 계산하기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    hireEl.focus();
+  });
+  // Enter on inputs triggers calc
+  [hireEl, asofEl, weekEl, wageEl].forEach(function (el) {
+    el.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") compute();
+    });
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn) printBtn.addEventListener("click", function () { window.print(); });
+  }
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () { if (s) s.textContent = ""; }, 2600);
+  }
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () { flashStatus("복사되었습니다"); },
+        function () { legacyCopy(text); }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    if (ok) flashStatus("복사되었습니다");
+    else openModal(text);
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () { modalText.focus(); modalText.select(); }, 60);
+  }
+  function closeModal() { modal.classList.remove("open"); }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

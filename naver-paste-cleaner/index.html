@@ -1,0 +1,1403 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>네이버 붙여넣기 정제기</title>
+<meta
+  name="description"
+  content="스마트에디터에 붙이면 깨지는 #, **, - 같은 마크다운 기호를 순수 문단으로 정리하고, 제목·소제목 같은 구조 지시는 별도로 분리해 드립니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2f7a68;
+    --accent-strong: #245f52;
+    --accent-tint: #e8f3f0;
+    --accent-tint-2: #d3e7e1;
+    --ink: #1e2422;
+    --ink-soft: #43504b;
+    --ink-mute: #66716b;
+    --paper: #f5f8f7;
+    --card: #ffffff;
+    --line: #e2e8e5;
+    --line-strong: #cdd7d3;
+    --good: #2f7a68;
+    --good-tint: #e6f2ee;
+    --shadow: 0 1px 2px rgba(30, 36, 34, 0.05), 0 6px 20px rgba(30, 36, 34, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 150px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.62;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa8a2;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  .opt-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .opt {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    cursor: pointer;
+    user-select: none;
+  }
+  .opt input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex: none;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 18px 17px;
+    margin-bottom: 14px;
+    border: 1px solid var(--accent-tint-2);
+    background: var(--accent-tint);
+  }
+  .verdict.clean {
+    background: var(--good-tint);
+    border-color: #cbe4db;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+    color: var(--accent-strong);
+  }
+  .verdict.clean .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 2px;
+  }
+  .chip {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: #fff;
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 999px;
+    padding: 5px 11px;
+  }
+  .chip b {
+    color: var(--accent);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* directive list */
+  .dir-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .dir-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fff;
+  }
+  .dir-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    margin-bottom: 5px;
+  }
+  .dir-label {
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 6px;
+    padding: 3px 9px;
+    flex: none;
+  }
+  .dir-snippet {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ink);
+    min-width: 0;
+  }
+  .dir-action {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+
+  .mini-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fbfdfc;
+    padding: 12px 14px;
+    margin-top: 11px;
+  }
+  .mc-title {
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin: 0 0 5px;
+  }
+  .mc-body {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .mc-links {
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .mc-note {
+    margin: 7px 0 0;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+  }
+
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cbe4db;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* output box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23302c;
+    color: #eef4f1;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.9rem;
+    line-height: 1.66;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  pre.prompt.small {
+    font-size: 0.84rem;
+    background: #2a2f2d;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: var(--accent-strong);
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 36, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">네이버 발행 · 붙여넣기 정제</span>
+    <h1>네이버 붙여넣기 정제기</h1>
+    <p class="lede">
+      챗봇이나 마크다운으로 쓴 초안을 스마트에디터에 그대로 붙이면 #, **, -,
+      &gt; 기호가 글자로 깨져 나옵니다. 그 기호를 순수 문단으로 정리하고,
+      제목·소제목·인용구 같은 구조 지시는 따로 뽑아 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>초안 붙여넣기</h2>
+    </div>
+    <p class="panel-sub">
+      마크다운으로 작성했거나 AI가 만들어 준 글을 그대로 붙여넣으세요. 제목(#),
+      굵게(**), 목록(-), 인용(&gt;), 링크, 이미지, 표, 구분선을 감지합니다.
+    </p>
+    <label class="field-label" for="doc">마크다운 초안</label>
+    <textarea
+      id="doc"
+      placeholder="예)
+# 큰 제목
+**핵심 문장**을 여기에 적습니다.
+
+## 소제목
+- 목록 항목 1
+- 목록 항목 2
+
+&gt; 인용하고 싶은 한 줄
+
+자세한 내용은 [안내 링크](https://example.com)에서 확인하세요."
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버나 외부 API 호출이
+      전혀 없습니다.
+    </p>
+
+    <div class="opt-row">
+      <label class="opt">
+        <input type="checkbox" id="optMiddot" checked />
+        목록의 <b>-</b> 기호를 가운뎃점(·)으로 바꾸기
+      </label>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="cleanBtn">정제하기</button>
+      <button class="btn-ghost" id="exampleBtn">예시 채우기</button>
+      <button class="btn-ghost" id="resetBtn">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>정제 결과</h2>
+    </div>
+    <p class="sr-only" id="announce" role="status" aria-live="polite"></p>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◍</div>
+        <p><strong>아직 정제 전입니다.</strong></p>
+        <p>초안을 붙여넣고 '정제하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 네이버 스마트에디터 ONE에는
+      마크다운·HTML 입력구가 없어 <code>#</code>, <code>**</code>,
+      <code>-</code>, <code>&gt;</code> 기호가 그대로 글자로 표시됩니다(가인지
+      naver-blog-post-builder 스킬의 네이버 발행 표준 2026, 절대 규칙 1). 그래서
+      붙여넣을 본문은 순수 문단으로 정리하고, 인용구·소제목·구분선·표 같은 구조는
+      별도 지시로 분리해 사람이 에디터에서 스타일을 적용하도록 돕는 것이 표준
+      절차입니다.
+    </p>
+    <p>
+      이 도구는 기호를 정리하고 구조를 짚어 주는 보조 도구이며, 글의 품질·SEO를
+      대신 판단하지 않습니다. 발행 전 두괄식·메인키워드·대표사진은 직접
+      확인하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ===== helpers =====
+  function byId(id) {
+    return document.getElementById(id);
+  }
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function clip(s, n) {
+    s = String(s);
+    n = n || 64;
+    return s.length > n ? s.slice(0, n - 1) + "…" : s;
+  }
+
+  // ===== inline markdown stripping =====
+  // Removes inline markers, keeps plain text, and records bold phrases / links / images.
+  function processInline(text, acc) {
+    // images: ![alt](url)  -> removed from body (uploaded separately in Naver)
+    text = text.replace(
+      /!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g,
+      function (m, alt) {
+        acc.images.push(alt || "이미지");
+        acc.counts.image++;
+        return "";
+      }
+    );
+    // links: [text](url) -> keep text, record url
+    text = text.replace(
+      /\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g,
+      function (m, t, url) {
+        acc.links.push({ text: t, url: url });
+        acc.counts.link++;
+        return t;
+      }
+    );
+    // inline code: `code` -> code
+    text = text.replace(/`([^`]+)`/g, function (m, c) {
+      acc.counts.inlinecode++;
+      return c;
+    });
+    // bold: **t** or __t__ -> t (record phrase)
+    text = text.replace(/(\*\*|__)([^\n]+?)\1/g, function (m, mk, t) {
+      acc.bolds.push(t.trim());
+      acc.counts.bold++;
+      return t;
+    });
+    // strikethrough: ~~t~~ -> t
+    text = text.replace(/~~([^\n]+?)~~/g, function (m, t) {
+      acc.counts.strike++;
+      return t;
+    });
+    // italic: *t* -> t
+    text = text.replace(/\*([^*\n]+?)\*/g, function (m, t) {
+      acc.counts.italic++;
+      return t;
+    });
+    // italic: _t_ with word boundaries -> t (avoids snake_case)
+    text = text.replace(
+      /(^|[^A-Za-z0-9_])_([^_\n]+?)_(?![A-Za-z0-9_])/g,
+      function (m, pre, t) {
+        acc.counts.italic++;
+        return pre + t;
+      }
+    );
+    return text;
+  }
+
+  // ===== block-level parse =====
+  function cleanNaver(md, opts) {
+    var acc = {
+      bolds: [],
+      links: [],
+      images: [],
+      counts: {
+        heading: 0,
+        bold: 0,
+        italic: 0,
+        quote: 0,
+        ul: 0,
+        ol: 0,
+        hr: 0,
+        link: 0,
+        image: 0,
+        code: 0,
+        table: 0,
+        strike: 0,
+        inlinecode: 0,
+      },
+    };
+    var lines = md.replace(/\r\n?/g, "\n").split("\n");
+    var out = [];
+    var directives = [];
+    var inFence = false;
+    var curList = null,
+      curOl = null,
+      curTable = null,
+      curFence = null;
+
+    for (var i = 0; i < lines.length; i++) {
+      var raw = lines[i];
+
+      // fenced code block ``` or ~~~
+      var mFence = raw.match(/^\s*(```|~~~)/);
+      if (mFence) {
+        if (!inFence) {
+          inFence = true;
+          acc.counts.code++;
+          curFence = { kind: "code", rows: 0 };
+          directives.push(curFence);
+        } else {
+          inFence = false;
+          curFence = null;
+        }
+        curList = curOl = curTable = null;
+        continue; // drop the fence line itself
+      }
+      if (inFence) {
+        out.push(raw);
+        if (curFence) curFence.rows++;
+        continue;
+      }
+
+      // horizontal rule: ---, ***, ___ (3+), possibly spaced
+      if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(raw)) {
+        acc.counts.hr++;
+        directives.push({ kind: "hr" });
+        out.push("");
+        curList = curOl = curTable = null;
+        continue;
+      }
+
+      // table rows (2+ pipes). separator rows are dropped.
+      var hasPipes = raw.indexOf("|") >= 0 && raw.split("|").length >= 3;
+      var isSep =
+        hasPipes && /^\s*\|?[\s:]*-{2,}[\s:|+-]*\|?\s*$/.test(raw);
+      if (isSep) {
+        continue; // drop |---|---| separator
+      }
+      if (hasPipes) {
+        if (!curTable) {
+          curTable = { kind: "table", rows: 0 };
+          directives.push(curTable);
+          acc.counts.table++;
+        }
+        curTable.rows++;
+        var cells = raw
+          .replace(/^\s*\|/, "")
+          .replace(/\|\s*$/, "")
+          .split("|")
+          .map(function (c) {
+            return processInline(c.trim(), acc);
+          });
+        out.push(cells.join("  ·  "));
+        curList = curOl = null;
+        continue;
+      } else {
+        curTable = null;
+      }
+
+      // ATX heading
+      var mH = raw.match(/^\s*(#{1,6})\s+(.*?)\s*#*\s*$/);
+      if (mH) {
+        var lvl = mH[1].length;
+        var ht = processInline(mH[2], acc);
+        acc.counts.heading++;
+        directives.push({ kind: "heading", level: lvl, text: ht });
+        out.push(ht);
+        curList = curOl = curTable = null;
+        continue;
+      }
+
+      // blockquote
+      var mQ = raw.match(/^\s*>+\s?(.*)$/);
+      if (mQ) {
+        var qt = processInline(mQ[1], acc);
+        acc.counts.quote++;
+        directives.push({ kind: "quote", text: qt });
+        out.push(qt);
+        curList = curOl = curTable = null;
+        continue;
+      }
+
+      // unordered list item
+      var mU = raw.match(/^\s*[-*+]\s+(.*)$/);
+      if (mU) {
+        var ut = processInline(mU[1], acc);
+        acc.counts.ul++;
+        if (!curList) {
+          curList = { kind: "ul", items: 0 };
+          directives.push(curList);
+        }
+        curList.items++;
+        out.push(opts.middot ? "· " + ut : ut);
+        curOl = curTable = null;
+        continue;
+      } else {
+        curList = null;
+      }
+
+      // ordered list item
+      var mO = raw.match(/^\s*(\d+)[.)]\s+(.*)$/);
+      if (mO) {
+        var ot = processInline(mO[2], acc);
+        acc.counts.ol++;
+        if (!curOl) {
+          curOl = { kind: "ol", items: 0 };
+          directives.push(curOl);
+        }
+        curOl.items++;
+        out.push(mO[1] + ". " + ot);
+        curTable = null;
+        continue;
+      } else {
+        curOl = null;
+      }
+
+      // plain paragraph (blank lines pass through as paragraph breaks)
+      var pt = processInline(raw, acc);
+      out.push(pt);
+      curList = curOl = curTable = null;
+    }
+
+    // pending images become placement directives (order-agnostic)
+    for (var k = 0; k < acc.images.length; k++) {
+      directives.push({ kind: "image", text: acc.images[k] });
+    }
+
+    var body = out
+      .join("\n")
+      .replace(/[ \t]+\n/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .replace(/^\n+/, "")
+      .replace(/\n+$/, "");
+
+    return { body: body, directives: directives, acc: acc };
+  }
+
+  // ===== directive presentation =====
+  function headingLabel(lvl) {
+    if (lvl === 1) return "대제목 (가장 큰 제목 스타일)";
+    if (lvl === 2) return "소제목 · 제목2 스타일";
+    return "소제목 · 제목3 스타일";
+  }
+
+  function describe(d, opts) {
+    // returns {label, snippet, action}
+    if (d.kind === "heading") {
+      return {
+        label: headingLabel(d.level),
+        snippet: "「" + clip(d.text, 46) + "」",
+        action: "이 줄을 선택해 위 제목 스타일을 적용하세요.",
+      };
+    }
+    if (d.kind === "quote") {
+      return {
+        label: "인용구",
+        snippet: "「" + clip(d.text, 46) + "」",
+        action: "이 줄에 인용구 스타일을 적용하세요.",
+      };
+    }
+    if (d.kind === "hr") {
+      return {
+        label: "구분선",
+        snippet: "",
+        action: "이 위치에 스마트에디터 구분선을 넣으세요.",
+      };
+    }
+    if (d.kind === "ul") {
+      return {
+        label: "목록",
+        snippet: d.items + "개 항목",
+        action: opts.middot
+          ? "각 줄이 목록 항목입니다. 앞의 가운뎃점(·)을 그대로 두거나 ONE 목록 서식을 적용하세요."
+          : "각 줄이 목록 항목입니다. 필요하면 ONE 목록 서식을 적용하세요.",
+      };
+    }
+    if (d.kind === "ol") {
+      return {
+        label: "번호 목록",
+        snippet: d.items + "개 항목",
+        action: "번호가 매겨진 목록입니다. 숫자는 그대로 두어도 됩니다.",
+      };
+    }
+    if (d.kind === "table") {
+      return {
+        label: "표",
+        snippet: d.rows + "행",
+        action:
+          "붙여넣은 표 텍스트는 임시입니다. ONE 표 기능으로 다시 만드세요.",
+      };
+    }
+    if (d.kind === "code") {
+      return {
+        label: "코드/인용 블록",
+        snippet: d.rows + "줄",
+        action: "ONE 인용구 또는 코드블록 스타일로 감싸세요.",
+      };
+    }
+    if (d.kind === "image") {
+      return {
+        label: "사진 삽입 위치",
+        snippet: d.text ? "「" + clip(d.text, 40) + "」" : "이미지",
+        action: "본문에 준비한 사진을 이 흐름에 맞춰 올리세요(원본 사진 우선).",
+      };
+    }
+    return { label: "기타", snippet: "", action: "" };
+  }
+
+  var LABELS = {
+    heading: "제목/소제목",
+    bold: "굵게",
+    italic: "기울임",
+    quote: "인용구",
+    ul: "목록",
+    ol: "번호목록",
+    hr: "구분선",
+    link: "링크",
+    image: "이미지",
+    code: "코드블록",
+    table: "표",
+    strike: "취소선",
+    inlinecode: "인라인코드",
+  };
+  var CHIP_ORDER = [
+    "heading",
+    "bold",
+    "italic",
+    "strike",
+    "quote",
+    "ul",
+    "ol",
+    "hr",
+    "table",
+    "code",
+    "inlinecode",
+    "link",
+    "image",
+  ];
+
+  // ===== state =====
+  var G = { body: "", dir: "", prompt: "" };
+
+  var doc = byId("doc");
+  var resultEl = byId("result");
+  var announce = byId("announce");
+  var optMiddot = byId("optMiddot");
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  doc.addEventListener("input", function () {
+    grow(doc);
+  });
+
+  function buildDirectiveText(directives, acc, opts) {
+    var out = [];
+    var n = 0;
+    directives.forEach(function (d) {
+      var info = describe(d, opts);
+      n++;
+      out.push(
+        n +
+          ". [" +
+          info.label +
+          "] " +
+          (info.snippet ? info.snippet + " " : "") +
+          "— " +
+          info.action
+      );
+    });
+    if (acc.bolds.length) {
+      out.push(
+        "[굵게] 핵심 단어 위주로 굵게: " +
+          acc.bolds
+            .slice(0, 15)
+            .map(function (b) {
+              return "「" + clip(b, 24) + "」";
+            })
+            .join(", ") +
+          (acc.bolds.length > 15 ? " 외 " + (acc.bolds.length - 15) + "곳" : "")
+      );
+    }
+    if (acc.links.length) {
+      acc.links.forEach(function (l) {
+        out.push("[링크] 「" + clip(l.text, 30) + "」 → " + l.url);
+      });
+    }
+    return out.join("\n");
+  }
+
+  function buildPrompt(body, dirText) {
+    var lines = [];
+    lines.push(
+      "당신은 네이버 블로그(스마트에디터 ONE) 발행을 돕는 에디터입니다."
+    );
+    lines.push(
+      "스마트에디터 ONE에는 마크다운 입력이 없어 #, **, -, > 기호가 글자로 그대로 보입니다. 그래서 본문은 순수 문단이어야 합니다. 아래는 그렇게 정제한 본문과 구조 지시입니다."
+    );
+    lines.push("");
+    lines.push("【정제된 본문】");
+    lines.push(body && body.trim() ? body.trim() : "(본문 없음)");
+    lines.push("");
+    lines.push("【구조 지시】");
+    lines.push(dirText && dirText.trim() ? dirText.trim() : "(구조 지시 없음)");
+    lines.push("");
+    lines.push("【요청】");
+    lines.push(
+      "1. 위 본문을 스마트에디터 ONE에 붙여넣은 뒤 적용할 단계별 발행 순서를 알려 주세요(제목/소제목 스타일, 인용구, 구분선, 사진 위치, 표, 링크)."
+    );
+    lines.push(
+      "2. 두괄식인지 점검해 주세요. 첫 문단(150자 이내)에 글의 핵심과 메인키워드가 1회 있어야 합니다. 아니라면 첫 문단을 고쳐 주세요."
+    );
+    lines.push(
+      "3. 남아 있는 마크다운 기호나 과장·최상급 표현(최고·100%·무조건 등)이 있으면 지적해 주세요."
+    );
+    lines.push(
+      "4. 메인키워드 1개를 제안하고, 제목 후보 2~3개와 대표사진으로 쓸 위치를 골라 주세요."
+    );
+    lines.push("5. 사실을 지어내지 말고, 모르면 저에게 물어 주세요.");
+    return lines.join("\n");
+  }
+
+  function render(md) {
+    if (!md.trim()) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">◍</div>' +
+        "<p><strong>붙여넣을 내용이 없습니다.</strong></p>" +
+        "<p>STEP 1에 초안을 입력한 뒤 다시 눌러 주세요.</p></div>";
+      announce.textContent = "입력이 비어 있습니다.";
+      return;
+    }
+
+    var opts = { middot: !!optMiddot.checked };
+    var res = cleanNaver(md, opts);
+    var c = res.acc.counts;
+    var total = 0;
+    CHIP_ORDER.forEach(function (k) {
+      total += c[k];
+    });
+
+    G.body = res.body;
+    G.dir = buildDirectiveText(res.directives, res.acc, opts);
+    G.prompt = buildPrompt(res.body, G.dir);
+
+    var html = "";
+
+    // verdict
+    if (total === 0) {
+      html += '<div class="verdict clean">';
+      html += '<p class="verdict-label">정제 완료</p>';
+      html += '<p class="verdict-title">이미 깨끗한 문단입니다</p>';
+      html +=
+        '<p class="verdict-desc">마크다운 기호가 감지되지 않았습니다. 아래 본문을 그대로 스마트에디터에 붙여넣으면 됩니다.</p>';
+      html += "</div>";
+    } else {
+      html += '<div class="verdict">';
+      html += '<p class="verdict-label">정제 완료</p>';
+      html +=
+        '<p class="verdict-title">마크다운 기호 ' +
+        total +
+        "곳을 정리했습니다</p>";
+      html +=
+        '<p class="verdict-desc">아래 정제된 본문을 붙여넣고, 구조 지시대로 제목·인용구·구분선·사진을 스마트에디터에서 적용하세요.</p>';
+
+      // chips
+      html += '<div class="chips">';
+      CHIP_ORDER.forEach(function (k) {
+        if (c[k] > 0) {
+          html +=
+            '<span class="chip">' +
+            esc(LABELS[k]) +
+            " <b>" +
+            c[k] +
+            "</b></span>";
+        }
+      });
+      html += "</div>";
+      html += "</div>";
+    }
+
+    // cleaned body
+    html += '<div class="result-block-title">정제된 본문 (그대로 붙여넣기)</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">기호가 제거된 순수 문단입니다. 이 텍스트를 스마트에디터 ONE 본문에 붙여넣으세요.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="bodyText">' + esc(res.body) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBodyBtn">본문 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyBodyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // structure directives
+    html +=
+      '<div class="result-block-title">구조 지시 (스마트에디터에서 적용)</div>';
+    var hasDir =
+      res.directives.length > 0 ||
+      res.acc.bolds.length > 0 ||
+      res.acc.links.length > 0;
+    if (!hasDir) {
+      html +=
+        '<p class="clean-note">별도 구조 지시가 없습니다. 순수 문단만 있어 그대로 붙여넣으면 됩니다.</p>';
+    } else {
+      if (res.directives.length) {
+        html += '<ol class="dir-list">';
+        res.directives.forEach(function (d) {
+          var info = describe(d, opts);
+          html += '<li class="dir-item">';
+          html += '<div class="dir-head"><span class="dir-label">';
+          html += esc(info.label) + "</span>";
+          if (info.snippet)
+            html += '<span class="dir-snippet">' + esc(info.snippet) + "</span>";
+          html += "</div>";
+          html += '<p class="dir-action">' + esc(info.action) + "</p>";
+          html += "</li>";
+        });
+        html += "</ol>";
+      }
+
+      // consolidated bold
+      if (res.acc.bolds.length) {
+        html += '<div class="mini-card">';
+        html += '<p class="mc-title">굵게 처리</p>';
+        html +=
+          '<p class="mc-body">문장 전체가 아니라 핵심 단어 위주로 굵게 지정하세요: ' +
+          res.acc.bolds
+            .slice(0, 12)
+            .map(function (b) {
+              return "「" + esc(clip(b, 24)) + "」";
+            })
+            .join(", ") +
+          (res.acc.bolds.length > 12
+            ? " 외 " + (res.acc.bolds.length - 12) + "곳"
+            : "") +
+          "</p>";
+        html += "</div>";
+      }
+
+      // consolidated links
+      if (res.acc.links.length) {
+        html += '<div class="mini-card">';
+        html += '<p class="mc-title">링크 연결</p>';
+        html += '<ul class="mc-links">';
+        res.acc.links.forEach(function (l) {
+          html +=
+            "<li>「" +
+            esc(clip(l.text, 30)) +
+            "」 → " +
+            esc(clip(l.url, 60)) +
+            "</li>";
+        });
+        html += "</ul>";
+        html +=
+          '<p class="mc-note">해당 문구를 선택해 ONE에서 링크를 거세요. 원문 URL 텍스트를 그대로 노출하는 것보다 낫습니다.</p>';
+        html += "</div>";
+      }
+    }
+
+    // copy directives
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyDirBtn">구조 지시 복사</button>';
+    html +=
+      '<span class="copy-status" id="copyDirStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // AI prompt
+    html +=
+      '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">이 정제 결과를 ChatGPT·Claude 등에 붙여넣으면 발행 순서 안내, 두괄식 점검, 메인키워드·제목 후보를 함께 잡아 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt small" id="promptText">' + esc(G.prompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPromptBtn">프롬프트 복사</button>';
+    html +=
+      '<span class="copy-status" id="copyPromptStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    announce.textContent =
+      total === 0
+        ? "정제 완료. 마크다운 기호가 없습니다."
+        : "정제 완료. 마크다운 기호 " +
+          total +
+          "곳을 정리하고 구조 지시 " +
+          res.directives.length +
+          "건을 분리했습니다.";
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // ===== buttons =====
+  byId("cleanBtn").addEventListener("click", function () {
+    render(doc.value);
+  });
+
+  byId("resetBtn").addEventListener("click", function () {
+    doc.value = "";
+    grow(doc);
+    G = { body: "", dir: "", prompt: "" };
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◍</div>' +
+      "<p><strong>아직 정제 전입니다.</strong></p>" +
+      "<p>초안을 붙여넣고 '정제하기'를 누르세요.</p></div>";
+    announce.textContent = "초기화되었습니다.";
+    byId("input-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    doc.focus();
+  });
+
+  byId("exampleBtn").addEventListener("click", function () {
+    doc.value = EXAMPLE;
+    grow(doc);
+    render(doc.value);
+  });
+
+  // ===== copy (3-tier fallback) =====
+  function wireResultButtons() {
+    var b1 = byId("copyBodyBtn");
+    var b2 = byId("copyDirBtn");
+    var b3 = byId("copyPromptBtn");
+    var pr = byId("printBtn");
+    if (b1)
+      b1.addEventListener("click", function () {
+        copyText(G.body, byId("copyBodyStatus"));
+      });
+    if (b2)
+      b2.addEventListener("click", function () {
+        copyText(G.dir, byId("copyDirStatus"));
+      });
+    if (b3)
+      b3.addEventListener("click", function () {
+        copyText(G.prompt, byId("copyPromptStatus"));
+      });
+    if (pr)
+      pr.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flash(statusEl, msg) {
+    if (!statusEl) return;
+    statusEl.textContent = msg;
+    setTimeout(function () {
+      if (statusEl) statusEl.textContent = "";
+    }, 2600);
+  }
+
+  function copyText(text, statusEl) {
+    if (!text) {
+      flash(statusEl, "복사할 내용이 없습니다");
+      return;
+    }
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flash(statusEl, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusEl);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusEl);
+  }
+
+  function legacyCopy(text, statusEl) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flash(statusEl, "복사되었습니다");
+    } else {
+      openModal(text); // tier 3: manual modal
+    }
+  }
+
+  // ===== manual modal =====
+  var modal = byId("modal");
+  var modalText = byId("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  byId("modal-close").addEventListener("click", closeModal);
+  byId("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // ===== example draft =====
+  var EXAMPLE =
+    "# 2026 소상공인 온라인 마케팅 시작하기\n" +
+    "\n" +
+    "온라인 마케팅이 막막하다면 이 글 하나로 정리하세요. **핵심은 하나의 메인키워드에 집중**하는 것입니다.\n" +
+    "\n" +
+    "## 왜 네이버 블로그인가\n" +
+    "\n" +
+    "- 검색 유입이 꾸준하다\n" +
+    "- 콘텐츠가 자산으로 쌓인다\n" +
+    "- 비용이 거의 들지 않는다\n" +
+    "\n" +
+    "> 블로그는 광고가 아니라 신뢰를 쌓는 공간입니다.\n" +
+    "\n" +
+    "## 시작 전 체크리스트\n" +
+    "\n" +
+    "1. 메인키워드 정하기\n" +
+    "2. 제목 앞부분에 키워드 배치\n" +
+    "3. 대표사진 준비\n" +
+    "\n" +
+    "자세한 가이드는 [공식 안내](https://example.com)에서 확인하세요.\n" +
+    "\n" +
+    "![워크숍 현장 사진](workshop.jpg)\n" +
+    "\n" +
+    "---\n" +
+    "\n" +
+    "이제 실제로 첫 글을 써 볼 차례입니다. 오늘 배운 것을 `실행`으로 옮겨 보세요.\n";
+</script>

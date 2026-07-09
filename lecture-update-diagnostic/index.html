@@ -1,0 +1,1438 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>강의안·자료 최신화 진단 프롬프트</title>
+<meta
+  name="description"
+  content="재사용 중인 강의안을 넣으면 검증 실패한 주장·낡은 통계·식상한 사례를 골라 교체·현행화하는 프롬프트를 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    /* calm teal — clarity, verification, freshness */
+    --accent: #217c70;
+    --accent-strong: #175f55;
+    --accent-tint: #e7f3f0;
+    --accent-tint-2: #cfe6e0;
+
+    --warn: #b4531e;
+    --warn-strong: #8f3f14;
+    --warn-tint: #fbeadf;
+    --amber: #8a6413;
+    --amber-tint: #fbf1d9;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+
+    --ink: #21241f;
+    --ink-soft: #464a43;
+    --ink-mute: #6a6e66;
+    --paper: #f7f9f7;
+    --card: #ffffff;
+    --line: #e2e6de;
+    --line-strong: #cfd5c9;
+    --shadow: 0 1px 2px rgba(30, 40, 30, 0.05),
+      0 6px 20px rgba(30, 40, 30, 0.06);
+
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 0 0 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 150px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: var(--ink);
+    background: #fbfdfb;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea.short {
+    min-height: 64px;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa298;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-block + .field-block {
+    margin-top: 16px;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    min-height: 46px;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 170px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .input-note {
+    font-size: 0.86rem;
+    color: var(--warn-strong);
+    font-weight: 600;
+    margin: 12px 0 0;
+    min-height: 1.2em;
+  }
+
+  /* ---------- result / empty ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* verdict */
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-clean {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict.tone-low {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-mid {
+    background: var(--amber-tint);
+    border-color: #eddcb4;
+  }
+  .verdict.tone-high {
+    background: var(--warn-tint);
+    border-color: #f0d5c1;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.34rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-clean .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-low .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-mid .verdict-title {
+    color: #7a5910;
+  }
+  .verdict.tone-high .verdict-title {
+    color: var(--warn-strong);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  /* stat tiles */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 16px 0 4px;
+  }
+  .stat {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 11px 8px 10px;
+    text-align: center;
+  }
+  .stat .num {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+  .stat .lbl {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin-top: 3px;
+    line-height: 1.3;
+  }
+  .stat.c-A .num {
+    color: var(--warn-strong);
+  }
+  .stat.c-B .num {
+    color: var(--amber);
+  }
+  .stat.c-C .num {
+    color: var(--accent-strong);
+  }
+  .stat.c-D .num {
+    color: var(--good);
+  }
+  .stat.dim .num {
+    color: var(--ink-mute);
+  }
+  .stat-meta {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+    font-weight: 600;
+  }
+
+  /* category groups */
+  .cat-group {
+    margin-top: 22px;
+  }
+  .cat-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 4px;
+  }
+  .cat-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 3px;
+    flex: none;
+    background: var(--dotc, var(--accent));
+  }
+  .cat-name {
+    font-size: 1.02rem;
+    font-weight: 800;
+    margin: 0;
+  }
+  .cat-count {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+  }
+  .cat-desc {
+    font-size: 0.88rem;
+    color: var(--ink-mute);
+    margin: 0 0 12px 20px;
+  }
+  .cat-A {
+    --dotc: var(--warn);
+  }
+  .cat-B {
+    --dotc: var(--amber);
+  }
+  .cat-C {
+    --dotc: var(--accent);
+  }
+  .cat-D {
+    --dotc: var(--good);
+  }
+
+  .find-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .find {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--dotc, var(--accent));
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fbfdfb;
+  }
+  .find-text {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .find-text mark {
+    background: var(--accent-tint-2);
+    color: var(--ink);
+    border-radius: 3px;
+    padding: 0 2px;
+    font-weight: 600;
+  }
+  .cat-A .find-text mark {
+    background: #f6d8c6;
+  }
+  .cat-B .find-text mark {
+    background: #f3e4bb;
+  }
+  .cat-D .find-text mark {
+    background: #cfe4d8;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .chip {
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .cat-A .chip {
+    background: var(--warn-tint);
+    color: var(--warn-strong);
+  }
+  .cat-B .chip {
+    background: var(--amber-tint);
+    color: var(--amber);
+  }
+  .cat-D .chip {
+    background: var(--good-tint);
+    color: var(--good);
+  }
+  .find-action {
+    margin: 10px 0 0;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 7px;
+    align-items: baseline;
+  }
+  .find-action .verb {
+    flex: none;
+    font-weight: 800;
+    color: var(--dotc, var(--accent));
+  }
+
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 26px 0 10px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23272a;
+    color: #f1f0ea;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(25, 30, 25, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .stat-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .stat .num {
+      font-size: 1.35rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">강의안 리프레시 · 최신화 진단</span>
+    <h1>강의안·자료 최신화 진단 프롬프트</h1>
+    <p class="lede">
+      몇 년째 재사용 중인 그 강의안, 지금도 유효한가요? 검증 실패한 주장, 낡은
+      통계, 식상한 사례를 문장 단위로 짚어 내고, 교체·현행화까지 이어 줄 AI
+      프롬프트를 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>진단할 강의안 붙여넣기</h2>
+    </div>
+    <p class="panel-sub">
+      강의안·발표 스크립트·교안의 본문을 붙여넣으세요. 문장 단위로 최신화
+      후보를 자동으로 표시합니다. 슬라이드 제목·불릿·설명 문장 모두 좋습니다.
+    </p>
+
+    <div class="field-block">
+      <label class="field-label" for="doc">강의안 원문</label>
+      <textarea
+        id="doc"
+        aria-describedby="doc-hint"
+        placeholder="예) 2018년 한 하버드 연구에 따르면 3%만 목표를 종이에 적었다고 합니다.&#10;최근 노키아 사례처럼, 변화에 적응하지 못한 기업은 결국 무너집니다.&#10;리더십의 본질은 시대가 변해도 변하지 않습니다."
+      ></textarea>
+      <p class="field-hint" id="doc-hint">
+        입력한 내용은 이 브라우저 안에서만 처리되며 외부로 전송되지 않습니다.
+        서버·외부 API 호출이 전혀 없습니다.
+      </p>
+    </div>
+
+    <div class="field-block">
+      <label class="field-label" for="ctx">강의 맥락 (선택)</label>
+      <textarea
+        class="short"
+        id="ctx"
+        placeholder="예) 주제: 신입 리더십 / 청중: 제조 중간관리자 / 마지막 개정: 2021년"
+      ></textarea>
+      <p class="field-hint">
+        주제·청중·마지막 개정 시점을 적으면, 아래 프롬프트가 그 맥락에 맞춘
+        교체 방향을 요청합니다.
+      </p>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="diagnose">최신화 진단하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+    <p class="input-note" id="inputNote" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>진단 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◷</div>
+        <p><strong>아직 진단 전입니다.</strong></p>
+        <p>강의안을 붙여넣고 '최신화 진단하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 강의안 리프레시 3축 방법론(신뢰도
+      점검 · 시대성 갱신 · 현 시점 재해석)과 강사 톤 보존 원칙에 따릅니다.
+      감지 사전은 재현·검증에 실패했거나 원전이 확인되지 않는 것으로 널리
+      알려진 통념(예: 예일·하버드 목표설정 연구, 메라비언 7-38-55의 오용,
+      좌뇌·우뇌형 구분, 학습 피라미드 수치, 1만 시간의 법칙, 마시멜로 실험의
+      재현 실패), 시간이 지나면 어긋나는 상대 시점·연도·수치 표현, 반복 노출로
+      신선도가 낮아진 사례를 기준으로 삼습니다.
+    </p>
+    <p>
+      이 도구는 최신화가 필요할 수 있는 <strong>후보</strong>를 기계적으로
+      표시하는 사고 보조 도구이며, 사실 여부를 확정하지 않습니다. 실제 교체와
+      1차 출처 확인은 사용자가 판단하세요. 감지되지 않은 낡은 자료도 있을 수
+      있습니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  var NOW_YEAR = 2026;
+
+  /* ============================================================
+     감지 사전 — 근거: 강의안 리프레시 3축(신뢰도·시대성·재해석)
+     각 항목은 "최신화 후보" 신호일 뿐, 사실 판정이 아니다.
+     ============================================================ */
+
+  // 카테고리 A: 검증 실패 위험 (신뢰도 점검)
+  //  - 원전이 확인되지 않거나 재현/검증에 실패한 것으로 널리 알려진 통념
+  var A_MYTHS = [
+    { keys: ["예일", "목표"], label: "예일대 목표설정 연구(도시전설)" },
+    { keys: ["하버드", "목표"], label: "하버드 목표설정 연구(원전 미확인)" },
+    { keys: ["메라비언"], label: "메라비언 법칙 오용(조건 일반화)" },
+    { keys: ["좌뇌", "우뇌"], label: "좌뇌·우뇌형 성격 구분(속설)" },
+    { keys: ["1만", "시간"], label: "1만 시간의 법칙(단순화)" },
+    { keys: ["만 시간의 법칙"], label: "1만 시간의 법칙(단순화)" },
+    { keys: ["마시멜로"], label: "마시멜로 실험(재현 실패)" },
+    { keys: ["학습", "피라미드"], label: "학습 피라미드(수치 조작)" },
+    { keys: ["데일", "원추"], label: "데일의 경험 원추(수치 조작)" },
+    { keys: ["뇌", "10%"], label: "뇌의 10%만 사용(속설)" },
+    { keys: ["에모토"], label: "물 결정 실험(유사과학)" },
+    { keys: ["깨진", "유리창"], label: "깨진 유리창 이론(논쟁적)" }
+  ];
+  // A: 유명인 명언 귀속(오인용이 흔함)
+  var A_QUOTE_NAMES = [
+    "아인슈타인",
+    "간디",
+    "링컨",
+    "처칠",
+    "만델라",
+    "소크라테스",
+    "공자",
+    "드러커",
+    "마크 트웨인",
+    "마더 테레사"
+  ];
+  var A_QUOTE_MARK = ["말했", "말씀", "명언", "라고 했", "라고 말", "한 말"];
+  // A: 출처 불명 권위 인용
+  var A_VAGUE = [
+    "라고 한다",
+    "라고 알려져",
+    "라고 전해",
+    "라는 말이 있",
+    "카더라",
+    "전문가들은",
+    "전문가에 따르면",
+    "학자들은",
+    "심리학자",
+    "과학자들은",
+    "연구자들은",
+    "한 연구에 따르면",
+    "연구에 따르면",
+    "어떤 연구",
+    "연구에 의하면",
+    "연구 결과에 따르면",
+    "조사에 따르면",
+    "통계에 따르면",
+    "설문에 따르면",
+    "많은 사람들이",
+    "대부분의 사람",
+    "다들 알",
+    "누구나 알"
+  ];
+
+  // 카테고리 B: 낡은 통계·시대 종속 (시대성 갱신)
+  var B_RELTIME = [
+    "최근",
+    "요즘",
+    "근래",
+    "오늘날",
+    "올해",
+    "작년",
+    "재작년",
+    "지난해",
+    "얼마 전",
+    "요즈음",
+    "근자에",
+    "이번 해"
+  ];
+  var B_ERA = [
+    "코로나",
+    "팬데믹",
+    "언택트",
+    "포스트코로나",
+    "포스트 코로나",
+    "메타버스",
+    "NFT",
+    "챗GPT",
+    "ChatGPT",
+    "4차 산업혁명",
+    "빅데이터 시대",
+    "웹3",
+    "web3",
+    "긱 이코노미",
+    "가상화폐 열풍"
+  ];
+  var B_SUPER = [
+    "세계 최대",
+    "세계 1위",
+    "국내 1위",
+    "업계 1위",
+    "시장 점유율",
+    "점유율",
+    "세계 최고의",
+    "부동의 1위"
+  ];
+
+  // 카테고리 C: 식상한 사례 (교체 검토)
+  var C_CASES = [
+    "노키아",
+    "코닥",
+    "블록버스터",
+    "블랙베리",
+    "야후",
+    "마이스페이스",
+    "토이저러스",
+    "스티브 잡스",
+    "일론 머스크",
+    "빌 게이츠",
+    "저커버그",
+    "마윈",
+    "우버",
+    "에어비앤비",
+    "에디슨",
+    "커넬 샌더스",
+    "샌더스",
+    "조앤 롤링",
+    "해리포터"
+  ];
+
+  // 카테고리 D: 시대 무관 본질 (재해석 부착)
+  var D_ESSENCE = [
+    "본질",
+    "원칙",
+    "불변",
+    "변하지 않",
+    "시대를 초월",
+    "근본 원리",
+    "철학"
+  ];
+
+  var ORDER = { A: 0, B: 1, C: 2, D: 3 };
+  var WEIGHT = { A: 3, B: 2, C: 2, D: 0 };
+
+  var CAT = {
+    A: {
+      name: "검증 실패 위험",
+      cls: "cat-A",
+      verb: "교체",
+      desc: "출처가 의심스럽거나, 널리 퍼진 통념·오인용일 수 있는 주장",
+      action: "1차 자료를 추적하고, 확인되지 않으면 검증된 근거로 교체하세요."
+    },
+    B: {
+      name: "낡은 통계·시대 종속",
+      cls: "cat-B",
+      verb: "갱신",
+      desc: "시간이 지나면 어긋나는 수치·연도·상대 시점·시기 종속 트렌드어",
+      action: "현 시점 최신 수치로 갱신하고 출처·기준일을 함께 표기하세요."
+    },
+    C: {
+      name: "식상한 사례",
+      cls: "cat-C",
+      verb: "교체",
+      desc: "여러 강의에서 반복돼 청중이 이미 아는 사례",
+      action:
+        "덜 알려진 최신 사례로 교체하거나, 익숙한 사례라도 신선한 각도로 재구성하세요."
+    },
+    D: {
+      name: "시대 무관 본질",
+      cls: "cat-D",
+      verb: "재해석",
+      desc: "시대가 변해도 유효한 원칙·본질 — 교체가 아니라 재해석 대상",
+      action:
+        "교체하지 말고, 현 시점 관점의 재해석을 덧붙여 강화하세요(본질 보존)."
+    }
+  };
+
+  /* ---------- 유틸 ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // 텍스트를 진단 단위(문장/불릿)로 분리
+  function splitUnits(text) {
+    var out = [];
+    text.split(/\n+/).forEach(function (line) {
+      var t = line.trim();
+      if (!t) return;
+      // 문장 종결부호 뒤에서 추가 분리
+      var parts = t.split(/(?<=[.!?。])\s+/);
+      parts.forEach(function (p) {
+        var q = p.trim();
+        if (q.length >= 2) out.push(q);
+      });
+    });
+    return out;
+  }
+
+  /* ---------- 단위별 감지 ---------- */
+  function detect(unit) {
+    var lc = unit.toLowerCase();
+    var signals = []; // {cat, label}
+    var tokens = []; // 하이라이트할 실제 부분 문자열
+
+    function hasKo(t) {
+      return unit.indexOf(t) !== -1;
+    }
+    function hasCi(t) {
+      return lc.indexOf(t.toLowerCase()) !== -1;
+    }
+    function push(cat, label, tok) {
+      signals.push({ cat: cat, label: label });
+      if (tok) tokens.push(tok);
+    }
+
+    // A: 통념/도시전설 (AND 키워드)
+    A_MYTHS.forEach(function (m) {
+      var all = m.keys.every(function (k) {
+        return unit.indexOf(k) !== -1;
+      });
+      if (all) {
+        push("A", m.label);
+        m.keys.forEach(function (k) {
+          tokens.push(k);
+        });
+      }
+    });
+    // A: 메라비언 수치형(7-38-55)
+    if (/7\s*[-:·%,]?\s*38\s*[-:·%,]?\s*55/.test(unit)) {
+      var mm = unit.match(/7\s*[-:·%,]?\s*38\s*[-:·%,]?\s*55/);
+      push("A", "메라비언 7-38-55 수치(오용)", mm ? mm[0] : null);
+    }
+    // A: 유명인 명언 귀속
+    var nameHit = A_QUOTE_NAMES.filter(hasKo);
+    var quoteHit = A_QUOTE_MARK.some(hasKo);
+    if (nameHit.length && quoteHit) {
+      push("A", "유명인 명언 귀속(오인용 흔함)");
+      nameHit.forEach(function (n) {
+        tokens.push(n);
+      });
+    }
+    // A: 출처 불명 권위 인용
+    A_VAGUE.forEach(function (t) {
+      if (hasKo(t)) push("A", "출처 불명 권위 인용", t);
+    });
+
+    // B: 상대 시점 표현
+    B_RELTIME.forEach(function (t) {
+      if (hasKo(t)) push("B", "상대 시점 표현('" + t + "')", t);
+    });
+    // B: 시기 종속 트렌드어
+    B_ERA.forEach(function (t) {
+      if (hasCi(t)) push("B", "시기 종속 트렌드어", t);
+    });
+    // B: 순위·최상급
+    B_SUPER.forEach(function (t) {
+      if (hasKo(t)) push("B", "시간이 지나면 틀리는 순위·최상급", t);
+    });
+    // B: 오래된 연도
+    var ym = unit.match(/(19\d\d|20[0-3]\d)\s*년?/g);
+    if (ym) {
+      ym.forEach(function (y) {
+        var yr = parseInt(y.match(/\d{4}/)[0], 10);
+        if (yr <= NOW_YEAR - 3) {
+          push(
+            "B",
+            yr + "년 데이터(" + (NOW_YEAR - yr) + "년 경과)",
+            y.trim()
+          );
+        }
+      });
+    }
+    // B: 수치·통계
+    var num = unit.match(
+      /\d[\d,\.]*\s?(%|퍼센트|억\s?원?|조\s?원?|만\s?명|천\s?명|배|달러|억\s?달러)/g
+    );
+    if (num) {
+      push("B", "수치·통계(출처·기준시점 필요)");
+      num.forEach(function (n) {
+        tokens.push(n.trim());
+      });
+    }
+
+    // C: 식상한 사례
+    C_CASES.forEach(function (t) {
+      if (hasKo(t)) push("C", "반복 노출된 식상한 사례('" + t + "')", t);
+    });
+
+    // D: 시대 무관 본질
+    D_ESSENCE.forEach(function (t) {
+      if (hasKo(t)) push("D", "시대 무관 본질 후보", t);
+    });
+
+    if (!signals.length) return null;
+
+    var primary = signals.reduce(function (a, b) {
+      return ORDER[b.cat] < ORDER[a.cat] ? b : a;
+    }).cat;
+
+    var labels = [];
+    signals.forEach(function (s) {
+      if (labels.indexOf(s.label) === -1) labels.push(s.label);
+    });
+    var cats = [];
+    signals.forEach(function (s) {
+      if (cats.indexOf(s.cat) === -1) cats.push(s.cat);
+    });
+    var utok = [];
+    tokens.forEach(function (t) {
+      if (t && utok.indexOf(t) === -1) utok.push(t);
+    });
+
+    return {
+      unit: unit,
+      primary: primary,
+      labels: labels,
+      cats: cats,
+      tokens: utok
+    };
+  }
+
+  // 안전한 하이라이트: esc 후 리터럴 토큰만 <mark> 처리
+  function highlight(unit, tokens) {
+    var html = esc(unit);
+    // 긴 토큰부터 처리해 부분 겹침 최소화
+    var sorted = tokens.slice().sort(function (a, b) {
+      return b.length - a.length;
+    });
+    sorted.forEach(function (tok) {
+      var et = esc(tok);
+      if (!et) return;
+      html = html.split(et).join("" + et + "");
+    });
+    // 플레이스홀더 -> mark (중첩 방지: 안쪽 마커 제거)
+    html = html
+      .replace(//g, "<mark>")
+      .replace(//g, "</mark>")
+      .replace(/<mark>(?:<mark>)+/g, "<mark>")
+      .replace(/(?:<\/mark>)+<\/mark>/g, "</mark>");
+    return html;
+  }
+
+  /* ---------- 밴드 판정 ---------- */
+  function bandFor(findings, counts, score) {
+    var flagged = findings.length;
+    var problems = counts.A + counts.B + counts.C;
+    if (flagged === 0) {
+      return {
+        tone: "clean",
+        label: "최신화 신호 없음",
+        title: "눈에 띄는 최신화 신호가 없습니다",
+        desc:
+          "자동 진단에서 검증·시대성 위험이 잡히지 않았습니다. 다만 안심은 금물입니다. 핵심 수치와 대표 사례는 강의 직전 1차 출처로 한 번 더 확인하세요."
+      };
+    }
+    if (score === 0) {
+      return {
+        tone: "low",
+        label: "본질 " + counts.D + "건",
+        title: "본질은 튼튼합니다 — 재해석을 더하세요",
+        desc:
+          "교체가 필요한 낡은 자료는 잡히지 않았습니다. 대신 시대 무관 본질에 현 시점 관점을 덧붙이면 같은 강의도 훨씬 생생해집니다."
+      };
+    }
+    if (score <= 5) {
+      return {
+        tone: "low",
+        label: "최신화 후보 " + problems + "건",
+        title: "부분 손질이면 충분합니다",
+        desc:
+          "골격은 살아 있고, 몇 문장만 손보면 됩니다. 아래 표시된 문장을 교체·갱신하세요."
+      };
+    }
+    if (score <= 12) {
+      return {
+        tone: "mid",
+        label: "최신화 후보 " + problems + "건",
+        title: "상당 부분 최신화가 필요합니다",
+        desc:
+          "낡은 근거와 식상한 사례가 여럿 섞여 있습니다. 아래 프롬프트로 교체·현행화 작업을 한 번에 돌리길 권합니다."
+      };
+    }
+    return {
+      tone: "high",
+      label: "최신화 후보 " + problems + "건",
+      title: "전면 최신화를 권장합니다",
+      desc:
+        "검증이 필요한 주장과 낡은 데이터가 다수 감지됐습니다. 지금 상태로 재사용하면 신뢰도에 금이 갈 수 있습니다. 근거부터 다시 세우세요."
+    };
+  }
+
+  /* ---------- 프롬프트 생성 ---------- */
+  function buildPrompt(byCat, context, flaggedCount) {
+    var L = [];
+    L.push(
+      "당신은 오래 재사용된 강의안을 '지금 강의장에서 바로 쓸 수 있는 최신판'으로 끌어올리는 강의안 리프레시 전문가입니다."
+    );
+    L.push(
+      "아래는 제 강의안에서 최신화가 필요할 수 있는 문장을 자동 진단한 결과입니다. 세 축으로 개선해 주세요: (1) 신뢰도 점검 (2) 시대성 갱신 (3) 현 시점 재해석."
+    );
+    L.push("");
+    L.push("[강의 맥락]");
+    L.push(context && context.trim() ? context.trim() : "(미입력)");
+    L.push("");
+
+    var head = {
+      A: "[검증이 필요한 주장 — 1차 자료를 추적하고, 확인 실패 시 검증된 근거로 교체]",
+      B: "[낡은 통계·시대 종속 표현 — 현 시점 최신 수치로 갱신 + 출처·기준일 표기]",
+      C: "[식상한 사례 — 덜 알려진 최신 사례로 교체하거나 신선한 각도로 재구성]",
+      D: "[시대 무관 본질 — 교체 금지, 현 시점 재해석을 덧붙여 강화]"
+    };
+    ["A", "B", "C", "D"].forEach(function (c) {
+      var arr = byCat[c];
+      if (!arr || !arr.length) return;
+      L.push(head[c]);
+      arr.forEach(function (f, i) {
+        L.push(i + 1 + ". " + f.unit);
+        if (f.labels && f.labels.length) {
+          L.push("   (감지: " + f.labels.join(" / ") + ")");
+        }
+      });
+      L.push("");
+    });
+
+    if (flaggedCount === 0) {
+      L.push("[자동 감지 결과]");
+      L.push(
+        "뚜렷한 최신화 신호는 잡히지 않았습니다. 그래도 놓친 낡은 근거·사례가 없는지 강의안 전체를 한 번 더 점검해 주세요."
+      );
+      L.push("");
+    }
+
+    L.push("[작업 규칙]");
+    L.push(
+      "- 강사 본인의 표현·톤·강의 구조는 최대한 보존하고, 사실 오류·검증 실패·시대 의존 데이터만 손대세요."
+    );
+    L.push(
+      "- 항목마다 '무엇을 → 무엇으로 → 왜' 형식의 한 줄 변경 노트를 남기세요."
+    );
+    L.push(
+      "- 근거를 지어내지 마세요(날조 금지). 최신 수치나 1차 출처를 확실히 모르면 임의로 채우지 말고, 제가 확인해야 할 항목으로 따로 모아 질문하세요."
+    );
+    L.push(
+      "- 자동 판단이 애매한 항목은 '점검 필요 — 사용자 결정 대기'로 분리해 주세요."
+    );
+    L.push(
+      "- 마지막에 '보강 후보'로, 추가하면 좋을 최신 자료·사례를 2~3개 제안하세요."
+    );
+    return L.join("\n");
+  }
+
+  /* ---------- 렌더 ---------- */
+  var doc = document.getElementById("doc");
+  var ctx = document.getElementById("ctx");
+  var resultEl = document.getElementById("result");
+  var noteEl = document.getElementById("inputNote");
+  var lastPrompt = "";
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  doc.addEventListener("input", function () {
+    grow(doc);
+    noteEl.textContent = "";
+  });
+  ctx.addEventListener("input", function () {
+    grow(ctx);
+  });
+
+  document.getElementById("diagnose").addEventListener("click", function () {
+    var text = doc.value.trim();
+    if (!text) {
+      noteEl.textContent = "먼저 진단할 강의안 내용을 붙여넣어 주세요.";
+      doc.focus();
+      return;
+    }
+    noteEl.textContent = "";
+
+    var units = splitUnits(text);
+    var findings = [];
+    units.forEach(function (u) {
+      var d = detect(u);
+      if (d) findings.push(d);
+    });
+
+    var counts = { A: 0, B: 0, C: 0, D: 0 };
+    var score = 0;
+    findings.forEach(function (f) {
+      f.cats.forEach(function (c) {
+        counts[c]++;
+      });
+      score += WEIGHT[f.primary];
+    });
+
+    var byCat = { A: [], B: [], C: [], D: [] };
+    findings.forEach(function (f) {
+      byCat[f.primary].push(f);
+    });
+
+    var band = bandFor(findings, counts, score);
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html += '<div class="stat-row">';
+    html += statTile("A", "검증 위험", counts.A);
+    html += statTile("B", "통계·시대", counts.B);
+    html += statTile("C", "식상 사례", counts.C);
+    html += statTile("D", "본질 후보", counts.D);
+    html += "</div>";
+    html +=
+      '<p class="stat-meta">총 ' +
+      units.length +
+      "개 문장 중 " +
+      findings.length +
+      "개 문장에서 최신화 후보 감지</p>";
+    html += "</div>";
+
+    if (findings.length === 0) {
+      html +=
+        '<p class="clean-note">강의안을 문장 단위로 훑었지만 사전에 등록된 위험 신호가 잡히지 않았습니다. 아래 프롬프트로 AI에 한 번 더 교차 점검을 맡겨 보세요.</p>';
+    } else {
+      ["A", "B", "C", "D"].forEach(function (c) {
+        var arr = byCat[c];
+        if (!arr.length) return;
+        var meta = CAT[c];
+        html += '<div class="cat-group ' + meta.cls + '">';
+        html += '<div class="cat-head">';
+        html += '<span class="cat-dot" aria-hidden="true"></span>';
+        html += '<p class="cat-name">' + esc(meta.name) + "</p>";
+        html += '<span class="cat-count">' + arr.length + "건</span>";
+        html += "</div>";
+        html += '<p class="cat-desc">' + esc(meta.desc) + "</p>";
+        html += '<ul class="find-list">';
+        arr.forEach(function (f) {
+          html += '<li class="find">';
+          html +=
+            '<p class="find-text">' + highlight(f.unit, f.tokens) + "</p>";
+          html += '<div class="chips">';
+          f.labels.forEach(function (lb) {
+            html += '<span class="chip">' + esc(lb) + "</span>";
+          });
+          html += "</div>";
+          html +=
+            '<p class="find-action"><span class="verb">' +
+            esc(meta.verb) +
+            '</span><span>' +
+            esc(meta.action) +
+            "</span></p>";
+          html += "</li>";
+        });
+        html += "</ul>";
+        html += "</div>";
+      });
+    }
+
+    // prompt
+    lastPrompt = buildPrompt(byCat, ctx.value, findings.length);
+    html += '<div class="result-block-title">AI에 붙여넣을 최신화 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 진단을 바탕으로 검증·갱신·재해석을 실제로 수행하고 변경 노트까지 정리해 줍니다. (강의안 원문도 함께 붙여넣으세요.)</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function statTile(cat, label, n) {
+    var dim = n === 0 ? " dim" : "";
+    return (
+      '<div class="stat c-' +
+      cat +
+      dim +
+      '"><div class="num">' +
+      n +
+      '</div><div class="lbl">' +
+      esc(label) +
+      "</div></div>"
+    );
+  }
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    doc.value = "";
+    ctx.value = "";
+    grow(doc);
+    grow(ctx);
+    noteEl.textContent = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◷</div>' +
+      "<p><strong>아직 진단 전입니다.</strong></p>" +
+      "<p>강의안을 붙여넣고 '최신화 진단하기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+    doc.focus();
+  });
+
+  /* ---------- copy (3단 폴백) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- 수동 복사 모달 ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

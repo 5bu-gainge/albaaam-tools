@@ -1,0 +1,1597 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>개인 핵심가치 우선순위 정렬기 · 가치 카드 소팅</title>
+<meta name="description" content="가치 카드 더미에서 나의 핵심가치 상위 5개를 대결 방식으로 골라 한 줄 실천 정의와 함께 정렬합니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #4a5a8f;
+    --accent-strong: #384673;
+    --accent-tint: #eef0f8;
+    --accent-tint-2: #dde2f1;
+    --ink: #21232b;
+    --ink-soft: #474b57;
+    --ink-mute: #6a6e7b;
+    --paper: #f7f8fb;
+    --card: #ffffff;
+    --line: #e4e5ec;
+    --line-strong: #d3d5e0;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warm: #a35a12;
+    --shadow: 0 1px 2px rgba(33, 35, 43, 0.05), 0 6px 20px rgba(33, 35, 43, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- deck / chips ---------- */
+  .deck {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 10px;
+  }
+  .chip {
+    font-family: inherit;
+    text-align: left;
+    background: #fbfbfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 11px 13px;
+    min-height: 46px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.05s;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .chip:hover {
+    border-color: var(--accent);
+  }
+  .chip:active {
+    transform: translateY(1px);
+  }
+  .chip[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .chip .c-ko {
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--ink);
+  }
+  .chip[aria-pressed="true"] .c-ko {
+    color: var(--accent-strong);
+  }
+  .chip .c-en {
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.01em;
+  }
+  .chip:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+  .deck.locked {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .custom-row {
+    display: flex;
+    gap: 9px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+  }
+  .custom-row input {
+    flex: 1 1 auto;
+    min-width: 140px;
+    font-family: inherit;
+    font-size: 0.96rem;
+    color: var(--ink);
+    background: #fbfbfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 11px 13px;
+  }
+  .custom-row input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  .deck-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 16px 0 2px;
+    flex-wrap: wrap;
+  }
+  .count-pill {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+  .deck-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+  }
+
+  /* ---------- buttons ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s,
+      opacity 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-primary:disabled {
+    background: #b9bdcc;
+    cursor: not-allowed;
+    opacity: 0.9;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .btn-ghost:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn-sm {
+    font-size: 0.9rem;
+    padding: 9px 15px;
+  }
+
+  /* ---------- arena ---------- */
+  .arena-idle {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 20px 12px;
+  }
+  .arena-idle .big {
+    font-size: 1.7rem;
+    margin-bottom: 6px;
+  }
+  .arena-idle p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .arena-live[hidden],
+  .arena-idle[hidden],
+  .arena-done[hidden] {
+    display: none;
+  }
+
+  .progress {
+    height: 9px;
+    border-radius: 5px;
+    background: #e7e8f0;
+    overflow: hidden;
+    margin: 2px 0 6px;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: 5px;
+    transition: width 0.25s ease;
+  }
+  .progress-cap {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .duel-q {
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.05rem;
+    margin: 4px 0 16px;
+    color: var(--ink);
+  }
+  .duel-cards {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+  }
+  .vcard {
+    flex: 1 1 0;
+    min-width: 0;
+    background: #fbfbfe;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 15px;
+    padding: 22px 14px;
+    min-height: 118px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
+    transition: border-color 0.12s, background 0.12s, transform 0.05s;
+  }
+  .vcard:hover {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .vcard:active {
+    transform: translateY(1px);
+  }
+  .vcard:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+  .vcard .v-ko {
+    font-weight: 800;
+    font-size: 1.28rem;
+    color: var(--ink);
+    line-height: 1.25;
+  }
+  .vcard .v-en {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.02em;
+  }
+  .vcard .v-key {
+    margin-top: 6px;
+    font-size: 0.72rem;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .vs {
+    flex: none;
+    align-self: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.82rem;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 3px 10px rgba(74, 90, 143, 0.35);
+  }
+  .duel-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .duel-note {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 14px 0 0;
+    text-align: center;
+  }
+
+  .arena-done .done-badge {
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--good);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .arena-done p {
+    margin: 0 0 14px;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .result-hero {
+    border-radius: 14px;
+    padding: 18px 18px;
+    margin-bottom: 20px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .result-hero .rh-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .result-hero .rh-title {
+    font-size: 1.34rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    color: var(--accent-strong);
+    line-height: 1.3;
+  }
+  .result-hero .rh-desc {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 12px;
+  }
+
+  ol.top5 {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .t5-item {
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 14px 15px;
+    background: #fbfbfe;
+  }
+  .t5-top {
+    display: flex;
+    align-items: baseline;
+    gap: 11px;
+  }
+  .t5-rank {
+    flex: none;
+    width: 27px;
+    height: 27px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.9rem;
+    display: grid;
+    place-items: center;
+  }
+  .t5-name {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--ink);
+  }
+  .t5-en {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  .t5-deflabel {
+    display: block;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 12px 0 6px;
+  }
+  textarea.t5-def {
+    width: 100%;
+    min-height: 44px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.96rem;
+    line-height: 1.55;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 12px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea.t5-def:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea.t5-def::placeholder {
+    color: #a2a6b4;
+  }
+
+  .rest-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .rest-item {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    background: #f1f2f7;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 7px 11px;
+  }
+  .rest-item b {
+    color: var(--ink-mute);
+    font-weight: 700;
+    margin-right: 5px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #24262e;
+    color: #eef0f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(33, 35, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--ink);
+    background: #fbfbfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 12px;
+    overflow-y: auto;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .duel-cards {
+      flex-direction: column;
+    }
+    .vs {
+      transform: rotate(90deg);
+    }
+    .deck {
+      grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #deck-panel,
+    #arena-panel,
+    .copy-row,
+    footer.foot .note-print {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    textarea.t5-def {
+      border: 1px solid #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">가치 정렬 · Core Values</span>
+    <h1>개인 핵심가치 우선순위 정렬기</h1>
+    <p class="lede">
+      머릿속에 흩어진 가치들을 카드로 펼치고, 둘씩 맞대어 고르다 보면 내가 진짜
+      우선하는 핵심가치 5개가 남습니다. 각 가치에 '한 줄 실천 정의'를 붙여
+      정렬해 드립니다.
+    </p>
+  </header>
+
+  <!-- STEP 1: pick the deck -->
+  <section class="panel" id="deck-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>가치 카드 고르기</h2>
+    </div>
+    <p class="panel-sub">
+      마음이 반응하는 가치를 눌러 나의 더미에 담으세요. 없는 가치는 아래에서
+      직접 추가할 수 있습니다. 상위 5개를 뽑으려면 최소 6개가 필요합니다.
+    </p>
+
+    <div class="deck" id="deck" role="group" aria-label="가치 카드 목록"></div>
+
+    <div class="custom-row">
+      <input
+        type="text"
+        id="customVal"
+        maxlength="14"
+        placeholder="직접 추가 (예: 절제, 정성)"
+        aria-label="가치 직접 추가"
+      />
+      <button class="btn-ghost btn-sm" id="addCustom" type="button">추가</button>
+    </div>
+
+    <div class="deck-meta">
+      <span class="count-pill" id="countPill">0개 선택됨</span>
+      <span class="deck-hint">6~12개를 추천합니다. 많을수록 대결이 늘어납니다.</span>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="startBtn" type="button" disabled>
+        가치를 6개 이상 골라주세요
+      </button>
+      <button class="btn-ghost" id="clearSel" type="button">선택 비우기</button>
+    </div>
+  </section>
+
+  <!-- STEP 2: duels -->
+  <section class="panel" id="arena-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>가치 카드 대결</h2>
+    </div>
+    <p class="panel-sub">
+      한 번에 두 장씩 나옵니다. '지금 나에게 더 중요한 쪽'을 고르세요. 완벽히
+      일관될 필요는 없어요, 직감으로 고르면 됩니다. 이 선택들을 쌓아 전체
+      우선순위를 계산합니다.
+    </p>
+
+    <div class="arena-idle" id="arenaIdle">
+      <div class="big" aria-hidden="true">🃏</div>
+      <p><strong>아직 대결 전입니다.</strong></p>
+      <p>STEP 1에서 가치를 고르고 '정렬 시작'을 누르세요.</p>
+    </div>
+
+    <div class="arena-live" id="arenaLive" hidden>
+      <div class="progress" role="img" aria-label="정렬 진행률">
+        <div class="progress-fill" id="progFill"></div>
+      </div>
+      <div class="progress-cap">
+        <span id="progCount">대결 0회</span>
+        <span id="progEst"></span>
+      </div>
+
+      <p class="duel-q">더 중요한 가치는?</p>
+      <div class="duel-cards">
+        <button class="vcard" id="cardA" type="button" aria-live="off">
+          <span class="v-ko"></span>
+          <span class="v-en"></span>
+          <span class="v-key" aria-hidden="true">← 또는 1</span>
+        </button>
+        <span class="vs" aria-hidden="true">VS</span>
+        <button class="vcard" id="cardB" type="button">
+          <span class="v-ko"></span>
+          <span class="v-en"></span>
+          <span class="v-key" aria-hidden="true">→ 또는 2</span>
+        </button>
+      </div>
+
+      <div class="duel-controls no-print">
+        <button class="btn-ghost btn-sm" id="undoBtn" type="button" disabled>
+          이전 대결로
+        </button>
+        <button class="btn-ghost btn-sm" id="restartBtn" type="button">
+          처음부터 다시
+        </button>
+        <button class="btn-ghost btn-sm" id="repickBtn" type="button">
+          카드 다시 고르기
+        </button>
+      </div>
+      <p class="duel-note" id="duelLive" aria-live="polite"></p>
+    </div>
+
+    <div class="arena-done" id="arenaDone" hidden>
+      <span class="done-badge">정렬 완료</span>
+      <p id="doneSummary"></p>
+      <div class="actions">
+        <button class="btn-ghost" id="redoBtn" type="button">다시 정렬하기</button>
+        <button class="btn-ghost" id="repickBtn2" type="button">
+          카드 다시 고르기
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3: result -->
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>나의 핵심가치 순위</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◔</div>
+        <p><strong>아직 결과가 없습니다.</strong></p>
+        <p>대결을 마치면 Top 5와 실천 정의가 여기에 정리됩니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 핵심가치는 '의사결정을 할 때 반드시
+      지켜야 할 원칙과 기준, 우선순위를 정해주는 행동의 약속'입니다(가인지
+      가치체계 코칭 프레임워크). 우선순위는 두 가치를 직접 맞대어 고르는
+      쌍대비교(가치 카드 대결)를 병합 정렬로 누적해 계산합니다. 실천 정의를
+      습관으로 옮길 때의 신호(Cue) &rarr; 반복 행동(Routine) &rarr;
+      보상(Reward) 3단계는 찰스 두히그(Charles Duhigg)의 습관 고리 모델을
+      따릅니다.
+    </p>
+    <p class="note-print">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버나 외부 API를
+      호출하지 않습니다.
+    </p>
+    <p>
+      이 도구는 생각을 정리하도록 돕는 보조 도구이며, 당신의 가치를 대신 정해
+      주지 않습니다. 결과는 스스로 판단할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select" type="button">전체 선택</button>
+      <button class="btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* -------------------------------------------------------------
+   * 가치 카드 덱 (일반 가치 어휘 — 개인 핵심가치 정리에 널리 쓰이는 목록)
+   * ----------------------------------------------------------- */
+  var BASE = [
+    { id: "growth", ko: "성장", en: "Growth" },
+    { id: "learning", ko: "배움", en: "Learning" },
+    { id: "challenge", ko: "도전", en: "Challenge" },
+    { id: "excellence", ko: "탁월함", en: "Excellence" },
+    { id: "achievement", ko: "성취", en: "Achievement" },
+    { id: "creativity", ko: "창의", en: "Creativity" },
+    { id: "innovation", ko: "혁신", en: "Innovation" },
+    { id: "freedom", ko: "자유", en: "Freedom" },
+    { id: "autonomy", ko: "자율", en: "Autonomy" },
+    { id: "stability", ko: "안정", en: "Stability" },
+    { id: "honesty", ko: "정직", en: "Honesty" },
+    { id: "trust", ko: "신뢰", en: "Trust" },
+    { id: "authenticity", ko: "진정성", en: "Authenticity" },
+    { id: "responsibility", ko: "책임", en: "Responsibility" },
+    { id: "diligence", ko: "성실", en: "Diligence" },
+    { id: "fairness", ko: "공정", en: "Fairness" },
+    { id: "courage", ko: "용기", en: "Courage" },
+    { id: "humility", ko: "겸손", en: "Humility" },
+    { id: "gratitude", ko: "감사", en: "Gratitude" },
+    { id: "patience", ko: "인내", en: "Patience" },
+    { id: "passion", ko: "열정", en: "Passion" },
+    { id: "wisdom", ko: "지혜", en: "Wisdom" },
+    { id: "balance", ko: "균형", en: "Balance" },
+    { id: "health", ko: "건강", en: "Health" },
+    { id: "family", ko: "가족", en: "Family" },
+    { id: "love", ko: "사랑", en: "Love" },
+    { id: "friendship", ko: "우정", en: "Friendship" },
+    { id: "connection", ko: "연결", en: "Connection" },
+    { id: "communication", ko: "소통", en: "Communication" },
+    { id: "collaboration", ko: "협력", en: "Collaboration" },
+    { id: "respect", ko: "존중", en: "Respect" },
+    { id: "care", ko: "배려", en: "Care" },
+    { id: "service", ko: "봉사", en: "Service" },
+    { id: "influence", ko: "영향력", en: "Influence" },
+    { id: "leadership", ko: "리더십", en: "Leadership" },
+    { id: "justice", ko: "정의", en: "Justice" },
+    { id: "adventure", ko: "모험", en: "Adventure" },
+    { id: "joy", ko: "즐거움", en: "Joy" },
+    { id: "order", ko: "질서", en: "Order" },
+    { id: "resilience", ko: "회복탄력성", en: "Resilience" },
+    { id: "curiosity", ko: "호기심", en: "Curiosity" },
+    { id: "focus", ko: "몰입", en: "Focus" },
+    { id: "spirituality", ko: "영성", en: "Spirituality" },
+    { id: "abundance", ko: "풍요", en: "Abundance" }
+  ];
+
+  // 대표 가치에 대한 실천 정의 예시 시드 (없으면 일반 안내)
+  var DEF_HINT = {
+    growth: "예) 매주 한 가지 새로 배우고 짧게 기록한다",
+    learning: "예) 하루 20분, 읽고 한 문장으로 남긴다",
+    challenge: "예) 분기마다 안 해본 일 하나에 손을 든다",
+    excellence: "예) 보내기 전, 한 번 더 다듬을 지점을 찾는다",
+    honesty: "예) 불편해도 사실을 먼저 말한다",
+    trust: "예) 약속한 것은 기한 안에 반드시 지킨다",
+    family: "예) 저녁 시간만큼은 알림을 끄고 함께 있는다",
+    health: "예) 주 3회, 30분 몸을 움직인다",
+    balance: "예) 일과 쉼의 경계선을 정해 지킨다",
+    autonomy: "예) 내 방식으로 결정할 여지를 먼저 확보한다",
+    freedom: "예) 얽매이는 약속은 신중히 골라 맺는다",
+    gratitude: "예) 잠들기 전 감사한 일 하나를 떠올린다"
+  };
+
+  var MIN_VALUES = 6;
+  var TOP_N = 5;
+
+  var selected = {}; // id -> true
+  var customList = []; // {id, ko, en:""}
+  var customSeq = 0;
+  var defs = {}; // value id -> practical definition
+  var mode = "select"; // select | duel | done
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function deckAll() {
+    return BASE.concat(customList);
+  }
+  function byId(id) {
+    var all = deckAll();
+    for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i];
+    return null;
+  }
+  function selectedList() {
+    return deckAll().filter(function (v) {
+      return selected[v.id];
+    });
+  }
+  function selCount() {
+    return selectedList().length;
+  }
+
+  /* ---------- render deck ---------- */
+  var deckEl = document.getElementById("deck");
+
+  function renderDeck() {
+    var all = deckAll();
+    var html = "";
+    all.forEach(function (v) {
+      var on = selected[v.id] ? "true" : "false";
+      html +=
+        '<button type="button" class="chip" data-id="' +
+        esc(v.id) +
+        '" aria-pressed="' +
+        on +
+        '">' +
+        '<span class="c-ko">' +
+        esc(v.ko) +
+        "</span>" +
+        (v.en ? '<span class="c-en">' + esc(v.en) + "</span>" : "") +
+        "</button>";
+    });
+    deckEl.innerHTML = html;
+    deckEl.classList.toggle("locked", mode === "duel");
+    updateCount();
+  }
+
+  deckEl.addEventListener("click", function (e) {
+    if (mode === "duel") return;
+    var chip = e.target.closest(".chip");
+    if (!chip) return;
+    var id = chip.dataset.id;
+    selected[id] = !selected[id];
+    chip.setAttribute("aria-pressed", selected[id] ? "true" : "false");
+    updateCount();
+  });
+
+  function updateCount() {
+    var n = selCount();
+    document.getElementById("countPill").textContent = n + "개 선택됨";
+    var btn = document.getElementById("startBtn");
+    if (mode === "duel") return;
+    if (n < MIN_VALUES) {
+      btn.disabled = true;
+      btn.textContent = "가치를 " + MIN_VALUES + "개 이상 골라주세요";
+    } else {
+      btn.disabled = false;
+      btn.textContent = "이 " + n + "개로 정렬 시작";
+    }
+  }
+
+  /* ---------- custom add ---------- */
+  var customInput = document.getElementById("customVal");
+  function addCustom() {
+    var val = customInput.value.trim();
+    if (!val) return;
+    // dedupe by ko (base + custom)
+    var exists = deckAll().some(function (v) {
+      return v.ko === val;
+    });
+    if (exists) {
+      // just select the existing one
+      var found = deckAll().filter(function (v) {
+        return v.ko === val;
+      })[0];
+      if (found) selected[found.id] = true;
+      customInput.value = "";
+      renderDeck();
+      return;
+    }
+    customSeq += 1;
+    var obj = { id: "c" + customSeq, ko: val, en: "" };
+    customList.push(obj);
+    selected[obj.id] = true;
+    customInput.value = "";
+    renderDeck();
+  }
+  document.getElementById("addCustom").addEventListener("click", addCustom);
+  customInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addCustom();
+    }
+  });
+
+  document.getElementById("clearSel").addEventListener("click", function () {
+    if (mode === "duel") return;
+    selected = {};
+    renderDeck();
+  });
+
+  /* -------------------------------------------------------------
+   * 인터랙티브 병합 정렬 (쌍대비교 comparator)
+   *   - 사용자가 두 값 중 '더 중요한' 쪽을 고른다 = comparator
+   *   - bottom-up merge sort 상태 기계로 클릭 사이에 상태를 유지
+   *   - 결과: 중요도 내림차순 정렬 배열
+   * ----------------------------------------------------------- */
+  var sorter = null;
+  var snaps = []; // undo 스냅샷 (JSON 문자열)
+
+  function buildSorter(pool) {
+    var lists = pool.map(function (v) {
+      return [v];
+    });
+    var n = pool.length;
+    return {
+      lists: lists,
+      next: [],
+      i: 0,
+      left: null,
+      right: null,
+      li: 0,
+      ri: 0,
+      merged: [],
+      current: null,
+      done: false,
+      count: 0,
+      est: Math.max(1, Math.ceil(n * Math.log2(n))),
+      result: null
+    };
+  }
+
+  function sorterAdvance() {
+    var s = sorter;
+    for (;;) {
+      if (s.left) {
+        if (s.li < s.left.length && s.ri < s.right.length) {
+          s.current = { a: s.left[s.li], b: s.right[s.ri] };
+          return;
+        }
+        // one side exhausted -> flush remainder
+        while (s.li < s.left.length) s.merged.push(s.left[s.li++]);
+        while (s.ri < s.right.length) s.merged.push(s.right[s.ri++]);
+        s.next.push(s.merged);
+        s.left = null;
+        s.right = null;
+        s.merged = [];
+        continue;
+      }
+      if (s.i + 1 < s.lists.length) {
+        s.left = s.lists[s.i];
+        s.right = s.lists[s.i + 1];
+        s.li = 0;
+        s.ri = 0;
+        s.merged = [];
+        s.i += 2;
+        continue;
+      }
+      if (s.i < s.lists.length) {
+        s.next.push(s.lists[s.i]);
+        s.i += 1;
+        continue;
+      }
+      // pass complete
+      if (s.next.length <= 1) {
+        s.done = true;
+        s.result = s.next.length === 1 ? s.next[0] : s.lists[0] || [];
+        s.current = null;
+        return;
+      }
+      s.lists = s.next;
+      s.next = [];
+      s.i = 0;
+    }
+  }
+
+  function choose(side) {
+    if (!sorter || sorter.done || !sorter.current) return;
+    // snapshot for undo (data only)
+    snaps.push(JSON.stringify(sorter));
+    if (snaps.length > 400) snaps.shift();
+    var s = sorter;
+    if (side === "a") s.merged.push(s.left[s.li++]);
+    else s.merged.push(s.right[s.ri++]);
+    s.count += 1;
+    sorterAdvance();
+    if (s.done) finishSort();
+    else renderDuel();
+  }
+
+  function undo() {
+    if (!snaps.length) return;
+    sorter = JSON.parse(snaps.pop());
+    if (mode !== "duel") {
+      mode = "duel";
+      showArena();
+    }
+    renderDuel();
+  }
+
+  /* ---------- arena rendering ---------- */
+  var arenaIdle = document.getElementById("arenaIdle");
+  var arenaLive = document.getElementById("arenaLive");
+  var arenaDone = document.getElementById("arenaDone");
+
+  function showArena() {
+    arenaIdle.hidden = mode !== "select";
+    arenaLive.hidden = mode !== "duel";
+    arenaDone.hidden = mode !== "done";
+  }
+
+  function renderDuel() {
+    var s = sorter;
+    if (!s || !s.current) return;
+    var a = s.current.a;
+    var b = s.current.b;
+    var cardA = document.getElementById("cardA");
+    var cardB = document.getElementById("cardB");
+    cardA.querySelector(".v-ko").textContent = a.ko;
+    cardA.querySelector(".v-en").textContent = a.en || "";
+    cardB.querySelector(".v-ko").textContent = b.ko;
+    cardB.querySelector(".v-en").textContent = b.en || "";
+
+    var pct = Math.min(s.count / s.est, 0.99) * 100;
+    document.getElementById("progFill").style.width = pct.toFixed(1) + "%";
+    document.getElementById("progCount").textContent = "대결 " + s.count + "회";
+    document.getElementById("progEst").textContent =
+      "예상 약 " + s.est + "회";
+    document.getElementById("undoBtn").disabled = snaps.length === 0;
+    document.getElementById("duelLive").textContent =
+      a.ko + " 와(과) " + b.ko + " 중 더 중요한 가치를 고르세요.";
+  }
+
+  document.getElementById("cardA").addEventListener("click", function () {
+    choose("a");
+  });
+  document.getElementById("cardB").addEventListener("click", function () {
+    choose("b");
+  });
+  document.getElementById("undoBtn").addEventListener("click", undo);
+  document.getElementById("restartBtn").addEventListener("click", function () {
+    restartSort();
+  });
+  document
+    .getElementById("repickBtn")
+    .addEventListener("click", backToSelect);
+  document
+    .getElementById("repickBtn2")
+    .addEventListener("click", backToSelect);
+  document.getElementById("redoBtn").addEventListener("click", function () {
+    restartSort();
+  });
+
+  // keyboard shortcuts during duel
+  document.addEventListener("keydown", function (e) {
+    var modalOpen = document.getElementById("modal").classList.contains("open");
+    if (mode !== "duel" || modalOpen) return;
+    var tag = (e.target.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea") return;
+    if (e.key === "1" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      choose("a");
+    } else if (e.key === "2" || e.key === "ArrowRight") {
+      e.preventDefault();
+      choose("b");
+    } else if (e.key.toLowerCase() === "u") {
+      e.preventDefault();
+      undo();
+    }
+  });
+
+  /* ---------- start / restart / back ---------- */
+  function startSort() {
+    var pool = selectedList();
+    if (pool.length < MIN_VALUES) return;
+    sorter = buildSorter(pool);
+    snaps = [];
+    sorterAdvance();
+    mode = "duel";
+    renderDeck(); // locks deck
+    showArena();
+    if (sorter.done) finishSort();
+    else {
+      renderDuel();
+      document
+        .getElementById("arena-panel")
+        .scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+  document.getElementById("startBtn").addEventListener("click", startSort);
+
+  function restartSort() {
+    var pool = selectedList();
+    if (pool.length < MIN_VALUES) {
+      backToSelect();
+      return;
+    }
+    sorter = buildSorter(pool);
+    snaps = [];
+    sorterAdvance();
+    mode = "duel";
+    resetResult();
+    showArena();
+    renderDuel();
+    document
+      .getElementById("arena-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function backToSelect() {
+    mode = "select";
+    sorter = null;
+    snaps = [];
+    resetResult();
+    renderDeck();
+    showArena();
+    document
+      .getElementById("deck-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function resetResult() {
+    document.getElementById("result").innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+      "<p><strong>아직 결과가 없습니다.</strong></p>" +
+      "<p>대결을 마치면 Top 5와 실천 정의가 여기에 정리됩니다.</p></div>";
+  }
+
+  /* ---------- finish: render result ---------- */
+  function finishSort() {
+    mode = "done";
+    renderDeck();
+    showArena();
+    var ranked = sorter.result;
+    document.getElementById("doneSummary").textContent =
+      ranked.length +
+      "개 가치를 " +
+      sorter.count +
+      "번의 대결로 정렬했습니다. 결과는 아래 STEP 3에 정리했습니다.";
+    renderResult(ranked, sorter.count);
+    document
+      .getElementById("result-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  var resultEl = document.getElementById("result");
+
+  function renderResult(ranked, duels) {
+    var top = ranked.slice(0, TOP_N);
+    var rest = ranked.slice(TOP_N);
+
+    var html = "";
+    html += '<div class="result-hero">';
+    html += '<p class="rh-label">가치 카드 ' + duels + '회 대결 결과</p>';
+    html += '<p class="rh-title">나의 핵심가치 Top ' + top.length + "</p>";
+    html +=
+      '<p class="rh-desc">아래 다섯 가지가 지금 나의 의사결정 기준입니다. 각 가치에 \'한 줄 실천 정의\'를 붙이면, 가치가 일상의 행동으로 내려옵니다.</p>';
+    html += "</div>";
+
+    html += '<div class="result-block-title">Top ' + top.length + ' · 실천 정의</div>';
+    html += '<ol class="top5">';
+    top.forEach(function (v, i) {
+      var hint = DEF_HINT[v.id] || "예) 이 가치가 흔들릴 때 나는 ___한다";
+      html += '<li class="t5-item">';
+      html += '<div class="t5-top">';
+      html += '<span class="t5-rank">' + (i + 1) + "</span>";
+      html += '<span class="t5-name">' + esc(v.ko) + "</span>";
+      if (v.en) html += '<span class="t5-en">' + esc(v.en) + "</span>";
+      html += "</div>";
+      html +=
+        '<label class="t5-deflabel" for="def-' +
+        esc(v.id) +
+        '">이 가치를 어떻게 실천하는가 (한 줄)</label>';
+      html +=
+        '<textarea class="t5-def" id="def-' +
+        esc(v.id) +
+        '" data-id="' +
+        esc(v.id) +
+        '" rows="1" placeholder="' +
+        esc(hint) +
+        '"></textarea>';
+      html += "</li>";
+    });
+    html += "</ol>";
+
+    if (rest.length) {
+      html += '<div class="result-block-title">그 외 우선순위</div>';
+      html += '<ul class="rest-list">';
+      rest.forEach(function (v, i) {
+        html +=
+          '<li class="rest-item"><b>' +
+          (TOP_N + i + 1) +
+          "</b>" +
+          esc(v.ko) +
+          "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // AI prompt
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 순위를 바탕으로 각 가치를 \'핵심습관\'으로 바꾸고 가치 충돌을 정리하도록 도와줍니다. 실천 정의를 채우면 프롬프트도 함께 업데이트됩니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="promptText"></pre>';
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPrompt" type="button">프롬프트 복사</button>';
+    html +=
+      '<button class="btn-ghost btn-sm" id="copyRank" type="button">순위 전체 복사</button>';
+    html +=
+      '<button class="btn-ghost btn-sm" id="printBtn" type="button">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+
+    // restore saved definitions + wire auto-grow + live prompt
+    top.forEach(function (v) {
+      var ta = document.getElementById("def-" + v.id);
+      if (!ta) return;
+      ta.value = defs[v.id] || "";
+      grow(ta);
+      ta.addEventListener("input", function () {
+        defs[v.id] = ta.value;
+        grow(ta);
+        refreshPrompt();
+      });
+    });
+
+    lastTop = top;
+    lastRest = rest;
+    lastDuels = duels;
+    refreshPrompt();
+    wireResultButtons();
+  }
+
+  var lastTop = [],
+    lastRest = [],
+    lastDuels = 0;
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  /* ---------- prompt + rank text builders ---------- */
+  function buildPrompt() {
+    var lines = [];
+    lines.push(
+      "당신은 개인의 가치체계와 습관 설계를 돕는 코치입니다. 아래는 제가 '가치 카드 대결'로 직접 정렬한 저의 핵심가치 우선순위입니다."
+    );
+    lines.push("");
+    lines.push("【나의 핵심가치 Top " + lastTop.length + "】");
+    lastTop.forEach(function (v, i) {
+      var d = (defs[v.id] || "").trim();
+      var line = i + 1 + ". " + v.ko + (v.en ? " (" + v.en + ")" : "");
+      line += d ? " — 실천 정의: " + d : " — 실천 정의: (아직 없음)";
+      lines.push(line);
+    });
+    if (lastRest.length) {
+      lines.push("");
+      lines.push("【그 외 우선순위】");
+      lines.push(
+        lastRest
+          .map(function (v, i) {
+            return TOP_N + i + 1 + "." + v.ko;
+          })
+          .join("  ")
+      );
+    }
+    lines.push("");
+    lines.push("【요청】");
+    lines.push(
+      "1. 위 우선순위가 저의 실제 삶(시간·돈·관계)에서 어떻게 드러나는지 점검하는 질문을 먼저 던져 주세요."
+    );
+    lines.push(
+      "2. Top " +
+        lastTop.length +
+        " 각각을 '핵심습관'으로 바꿔 주세요. 습관은 신호(Cue) → 반복 행동(Routine) → 보상(Reward) 3단계로 구체화합니다. 정의가 빈 항목은 함께 만들어 주세요."
+    );
+    lines.push(
+      "3. 상위 가치들 사이에 충돌이 있으면(예: 자유 vs 안정) 어떤 상황에서 무엇을 우선할지 함께 정리해 주세요."
+    );
+    lines.push(
+      "4. 이 다섯 중 다른 습관들을 끌어올릴 '킹핀 습관' 하나를 제안해 주세요. 한 번에 3개만 집중하는 것을 원칙으로 합니다."
+    );
+    lines.push(
+      "5. 결론을 대신 정해 주지 말고, 먼저 질문으로 제 생각을 끌어낸 뒤 당신의 해석을 비교용으로 덧붙여 주세요. 제가 말하지 않은 사실은 지어내지 말고 저에게 물어봐 주세요."
+    );
+    return lines.join("\n");
+  }
+
+  function buildRankText() {
+    var lines = [];
+    lines.push("나의 핵심가치 우선순위 (대결 " + lastDuels + "회)");
+    lastTop.forEach(function (v, i) {
+      var d = (defs[v.id] || "").trim();
+      lines.push(
+        i + 1 + ". " + v.ko + (v.en ? " (" + v.en + ")" : "") + (d ? " — " + d : "")
+      );
+    });
+    lastRest.forEach(function (v, i) {
+      lines.push(TOP_N + i + 1 + ". " + v.ko);
+    });
+    lines.push("");
+    lines.push("— 개인 핵심가치 우선순위 정렬기");
+    return lines.join("\n");
+  }
+
+  function refreshPrompt() {
+    var pre = document.getElementById("promptText");
+    if (pre) pre.textContent = buildPrompt();
+  }
+
+  /* ---------- result buttons ---------- */
+  function wireResultButtons() {
+    var cp = document.getElementById("copyPrompt");
+    var cr = document.getElementById("copyRank");
+    var pb = document.getElementById("printBtn");
+    if (cp)
+      cp.addEventListener("click", function () {
+        doCopy(buildPrompt());
+      });
+    if (cr)
+      cr.addEventListener("click", function () {
+        doCopy(buildRankText());
+      });
+    if (pb)
+      pb.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  /* ---------- copy: 3-tier fallback ---------- */
+  function doCopy(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) flashStatus("복사되었습니다");
+    else openModal(text);
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  /* ---------- init ---------- */
+  renderDeck();
+  showArena();
+</script>

@@ -1,0 +1,1599 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>영어 스피치 딱딱함·호흡 진단기</title>
+<meta
+  name="description"
+  content="영어 원고를 붙여넣으면 문어체 딱딱함(utilize, furthermore, 분사 전치구문 등)과 지나치게 긴 문장을 짚어 자연스러운 구어 대체어를 제안합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2f7d78;
+    --accent-strong: #235f5b;
+    --accent-tint: #e6f2f0;
+    --accent-tint-2: #d1e6e2;
+    --ink: #1f2624;
+    --ink-soft: #45514e;
+    --ink-mute: #6a746f;
+    --paper: #f6f8f7;
+    --card: #ffffff;
+    --line: #e2e7e4;
+    --line-strong: #cfd7d2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #a35a12;
+    --warn-tint: #fff4e6;
+    --warn-line: #f0ddc0;
+
+    /* marker tints */
+    --mk-vocab-bg: #fbe9d4;
+    --mk-vocab-line: #c17d24;
+    --mk-connector-bg: #ece2f6;
+    --mk-connector-line: #7a55bd;
+    --mk-participial-bg: #dbeeeb;
+    --mk-participial-line: #2f7d78;
+    --mk-passive-bg: #fadfe4;
+    --mk-passive-line: #b8455d;
+    --mk-nominal-bg: #e1ecf8;
+    --mk-nominal-line: #3f6bad;
+    --mk-long-line: #cf9b3f;
+
+    --shadow: 0 1px 2px rgba(31, 38, 36, 0.05),
+      0 6px 20px rgba(31, 38, 36, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 150px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.62;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa6a1;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-warn {
+    font-size: 0.86rem;
+    color: #b8455d;
+    font-weight: 600;
+    margin: 8px 0 0;
+    display: none;
+  }
+  .field-warn.on {
+    display: block;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    min-height: 44px;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .btn-text {
+    background: none;
+    border: none;
+    color: var(--accent-strong);
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 6px 2px;
+    min-height: auto;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-clean {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-mixed {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-stiff {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-clean .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-stiff .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #e2e7e2;
+  }
+  .verdict.tone-clean .pip.lit {
+    background: var(--good);
+  }
+  .verdict.tone-mixed .pip.lit {
+    background: var(--warn);
+  }
+  .verdict.tone-stiff .pip.lit {
+    background: var(--accent);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  /* ---------- stat grid ---------- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 4px 0 4px;
+  }
+  .stat {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fbfdfc;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .stat-num .u {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin-left: 2px;
+  }
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    margin-top: 5px;
+    font-weight: 600;
+  }
+  .stat.flag .stat-num {
+    color: var(--accent-strong);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* ---------- legend ---------- */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin: 0 0 12px;
+    padding: 11px 13px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fbfdfc;
+  }
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    flex: none;
+  }
+  .sw-vocab {
+    background: var(--mk-vocab-bg);
+    box-shadow: inset 0 -3px 0 var(--mk-vocab-line);
+  }
+  .sw-connector {
+    background: var(--mk-connector-bg);
+    box-shadow: inset 0 -3px 0 var(--mk-connector-line);
+  }
+  .sw-participial {
+    background: var(--mk-participial-bg);
+    box-shadow: inset 0 -3px 0 var(--mk-participial-line);
+  }
+  .sw-passive {
+    background: var(--mk-passive-bg);
+    box-shadow: inset 0 -3px 0 var(--mk-passive-line);
+  }
+  .sw-nominal {
+    background: var(--mk-nominal-bg);
+    box-shadow: inset 0 -3px 0 var(--mk-nominal-line);
+  }
+  .sw-long {
+    background: #fff;
+    box-shadow: inset 3px 0 0 var(--mk-long-line);
+  }
+
+  /* ---------- annotated script ---------- */
+  .script-view {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    padding: 6px 4px;
+  }
+  p.sent {
+    margin: 0;
+    padding: 9px 13px;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ink);
+    border-bottom: 1px dashed #eef1ef;
+    position: relative;
+  }
+  p.sent:last-child {
+    border-bottom: none;
+  }
+  p.sent.long {
+    border-left: 3px solid var(--mk-long-line);
+    background: #fffdf8;
+  }
+  p.sent.strong {
+    background: #fff8ee;
+  }
+  .wc {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 999px;
+    padding: 1px 8px;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  mark.mk {
+    color: inherit;
+    border-radius: 4px;
+    padding: 0 2px;
+    cursor: help;
+  }
+  mark.mk-vocab {
+    background: var(--mk-vocab-bg);
+    box-shadow: inset 0 -2px 0 var(--mk-vocab-line);
+  }
+  mark.mk-connector {
+    background: var(--mk-connector-bg);
+    box-shadow: inset 0 -2px 0 var(--mk-connector-line);
+  }
+  mark.mk-participial {
+    background: var(--mk-participial-bg);
+    box-shadow: inset 0 -2px 0 var(--mk-participial-line);
+  }
+  mark.mk-passive {
+    background: var(--mk-passive-bg);
+    box-shadow: inset 0 -2px 0 var(--mk-passive-line);
+  }
+  mark.mk-nominal {
+    background: var(--mk-nominal-bg);
+    box-shadow: inset 0 -2px 0 var(--mk-nominal-line);
+  }
+
+  /* ---------- suggestion table ---------- */
+  .sub-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .sub-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 13px;
+    background: #fbfdfc;
+    flex-wrap: wrap;
+  }
+  .sub-cat {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    padding: 2px 8px;
+    border-radius: 6px;
+    flex: none;
+  }
+  .cat-vocab {
+    color: #8a5410;
+    background: var(--mk-vocab-bg);
+  }
+  .cat-connector {
+    color: #5a3a97;
+    background: var(--mk-connector-bg);
+  }
+  .cat-nominal {
+    color: #2f5390;
+    background: var(--mk-nominal-bg);
+  }
+  .cat-passive {
+    color: #942f45;
+    background: var(--mk-passive-bg);
+  }
+  .cat-participial {
+    color: var(--accent-strong);
+    background: var(--mk-participial-bg);
+  }
+  .sub-term {
+    font-weight: 700;
+    font-family: "Pretendard", ui-monospace, monospace;
+  }
+  .sub-arrow {
+    color: var(--ink-mute);
+    font-weight: 700;
+  }
+  .sub-sug {
+    color: var(--good);
+    font-weight: 700;
+  }
+  .sub-count {
+    margin-left: auto;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--ink-mute);
+    background: #eef2f0;
+    border-radius: 999px;
+    padding: 2px 9px;
+    flex: none;
+  }
+
+  .long-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .long-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--mk-long-line);
+    border-radius: 10px;
+    padding: 11px 14px;
+    background: #fffdf8;
+  }
+  .long-item .li-head {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--warn);
+    margin: 0 0 4px;
+  }
+  .long-item .li-text {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* ---------- prompt ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #21302e;
+    color: #eef4f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 38, 36, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 160px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.4rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">구어체 진단 · Written → Spoken</span>
+    <h1>영어 스피치 딱딱함·호흡 진단기</h1>
+    <p class="lede">
+      발표·영상 원고를 붙여넣으면 문어체 딱딱함(utilize, furthermore, 분사
+      전치구문 등)과 지나치게 긴 문장을 짚고, 소리 내어 말할 때 자연스러운 구어
+      대체어를 제안합니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>영어 원고 붙여넣기</h2>
+    </div>
+    <p class="panel-sub">
+      발표 스크립트·영상 내레이션·토크 트랙 등 소리 내어 말할 영어 원고를
+      넣으세요. 문장 단위로 스캔해 문어체 신호를 표시합니다.
+    </p>
+    <label class="field-label" for="doc">English script</label>
+    <textarea
+      id="doc"
+      spellcheck="false"
+      placeholder="Paste your English speech or video script here. e.g. Having reviewed the results, it is important to note that our team utilized numerous channels in order to facilitate growth..."
+    ></textarea>
+    <p class="field-hint">
+      입력한 원고는 이 브라우저 안에서만 분석되며, 서버나 외부 API로 전송되지
+      않습니다.
+    </p>
+    <p class="field-warn" id="warn" role="alert">
+      먼저 진단할 영어 원고를 붙여넣어 주세요.
+    </p>
+
+    <div class="actions">
+      <button class="btn-primary" id="diagnose">진단하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+    <button class="btn-text" id="sample" type="button">
+      예시 문장으로 먼저 시험해 보기
+    </button>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>진단 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">&#10077;</div>
+        <p><strong>아직 진단 전입니다.</strong></p>
+        <p>영어 원고를 붙여넣고 '진단하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 문어체 어휘·분사 전치구문·과장 접속어·수동태·명사화·문장 길이 규칙은
+      구어체 스크립트 원칙(natural-spoken-script: short sentences, phrasal verbs,
+      simple connectors, active voice, plain vocabulary)에 기반합니다. 청중은
+      말을 실시간으로 듣기 때문에 짧고 능동적인 문장이 더 잘 전달됩니다.
+    </p>
+    <p>
+      이 도구는 정규식 기반 휴리스틱으로 표면 신호를 짚어 주는 사고 보조
+      도구입니다. 모든 지적이 오류는 아니며(문맥상 적절한 표현일 수 있음), 최종
+      표현은 스스로 판단하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* =========================================================
+     Detection dictionaries — grounded in natural-spoken-script:
+     stiff vocabulary (Rule 9), phrasal verbs (Rule 3),
+     corporate connectors/filler (Rule 5 + red flags),
+     participial front-loading (Rule 2), passive voice (Rule 10),
+     nominalization / heavy nouns (Rule 4), long sentences (Rule 1/8).
+     ========================================================= */
+
+  // 1) stiff single words -> plain spoken word
+  var VOCAB = [
+    { re: /\butili[sz](?:e|es|ed|ing)\b/gi, sug: "use" },
+    { re: /\bfacilitat(?:e|es|ed|ing)\b/gi, sug: "help" },
+    { re: /\bdemonstrat(?:e|es|ed|ing)\b/gi, sug: "show" },
+    { re: /\bindicat(?:e|es|ed|ing)\b/gi, sug: "show / suggest" },
+    { re: /\bcommenc(?:e|es|ed|ing)\b/gi, sug: "start" },
+    { re: /\bterminat(?:e|es|ed|ing)\b/gi, sug: "end / stop" },
+    { re: /\bapproximately\b/gi, sug: "about" },
+    { re: /\bsufficient\b/gi, sug: "enough" },
+    { re: /\bnumerous\b/gi, sug: "many" },
+    { re: /\bobtain(?:s|ed|ing)?\b/gi, sug: "get" },
+    { re: /\bretain(?:s|ed|ing)?\b/gi, sug: "keep" },
+    { re: /\bassist(?:s|ed|ing|ance)?\b/gi, sug: "help" },
+    { re: /\bpurchas(?:e|es|ed|ing)\b/gi, sug: "buy" },
+    { re: /\bexamin(?:e|es|ed|ing)\b/gi, sug: "look at" },
+    { re: /\binvestigat(?:e|es|ed|ing)\b/gi, sug: "look into" },
+    { re: /\bdiscover(?:s|ed|ing)?\b/gi, sug: "find out" },
+    { re: /\bpostpon(?:e|es|ed|ing)\b/gi, sug: "push back" },
+    { re: /\bestablish(?:es|ed|ing)?\b/gi, sug: "set up" },
+    { re: /\bremov(?:e|es|ed|ing)\b/gi, sug: "take out" },
+    { re: /\bresolv(?:e|es|ed|ing)\b/gi, sug: "fix / sort out" }
+  ];
+
+  // 2) heavy connectors / corporate filler -> simple connector
+  var CONNECTOR = [
+    { re: /\bmoreover\b/gi, sug: "and / also" },
+    { re: /\bfurthermore\b/gi, sug: "and / also" },
+    { re: /\btherefore\b/gi, sug: "so" },
+    { re: /\bconsequently\b/gi, sug: "so" },
+    { re: /\bnevertheless\b/gi, sug: "but / still" },
+    { re: /\bin light of this\b/gi, sug: "because of this" },
+    { re: /\bwith regard to\b/gi, sug: "about" },
+    { re: /\bin relation to\b/gi, sug: "about" },
+    { re: /\bwith respect to\b/gi, sug: "about" },
+    { re: /\bin terms of\b/gi, sug: "about / for" },
+    { re: /\bin order to\b/gi, sug: "to" },
+    { re: /\bdue to the fact that\b/gi, sug: "because" },
+    { re: /\bat this point in time\b/gi, sug: "right now" },
+    { re: /\bprior to\b/gi, sug: "before" },
+    { re: /\bsubsequent to\b/gi, sug: "after" },
+    {
+      re: /\bit is important to note that\b/gi,
+      sug: "빼거나 “the important point is”"
+    },
+    { re: /\bas previously stated\b/gi, sug: "like I said" },
+    {
+      re: /\bin today'?s rapidly changing environment\b/gi,
+      sug: "today / right now"
+    }
+  ];
+
+  // 3) nominalization (light verb + heavy noun) -> use the verb
+  var NOMINAL = [
+    {
+      re: /\b(?:conduct|conducts|conducted|perform|performs|performed|carr(?:y|ies|ied) out)\s+(?:a|an|the)?\s*(?:analysis|evaluation|assessment|review|investigation|examination|study)\b/gi,
+      sug: "동사로: analyze / evaluate / review"
+    },
+    {
+      re: /\bprovid(?:e|es|ed)\s+(?:assistance|clarification|confirmation)\b/gi,
+      sug: "help / clarify / confirm"
+    },
+    {
+      re: /\b(?:mak(?:e|es)|made)\s+(?:a\s+)?(?:decision|contribution|assessment)\b/gi,
+      sug: "decide / contribute / assess"
+    },
+    {
+      re: /\breach(?:es|ed)?\s+(?:a\s+)?(?:conclusion|decision|agreement)\b/gi,
+      sug: "conclude / decide / agree"
+    }
+  ];
+
+  // 4) passive voice: be + past participle
+  var PASSIVE = {
+    re: /\b(?:is|are|was|were|be|been|being)\s+(?:\w{3,}ed|shown|done|made|taken|given|found|built|held|kept|known|drawn|written|sent|led|paid|seen|put|set|told|brought)\b/gi,
+    sug: "능동태로 (주어가 직접 행동)"
+  };
+
+  // category display meta
+  var CATS = {
+    vocab: "문어체 어휘",
+    connector: "전환·접속 필러",
+    participial: "분사·전치 구문",
+    passive: "수동태",
+    nominal: "명사화"
+  };
+  var PRIO = { participial: 5, nominal: 4, connector: 3, passive: 2, vocab: 1 };
+
+  var LONG_MILD = 22; // words
+  var LONG_STRONG = 30;
+
+  /* ---------------- helpers ---------------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function escAttr(s) {
+    return esc(s).replace(/"/g, "&quot;");
+  }
+  function wordCount(t) {
+    var w = t.trim().split(/\s+/);
+    var n = 0;
+    for (var i = 0; i < w.length; i++) if (w[i]) n++;
+    return n;
+  }
+  function normalize(raw) {
+    return raw
+      .replace(/[‘’]/g, "'")
+      .replace(/[“”]/g, '"')
+      .replace(/\r\n?/g, "\n");
+  }
+  function getSentences(text) {
+    var out = [];
+    var lines = text.split(/\n+/);
+    for (var i = 0; i < lines.length; i++) {
+      var re = /[^.!?]+[.!?]+|[^.!?]+$/g;
+      var m;
+      while ((m = re.exec(lines[i]))) {
+        var t = m[0].trim();
+        if (t) out.push(t);
+      }
+    }
+    return out;
+  }
+
+  // participial / front-loaded clause detector (per sentence)
+  var OPENERS = {
+    based: 1,
+    given: 1,
+    considering: 1,
+    having: 1,
+    resulting: 1,
+    leading: 1,
+    regarding: 1,
+    concerning: 1,
+    drawing: 1,
+    provided: 1,
+    according: 1
+  };
+  var OPENER_STOP = {
+    everything: 1,
+    nothing: 1,
+    something: 1,
+    anything: 1,
+    morning: 1,
+    evening: 1,
+    during: 1
+  };
+  function participialMatch(sent) {
+    var lead = sent.indexOf(",");
+    if (lead < 2) return null;
+    var clause = sent.slice(0, lead);
+    var words = clause.split(/\s+/).filter(Boolean);
+    if (words.length < 2 || words.length > 12) return null;
+    var first = words[0].toLowerCase().replace(/[^a-z]/g, "");
+    if (OPENER_STOP[first]) return null;
+    var isParticiple = /(?:ing|ed)$/.test(first) && first.length >= 5;
+    if (OPENERS[first] || isParticiple) {
+      return {
+        start: 0,
+        end: lead,
+        cat: "participial",
+        term: clause,
+        sug: "문두를 가볍게: 핵심 주어·동사부터 시작"
+      };
+    }
+    return null;
+  }
+
+  function collectFrom(list, cat, sent, out) {
+    for (var i = 0; i < list.length; i++) {
+      var d = list[i];
+      d.re.lastIndex = 0;
+      var m;
+      while ((m = d.re.exec(sent))) {
+        out.push({
+          start: m.index,
+          end: m.index + m[0].length,
+          cat: cat,
+          term: m[0],
+          sug: d.sug
+        });
+        if (m.index === d.re.lastIndex) d.re.lastIndex++;
+      }
+    }
+  }
+
+  function resolveOverlaps(c) {
+    c.sort(function (a, b) {
+      return (
+        a.start - b.start ||
+        PRIO[b.cat] - PRIO[a.cat] ||
+        b.end - b.start - (a.end - a.start)
+      );
+    });
+    var out = [];
+    var cursor = -1;
+    for (var i = 0; i < c.length; i++) {
+      if (c[i].start >= cursor) {
+        out.push(c[i]);
+        cursor = c[i].end;
+      }
+    }
+    return out;
+  }
+
+  function scanSentence(sent) {
+    var cands = [];
+    collectFrom(VOCAB, "vocab", sent, cands);
+    collectFrom(CONNECTOR, "connector", sent, cands);
+    collectFrom(NOMINAL, "nominal", sent, cands);
+    // passive
+    PASSIVE.re.lastIndex = 0;
+    var pm;
+    while ((pm = PASSIVE.re.exec(sent))) {
+      cands.push({
+        start: pm.index,
+        end: pm.index + pm[0].length,
+        cat: "passive",
+        term: pm[0],
+        sug: PASSIVE.sug
+      });
+      if (pm.index === PASSIVE.re.lastIndex) PASSIVE.re.lastIndex++;
+    }
+    var pa = participialMatch(sent);
+    if (pa) cands.push(pa);
+    return resolveOverlaps(cands);
+  }
+
+  function highlight(raw, marks) {
+    marks = marks.slice().sort(function (a, b) {
+      return a.start - b.start;
+    });
+    var out = "";
+    var cur = 0;
+    for (var i = 0; i < marks.length; i++) {
+      var m = marks[i];
+      if (m.start < cur) continue;
+      out += esc(raw.slice(cur, m.start));
+      out +=
+        '<mark class="mk mk-' +
+        m.cat +
+        '" title="' +
+        escAttr(m.term + " → " + m.sug) +
+        '">' +
+        esc(raw.slice(m.start, m.end)) +
+        "</mark>";
+      cur = m.end;
+    }
+    out += esc(raw.slice(cur));
+    return out;
+  }
+
+  /* ---------------- main analysis ---------------- */
+  function analyze(text) {
+    var sentences = getSentences(text);
+    var totalWords = 0;
+    var allMarks = [];
+    var rendered = []; // {html, wc, long}
+    var longMild = 0;
+    var longStrong = 0;
+    var longs = []; // {wc, text}
+    var maxLen = 0;
+    var maxSent = "";
+
+    for (var i = 0; i < sentences.length; i++) {
+      var s = sentences[i];
+      var wc = wordCount(s);
+      totalWords += wc;
+      if (wc > maxLen) {
+        maxLen = wc;
+        maxSent = s;
+      }
+      var marks = scanSentence(s);
+      for (var k = 0; k < marks.length; k++) allMarks.push(marks[k]);
+
+      var lvl = 0;
+      if (wc >= LONG_STRONG) {
+        lvl = 2;
+        longStrong++;
+        longs.push({ wc: wc, text: s });
+      } else if (wc >= LONG_MILD) {
+        lvl = 1;
+        longMild++;
+        longs.push({ wc: wc, text: s });
+      }
+      rendered.push({ html: highlight(s, marks), wc: wc, lvl: lvl });
+    }
+
+    // per-category counts + substitution grouping
+    var byCat = { vocab: 0, connector: 0, participial: 0, passive: 0, nominal: 0 };
+    var subMap = {};
+    var subOrder = [];
+    for (var j = 0; j < allMarks.length; j++) {
+      var mk = allMarks[j];
+      byCat[mk.cat]++;
+      if (mk.cat === "vocab" || mk.cat === "connector" || mk.cat === "nominal") {
+        var key = mk.term.toLowerCase() + "||" + mk.sug;
+        if (!subMap[key]) {
+          subMap[key] = {
+            term: mk.term.toLowerCase(),
+            sug: mk.sug,
+            cat: mk.cat,
+            count: 0
+          };
+          subOrder.push(key);
+        }
+        subMap[key].count++;
+      }
+    }
+    var subs = subOrder.map(function (k) {
+      return subMap[k];
+    });
+    subs.sort(function (a, b) {
+      return b.count - a.count;
+    });
+
+    var stiffMarkers = allMarks.length;
+    var units = stiffMarkers + longStrong * 1.5 + longMild * 0.75;
+    var per100 = totalWords > 0 ? (units / totalWords) * 100 : 0;
+
+    return {
+      sentences: sentences,
+      rendered: rendered,
+      totalWords: totalWords,
+      sentenceCount: sentences.length,
+      avgLen: sentences.length ? totalWords / sentences.length : 0,
+      maxLen: maxLen,
+      maxSent: maxSent,
+      byCat: byCat,
+      subs: subs,
+      stiffMarkers: stiffMarkers,
+      longMild: longMild,
+      longStrong: longStrong,
+      longs: longs,
+      per100: per100
+    };
+  }
+
+  function bandFor(per100, hasContent) {
+    if (!hasContent)
+      return {
+        tone: "clean",
+        label: "표본이 작습니다",
+        title: "원고가 너무 짧습니다",
+        desc: "문장이 적어 진단 신뢰도가 낮습니다. 더 긴 원고를 넣으면 정확해집니다."
+      };
+    if (per100 <= 2)
+      return {
+        tone: "clean",
+        label: "딱딱함 지수 매우 낮음",
+        title: "귀에 잘 붙는 구어체입니다",
+        desc: "문어체 신호가 거의 없습니다. 소리 내어 읽어도 자연스럽게 들립니다. 표시된 몇 군데만 다듬으면 더 매끄러워집니다."
+      };
+    if (per100 <= 6)
+      return {
+        tone: "clean",
+        label: "딱딱함 지수 낮음",
+        title: "대체로 자연스럽습니다",
+        desc: "큰 문제는 없지만 문어체 흔적이 몇 군데 보입니다. 표시된 부분만 구어로 바꾸면 됩니다."
+      };
+    if (per100 <= 12)
+      return {
+        tone: "mixed",
+        label: "딱딱함 지수 다소 높음",
+        title: "다소 딱딱하게 들립니다",
+        desc: "문어체 어휘와 긴 문장이 눈에 띕니다. 지금 그대로 말하면 '읽는' 느낌이 납니다. 아래 항목을 구어로 바꾸세요."
+      };
+    return {
+      tone: "stiff",
+      label: "딱딱함 지수 높음",
+      title: "말이 아니라 '글'을 읽고 있습니다",
+      desc: "문어체 표현과 긴 문장이 많습니다. 청중은 이해하려 애써야 합니다. 짧은 문장·쉬운 단어·능동태로 다시 쓰세요."
+    };
+  }
+
+  /* ---------------- prompt builder ---------------- */
+  function buildPrompt(a, scriptText) {
+    var L = [];
+    L.push(
+      "You are an expert speech-script editor. Rewrite the English script below so it sounds like a confident speaker talking to an audience, not a written essay or report read out loud."
+    );
+    L.push("");
+    L.push("Rules:");
+    L.push("- Use short sentences. Break long, packed ones into steps.");
+    L.push(
+      "- Cut participial front-loading (Having reviewed..., Based on..., Given that...). Lead with the subject and verb."
+    );
+    L.push(
+      "- Swap stiff words for plain ones (utilize -> use, facilitate -> help, demonstrate -> show, obtain -> get, prior to -> before)."
+    );
+    L.push(
+      "- Use simple connectors (and, but, so, because) instead of moreover / furthermore / therefore / consequently."
+    );
+    L.push("- Prefer active voice, verbs over heavy nouns, and natural contractions.");
+    L.push(
+      "- Keep every fact, name, number, and date. Do not invent anything new."
+    );
+    L.push("");
+    L.push("【자가 진단 요약】");
+    L.push(
+      "총 " +
+        a.totalWords +
+        "단어 · " +
+        a.sentenceCount +
+        "문장 · 평균 문장 길이 " +
+        a.avgLen.toFixed(1) +
+        "단어 · 가장 긴 문장 " +
+        a.maxLen +
+        "단어"
+    );
+    var catLine = [];
+    if (a.byCat.vocab) catLine.push("문어체 어휘 " + a.byCat.vocab);
+    if (a.byCat.connector) catLine.push("전환 필러 " + a.byCat.connector);
+    if (a.byCat.participial) catLine.push("분사 전치구문 " + a.byCat.participial);
+    if (a.byCat.passive) catLine.push("수동태 " + a.byCat.passive);
+    if (a.byCat.nominal) catLine.push("명사화 " + a.byCat.nominal);
+    var longN = a.longMild + a.longStrong;
+    if (longN) catLine.push("긴 문장 " + longN);
+    L.push(
+      "감지된 신호: " + (catLine.length ? catLine.join(" · ") : "특이 신호 없음")
+    );
+    if (a.subs.length) {
+      L.push("");
+      L.push("우선 교체 후보:");
+      var top = a.subs.slice(0, 10);
+      for (var i = 0; i < top.length; i++) {
+        L.push(
+          "- " + top[i].term + " -> " + top[i].sug + " (" + top[i].count + ")"
+        );
+      }
+    }
+    L.push("");
+    L.push("Script:");
+    L.push('"""');
+    L.push(scriptText.trim());
+    L.push('"""');
+    L.push("");
+    L.push("Return:");
+    L.push("1. The rewritten spoken script (natural, confident, easy to say aloud).");
+    L.push(
+      "2. A short before/after on the 3 stiffest sentences, so I can see what changed."
+    );
+    L.push(
+      "3. Do not add facts, numbers, or examples I did not write. If a figure is missing, leave a [placeholder]."
+    );
+    return L.join("\n");
+  }
+
+  /* ---------------- render ---------------- */
+  var doc = document.getElementById("doc");
+  var resultEl = document.getElementById("result");
+  var warnEl = document.getElementById("warn");
+  var lastPrompt = "";
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  doc.addEventListener("input", function () {
+    grow(doc);
+    if (doc.value.trim()) warnEl.classList.remove("on");
+  });
+
+  function statTile(num, unit, label, flag) {
+    return (
+      '<div class="stat' +
+      (flag ? " flag" : "") +
+      '"><div class="stat-num">' +
+      num +
+      (unit ? '<span class="u">' + unit + "</span>" : "") +
+      '</div><div class="stat-label">' +
+      label +
+      "</div></div>"
+    );
+  }
+
+  function renderResult() {
+    var text = normalize(doc.value);
+    if (!text.trim()) {
+      warnEl.classList.add("on");
+      doc.focus();
+      return;
+    }
+    warnEl.classList.remove("on");
+
+    var a = analyze(text);
+    var hasContent = a.totalWords >= 12;
+    var band = bandFor(a.per100, hasContent);
+    var litPips = Math.max(
+      0,
+      Math.min(6, Math.round(a.per100 / 2.5))
+    );
+    if (!hasContent) litPips = Math.min(litPips, 2);
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html +=
+      '<div class="meter" role="img" aria-label="딱딱함 ' +
+      litPips +
+      '/6">';
+    for (var p = 0; p < 6; p++) {
+      html += '<span class="pip' + (p < litPips ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html +=
+      '<p class="meter-caption">100단어당 문어체·긴문장 신호 ' +
+      a.per100.toFixed(1) +
+      "개</p>";
+    html += "</div>";
+
+    // stats
+    html += '<div class="stats">';
+    html += statTile(a.totalWords, "", "총 단어", false);
+    html += statTile(a.sentenceCount, "", "문장 수", false);
+    html += statTile(a.avgLen.toFixed(1), "", "평균 문장 길이(단어)", a.avgLen >= 20);
+    html += statTile(a.stiffMarkers, "", "문어체 마커", a.stiffMarkers > 0);
+    html += "</div>";
+
+    // clean case
+    if (a.stiffMarkers === 0 && a.longMild === 0 && a.longStrong === 0) {
+      html +=
+        '<p class="clean-note" style="margin-top:16px">감지된 문어체 신호나 지나치게 긴 문장이 없습니다. 이 원고는 소리 내어 말하기에 자연스럽습니다. 그래도 실제로 한 번 낭독하며 호흡과 강조점을 확인해 보세요.</p>';
+    } else {
+      // legend
+      html += '<div class="result-block-title">문장별 표시</div>';
+      html += '<div class="legend">';
+      html +=
+        '<span class="legend-item"><span class="swatch sw-vocab"></span>문어체 어휘</span>';
+      html +=
+        '<span class="legend-item"><span class="swatch sw-connector"></span>전환 필러</span>';
+      html +=
+        '<span class="legend-item"><span class="swatch sw-participial"></span>분사·전치 구문</span>';
+      html +=
+        '<span class="legend-item"><span class="swatch sw-passive"></span>수동태</span>';
+      html +=
+        '<span class="legend-item"><span class="swatch sw-nominal"></span>명사화</span>';
+      html +=
+        '<span class="legend-item"><span class="swatch sw-long"></span>긴 문장</span>';
+      html += "</div>";
+
+      // annotated script
+      html += '<div class="script-view">';
+      for (var r = 0; r < a.rendered.length; r++) {
+        var it = a.rendered[r];
+        var cls = "sent";
+        if (it.lvl === 2) cls += " long strong";
+        else if (it.lvl === 1) cls += " long";
+        html +=
+          '<p class="' +
+          cls +
+          '">' +
+          it.html +
+          (it.lvl ? '<span class="wc">' + it.wc + "단어</span>" : "") +
+          "</p>";
+      }
+      html += "</div>";
+
+      // substitution suggestions
+      if (a.subs.length) {
+        html += '<div class="result-block-title">구어 대체어 제안</div>';
+        html += '<ul class="sub-list">';
+        for (var s = 0; s < a.subs.length; s++) {
+          var sub = a.subs[s];
+          html += '<li class="sub-item">';
+          html +=
+            '<span class="sub-cat cat-' +
+            sub.cat +
+            '">' +
+            CATS[sub.cat] +
+            "</span>";
+          html += '<span class="sub-term">' + esc(sub.term) + "</span>";
+          html += '<span class="sub-arrow">→</span>';
+          html += '<span class="sub-sug">' + esc(sub.sug) + "</span>";
+          html += '<span class="sub-count">' + sub.count + "회</span>";
+          html += "</li>";
+        }
+        html += "</ul>";
+      }
+
+      // passive / participial notes (no per-term table)
+      if (a.byCat.passive || a.byCat.participial) {
+        html += '<ul class="sub-list" style="margin-top:9px">';
+        if (a.byCat.participial) {
+          html +=
+            '<li class="sub-item"><span class="sub-cat cat-participial">분사·전치 구문</span><span class="sub-sug">문두를 주어·동사로 시작</span><span class="sub-count">' +
+            a.byCat.participial +
+            "곳</span></li>";
+        }
+        if (a.byCat.passive) {
+          html +=
+            '<li class="sub-item"><span class="sub-cat cat-passive">수동태</span><span class="sub-sug">능동태로 (주어가 직접 행동)</span><span class="sub-count">' +
+            a.byCat.passive +
+            "곳</span></li>";
+        }
+        html += "</ul>";
+      }
+
+      // long sentences
+      if (a.longs.length) {
+        html += '<div class="result-block-title">호흡: 쪼개야 할 긴 문장</div>';
+        html += '<ul class="long-list">';
+        for (var l = 0; l < a.longs.length; l++) {
+          var lg = a.longs[l];
+          var snip = lg.text;
+          if (snip.length > 130) snip = snip.slice(0, 130) + "…";
+          html += '<li class="long-item">';
+          html +=
+            '<p class="li-head">' +
+            lg.wc +
+            "단어 · " +
+            (lg.wc >= LONG_STRONG ? "두세 문장으로 쪼개세요" : "한 번 끊어 주세요") +
+            "</p>";
+          html += '<p class="li-text">' + esc(snip) + "</p>";
+          html += "</li>";
+        }
+        html += "</ul>";
+      }
+    }
+
+    // AI prompt
+    lastPrompt = buildPrompt(a, doc.value);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 리라이팅 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 진단 결과를 반영해 원고를 구어체로 다시 써 줍니다. 사실·숫자는 보존하도록 지시가 포함돼 있습니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    document
+      .getElementById("result-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("diagnose").addEventListener("click", renderResult);
+
+  /* ---------------- reset ---------------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    doc.value = "";
+    grow(doc);
+    warnEl.classList.remove("on");
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">&#10077;</div>' +
+      "<p><strong>아직 진단 전입니다.</strong></p>" +
+      "<p>영어 원고를 붙여넣고 '진단하기'를 누르세요.</p></div>";
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+    doc.focus();
+  });
+
+  /* ---------------- sample ---------------- */
+  document.getElementById("sample").addEventListener("click", function () {
+    doc.value =
+      "Having reviewed the quarterly results, it is important to note that our team utilized numerous channels in order to facilitate growth. Furthermore, a comprehensive evaluation was conducted, and several opportunities for improvement were identified across the organization. Subsequent to this analysis, we believe that, given the competitive intensity of the market and the evolving expectations of our customers, a phased approach would be sufficient to mitigate execution risk while we continue to establish stronger relationships with the key partners we obtained last year.";
+    grow(doc);
+    warnEl.classList.remove("on");
+    renderResult();
+  });
+
+  /* ---------------- copy (3-tier) + print ---------------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) flashStatus("복사되었습니다");
+    else openModal(text);
+  }
+
+  /* ---------------- manual modal ---------------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

@@ -1,0 +1,1702 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>핵심가치 포스터 렌더러</title>
+<meta
+  name="description"
+  content="확정된 핵심가치명과 정의를 넣으면 의미 단위 줄바꿈과 keep-all로 읽기 좋은 세로 포스터를 만들어 저장한다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    /* calm teal-slate: a brand/culture tool, not the template brick */
+    --accent: #2e6f66;
+    --accent-strong: #23544c;
+    --accent-tint: #e7f1ee;
+    --accent-tint-2: #d5e6e1;
+    --ink: #1f2320;
+    --ink-soft: #45483f;
+    --ink-mute: #6b6d63;
+    --paper: #f7f5f0;
+    --card: #ffffff;
+    --line: #e5e2d9;
+    --line-strong: #d4d0c4;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --shadow: 0 1px 2px rgba(31, 35, 32, 0.05), 0 6px 20px rgba(31, 35, 32, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- value rows ---------- */
+  .vrow {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fcfbf8;
+    padding: 15px 14px 14px;
+    margin-bottom: 13px;
+    position: relative;
+  }
+  .vrow-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 11px;
+  }
+  .vrow-tag {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+  .btn-remove {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    padding: 5px 11px;
+    cursor: pointer;
+  }
+  .btn-remove:hover {
+    color: #a3392a;
+    border-color: #e2b7ad;
+  }
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 11px;
+    margin-bottom: 11px;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .req {
+    color: var(--accent);
+    font-weight: 800;
+  }
+  input[type="text"],
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: var(--ink);
+    background: #ffffff;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 12px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 74px;
+    resize: none;
+    overflow: hidden;
+  }
+  input[type="text"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #a9a69c;
+  }
+  .field-hint {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 7px 0 0;
+  }
+
+  .row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .btn-add {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border: 1px dashed var(--accent);
+    border-radius: 10px;
+    padding: 11px 16px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-add:hover {
+    background: var(--accent-tint-2);
+  }
+
+  /* ---------- options ---------- */
+  .opt-block {
+    margin-bottom: 16px;
+  }
+  .opt-block:last-child {
+    margin-bottom: 0;
+  }
+  .seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 9px 13px 9px 10px;
+    cursor: pointer;
+    background: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: border-color 0.12s, box-shadow 0.12s;
+  }
+  .swatch:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .swatch.on {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-tint);
+    color: var(--ink);
+  }
+  .swatch .chip {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    position: relative;
+    flex: none;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+  }
+  .swatch .chip i {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+  }
+  .toggle-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .toggle-line input {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--accent);
+    flex: none;
+    cursor: pointer;
+  }
+  .toggle-line label {
+    font-size: 0.94rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .file-row {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-file {
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 10px 15px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-file:hover {
+    border-color: var(--ink-mute);
+  }
+  #logoName {
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+  }
+  .btn-remove-logo {
+    font-size: 0.82rem;
+    background: transparent;
+    border: none;
+    color: #a3392a;
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: underline;
+    display: none;
+  }
+
+  /* ---------- primary actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button.act {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button.act:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 30px 12px;
+  }
+  .empty-state .big {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .inline-error {
+    background: #fdecea;
+    border: 1px solid #f3c9c1;
+    color: #9a2f22;
+    border-radius: 11px;
+    padding: 13px 15px;
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 12px;
+  }
+  .result-block-title:first-child {
+    margin-top: 0;
+  }
+
+  .poster-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  .poster-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .poster-frame {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+    background: #fff;
+  }
+  .poster {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1440px;
+    transform-origin: top left;
+    display: flex;
+    flex-direction: column;
+    padding: 110px;
+  }
+  .p-frameline {
+    position: absolute;
+    inset: 44px;
+    border: 1px solid var(--pl-rule);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+  .p-top {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  .p-accentbar {
+    width: 70px;
+    height: 6px;
+    background: var(--pl-accent);
+    margin: 0 auto 30px;
+    border-radius: 3px;
+  }
+  .p-eyebrow {
+    font-size: 26px;
+    letter-spacing: 8px;
+    font-weight: 700;
+    color: var(--pl-sub);
+    text-transform: uppercase;
+  }
+  .p-english {
+    margin-top: 22px;
+    font-weight: 800;
+    color: var(--pl-accent);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    line-height: 1.12;
+  }
+  .p-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  .p-name {
+    font-weight: 800;
+    color: var(--pl-ink);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+  }
+  .p-rule {
+    width: 56px;
+    height: 4px;
+    background: var(--pl-accent);
+    margin: 44px 0;
+    border-radius: 2px;
+    flex: none;
+  }
+  .p-def {
+    color: var(--pl-sub);
+    line-height: 1.5;
+    font-weight: 500;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    max-width: 100%;
+  }
+  .p-bottom {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    min-height: 80px;
+    position: relative;
+    z-index: 1;
+  }
+  .p-brand {
+    font-weight: 700;
+    color: var(--pl-sub);
+    font-size: 30px;
+    letter-spacing: 0.4px;
+  }
+  .p-logo {
+    max-height: 74px;
+    max-width: 320px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .poster-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  .btn-mini {
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 700;
+    padding: 8px 12px;
+    border-radius: 9px;
+    cursor: pointer;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+  }
+  .btn-mini:hover {
+    background: var(--accent-strong);
+  }
+  .btn-mini.ghost {
+    background: transparent;
+    color: var(--accent-strong);
+  }
+  .btn-mini.ghost:hover {
+    background: var(--accent-tint);
+  }
+
+  /* prompt box */
+  pre.prompt {
+    margin: 0;
+    background: #23262a;
+    color: #eef1ee;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .status-msg {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+  .global-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--line-strong);
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 35, 32, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+    resize: vertical;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .field-grid {
+      grid-template-columns: 1fr;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .poster-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #option-panel,
+    .panel-head,
+    .actions,
+    .result-block-title,
+    .prompt-section,
+    .global-tools,
+    .poster-tools,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+    .poster-grid {
+      display: block;
+    }
+    .poster-cell {
+      gap: 0;
+    }
+    .poster-frame {
+      box-shadow: none;
+      border: none;
+      border-radius: 0;
+      margin: 0 auto;
+      break-inside: avoid;
+      page-break-after: always;
+    }
+    .poster-frame:last-child {
+      page-break-after: auto;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">브랜드 컬처 · 핵심가치</span>
+    <h1>핵심가치 포스터 렌더러</h1>
+    <p class="lede">
+      이미 확정된 핵심가치명과 한 문장 정의를 넣으면, 정의를 의미 단위로 끊어
+      (어절을 쪼개지 않는 <code>keep-all</code> 방식) 읽기 좋은 세로 포스터로
+      배치해 PNG · SVG · 인쇄용으로 저장합니다. 가치 문구 자체는 바꾸지 않습니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>확정된 핵심가치 입력</h2>
+    </div>
+    <p class="panel-sub">
+      각 가치의 이름과 한 문장 정의를 그대로 넣으세요. 영문 라벨은 선택입니다.
+      정의는 자동으로 의미 단위 줄바꿈이 적용됩니다.
+    </p>
+    <div id="rows"></div>
+    <div class="row-actions">
+      <button class="btn-add" id="addRow" type="button">+ 가치 추가</button>
+      <button class="btn-ghost act" id="fillSample" type="button" style="padding:11px 16px;font-size:0.95rem">
+        예시로 채우기
+      </button>
+    </div>
+  </section>
+
+  <section class="panel" id="option-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>포스터 옵션</h2>
+    </div>
+
+    <div class="opt-block">
+      <label class="field-label">색상 팔레트</label>
+      <div class="seg" id="paletteSeg" role="radiogroup" aria-label="포스터 색상 팔레트"></div>
+    </div>
+
+    <div class="opt-block toggle-line">
+      <input type="checkbox" id="labelOn" checked />
+      <label for="labelOn">상단에 'CORE VALUE' 라벨 표시</label>
+    </div>
+
+    <div class="opt-block">
+      <label class="field-label" for="brand">조직 / 브랜드명 (선택)</label>
+      <input type="text" id="brand" placeholder="예) 가인지컨설팅그룹 (로고가 없을 때 우측 하단에 텍스트로 표시)" />
+    </div>
+
+    <div class="opt-block">
+      <label class="field-label">로고 이미지 (선택)</label>
+      <div class="file-row">
+        <label class="btn-file" for="logoInput">파일 선택</label>
+        <input type="file" id="logoInput" accept="image/*" style="display:none" />
+        <span id="logoName">선택된 파일 없음</span>
+        <button type="button" class="btn-remove-logo" id="removeLogo">제거</button>
+      </div>
+      <p class="field-hint">
+        투명 배경 PNG 권장. 우측 하단에 배치됩니다. 브랜드명보다 로고가 우선합니다.
+      </p>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary act" id="generate" type="button">포스터 생성</button>
+      <button class="btn-ghost act" id="reset" type="button">초기화</button>
+    </div>
+    <p class="field-hint" style="margin-top:13px">
+      입력한 내용과 이미지는 이 브라우저 안에서만 처리되며, 외부로 전송되지 않습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>포스터 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▤</div>
+        <p><strong>아직 생성된 포스터가 없습니다.</strong></p>
+        <p>가치를 입력하고 '포스터 생성'을 누르세요. '예시로 채우기'로 먼저 체험할 수 있습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 마케팅 스위트의 <em>core-value-poster</em>
+      제작 원칙. 핵심가치명을 가장 큰 텍스트로 두고, 정의는 임의의 글자 수가 아니라
+      의미 단위(쉼표 · 연결어미)로 끊으며, 한글은 <code>word-break: keep-all</code>로
+      어절 중간에서 깨지지 않게 합니다. 정의가 길면 조사 · 연결어 경계에서 균형 있게
+      2단으로 나눕니다.
+    </p>
+    <p>
+      이 도구는 확정된 가치 <em>문구</em>를 그대로 보존해 읽기 좋게 배치 · 저장하는
+      보조 도구입니다. 가치 자체의 수립 · 수정과 최종 브랜드 판단은 사람이 합니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary act" id="modal-select" type="button">전체 선택</button>
+      <button class="btn-ghost act" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ======================================================================
+     Palettes (all pairs verified for WCAG AA on the text they carry)
+     ====================================================================== */
+  var PALETTES = {
+    ivory: { key: "ivory", label: "아이보리", bg: "#f7f3ea", ink: "#241f18", sub: "#4a4236", accent: "#9a6a34", rule: "#d9cbb4" },
+    slate: { key: "slate", label: "슬레이트", bg: "#eef1f5", ink: "#1d2530", sub: "#41505f", accent: "#33578a", rule: "#cfd8e2" },
+    pine: { key: "pine", label: "딥 파인", bg: "#12302b", ink: "#f0f5f1", sub: "#c2d4cd", accent: "#8fc9b4", rule: "#2c4b44" },
+    charcoal: { key: "charcoal", label: "차콜", bg: "#1f2124", ink: "#f4f1ea", sub: "#c3bdb2", accent: "#d7b25f", rule: "#3a3d42" }
+  };
+  var PALETTE_ORDER = ["ivory", "slate", "pine", "charcoal"];
+  var selectedPalette = "ivory";
+
+  /* ======================================================================
+     Sample values (grounded in the core-value-poster SKILL examples)
+     ====================================================================== */
+  var SAMPLE = [
+    { name: "도전", en: "Challenge", def: "안 될 이유를 찾기보다 긍정적인 가능성을 보고, 새로운 시도를 지속합니다." },
+    { name: "소통", en: "Open Communication", def: "경험과 지식을 함께 공유하고, 동료의 이야기에 적극적으로 경청합니다." },
+    { name: "전문성", en: "Expertise", def: "변화하는 지식과 기술을 꾸준히 익히고, 현시점 가장 뛰어난 전문가로 성장합니다." }
+  ];
+
+  /* ======================================================================
+     Core logic: semantic Korean line breaking (meaning units, keep-all)
+     ====================================================================== */
+  function isCJK(ch) {
+    var c = ch.charCodeAt(0);
+    return (
+      (c >= 0x1100 && c <= 0x11ff) ||
+      (c >= 0x3130 && c <= 0x318f) ||
+      (c >= 0xa960 && c <= 0xa97f) ||
+      (c >= 0xac00 && c <= 0xd7a3) ||
+      (c >= 0x3040 && c <= 0x30ff) ||
+      (c >= 0x4e00 && c <= 0x9fff)
+    );
+  }
+
+  // approximate visual width in "em" units (CJK ~1, latin/digit ~0.53, space ~0.42)
+  function emWidth(s) {
+    var w = 0;
+    for (var i = 0; i < s.length; i++) {
+      var ch = s.charAt(i);
+      if (ch === " ") w += 0.42;
+      else if (isCJK(ch)) w += 1.0;
+      else w += 0.53;
+    }
+    return w;
+  }
+
+  function stripPunct(w) {
+    return w.replace(/[,，、\.\!\?…·:;]+$/g, "");
+  }
+
+  // strength of a break placed AFTER this eojeol (0..1). Higher = better break point.
+  function breakStrength(w) {
+    if (/[,，、]$/.test(w)) return 1.0; // comma = author-intended structural break
+    var c = stripPunct(w);
+    // strong clause connectives
+    if (/(하고|하며|하여|이고|이며|되고|되며|으며|고서|면서|지만|거나|든지|든가|도록|토록|아서|어서|여서|해서|위해|통해|더라도|음에도|되어)$/.test(c))
+      return 0.78;
+    // generic connective endings
+    if (/(고|며)$/.test(c)) return 0.6;
+    if (/보다$/.test(c)) return 0.5;
+    // object / topic particles (good soft breaks)
+    if (/(을|를|은|는)$/.test(c)) return 0.42;
+    // other particles
+    if (/(으로|로|에서|에게|한테|께|이|가|과|와|에|의|도|만|까지|부터)$/.test(c)) return 0.3;
+    return 0.12;
+  }
+
+  function joinE(arr, a, b) {
+    return arr.slice(a, b + 1).join(" ");
+  }
+
+  // split eojeols [a..b] into balanced lines at the best semantic break, recursively
+  function subsplit(eojeols, str, a, b, maxLen, out) {
+    var text = joinE(eojeols, a, b);
+    if (a === b || emWidth(text) <= maxLen) {
+      out.push(text);
+      return;
+    }
+    var best = -1,
+      bestScore = -1e9;
+    for (var k = a; k < b; k++) {
+      var lw = emWidth(joinE(eojeols, a, k));
+      var rw = emWidth(joinE(eojeols, k + 1, b));
+      var over = Math.max(0, lw - maxLen) + Math.max(0, rw - maxLen);
+      // reward strong break points, penalize imbalance and overflow
+      var score = str[k] * 10 - Math.abs(lw - rw) * 0.25 - over * 3;
+      if (score > bestScore) {
+        bestScore = score;
+        best = k;
+      }
+    }
+    if (best < 0) {
+      out.push(text);
+      return;
+    }
+    subsplit(eojeols, str, a, best, maxLen, out);
+    subsplit(eojeols, str, best + 1, b, maxLen, out);
+  }
+
+  // main: turn a one-sentence definition into semantic lines
+  function chunkDefinition(text, maxLen) {
+    maxLen = maxLen || 26;
+    text = String(text || "").replace(/\s+/g, " ").trim();
+    if (!text) return [];
+    var eojeols = text.split(" ");
+    var n = eojeols.length;
+    if (n === 1) return [text];
+
+    var str = [];
+    for (var i = 0; i < n - 1; i++) str.push(breakStrength(eojeols[i]));
+
+    // Step 1: hard-segment at commas (structural, author-intended)
+    var segs = [];
+    var start = 0;
+    for (var j = 0; j < n - 1; j++) {
+      if (str[j] >= 1.0) {
+        segs.push([start, j]);
+        start = j + 1;
+      }
+    }
+    segs.push([start, n - 1]);
+
+    // Step 2: keep each clause on one line unless it overflows, then subsplit
+    var lines = [];
+    for (var s = 0; s < segs.length; s++) {
+      subsplit(eojeols, str, segs[s][0], segs[s][1], maxLen, lines);
+    }
+    return lines;
+  }
+
+  /* ======================================================================
+     Sizing (shared by DOM preview and SVG/PNG export)
+     ====================================================================== */
+  var CONTENT_W = 860;
+
+  function computeSizes(v) {
+    var chunks = chunkDefinition(v.def, 26);
+    if (chunks.length === 0) chunks = [""];
+
+    var nameEm = emWidth(v.name) || 1;
+    var nameSize = Math.floor(CONTENT_W / Math.max(nameEm, 1));
+    nameSize = Math.max(66, Math.min(152, nameSize));
+
+    var engSize = 0;
+    if (v.en) {
+      var eu = v.en.toUpperCase();
+      var engEm = emWidth(eu) || 1;
+      var len = eu.length;
+      engSize = Math.floor((CONTENT_W - (len - 1) * 4) / engEm); // account for letter-spacing 4
+      engSize = Math.max(24, Math.min(46, engSize));
+    }
+
+    var maxChunkEm = 1;
+    for (var i = 0; i < chunks.length; i++) {
+      maxChunkEm = Math.max(maxChunkEm, emWidth(chunks[i]));
+    }
+    var defSize = Math.floor(CONTENT_W / Math.max(maxChunkEm, 1));
+    defSize = Math.max(28, Math.min(46, defSize));
+
+    return { chunks: chunks, nameSize: nameSize, engSize: engSize, defSize: defSize };
+  }
+
+  /* ======================================================================
+     Escaping
+     ====================================================================== */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* ======================================================================
+     State
+     ====================================================================== */
+  var logoData = null; // dataURL
+  var logoAR = 3; // width / height
+  var posters = []; // [{v, sizes, pal, opts}]
+
+  /* ======================================================================
+     Row management
+     ====================================================================== */
+  var rowsEl = document.getElementById("rows");
+  var rowSeq = 0;
+
+  function rowMarkup(idNum, v) {
+    v = v || { name: "", en: "", def: "" };
+    return (
+      '<div class="vrow" data-row="' + idNum + '">' +
+      '<div class="vrow-head">' +
+      '<span class="vrow-tag">가치 ' + idNum + "</span>" +
+      '<button type="button" class="btn-remove" data-remove="' + idNum + '">삭제</button>' +
+      "</div>" +
+      '<div class="field-grid">' +
+      "<div>" +
+      '<label class="field-label" for="name-' + idNum + '">핵심가치명 <span class="req">*</span></label>' +
+      '<input type="text" id="name-' + idNum + '" data-f="name" value="' + esc(v.name) + '" placeholder="예) 도전" />' +
+      "</div>" +
+      "<div>" +
+      '<label class="field-label" for="en-' + idNum + '">영문 라벨 (선택)</label>' +
+      '<input type="text" id="en-' + idNum + '" data-f="en" value="' + esc(v.en) + '" placeholder="예) Challenge" />' +
+      "</div>" +
+      "</div>" +
+      "<div>" +
+      '<label class="field-label" for="def-' + idNum + '">한 문장 정의 <span class="req">*</span></label>' +
+      '<textarea id="def-' + idNum + '" data-f="def" placeholder="예) 안 될 이유를 찾기보다 긍정적인 가능성을 보고, 새로운 시도를 지속합니다.">' +
+      esc(v.def) +
+      "</textarea>" +
+      "</div>" +
+      "</div>"
+    );
+  }
+
+  function addRow(v) {
+    rowSeq += 1;
+    var tmp = document.createElement("div");
+    tmp.innerHTML = rowMarkup(rowSeq, v);
+    var node = tmp.firstChild;
+    rowsEl.appendChild(node);
+    var ta = node.querySelector("textarea");
+    if (ta) grow(ta);
+    return node;
+  }
+
+  function renumberRows() {
+    var rows = rowsEl.querySelectorAll(".vrow");
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].querySelector(".vrow-tag").textContent = "가치 " + (i + 1);
+    }
+  }
+
+  rowsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-remove]");
+    if (!btn) return;
+    var rows = rowsEl.querySelectorAll(".vrow");
+    if (rows.length <= 1) {
+      // clear the single remaining row instead of deleting it
+      var only = rows[0];
+      only.querySelectorAll("input,textarea").forEach(function (f) {
+        f.value = "";
+      });
+      var ta = only.querySelector("textarea");
+      if (ta) grow(ta);
+      return;
+    }
+    btn.closest(".vrow").remove();
+    renumberRows();
+  });
+
+  // delegated auto-grow for definition textareas
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  rowsEl.addEventListener("input", function (e) {
+    if (e.target.tagName === "TEXTAREA") grow(e.target);
+  });
+
+  document.getElementById("addRow").addEventListener("click", function () {
+    addRow();
+  });
+
+  document.getElementById("fillSample").addEventListener("click", function () {
+    rowsEl.innerHTML = "";
+    rowSeq = 0;
+    SAMPLE.forEach(function (v) {
+      addRow(v);
+    });
+    document.getElementById("brand").value = "가인지컨설팅그룹";
+  });
+
+  /* ======================================================================
+     Palette selector
+     ====================================================================== */
+  var segEl = document.getElementById("paletteSeg");
+  function renderPaletteSeg() {
+    var html = "";
+    for (var i = 0; i < PALETTE_ORDER.length; i++) {
+      var p = PALETTES[PALETTE_ORDER[i]];
+      var on = p.key === selectedPalette;
+      html +=
+        '<div class="swatch' + (on ? " on" : "") + '" role="radio" tabindex="0" aria-checked="' +
+        (on ? "true" : "false") +
+        '" data-pal="' + p.key + '">' +
+        '<span class="chip" style="background:' + p.bg + '"><i style="background:' + p.accent + '"></i></span>' +
+        "<span>" + esc(p.label) + "</span>" +
+        "</div>";
+    }
+    segEl.innerHTML = html;
+  }
+  function choosePalette(key) {
+    selectedPalette = key;
+    renderPaletteSeg();
+    if (posters.length) generate(); // live re-render if results already exist
+  }
+  segEl.addEventListener("click", function (e) {
+    var sw = e.target.closest("[data-pal]");
+    if (sw) choosePalette(sw.getAttribute("data-pal"));
+  });
+  segEl.addEventListener("keydown", function (e) {
+    var sw = e.target.closest("[data-pal]");
+    if (sw && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      choosePalette(sw.getAttribute("data-pal"));
+    }
+  });
+  renderPaletteSeg();
+
+  /* ======================================================================
+     Logo upload (local only)
+     ====================================================================== */
+  var logoInput = document.getElementById("logoInput");
+  var logoNameEl = document.getElementById("logoName");
+  var removeLogoBtn = document.getElementById("removeLogo");
+
+  logoInput.addEventListener("change", function () {
+    var file = logoInput.files && logoInput.files[0];
+    if (!file) return;
+    if (!/^image\//.test(file.type)) {
+      logoNameEl.textContent = "이미지 파일만 가능합니다.";
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      var url = ev.target.result;
+      var img = new Image();
+      img.onload = function () {
+        logoData = url;
+        logoAR = img.naturalWidth / img.naturalHeight || 3;
+        logoNameEl.textContent = file.name;
+        removeLogoBtn.style.display = "inline";
+        if (posters.length) generate();
+      };
+      img.onerror = function () {
+        logoNameEl.textContent = "이미지를 읽지 못했습니다.";
+      };
+      img.src = url;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  removeLogoBtn.addEventListener("click", function () {
+    logoData = null;
+    logoAR = 3;
+    logoInput.value = "";
+    logoNameEl.textContent = "선택된 파일 없음";
+    removeLogoBtn.style.display = "none";
+    if (posters.length) generate();
+  });
+
+  /* ======================================================================
+     Poster markup (DOM preview)
+     ====================================================================== */
+  function posterMarkup(p) {
+    var v = p.v,
+      s = p.sizes,
+      pal = p.pal,
+      o = p.opts;
+    var chunksHtml = s.chunks
+      .map(function (c) {
+        return esc(c);
+      })
+      .join("<br>");
+
+    var top =
+      '<div class="p-top"><div class="p-accentbar"></div>' +
+      (o.labelOn ? '<div class="p-eyebrow">CORE VALUE</div>' : "") +
+      (v.en
+        ? '<div class="p-english" style="font-size:' + s.engSize + 'px">' + esc(v.en.toUpperCase()) + "</div>"
+        : "") +
+      "</div>";
+
+    var center =
+      '<div class="p-center">' +
+      '<div class="p-name" style="font-size:' + s.nameSize + 'px">' + esc(v.name) + "</div>" +
+      '<div class="p-rule"></div>' +
+      '<div class="p-def" style="font-size:' + s.defSize + 'px">' + chunksHtml + "</div>" +
+      "</div>";
+
+    var bottom =
+      '<div class="p-bottom">' +
+      (o.logo
+        ? '<img class="p-logo" src="' + o.logo + '" alt="브랜드 로고" />'
+        : o.brand
+        ? '<div class="p-brand">' + esc(o.brand) + "</div>"
+        : "") +
+      "</div>";
+
+    var styleVars =
+      "background:" + pal.bg + ";--pl-ink:" + pal.ink + ";--pl-sub:" + pal.sub +
+      ";--pl-accent:" + pal.accent + ";--pl-rule:" + pal.rule + ";";
+
+    return '<div class="poster" style="' + styleVars + '"><div class="p-frameline"></div>' + top + center + bottom + "</div>";
+  }
+
+  /* ======================================================================
+     SVG builder (export). Pure text + shapes, no external resources.
+     ====================================================================== */
+  function svgText(x, y, size, fill, weight, content, opt) {
+    opt = opt || {};
+    var ls = opt.ls != null ? ' letter-spacing="' + opt.ls + '"' : "";
+    var anchor = opt.anchor ? ' text-anchor="' + opt.anchor + '"' : "";
+    return (
+      '<text x="' + x + '" y="' + y + '" font-size="' + size + '" fill="' + fill +
+      '" font-weight="' + weight + '"' + anchor + ls + ">" + esc(content) + "</text>"
+    );
+  }
+
+  function buildSVG(p) {
+    var W = 1080,
+      H = 1440,
+      pal = p.pal,
+      s = p.sizes,
+      v = p.v,
+      o = p.opts;
+    var parts = [];
+    parts.push(
+      '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="' +
+        W + '" height="' + H + '" viewBox="0 0 ' + W + " " + H +
+        "\" font-family=\"Pretendard, 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif\">"
+    );
+    parts.push('<rect width="' + W + '" height="' + H + '" fill="' + pal.bg + '"/>');
+    parts.push('<rect x="44" y="44" width="' + (W - 88) + '" height="' + (H - 88) + '" fill="none" stroke="' + pal.rule + '" stroke-width="1" rx="6"/>');
+    parts.push('<rect x="' + (W - 70) / 2 + '" y="150" width="70" height="6" rx="3" fill="' + pal.accent + '"/>');
+
+    var topBottom = 210;
+    if (o.labelOn) {
+      parts.push(svgText(W / 2, 216, 26, pal.sub, "700", "CORE VALUE", { ls: 8, anchor: "middle" }));
+      topBottom = 250;
+    }
+    if (v.en) {
+      parts.push(svgText(W / 2, topBottom + s.engSize, s.engSize, pal.accent, "800", v.en.toUpperCase(), { ls: 4, anchor: "middle" }));
+      topBottom = topBottom + s.engSize + 40;
+    }
+
+    var nameH = s.nameSize * 1.05;
+    var defLineH = s.defSize * 1.5;
+    var defH = s.chunks.length * defLineH;
+    var ruleGap = 44,
+      ruleH = 4;
+    var groupH = nameH + ruleGap + ruleH + ruleGap + defH;
+
+    var areaTop = topBottom + 20;
+    var areaBottom = H - 200;
+    var startY = areaTop + Math.max(0, (areaBottom - areaTop - groupH) / 2);
+
+    var nameBaseline = startY + s.nameSize;
+    parts.push(svgText(W / 2, nameBaseline, s.nameSize, pal.ink, "800", v.name, { anchor: "middle", ls: -1 }));
+
+    var ruleY = startY + nameH + ruleGap;
+    parts.push('<rect x="' + (W - 56) / 2 + '" y="' + ruleY + '" width="56" height="4" rx="2" fill="' + pal.accent + '"/>');
+
+    var defTop = ruleY + ruleH + ruleGap;
+    for (var i = 0; i < s.chunks.length; i++) {
+      var by = defTop + i * defLineH + s.defSize;
+      parts.push(svgText(W / 2, by, s.defSize, pal.sub, "500", s.chunks[i], { anchor: "middle" }));
+    }
+
+    if (o.logo) {
+      var lh = 74;
+      var lw = lh * (o.logoAR || 3);
+      if (lw > 340) {
+        lw = 340;
+        lh = lw / (o.logoAR || 3);
+      }
+      var lx = W - 96 - lw,
+        ly = H - 96 - lh;
+      parts.push(
+        '<image href="' + o.logo + '" xlink:href="' + o.logo + '" x="' + lx + '" y="' + ly +
+          '" width="' + lw + '" height="' + lh + '" preserveAspectRatio="xMaxYMax meet"/>'
+      );
+    } else if (o.brand) {
+      parts.push(svgText(W - 96, H - 104, 30, pal.sub, "700", o.brand, { anchor: "end" }));
+    }
+
+    parts.push("</svg>");
+    return parts.join("");
+  }
+
+  /* ======================================================================
+     Download helpers
+     ====================================================================== */
+  function slug(s) {
+    return (
+      String(s || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || ""
+    );
+  }
+  function fileBase(v, i) {
+    var b = v.en ? slug(v.en) : "";
+    if (!b) b = "value-" + (i + 1);
+    return "core-value-poster-" + b;
+  }
+
+  function triggerDownload(url, filename, revoke) {
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    if (revoke) setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+
+  function svgDownload(svg, filename) {
+    var blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    triggerDownload(url, filename, true);
+    flash("SVG를 저장했습니다.");
+  }
+
+  function svgToPng(svg, filename, cb) {
+    var scale = 2;
+    var blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var img = new Image();
+    img.onload = function () {
+      var canvas = document.createElement("canvas");
+      canvas.width = 1080 * scale;
+      canvas.height = 1440 * scale;
+      var ctx = canvas.getContext("2d");
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      ctx.drawImage(img, 0, 0, 1080, 1440);
+      URL.revokeObjectURL(url);
+      try {
+        canvas.toBlob(function (b) {
+          if (!b) {
+            flash("PNG 저장에 실패했습니다. SVG로 저장해 보세요.", true);
+            if (cb) cb();
+            return;
+          }
+          var u = URL.createObjectURL(b);
+          triggerDownload(u, filename, true);
+          flash("PNG를 저장했습니다.");
+          if (cb) cb();
+        }, "image/png");
+      } catch (err) {
+        flash("PNG 저장이 차단되었습니다. SVG로 저장해 보세요.", true);
+        if (cb) cb();
+      }
+    };
+    img.onerror = function () {
+      URL.revokeObjectURL(url);
+      flash("이미지 렌더링에 실패했습니다. SVG로 저장해 보세요.", true);
+      if (cb) cb();
+    };
+    img.src = url;
+  }
+
+  /* ======================================================================
+     AI symbol-image prompt (text-free, per the SKILL non-negotiables)
+     ====================================================================== */
+  function buildSymbolPrompt(values, pal, brand) {
+    var L = [];
+    L.push("다음은 우리 조직의 확정된 핵심가치입니다. 각 가치를 상징하는 '텍스트 없는' 이미지를 1개씩 제안해 주세요.");
+    L.push("");
+    L.push("[공통 규칙]");
+    L.push("- 이미지 안에 글자, 숫자, 로고, 워터마크, 서명, 가짜 UI 텍스트를 절대 넣지 마세요. (실제 문구는 포스터에서 직접 렌더링합니다.)");
+    L.push("- 세로 포스터의 배경 또는 중앙 심볼로 쓸 수 있도록 여백을 넉넉히 두세요.");
+    L.push("- 팔레트를 반영하세요 (배경 " + pal.bg + ", 강조 " + pal.accent + ").");
+    L.push("- 가치마다 서로 구별되는 하나의 상징을 사용하고, 관광지풍/스톡풍/장식 노이즈는 피하세요.");
+    L.push("");
+    L.push("[가치 목록]");
+    for (var i = 0; i < values.length; i++) {
+      var v = values[i];
+      L.push(
+        i + 1 + ". " + v.name + (v.en ? " (" + v.en + ")" : "") + " - 정의: \"" + v.def + "\""
+      );
+    }
+    L.push("");
+    L.push("[요청]");
+    L.push("각 가치에 대해 (1) 상징 아이디어 한 줄, (2) 실제로 넣을 이미지 생성 프롬프트(텍스트 없이)를 정리해 주세요.");
+    L.push("근거 없는 화려함보다, 정의의 의미를 지지하는 단순하고 명료한 상징을 우선하세요.");
+    if (brand) L.push("브랜드: " + brand + " (톤을 참고하되 로고는 이미지에 넣지 마세요.)");
+    return L.join("\n");
+  }
+
+  /* ======================================================================
+     Generate
+     ====================================================================== */
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function readValues() {
+    var rows = rowsEl.querySelectorAll(".vrow");
+    var out = [];
+    rows.forEach(function (r) {
+      var name = (r.querySelector('[data-f="name"]').value || "").trim();
+      var en = (r.querySelector('[data-f="en"]').value || "").trim();
+      var def = (r.querySelector('[data-f="def"]').value || "").trim();
+      if (name && def) out.push({ name: name, en: en, def: def });
+    });
+    return out;
+  }
+
+  function generate() {
+    var values = readValues();
+    var brand = (document.getElementById("brand").value || "").trim();
+    var labelOn = document.getElementById("labelOn").checked;
+    var pal = PALETTES[selectedPalette];
+
+    if (!values.length) {
+      posters = [];
+      resultEl.innerHTML =
+        '<div class="inline-error">핵심가치명과 한 문장 정의를 하나 이상 입력하세요. (영문 라벨은 선택입니다.)</div>';
+      return;
+    }
+
+    posters = [];
+    var opts = { labelOn: labelOn, brand: brand, logo: logoData, logoAR: logoAR };
+
+    var cells = "";
+    for (var i = 0; i < values.length; i++) {
+      var v = values[i];
+      var sizes = computeSizes(v);
+      posters.push({ v: v, sizes: sizes, pal: pal, opts: opts });
+      cells +=
+        '<div class="poster-cell">' +
+        '<div class="poster-frame">' + posterMarkup(posters[i]) + "</div>" +
+        '<div class="poster-tools no-print">' +
+        '<button class="btn-mini" data-act="png" data-idx="' + i + '">PNG 저장</button>' +
+        '<button class="btn-mini" data-act="svg" data-idx="' + i + '">SVG 저장</button>' +
+        '<button class="btn-mini ghost" data-act="copy" data-idx="' + i + '">문구 복사</button>' +
+        "</div>" +
+        "</div>";
+    }
+
+    lastPrompt = buildSymbolPrompt(values, pal, brand);
+
+    var html = "";
+    html += '<div class="result-block-title">포스터 미리보기 (' + values.length + "개)</div>";
+    html += '<div class="poster-grid">' + cells + "</div>";
+
+    html += '<div class="global-tools no-print">';
+    html += '<button class="btn-copy" id="printAll">전체 인쇄 / PDF 저장</button>';
+    html += '<button class="btn-copy" id="pngAll" style="background:var(--accent)">PNG 모두 저장</button>';
+    html += '<span class="status-msg" id="globalStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // AI symbol prompt
+    html += '<div class="prompt-section">';
+    html += '<div class="result-block-title">심화: 텍스트 없는 상징 이미지용 AI 프롬프트</div>';
+    html += '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 각 가치의 배경/심볼 이미지 아이디어를 제안받을 수 있습니다. 텍스트는 이 도구에서 렌더링하므로 이미지에는 글자를 넣지 않도록 지시되어 있습니다.</p>';
+    html += '<pre class="prompt" id="promptText">' + esc(lastPrompt) + "</pre>";
+    html += '<div class="copy-row">';
+    html += '<button class="btn-copy" id="copyPrompt">프롬프트 복사</button>';
+    html += '<span class="status-msg" id="promptStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResult();
+    scaleFrames();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("generate").addEventListener("click", generate);
+
+  /* ======================================================================
+     Wire result buttons
+     ====================================================================== */
+  function wireResult() {
+    resultEl.querySelectorAll(".poster-tools .btn-mini").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var idx = parseInt(btn.getAttribute("data-idx"), 10);
+        var act = btn.getAttribute("data-act");
+        var p = posters[idx];
+        if (!p) return;
+        if (act === "png") svgToPng(buildSVG(p), fileBase(p.v, idx) + ".png");
+        else if (act === "svg") svgDownload(buildSVG(p), fileBase(p.v, idx) + ".svg");
+        else if (act === "copy") {
+          var lines = [];
+          if (p.v.en) lines.push(p.v.en);
+          lines.push(p.v.name);
+          lines.push("");
+          lines.push(p.sizes.chunks.join("\n"));
+          doCopy(lines.join("\n"), "globalStatus");
+        }
+      });
+    });
+
+    var printAll = document.getElementById("printAll");
+    if (printAll) printAll.addEventListener("click", function () { window.print(); });
+
+    var pngAll = document.getElementById("pngAll");
+    if (pngAll)
+      pngAll.addEventListener("click", function () {
+        var i = 0;
+        function next() {
+          if (i >= posters.length) {
+            flash("PNG " + posters.length + "개를 저장했습니다.");
+            return;
+          }
+          var p = posters[i];
+          svgToPng(buildSVG(p), fileBase(p.v, i) + ".png", function () {
+            i += 1;
+            setTimeout(next, 350);
+          });
+        }
+        next();
+      });
+
+    var copyPrompt = document.getElementById("copyPrompt");
+    if (copyPrompt) copyPrompt.addEventListener("click", function () { doCopy(lastPrompt, "promptStatus"); });
+  }
+
+  function flash(msg, isErr) {
+    var s = document.getElementById("globalStatus");
+    if (s) {
+      s.textContent = msg;
+      s.style.color = isErr ? "#a3392a" : "var(--good)";
+      setTimeout(function () {
+        if (s) s.textContent = "";
+      }, 2800);
+    }
+  }
+
+  /* ======================================================================
+     Reset
+     ====================================================================== */
+  document.getElementById("reset").addEventListener("click", function () {
+    rowsEl.innerHTML = "";
+    rowSeq = 0;
+    addRow();
+    document.getElementById("brand").value = "";
+    document.getElementById("labelOn").checked = true;
+    selectedPalette = "ivory";
+    renderPaletteSeg();
+    logoData = null;
+    logoAR = 3;
+    logoInput.value = "";
+    logoNameEl.textContent = "선택된 파일 없음";
+    removeLogoBtn.style.display = "none";
+    posters = [];
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+      "<p><strong>아직 생성된 포스터가 없습니다.</strong></p>" +
+      "<p>가치를 입력하고 '포스터 생성'을 누르세요. '예시로 채우기'로 먼저 체험할 수 있습니다.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ======================================================================
+     Copy (3-tier fallback)
+     ====================================================================== */
+  function statusInto(id, msg) {
+    var s = document.getElementById(id);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy(text, statusId) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () { statusInto(statusId, "복사되었습니다."); },
+        function () { legacyCopy(text, statusId); }
+      );
+      return;
+    }
+    legacyCopy(text, statusId);
+  }
+
+  function legacyCopy(text, statusId) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) statusInto(statusId, "복사되었습니다.");
+    else openModal(text);
+  }
+
+  /* ======================================================================
+     Manual copy modal
+     ====================================================================== */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  /* ======================================================================
+     Poster scaling (fit 1080px design into responsive columns / print)
+     ====================================================================== */
+  function scaleFrames(forceW) {
+    var frames = document.querySelectorAll(".poster-frame");
+    frames.forEach(function (fr) {
+      var poster = fr.querySelector(".poster");
+      if (!poster) return;
+      if (forceW) fr.style.width = forceW + "px";
+      var w = forceW || fr.clientWidth;
+      var s = w / 1080;
+      poster.style.transform = "scale(" + s + ")";
+      fr.style.height = 1440 * s + "px";
+    });
+  }
+
+  var resizeTimer = null;
+  window.addEventListener("resize", function () {
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      scaleFrames();
+    }, 120);
+  });
+
+  window.addEventListener("beforeprint", function () {
+    scaleFrames(720); // fit A4-ish page content width, one poster per page
+  });
+  window.addEventListener("afterprint", function () {
+    document.querySelectorAll(".poster-frame").forEach(function (fr) {
+      fr.style.width = "";
+    });
+    scaleFrames();
+  });
+
+  /* ======================================================================
+     Init
+     ====================================================================== */
+  addRow();
+  addRow();
+</script>

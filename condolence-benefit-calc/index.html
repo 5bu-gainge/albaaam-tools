@@ -1,0 +1,1384 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>경조사 지원 계산기</title>
+<meta
+  name="description"
+  content="경조 사유와 사내 규정을 넣으면 지급 경조금과 경조휴가 일수, 안내문을 자동 산출합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #4c5f8a;
+    --accent-strong: #3a4a6d;
+    --accent-tint: #eef1f7;
+    --accent-tint-2: #dde3ef;
+    --ink: #21242b;
+    --ink-soft: #474d57;
+    --ink-mute: #6a707a;
+    --paper: #f6f7fa;
+    --card: #ffffff;
+    --line: #e3e6ec;
+    --line-strong: #d0d5df;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #9a5a12;
+    --warn-tint: #fbf1e2;
+    --warn-line: #ecd8b8;
+    --shadow: 0 1px 2px rgba(33, 36, 43, 0.05), 0 6px 20px rgba(33, 36, 43, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- event selection grid ---------- */
+  .grp {
+    margin: 0 0 14px;
+  }
+  .grp:last-child {
+    margin-bottom: 0;
+  }
+  .grp-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--ink-mute);
+    margin: 0 0 9px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .grp-title .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--accent);
+    flex: none;
+  }
+  .grp.gyeong .grp-title .dot {
+    background: #b8791e;
+  }
+  .evt-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+  }
+  label.evt {
+    position: relative;
+    display: block;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: #fcfcfe;
+    padding: 12px 13px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    min-height: 44px;
+  }
+  label.evt:hover {
+    border-color: var(--ink-mute);
+  }
+  label.evt input.evt-radio {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  label.evt.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  label.evt:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint-2);
+    border-color: var(--accent);
+  }
+  .evt-name {
+    font-weight: 700;
+    font-size: 0.97rem;
+    margin: 0 0 3px;
+    color: var(--ink);
+  }
+  .evt-meta {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    margin: 0;
+  }
+  label.evt.on .evt-meta {
+    color: var(--accent-strong);
+  }
+
+  /* ---------- fields ---------- */
+  .grid2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .field.full {
+    grid-column: 1 / -1;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  label.field-label .opt {
+    font-weight: 600;
+    color: var(--ink-mute);
+    font-size: 0.82rem;
+  }
+  .inp,
+  .inrow input {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--ink);
+    background: #fcfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 0 13px;
+    min-height: 46px;
+    word-break: keep-all;
+  }
+  select.inp {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236a707a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    padding-right: 36px;
+  }
+  .inp:focus,
+  .inrow input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .inrow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+  .inrow input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+    text-align: right;
+  }
+  .inrow .unit {
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    background: #f0f2f6;
+    border: 1px solid var(--line-strong);
+    border-left: none;
+    border-radius: 0 11px 11px 0;
+    flex: none;
+  }
+  textarea.inp {
+    min-height: 74px;
+    resize: none;
+    overflow: hidden;
+    padding: 12px 13px;
+    line-height: 1.6;
+    overflow-wrap: break-word;
+  }
+  textarea.inp::placeholder,
+  .inp::placeholder {
+    color: #a3a9b4;
+  }
+  .field-hint {
+    font-size: 0.83rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .reg-note {
+    font-size: 0.84rem;
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 10px;
+    padding: 10px 13px;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .result-head {
+    border-radius: 14px;
+    padding: 18px 18px;
+    margin-bottom: 16px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .result-head .rh-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .result-head .rh-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.3;
+    color: var(--accent-strong);
+  }
+  .result-head .rh-sub {
+    margin: 6px 0 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+
+  .sumcards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 11px;
+    margin-bottom: 18px;
+  }
+  .sumcard {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fcfcfe;
+    padding: 15px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .sumcard .sc-k {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+  }
+  .sumcard .sc-v {
+    font-size: 1.32rem;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .sumcard .sc-v small {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .sumcard .sc-note {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    margin: 0;
+  }
+  .sumcard.accent {
+    border-left: 3px solid var(--accent);
+  }
+
+  .detail-list {
+    list-style: none;
+    margin: 0 0 4px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .detail-list li {
+    display: flex;
+    gap: 12px;
+    padding: 11px 15px;
+    font-size: 0.92rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .detail-list li:last-child {
+    border-bottom: none;
+  }
+  .detail-list .dk {
+    flex: none;
+    width: 116px;
+    color: var(--ink-mute);
+    font-weight: 700;
+  }
+  .detail-list .dv {
+    color: var(--ink);
+    min-width: 0;
+  }
+  .detail-list .dv em {
+    font-style: normal;
+    color: var(--ink-mute);
+    font-size: 0.86rem;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* light document (안내문) */
+  pre.doc {
+    margin: 0;
+    background: #fbfbfd;
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.9rem;
+    line-height: 1.72;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+  }
+  /* dark prompt (AI) */
+  pre.prompt {
+    margin: 0;
+    background: #23262d;
+    color: #eef0f4;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+  .disclaim {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 20px 0 0;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(33, 36, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    color: var(--ink);
+    background: #fcfcfe;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .evt-grid {
+      grid-template-columns: 1fr;
+    }
+    .grid2 {
+      grid-template-columns: 1fr;
+    }
+    .sumcards {
+      grid-template-columns: 1fr;
+    }
+    .detail-list .dk {
+      width: 96px;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #evt-panel,
+    #detail-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">총무 · HR · 경조 지원 자동 산출</span>
+    <h1>경조사 지원 계산기</h1>
+    <p class="lede">
+      경조 사유와 사내 규정을 넣으면 지급 경조금, 경조휴가 일수와 실제 기간,
+      화환 처리, 그리고 바로 쓰는 안내문까지 한 번에 산출합니다.
+    </p>
+  </header>
+
+  <section class="panel" id="evt-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>경조 사유 선택</h2>
+    </div>
+    <p class="panel-sub">
+      해당하는 사유 하나를 고르면, 아래 규정값이 관행 예시로 자동 채워집니다.
+    </p>
+    <div id="evt-grid"></div>
+  </section>
+
+  <section class="panel" id="detail-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>세부 정보 · 규정값</h2>
+    </div>
+    <p class="panel-sub">
+      대상 임직원 정보와 발생일을 넣고, 자사 규정에 맞게 금액·일수를 수정하세요.
+    </p>
+
+    <div class="grid2">
+      <div class="field">
+        <label class="field-label" for="f-name"
+          >임직원 성명 <span class="opt">(선택)</span></label
+        >
+        <input class="inp" id="f-name" type="text" placeholder="예) 홍길동" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-dept"
+          >부서 <span class="opt">(선택)</span></label
+        >
+        <input class="inp" id="f-dept" type="text" placeholder="예) 경영지원팀" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-date"
+          >발생일 <span class="opt">(선택)</span></label
+        >
+        <input class="inp" id="f-date" type="date" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-week">근무 형태</label>
+        <select class="inp" id="f-week">
+          <option value="5">주 5일 (토·일 휴무)</option>
+          <option value="6">주 6일 (일요일 휴무)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-method">휴가 계산 방식</label>
+        <select class="inp" id="f-method">
+          <option value="cal">역일(연속) — 주말 포함</option>
+          <option value="work">근무일 — 주말 제외</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-paid">유급 여부</label>
+        <select class="inp" id="f-paid">
+          <option value="유급">유급</option>
+          <option value="무급">무급</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="height: 16px"></div>
+    <p class="reg-note">
+      경조휴가·경조금은 법으로 정해진 금액이 아니라 회사 규정으로 정하는 값입니다.
+      아래 기본값은 참고용 관행 예시이니 반드시 자사 취업규칙·경조규정 값으로
+      수정하세요.
+    </p>
+
+    <div class="grid2">
+      <div class="field">
+        <label class="field-label" for="f-money">경조금</label>
+        <div class="inrow">
+          <input id="f-money" type="number" min="0" step="10000" value="0" />
+          <span class="unit">원</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-days">경조휴가</label>
+        <div class="inrow">
+          <input id="f-days" type="number" min="0" step="1" value="0" />
+          <span class="unit">일</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-wreath">화환 / 조화</label>
+        <select class="inp" id="f-wreath">
+          <option value="없음">없음</option>
+          <option value="근조화환">근조화환 (弔)</option>
+          <option value="축하화환">축하화환 (慶)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-extra"
+          >추가 지원 <span class="opt">(선택)</span></label
+        >
+        <input
+          class="inp"
+          id="f-extra"
+          type="text"
+          placeholder="예) 상조용품, 화환 대체 조의금"
+        />
+      </div>
+      <div class="field full">
+        <label class="field-label" for="f-memo"
+          >비고 <span class="opt">(선택)</span></label
+        >
+        <textarea
+          class="inp"
+          id="f-memo"
+          placeholder="예) 발생일이 휴일과 겹쳐 익일부터 사용 예정"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="calc">산출하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>산출 결과</h2>
+    </div>
+    <div id="result" role="region" aria-label="산출 결과">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◷</div>
+        <p><strong>아직 산출 전입니다.</strong></p>
+        <p>경조 사유를 고르고 '산출하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 경조휴가와 경조금은 근로기준법이
+      일률적으로 정한 법정 사항이 아니라 회사의 취업규칙·경조규정·단체협약으로
+      정하는 임의 복리후생입니다. 이 도구의 금액·일수는 사용자가 입력·확인한 자사
+      규정값을 기준으로 하며, 기간은 입력한 발생일과 근무 형태에 따른 달력
+      계산으로 산출합니다. 배우자 출산휴가 등 일부 휴가는 관련 법령에서 별도로
+      정하므로 자사 규정과 최신 법령을 함께 확인하세요. (공휴일은 자동 반영되지
+      않으니 필요 시 담당자가 조정하세요.)
+    </p>
+    <p>
+      이 도구는 담당자의 경조 처리 판단을 돕는 보조 계산기이며, 최종 지급·승인은
+      자사 규정과 담당 부서 확인을 따릅니다. 입력값은 이 브라우저 밖으로 전송되지
+      않으며 서버·외부 API 호출도 없습니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // 경조 사유 표. days/money/wreath 는 관행 참고용 편집 가능한 기본 예시값이며,
+  // 실제 지급은 사용자가 입력한 자사 규정값을 따른다(법정 수치 아님).
+  var EVENTS = [
+    // 慶事
+    { id: "self_wed", group: "경사", name: "본인 결혼", target: "본인", days: 5, money: 200000, wreath: "축하화환" },
+    { id: "child_wed", group: "경사", name: "자녀 결혼", target: "자녀", days: 1, money: 200000, wreath: "축하화환" },
+    { id: "sib_wed", group: "경사", name: "형제·자매 결혼", target: "형제·자매", days: 1, money: 0, wreath: "없음" },
+    { id: "spouse_birth", group: "경사", name: "배우자 출산", target: "배우자", days: 10, money: 100000, wreath: "없음" },
+    { id: "self_60", group: "경사", name: "본인·배우자 회갑/칠순", target: "본인·배우자", days: 1, money: 100000, wreath: "축하화환" },
+    { id: "parent_60", group: "경사", name: "부모 회갑/칠순", target: "부모", days: 1, money: 100000, wreath: "없음" },
+    // 弔事
+    { id: "parent_death", group: "조사", name: "부모상 (본인·배우자)", target: "부모", days: 5, money: 100000, wreath: "근조화환" },
+    { id: "spouse_death", group: "조사", name: "배우자 사망", target: "배우자", days: 5, money: 100000, wreath: "근조화환" },
+    { id: "child_death", group: "조사", name: "자녀 사망", target: "자녀", days: 5, money: 100000, wreath: "근조화환" },
+    { id: "gp_death", group: "조사", name: "(외)조부모상", target: "(외)조부모", days: 3, money: 50000, wreath: "근조화환" },
+    { id: "sib_death", group: "조사", name: "형제·자매 사망", target: "형제·자매", days: 3, money: 50000, wreath: "근조화환" },
+    { id: "spouse_gp_death", group: "조사", name: "배우자의 (외)조부모상", target: "배우자의 (외)조부모", days: 3, money: 50000, wreath: "근조화환" },
+  ];
+
+  var WEEK = ["일", "월", "화", "수", "목", "금", "토"];
+
+  function $(id) {
+    return document.getElementById(id);
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function wonFmt(n) {
+    var v = Number(n);
+    if (!isFinite(v) || v < 0) v = 0;
+    return v.toLocaleString("ko-KR");
+  }
+
+  // ---- render event grid ----
+  var evtGrid = $("evt-grid");
+  var selectedId = null;
+
+  (function renderEvents() {
+    var groups = [
+      { key: "경사", cls: "gyeong", label: "경사 (慶) · 결혼 · 출산 · 회갑" },
+      { key: "조사", cls: "jo", label: "조사 (弔) · 사망" },
+    ];
+    groups.forEach(function (g) {
+      var wrap = document.createElement("div");
+      wrap.className = "grp " + g.cls;
+      var title = document.createElement("p");
+      title.className = "grp-title";
+      title.innerHTML = '<span class="dot" aria-hidden="true"></span>' + esc(g.label);
+      wrap.appendChild(title);
+
+      var grid = document.createElement("div");
+      grid.className = "evt-grid";
+      EVENTS.filter(function (e) {
+        return e.group === g.key;
+      }).forEach(function (e) {
+        var lab = document.createElement("label");
+        lab.className = "evt";
+        lab.dataset.id = e.id;
+        var meta = "기본 " + e.days + "일";
+        if (e.wreath !== "없음") meta += " · " + e.wreath;
+        lab.innerHTML =
+          '<input type="radio" name="evt" class="evt-radio" value="' +
+          e.id +
+          '" />' +
+          '<p class="evt-name">' +
+          esc(e.name) +
+          "</p>" +
+          '<p class="evt-meta">' +
+          esc(meta) +
+          "</p>";
+        grid.appendChild(lab);
+      });
+      wrap.appendChild(grid);
+      evtGrid.appendChild(wrap);
+    });
+  })();
+
+  evtGrid.addEventListener("change", function (ev) {
+    var box = ev.target;
+    if (box.name !== "evt") return;
+    selectedId = box.value;
+    Array.prototype.forEach.call(evtGrid.querySelectorAll("label.evt"), function (l) {
+      l.classList.toggle("on", l.dataset.id === selectedId);
+    });
+    var e = EVENTS.filter(function (x) {
+      return x.id === selectedId;
+    })[0];
+    if (!e) return;
+    $("f-money").value = e.money;
+    $("f-days").value = e.days;
+    $("f-wreath").value = e.wreath;
+    $("f-paid").value = "유급";
+  });
+
+  // ---- auto-grow memo ----
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  $("f-memo").addEventListener("input", function () {
+    grow(this);
+  });
+
+  // ---- date helpers ----
+  function parseDate(str) {
+    if (!str) return null;
+    var p = str.split("-");
+    if (p.length !== 3) return null;
+    var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    if (isNaN(d.getTime())) return null;
+    return d;
+  }
+  function addDays(d, n) {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  }
+  function fmtDate(d) {
+    return (
+      d.getFullYear() +
+      "년 " +
+      (d.getMonth() + 1) +
+      "월 " +
+      d.getDate() +
+      "일 (" +
+      WEEK[d.getDay()] +
+      ")"
+    );
+  }
+  function isWork(d, pattern) {
+    var w = d.getDay();
+    if (pattern === "5") return w !== 0 && w !== 6;
+    return w !== 0; // 주6일: 일요일만 휴무
+  }
+
+  // returns {label, span, ret} or {label} when no date, or null when days<=0
+  function computeLeave(days, dateObj, pattern, method) {
+    if (!days || days <= 0) return null;
+    if (!dateObj) {
+      return { label: days + "일", span: null, ret: null, none: false };
+    }
+    var start, end;
+    if (method === "cal") {
+      start = dateObj;
+      end = addDays(dateObj, days - 1);
+    } else {
+      // working days
+      var cur = dateObj;
+      while (!isWork(cur, pattern)) cur = addDays(cur, 1);
+      start = cur;
+      var count = 1;
+      var last = cur;
+      while (count < days) {
+        cur = addDays(cur, 1);
+        if (isWork(cur, pattern)) {
+          count++;
+          last = cur;
+        }
+      }
+      end = last;
+    }
+    var ret = addDays(end, 1);
+    while (!isWork(ret, pattern)) ret = addDays(ret, 1);
+    return {
+      label: days + "일",
+      span: fmtDate(start) + " ~ " + fmtDate(end),
+      ret: fmtDate(ret),
+      start: start,
+      end: end,
+    };
+  }
+
+  // ---- announcement + prompt builders ----
+  function buildAnno(c) {
+    var L = [];
+    var who = (c.dept ? c.dept + " " : "") + (c.name || "[임직원 성명]");
+    L.push("[경조 지원 처리 안내]");
+    L.push("");
+    L.push("· 대상 임직원 : " + who);
+    L.push("· 경조 사유   : " + c.evtName + " (" + c.group + ")");
+    L.push("· 발생일     : " + (c.dateObj ? fmtDate(c.dateObj) : "미입력"));
+    L.push("· 경조금     : " + wonFmt(c.money) + "원");
+    if (c.leave) {
+      var lt = "경조휴가 " + c.leave.label + " (" + c.paid + ", " + c.methodLabel + ")";
+      L.push("· 휴가       : " + lt);
+      if (c.leave.span) {
+        L.push("             " + c.leave.span);
+        L.push("             복귀 예정 : " + c.leave.ret);
+      }
+    } else {
+      L.push("· 휴가       : 별도 부여 없음");
+    }
+    L.push("· 화환/조화  : " + c.wreath);
+    if (c.extra) L.push("· 추가 지원  : " + c.extra);
+    if (c.memo) L.push("· 비고       : " + c.memo);
+    L.push("");
+    L.push(
+      "※ 본 안내는 사내 경조 규정에 따른 산출 결과이며, 최종 지급·승인은 담당 부서 확인 후 확정됩니다."
+    );
+    if (c.leave && c.leave.span && c.method === "work") {
+      L.push("※ 휴가 기간은 근무일 기준으로 계산되었으며 공휴일은 반영되지 않았습니다.");
+    } else if (c.leave && c.leave.span) {
+      L.push("※ 휴가 기간은 역일(연속) 기준이며 공휴일은 반영되지 않았습니다.");
+    }
+    return L.join("\n");
+  }
+
+  function buildPrompt(c) {
+    var L = [];
+    var who = (c.dept ? c.dept + " " : "") + (c.name || "(성명 미기재)");
+    L.push(
+      "당신은 회사 총무·인사 담당자를 돕는 어시스턴트입니다. 아래 경조 처리 정보를 바탕으로 두 가지를 작성해 주세요."
+    );
+    L.push("");
+    L.push("【경조 처리 정보】");
+    L.push("- 임직원: " + who);
+    L.push("- 경조 사유: " + c.evtName + " (" + c.group + ")");
+    L.push("- 발생일: " + (c.dateObj ? fmtDate(c.dateObj) : "미입력"));
+    L.push("- 경조금: " + wonFmt(c.money) + "원 (" + c.paid + " 휴가)");
+    if (c.leave) {
+      L.push(
+        "- 경조휴가: " +
+          c.leave.label +
+          (c.leave.span ? " (" + c.leave.span + ", 복귀 " + c.leave.ret + ")" : "")
+      );
+    } else {
+      L.push("- 경조휴가: 없음");
+    }
+    L.push("- 화환/조화: " + c.wreath);
+    if (c.extra) L.push("- 추가 지원: " + c.extra);
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 사내 게시판에 올릴 정중한 공지문을 작성해 주세요. " +
+        (c.group === "조사"
+          ? "조사이므로 애도의 뜻을 담아 격식 있고 담백하게, 과장된 표현은 피해 주세요."
+          : "경사이므로 축하의 마음을 담아 따뜻하고 밝게 써 주세요.")
+    );
+    L.push("2. 대상 임직원에게 개별로 보낼 짧고 진심 어린 메시지 초안도 함께 주세요.");
+    L.push(
+      "3. 위에 주어지지 않은 금액·날짜·규정은 지어내지 말고, 필요하면 [담당자 확인] 처럼 빈칸으로 표시하세요."
+    );
+    L.push(
+      "4. 조사에는 호상·부의 등 유족이 부담스러울 수 있는 표현을 조심하고, 상황에 맞는 조의 문구를 골라 주세요."
+    );
+    return L.join("\n");
+  }
+
+  // ---- calculate ----
+  var resultEl = $("result");
+  var lastAnno = "";
+  var lastPrompt = "";
+
+  $("calc").addEventListener("click", function () {
+    var e = EVENTS.filter(function (x) {
+      return x.id === selectedId;
+    })[0];
+    if (!e) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">↑</div>' +
+        "<p><strong>먼저 경조 사유를 선택하세요.</strong></p>" +
+        "<p>STEP 1에서 해당하는 사유 하나를 고른 뒤 다시 산출하세요.</p></div>";
+      $("evt-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var pattern = $("f-week").value;
+    var method = $("f-method").value;
+    var methodLabel = method === "cal" ? "역일 기준" : "근무일 기준";
+    var days = parseInt($("f-days").value, 10);
+    if (isNaN(days) || days < 0) days = 0;
+    var money = parseInt($("f-money").value, 10);
+    if (isNaN(money) || money < 0) money = 0;
+
+    var dateObj = parseDate($("f-date").value);
+    var leave = computeLeave(days, dateObj, pattern, method);
+
+    var c = {
+      evtName: e.name,
+      group: e.group,
+      name: $("f-name").value.trim(),
+      dept: $("f-dept").value.trim(),
+      dateObj: dateObj,
+      pattern: pattern,
+      method: method,
+      methodLabel: methodLabel,
+      paid: $("f-paid").value,
+      money: money,
+      days: days,
+      wreath: $("f-wreath").value,
+      extra: $("f-extra").value.trim(),
+      memo: $("f-memo").value.trim(),
+      leave: leave,
+    };
+
+    lastAnno = buildAnno(c);
+    lastPrompt = buildPrompt(c);
+
+    var html = "";
+
+    // head
+    html += '<div class="result-head">';
+    html += '<p class="rh-label">산출 완료 · ' + esc(c.group) + "</p>";
+    html += '<p class="rh-title">' + esc(c.evtName) + "</p>";
+    var whoLine = (c.dept ? esc(c.dept) + " " : "") + (c.name ? esc(c.name) : "임직원");
+    html +=
+      '<p class="rh-sub">' +
+      whoLine +
+      " · " +
+      (c.dateObj ? esc(fmtDate(c.dateObj)) : "발생일 미입력") +
+      "</p>";
+    html += "</div>";
+
+    // summary cards
+    var leaveV;
+    if (!c.leave) {
+      leaveV = '없음';
+    } else {
+      leaveV = c.days + '<small>일</small>';
+    }
+    html += '<div class="sumcards">';
+    html +=
+      '<div class="sumcard accent"><span class="sc-k">경조금</span>' +
+      '<span class="sc-v">' +
+      wonFmt(c.money) +
+      '<small>원</small></span>' +
+      '<p class="sc-note">' +
+      esc(c.paid) +
+      " 처리</p></div>";
+    html +=
+      '<div class="sumcard accent"><span class="sc-k">경조휴가</span>' +
+      '<span class="sc-v">' +
+      leaveV +
+      "</span>" +
+      '<p class="sc-note">' +
+      esc(c.methodLabel) +
+      "</p></div>";
+    html +=
+      '<div class="sumcard accent"><span class="sc-k">화환 / 조화</span>' +
+      '<span class="sc-v" style="font-size:1.06rem">' +
+      esc(c.wreath) +
+      "</span>" +
+      '<p class="sc-note">' +
+      (c.wreath === "없음" ? "발송 없음" : "발송 대상") +
+      "</p></div>";
+    html += "</div>";
+
+    // detail list
+    html += '<ul class="detail-list">';
+    if (c.leave && c.leave.span) {
+      html +=
+        '<li><span class="dk">휴가 기간</span><span class="dv">' +
+        esc(c.leave.span) +
+        "</span></li>";
+      html +=
+        '<li><span class="dk">복귀 예정일</span><span class="dv">' +
+        esc(c.leave.ret) +
+        ' <em>(' +
+        esc(c.methodLabel) +
+        ', 공휴일 미반영)</em></span></li>';
+    } else if (c.leave) {
+      html +=
+        '<li><span class="dk">휴가 기간</span><span class="dv">' +
+        c.days +
+        "일 <em>(발생일을 입력하면 기간·복귀일이 계산됩니다)</em></span></li>";
+    } else {
+      html +=
+        '<li><span class="dk">휴가</span><span class="dv">별도 부여 없음</span></li>';
+    }
+    html +=
+      '<li><span class="dk">근무 형태</span><span class="dv">' +
+      (c.pattern === "5" ? "주 5일 (토·일 휴무)" : "주 6일 (일요일 휴무)") +
+      "</span></li>";
+    if (c.extra)
+      html +=
+        '<li><span class="dk">추가 지원</span><span class="dv">' +
+        esc(c.extra) +
+        "</span></li>";
+    if (c.memo)
+      html +=
+        '<li><span class="dk">비고</span><span class="dv">' +
+        esc(c.memo) +
+        "</span></li>";
+    html += "</ul>";
+
+    // 안내문
+    html += '<div class="result-block-title">바로 쓰는 처리 안내문</div>';
+    html += '<pre class="doc" id="anno-text">' + esc(lastAnno) + "</pre>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" data-copy="anno">안내문 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="st-anno" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // AI 프롬프트
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">공지문·개별 메시지 초안이 필요하면, 아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으세요. 산출값이 그대로 담겨 있습니다.</p>';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" data-copy="prompt">프롬프트 복사</button>';
+    html +=
+      '<span class="copy-status" id="st-prompt" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // disclaimer
+    html +=
+      '<p class="disclaim">금액·일수는 입력하신 규정값 기준입니다. 경조휴가·경조금은 회사 규정 사항이므로, 최종 지급 전 자사 취업규칙·경조규정과 담당 부서 승인을 확인하세요.</p>';
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  $("reset").addEventListener("click", function () {
+    selectedId = null;
+    Array.prototype.forEach.call(
+      evtGrid.querySelectorAll("input.evt-radio"),
+      function (r) {
+        r.checked = false;
+      }
+    );
+    Array.prototype.forEach.call(evtGrid.querySelectorAll("label.evt"), function (l) {
+      l.classList.remove("on");
+    });
+    ["f-name", "f-dept", "f-date", "f-extra", "f-memo"].forEach(function (id) {
+      $(id).value = "";
+    });
+    $("f-money").value = "0";
+    $("f-days").value = "0";
+    $("f-wreath").value = "없음";
+    $("f-paid").value = "유급";
+    $("f-week").value = "5";
+    $("f-method").value = "cal";
+    grow($("f-memo"));
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◷</div>' +
+      "<p><strong>아직 산출 전입니다.</strong></p>" +
+      "<p>경조 사유를 고르고 '산출하기'를 누르세요.</p></div>";
+    $("evt-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- copy (3-tier fallback) ----
+  function wireResultButtons() {
+    Array.prototype.forEach.call(
+      resultEl.querySelectorAll("[data-copy]"),
+      function (btn) {
+        btn.addEventListener("click", function () {
+          var which = btn.getAttribute("data-copy");
+          var text = which === "anno" ? lastAnno : lastPrompt;
+          var statusId = which === "anno" ? "st-anno" : "st-prompt";
+          doCopy(text, statusId);
+        });
+      }
+    );
+    var printBtn = $("printBtn");
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(statusId, msg) {
+    var s = $(statusId);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy(text, statusId) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(statusId, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusId);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusId);
+  }
+
+  function legacyCopy(text, statusId) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      ta.setSelectionRange(0, text.length);
+    } catch (e) {}
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(statusId, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = $("modal");
+  var modalText = $("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  $("modal-close").addEventListener("click", closeModal);
+  $("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    try {
+      modalText.setSelectionRange(0, modalText.value.length);
+    } catch (e) {}
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

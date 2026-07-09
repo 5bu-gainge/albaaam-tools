@@ -1,0 +1,1380 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MECE 논거 점검기</title>
+<meta
+  name="description"
+  content="주장을 뒷받침하는 이유들을 넣으면 겹침(상호배타)과 빈틈(전체포괄)을 점검하도록 구조화합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #445aa0;
+    --accent-strong: #33477e;
+    --accent-tint: #eef0f8;
+    --accent-tint-2: #dee2f1;
+    --ink: #20232b;
+    --ink-soft: #454a56;
+    --ink-mute: #616776;
+    --paper: #f7f8fb;
+    --card: #ffffff;
+    --line: #e4e7ef;
+    --line-strong: #d3d8e4;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #a35a12;
+    --warn-bg: #fff6ec;
+    --warn-line: #f2ddc4;
+    --warn-tint: #fdecd8;
+    --shadow: 0 1px 2px rgba(32, 35, 43, 0.05), 0 6px 20px rgba(32, 35, 43, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 64px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfdff;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea#reasons {
+    min-height: 150px;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a2a8b6;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-gap {
+    height: 18px;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .notice {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-line);
+    color: var(--warn);
+    border-radius: 12px;
+    padding: 14px 15px;
+    font-size: 0.94rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-weak {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-review {
+    background: var(--warn-bg);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-clean {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-weak .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-review .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-clean .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #e6e9f0;
+  }
+  .verdict.tone-weak .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-review .pip.lit {
+    background: var(--warn);
+  }
+  .verdict.tone-clean .pip.lit {
+    background: var(--good);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 6px;
+  }
+  .result-block-sub {
+    font-size: 0.88rem;
+    color: var(--ink-mute);
+    margin: 0 0 12px;
+  }
+
+  /* ---------- structured reasons ---------- */
+  ol.reason-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: r;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  li.reason-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fcfdff;
+    padding: 12px 14px;
+  }
+  li.reason-item .r-num {
+    flex: none;
+    counter-increment: r;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-size: 0.82rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+  }
+  li.reason-item .r-num::before {
+    content: counter(r);
+  }
+  .r-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .r-text {
+    margin: 0;
+    font-size: 0.98rem;
+    color: var(--ink);
+  }
+  .r-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 7px;
+  }
+  .tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.01em;
+  }
+  .tag-overlap {
+    background: var(--warn-tint);
+    color: var(--warn);
+  }
+  .tag-circular {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .tag-thin {
+    background: #eceef3;
+    color: #565c6a;
+  }
+
+  /* ---------- pair cards (ME) ---------- */
+  .pair-list,
+  .risk-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pair-card {
+    border: 1px solid var(--warn-line);
+    border-left: 3px solid var(--warn);
+    border-radius: 10px;
+    background: #fffaf3;
+    padding: 13px 15px;
+  }
+  .pair-refs {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--warn);
+    margin: 0 0 8px;
+  }
+  .pair-line {
+    display: flex;
+    gap: 8px;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    margin: 3px 0;
+  }
+  .pair-line .pl-n {
+    flex: none;
+    font-weight: 800;
+    color: var(--ink-mute);
+  }
+  .pair-shared {
+    margin: 9px 0 0;
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+  }
+  .chip {
+    display: inline-block;
+    background: var(--warn-tint);
+    color: var(--warn);
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 2px 9px;
+    border-radius: 6px;
+    margin: 0 4px 4px 0;
+  }
+
+  .risk-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fcfdff;
+  }
+  .risk-item .ri-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 4px;
+  }
+  .risk-item .ri-fix {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+  .axis-list {
+    margin: 12px 0 0;
+    padding-left: 20px;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .axis-list li {
+    margin: 5px 0;
+  }
+  .honest-note {
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    margin: 10px 0 0;
+    padding: 11px 13px;
+    background: #f2f4f9;
+    border-radius: 9px;
+  }
+
+  /* ---------- prompt box ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23262f;
+    color: #eef0f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 35, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #reasons-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">논리 구조 점검 · MECE</span>
+    <h1>MECE 논거 점검기</h1>
+    <p class="lede">
+      주장을 뒷받침하는 이유들을 붙여넣으면, 서로 겹치는지(상호배타)와 빠진 축은
+      없는지(전체포괄)를 구조화해 짚어 드립니다. 논거를 한 장의 구조로 다시
+      세우세요.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>주장 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      이유들이 무엇을 떠받치고 있는지 한 문장으로 적으면, 이유가 주장을 그저
+      되풀이하는지(순환논증)까지 함께 점검합니다.
+    </p>
+    <label class="field-label" for="claim">뒷받침하려는 주장</label>
+    <textarea
+      id="claim"
+      placeholder="예) 우리는 내년에 신규 온라인 채널에 집중 투자해야 한다."
+    ></textarea>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="reasons-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>뒷받침 이유</h2>
+    </div>
+    <p class="panel-sub">
+      한 줄에 이유 하나씩 적으세요. 번호나 '-'를 붙여도 자동으로 정리됩니다.
+      최소 2개가 있어야 겹침과 빈틈을 점검할 수 있습니다.
+    </p>
+    <label class="field-label" for="reasons">이유 목록 (한 줄에 하나)</label>
+    <textarea
+      id="reasons"
+      placeholder="예)
+온라인 채널의 매출 성장률이 오프라인보다 높다
+고객이 점점 모바일에서 검색하고 구매한다
+온라인은 고정비가 낮아 이익률이 좋다
+온라인에서 고객 데이터를 확보할 수 있다"
+    ></textarea>
+    <p class="field-hint">
+      각 줄이 하나의 이유로 처리됩니다. 빈 줄은 무시됩니다.
+    </p>
+
+    <div class="actions">
+      <button class="btn-primary" id="check">점검하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>점검 결과</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▚</div>
+        <p><strong>아직 점검 전입니다.</strong></p>
+        <p>이유를 입력하고 '점검하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> MECE(Mutually Exclusive, Collectively
+      Exhaustive) 원칙과 바바라 민토(Barbara Minto)의 <em>피라미드 원칙</em>에서
+      쓰는 논거 점검 관점. 상호배타(겹침)는 이유들 사이에 공유되는 핵심어를
+      계산해 신호로 잡고, 순환논증은 이유가 주장의 어휘를 그대로 되풀이하는지로
+      점검합니다.
+    </p>
+    <p>
+      전체포괄(빠진 축)은 기계가 단정할 수 없어, 개수·잔여 항목·주제 편중 같은
+      구조적 위험 신호와 일반적인 분류 축 질문으로만 안내합니다. 이 도구는 사고를
+      돕는 보조 도구이며, 논거의 타당성을 대신 확정해 주지 않습니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ------------------------------------------------------------------ *
+   * MECE 논거 점검기 — 실제 로직
+   *  - 한국어 인식 토큰화(조사 제거) 후 이유 간 어휘 겹침(상호배타) 계산
+   *  - 이유가 주장을 되풀이하는 순환논증 감지
+   *  - 개수/잔여항목/주제 편중 등 전체포괄 위험 신호 탐지
+   *  - 감지 결과를 담은 AI 감수 프롬프트 생성
+   * ------------------------------------------------------------------ */
+
+  // 뒤에서 잘라낼 조사 (긴 것부터). 남는 어간이 2자 이상일 때만 제거.
+  var JOSA = [
+    "으로서", "으로써", "에서는", "에게서", "으로", "에서", "에게", "한테",
+    "께서", "보다", "처럼", "마다", "까지", "부터", "조차", "라도", "이나",
+    "이란", "이라", "라는", "라고", "은", "는", "이", "가", "을", "를",
+    "의", "에", "와", "과", "도", "만", "나", "란", "고", "며", "서",
+    "야", "랑", "든",
+  ];
+
+  // 내용 없는 불용어 (겹침 판정에서 제외)
+  var STOP = {};
+  [
+    "그리고", "또한", "그래서", "하지만", "그러나", "때문", "위해", "통해",
+    "대한", "관련", "있다", "없다", "하는", "되는", "된다", "한다", "이다",
+    "이며", "매우", "아주", "가장", "더욱", "많이", "점점", "우리", "저희",
+    "그것", "이것", "저것", "무엇", "어떤", "이런", "그런", "저런", "경우",
+    "부분", "정도", "수준", "사실", "결국", "역시", "물론", "특히", "다시",
+    "함께", "모두", "각각", "서로", "이후", "이전", "현재", "지금", "내년",
+    "올해", "작년",
+  ].forEach(function (w) {
+    STOP[w] = true;
+  });
+
+  // 잔여(캐치올) 항목 표지
+  var RESIDUAL = ["기타", "그외", "그 외", "등등", "여러가지", "여러 가지", "다양한", "각종", "나머지"];
+
+  function stripJosa(w) {
+    for (var i = 0; i < JOSA.length; i++) {
+      var j = JOSA[i];
+      if (w.length > j.length && w.slice(-j.length) === j) {
+        var stem = w.slice(0, w.length - j.length);
+        if (stem.length >= 2) return stem;
+      }
+    }
+    return w;
+  }
+
+  // 문자열 -> 내용 토큰 Set(중복 제거)
+  function tokenize(s) {
+    var cleaned = String(s)
+      .toLowerCase()
+      .replace(/[^0-9a-z가-힣\s]/g, " ");
+    var raw = cleaned.split(/\s+/);
+    var set = {};
+    for (var i = 0; i < raw.length; i++) {
+      var w = raw[i].trim();
+      if (!w) continue;
+      w = stripJosa(w);
+      if (w.length < 2) continue; // 한 글자 제외
+      if (STOP[w]) continue;
+      set[w] = true;
+    }
+    return set;
+  }
+
+  function keys(o) {
+    return Object.keys(o);
+  }
+
+  function intersect(a, b) {
+    var out = [];
+    var ka = keys(a);
+    for (var i = 0; i < ka.length; i++) if (b[ka[i]]) out.push(ka[i]);
+    return out;
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // 줄 단위 파싱 + 번호/불릿 접두어 제거
+  function parseReasons(raw) {
+    return raw
+      .split(/\n+/)
+      .map(function (line) {
+        return line
+          .replace(/^\s*(?:[-*•·▪◦]|\d+[.)]\s*|[가-힣][.)]\s*)\s*/, "")
+          .trim();
+      })
+      .filter(function (line) {
+        return line.length > 0;
+      });
+  }
+
+  function hasResidual(text) {
+    var t = text.replace(/\s+/g, "");
+    for (var i = 0; i < RESIDUAL.length; i++) {
+      if (t.indexOf(RESIDUAL[i].replace(/\s+/g, "")) !== -1) return true;
+    }
+    return false;
+  }
+
+  /* ---------------- render checklist skeleton ---------------- */
+  var claimEl = document.getElementById("claim");
+  var reasonsEl = document.getElementById("reasons");
+  var resultEl = document.getElementById("result");
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  claimEl.addEventListener("input", function () {
+    grow(claimEl);
+  });
+  reasonsEl.addEventListener("input", function () {
+    grow(reasonsEl);
+  });
+
+  var lastPrompt = "";
+
+  /* ---------------- core analysis ---------------- */
+  function analyze(claim, reasons) {
+    var claimTok = tokenize(claim);
+    var claimHas = keys(claimTok).length > 0;
+
+    // 이유별 메타
+    var items = reasons.map(function (text, i) {
+      var tok = tokenize(text);
+      var tk = keys(tok);
+      var compact = text.replace(/\s+/g, "");
+      return {
+        idx: i,
+        text: text,
+        tok: tok,
+        tokList: tk,
+        tokN: tk.length,
+        thin: tk.length <= 1 || compact.length < 4,
+        overlap: false,
+        circular: false,
+        residual: hasResidual(text),
+      };
+    });
+
+    // 순환논증: 이유의 내용어가 2개 이상이고 전부 주장에 포함될 때
+    if (claimHas) {
+      items.forEach(function (it) {
+        if (it.tokN >= 2) {
+          var shared = intersect(it.tok, claimTok);
+          if (shared.length === it.tokN) {
+            it.circular = true;
+          }
+        }
+      });
+    }
+
+    // 상호배타(겹침): 이유 쌍의 공유 내용어
+    var pairs = [];
+    for (var a = 0; a < items.length; a++) {
+      for (var b = a + 1; b < items.length; b++) {
+        var A = items[a],
+          B = items[b];
+        if (A.tokN === 0 || B.tokN === 0) continue;
+        var shared = intersect(A.tok, B.tok);
+        if (shared.length === 0) continue;
+        var coeff = shared.length / Math.min(A.tokN, B.tokN);
+        if (coeff >= 0.5 || shared.length >= 2) {
+          pairs.push({ a: a, b: b, shared: shared, coeff: coeff });
+          A.overlap = true;
+          B.overlap = true;
+        }
+      }
+    }
+    pairs.sort(function (x, y) {
+      if (y.coeff !== x.coeff) return y.coeff - x.coeff;
+      return y.shared.length - x.shared.length;
+    });
+
+    // 주제 편중: 한 내용어가 이유 절반 이상에 등장 (3개 이상일 때)
+    var dominant = null;
+    if (items.length >= 3) {
+      var df = {};
+      items.forEach(function (it) {
+        it.tokList.forEach(function (t) {
+          df[t] = (df[t] || 0) + 1;
+        });
+      });
+      var threshold = Math.ceil(items.length / 2) + (items.length >= 4 ? 1 : 0);
+      var best = null;
+      keys(df).forEach(function (t) {
+        if (df[t] >= threshold && (!best || df[t] > df[best])) best = t;
+      });
+      if (best) dominant = { term: best, count: df[best] };
+    }
+
+    // 전체포괄 위험 신호
+    var ce = [];
+    var n = items.length;
+    if (n === 2) {
+      ce.push({
+        title: "이유가 2개뿐입니다",
+        fix: "이분법이 정말 전체를 덮는지 확인하세요. '이 두 갈래 말고 다른 경우는 없는가'를 스스로 물어야 합니다.",
+      });
+    } else if (n >= 8) {
+      ce.push({
+        title: "이유가 " + n + "개로 많습니다",
+        fix: "대개 겹치거나 하위 항목이 섞여 있습니다. 비슷한 것끼리 묶어 상위 3~5개 가지로 그룹화하면 상호배타가 또렷해집니다.",
+      });
+    }
+    var residualItems = items.filter(function (it) {
+      return it.residual;
+    });
+    if (residualItems.length > 0) {
+      ce.push({
+        title: "'기타/그 외' 같은 잔여 항목이 있습니다",
+        fix: "잔여 항목은 빈틈을 임시로 덮지만 구조를 흐립니다. 그 안에 실제로 무엇이 들어가는지 펼쳐 이름을 붙이세요.",
+      });
+    }
+    if (dominant) {
+      ce.push({
+        title: "'" + dominant.term + "'에 치우쳐 있습니다",
+        fix:
+          "이유 " +
+          n +
+          "개 중 " +
+          dominant.count +
+          "개가 '" +
+          dominant.term +
+          "'을(를) 다룹니다. 같은 축을 잘게 쪼갠 것일 수 있으니, 다른 분류 축이 빠지지 않았는지 보세요.",
+      });
+    }
+
+    var circularCount = items.filter(function (it) {
+      return it.circular;
+    }).length;
+    var thinCount = items.filter(function (it) {
+      return it.thin;
+    }).length;
+
+    // 총 점검 포인트
+    var issueCount =
+      pairs.length + ce.length + circularCount + (thinCount > 0 ? 1 : 0);
+
+    return {
+      items: items,
+      pairs: pairs,
+      ce: ce,
+      dominant: dominant,
+      circularCount: circularCount,
+      thinCount: thinCount,
+      issueCount: issueCount,
+      claimHas: claimHas,
+      n: n,
+    };
+  }
+
+  function verdictFor(res) {
+    if (res.n < 2) {
+      return {
+        tone: "weak",
+        label: "분해 이전",
+        title: "아직 점검할 수 없습니다",
+        desc: "이유가 하나면 분해가 아니라 하나의 주장입니다. 최소 2개 갈래로 나눠야 겹침(상호배타)과 빈틈(전체포괄)을 볼 수 있습니다.",
+      };
+    }
+    var i = res.issueCount;
+    if (i === 0)
+      return {
+        tone: "clean",
+        label: "점검 포인트 0개",
+        title: "구조가 비교적 깔끔합니다",
+        desc: "어휘상 겹침·순환·구조 위험 신호가 잡히지 않았습니다. 다만 '빠진 축'은 기계가 단정할 수 없으니, 아래 분류 축 질문과 AI 프롬프트로 전체포괄을 한 번 더 시험하세요.",
+      };
+    if (i <= 2)
+      return {
+        tone: "review",
+        label: "점검 포인트 " + i + "개",
+        title: "대체로 괜찮으나 손볼 곳이 있습니다",
+        desc: "구조의 골격은 있으나 겹치거나 비어 보이는 지점이 있습니다. 아래 지적을 반영하면 상호배타·전체포괄에 더 가까워집니다.",
+      };
+    return {
+      tone: "weak",
+      label: "점검 포인트 " + i + "개",
+      title: "논거 구조를 다시 짜는 편이 좋습니다",
+      desc: "겹침이나 구조 위험 신호가 여럿입니다. 지금은 이유를 나열한 것에 가깝습니다. 같은 추상화 수준의 상호배타적 가지로 재정비하세요.",
+    };
+  }
+
+  var AXES = [
+    "원인과 결과: 원인들만, 혹은 결과들만 골라 담지는 않았는가?",
+    "내부와 외부: 우리가 통제하는 요인과 시장·경쟁 같은 외부 요인을 모두 봤는가?",
+    "시간 축: 단기·중기·장기 중 빠진 시점은 없는가?",
+    "이해관계자: 고객·회사·경쟁사·직원 등 빠진 주체는 없는가?",
+    "정량과 정성: 숫자로 되는 근거와 그렇지 않은 근거 중 한쪽에 치우치지 않았는가?",
+  ];
+
+  function buildPrompt(claim, res) {
+    var L = [];
+    L.push(
+      "당신은 맥킨지식 MECE(상호배타·전체포괄) 원칙과 바바라 민토의 피라미드 원칙에 정통한 논리 구조 코치입니다."
+    );
+    L.push("아래 주장과 그 근거들을 MECE 관점에서 감수해 주세요.");
+    L.push("");
+    L.push("【주장】");
+    L.push(claim && claim.trim() ? claim.trim() : "(주장 미입력 — 먼저 한 문장으로 정리하도록 요청하세요.)");
+    L.push("");
+    L.push("【뒷받침 이유 (" + res.n + "개)】");
+    res.items.forEach(function (it, i) {
+      L.push(i + 1 + ". " + it.text);
+    });
+    L.push("");
+    L.push("【자동 점검 결과 (참고용 신호)】");
+    if (res.pairs.length > 0) {
+      L.push("· 겹침(상호배타) 의심 쌍:");
+      res.pairs.slice(0, 8).forEach(function (p) {
+        L.push(
+          "   - " +
+            (p.a + 1) +
+            "번 ↔ " +
+            (p.b + 1) +
+            "번 (공유어: " +
+            p.shared.join(", ") +
+            ")"
+        );
+      });
+    } else {
+      L.push("· 겹침(상호배타) 의심 쌍: 어휘상 뚜렷한 겹침 없음");
+    }
+    if (res.circularCount > 0) {
+      var circ = res.items
+        .filter(function (it) {
+          return it.circular;
+        })
+        .map(function (it) {
+          return it.idx + 1 + "번";
+        });
+      L.push("· 순환논증 의심(주장을 되풀이): " + circ.join(", "));
+    }
+    if (res.ce.length > 0) {
+      L.push("· 전체포괄(빈틈) 위험 신호:");
+      res.ce.forEach(function (c) {
+        L.push("   - " + c.title);
+      });
+    } else {
+      L.push("· 전체포괄(빈틈) 위험 신호: 구조상 두드러진 신호 없음");
+    }
+    L.push("");
+    L.push("【요청】");
+    L.push(
+      "1. 이유들이 서로 겹치지 않는지(상호배타) 판단하고, 겹치는 쌍이 있으면 어떻게 분리하거나 하나로 합칠지 제안해 주세요."
+    );
+    L.push(
+      "2. 이 이유들이 주장을 떠받치는 데 빠진 축(전체포괄)이 무엇인지, 이 사안에 맞는 분류 축(예: 원인/결과, 내부/외부, 시간 순 등)을 골라 무엇이 비었는지 짚어 주세요."
+    );
+    L.push(
+      "3. 같은 추상화 수준으로 재배열한 MECE 트리(2~5개 가지)를 제안해 주세요."
+    );
+    L.push(
+      "4. 결론을 대신 확정하지 말고, 빠진 축을 스스로 찾도록 먼저 질문을 던진 뒤 당신의 재구성안을 비교용으로 덧붙여 주세요."
+    );
+    L.push(
+      "5. 근거 없는 항목이나 전략어로 빈칸을 지어내지 말고, 사안 특유의 사실이 필요하면 저에게 물어봐 주세요."
+    );
+    return L.join("\n");
+  }
+
+  /* ---------------- render result ---------------- */
+  function renderReasonItem(it) {
+    var tags = "";
+    if (it.overlap) tags += '<span class="tag tag-overlap">겹칠 수 있음</span>';
+    if (it.circular) tags += '<span class="tag tag-circular">주장 되풀이</span>';
+    if (it.thin) tags += '<span class="tag tag-thin">구체화 필요</span>';
+    var tagHtml = tags ? '<div class="r-tags">' + tags + "</div>" : "";
+    return (
+      '<li class="reason-item"><span class="r-num" aria-hidden="true"></span>' +
+      '<div class="r-body"><p class="r-text">' +
+      esc(it.text) +
+      "</p>" +
+      tagHtml +
+      "</div></li>"
+    );
+  }
+
+  function runCheck() {
+    var claim = claimEl.value;
+    var reasons = parseReasons(reasonsEl.value);
+
+    if (reasons.length === 0) {
+      resultEl.innerHTML =
+        '<p class="notice">이유를 한 줄에 하나씩 입력한 뒤 다시 점검해 주세요.</p>';
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var res = analyze(claim, reasons);
+    var band = verdictFor(res);
+    var html = "";
+
+    // ---- verdict ----
+    var pips = Math.min(res.issueCount, 6);
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    if (res.n >= 2) {
+      html +=
+        '<div class="meter" role="img" aria-label="점검 포인트 ' +
+        res.issueCount +
+        '개">';
+      for (var p = 0; p < 6; p++) {
+        html += '<span class="pip' + (p < pips ? " lit" : "") + '"></span>';
+      }
+      html += "</div>";
+      html +=
+        '<p class="meter-caption">' +
+        res.issueCount +
+        "개 점검 포인트 · 이유 " +
+        res.n +
+        "개</p>";
+    }
+    html += "</div>";
+
+    // ---- structured reasons ----
+    html += '<div class="result-block-title">구조화된 이유</div>';
+    html +=
+      '<p class="result-block-sub">입력을 이유 단위로 정리하고, 감지된 신호를 태그로 표시했습니다.</p>';
+    html += '<ol class="reason-list">';
+    res.items.forEach(function (it) {
+      html += renderReasonItem(it);
+    });
+    html += "</ol>";
+
+    // ---- ME: overlap ----
+    html += '<div class="result-block-title">상호배타 점검 — 이유끼리 겹치는가</div>';
+    if (res.pairs.length === 0 && res.circularCount === 0) {
+      html +=
+        '<p class="clean-note">어휘상 뚜렷하게 겹치거나 주장을 되풀이하는 이유가 잡히지 않았습니다.</p>';
+    } else {
+      if (res.pairs.length > 0) {
+        html +=
+          '<p class="result-block-sub">아래 쌍은 핵심어를 공유해 같은 이야기를 나눠 적었을 수 있습니다. 하나로 합치거나 축을 분리하세요.</p>';
+        html += '<ul class="pair-list">';
+        res.pairs.slice(0, 6).forEach(function (pr) {
+          var A = res.items[pr.a],
+            B = res.items[pr.b];
+          html += '<li class="pair-card">';
+          html +=
+            '<p class="pair-refs">' +
+            (pr.a + 1) +
+            "번 ↔ " +
+            (pr.b + 1) +
+            "번 겹침 의심</p>";
+          html +=
+            '<div class="pair-line"><span class="pl-n">' +
+            (pr.a + 1) +
+            '</span><span>' +
+            esc(A.text) +
+            "</span></div>";
+          html +=
+            '<div class="pair-line"><span class="pl-n">' +
+            (pr.b + 1) +
+            '</span><span>' +
+            esc(B.text) +
+            "</span></div>";
+          html += '<p class="pair-shared">공유하는 핵심어: ';
+          pr.shared.forEach(function (s) {
+            html += '<span class="chip">' + esc(s) + "</span>";
+          });
+          html += "</p></li>";
+        });
+        html += "</ul>";
+        if (res.pairs.length > 6) {
+          html +=
+            '<p class="result-block-sub" style="margin-top:10px">그 외 ' +
+            (res.pairs.length - 6) +
+            "쌍의 겹침 신호가 더 있습니다.</p>";
+        }
+      }
+      if (res.circularCount > 0) {
+        html +=
+          '<ul class="risk-list" style="margin-top:12px"><li class="risk-item">';
+        html +=
+          '<p class="ri-title">주장을 되풀이하는 이유 (순환논증 의심)</p>';
+        html +=
+          '<p class="ri-fix">위에서 <strong>주장 되풀이</strong> 태그가 붙은 이유는 주장의 어휘를 거의 그대로 옮겼습니다. 주장과 독립적인 근거(사실·데이터·인과)로 바꿔야 뒷받침이 됩니다.</p>';
+        html += "</li></ul>";
+      }
+    }
+
+    // ---- CE: gaps ----
+    html += '<div class="result-block-title">전체포괄 점검 — 빠진 축은 없는가</div>';
+    if (res.ce.length === 0) {
+      html +=
+        '<p class="clean-note">개수·잔여 항목·주제 편중에서 두드러진 위험 신호는 없습니다. 아래 축 질문으로 실제 누락만 확인하세요.</p>';
+    } else {
+      html += '<ul class="risk-list">';
+      res.ce.forEach(function (c) {
+        html += '<li class="risk-item">';
+        html += '<p class="ri-title">' + esc(c.title) + "</p>";
+        html += '<p class="ri-fix">' + esc(c.fix) + "</p>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    }
+    html +=
+      '<p class="honest-note">빈틈은 기계가 단정할 수 없습니다. 아래 분류 축 중 이 사안에 맞는 것을 골라, 각 축에서 빠진 갈래가 없는지 직접 점검하세요.</p>';
+    html += '<ul class="axis-list">';
+    AXES.forEach(function (q) {
+      html += "<li>" + esc(q) + "</li>";
+    });
+    html += "</ul>";
+
+    // ---- AI prompt ----
+    lastPrompt = buildPrompt(claim, res);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="result-block-sub">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 점검 결과를 바탕으로 겹침 정리와 빠진 축까지 함께 감수해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("check").addEventListener("click", runCheck);
+
+  /* ---------------- reset ---------------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    claimEl.value = "";
+    reasonsEl.value = "";
+    grow(claimEl);
+    grow(reasonsEl);
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▚</div>' +
+      "<p><strong>아직 점검 전입니다.</strong></p>" +
+      "<p>이유를 입력하고 '점검하기'를 누르세요.</p></div>";
+    document.getElementById("reasons-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    reasonsEl.focus();
+  });
+
+  /* ---------------- copy (3-tier) + print ---------------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------------- manual modal ---------------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

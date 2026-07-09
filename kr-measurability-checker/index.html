@@ -1,0 +1,1288 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>핵심결과(KR) 측정가능성 체커</title>
+<meta
+  name="description"
+  content="작성한 KR이 정량·결과중심·도전현실균형·목표정렬 4원칙을 통과하는지 점검하고 대안을 제시합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #1f7a72;
+    --accent-strong: #155e57;
+    --accent-tint: #e7f3f1;
+    --accent-tint-2: #cde7e2;
+    --ink: #1e2320;
+    --ink-soft: #454b47;
+    --ink-mute: #6a706b;
+    --paper: #f5f8f7;
+    --card: #ffffff;
+    --line: #e2e8e5;
+    --line-strong: #d0d9d5;
+
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #9a5a12;
+    --warn-tint: #fdf3e6;
+    --warn-line: #f0ddc2;
+    --bad: #b23b3b;
+    --bad-tint: #fbecec;
+    --bad-line: #f1d3d3;
+    --review: #5f6763;
+    --review-tint: #eef1ef;
+    --review-line: #dbe1de;
+
+    --shadow: 0 1px 2px rgba(30, 35, 32, 0.05), 0 6px 20px rgba(30, 35, 32, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 4px 0 8px;
+  }
+  .field-label .opt {
+    font-weight: 600;
+    color: var(--ink-mute);
+    font-size: 0.84rem;
+  }
+  textarea {
+    width: 100%;
+    min-height: 52px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea#krs {
+    min-height: 118px;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa5a0;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 18px;
+  }
+  .field-hint:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 6px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result / empty ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* ---------- summary ---------- */
+  .summary {
+    border-radius: 14px;
+    padding: 18px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .summary.tone-good {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .summary.tone-warn {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .summary.tone-bad {
+    background: var(--bad-tint);
+    border-color: var(--bad-line);
+  }
+  .summary-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .summary-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin: 0 0 7px;
+    line-height: 1.3;
+  }
+  .summary.tone-good .summary-title {
+    color: var(--good);
+  }
+  .summary.tone-warn .summary-title {
+    color: var(--warn);
+  }
+  .summary.tone-bad .summary-title {
+    color: var(--bad);
+  }
+  .summary-desc {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .tally {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .tally .t {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 4px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #fff;
+  }
+  .tally .t.good {
+    color: var(--good);
+    border-color: var(--good-line);
+  }
+  .tally .t.warn {
+    color: var(--warn);
+    border-color: var(--warn-line);
+  }
+  .tally .t.bad {
+    color: var(--bad);
+    border-color: var(--bad-line);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* ---------- kr card ---------- */
+  .kr-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 16px 14px;
+    margin-bottom: 14px;
+    background: #fbfdfc;
+    border-left: 4px solid var(--line-strong);
+  }
+  .kr-card.v-good {
+    border-left-color: var(--good);
+  }
+  .kr-card.v-warn {
+    border-left-color: var(--warn);
+  }
+  .kr-card.v-bad {
+    border-left-color: var(--bad);
+  }
+  .kr-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .kr-idx {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    letter-spacing: 0.02em;
+    flex: none;
+  }
+  .verdict-badge {
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 999px;
+    flex: none;
+  }
+  .verdict-badge.v-good {
+    color: var(--good);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+  }
+  .verdict-badge.v-warn {
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+  }
+  .verdict-badge.v-bad {
+    color: var(--bad);
+    background: var(--bad-tint);
+    border: 1px solid var(--bad-line);
+  }
+  .kr-text {
+    margin: 0 0 12px;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.45;
+  }
+
+  .pmeter {
+    display: flex;
+    gap: 6px;
+    margin: 0 0 14px;
+  }
+  .ppip {
+    flex: 1 1 0;
+    height: 8px;
+    border-radius: 5px;
+    background: #e4eae7;
+  }
+  .ppip.s-pass {
+    background: var(--good);
+  }
+  .ppip.s-warn {
+    background: var(--warn);
+  }
+  .ppip.s-fail {
+    background: var(--bad);
+  }
+  .ppip.s-review {
+    background: #c3ccc8;
+  }
+
+  ul.pr-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  li.pr-row {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    align-items: start;
+    gap: 8px 10px;
+  }
+  .pr-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .chip {
+    font-size: 0.74rem;
+    font-weight: 800;
+    padding: 2px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    align-self: start;
+    margin-top: 1px;
+  }
+  .chip.c-pass {
+    color: var(--good);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+  }
+  .chip.c-warn {
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+  }
+  .chip.c-fail {
+    color: var(--bad);
+    background: var(--bad-tint);
+    border: 1px solid var(--bad-line);
+  }
+  .chip.c-review {
+    color: var(--review);
+    background: var(--review-tint);
+    border: 1px solid var(--review-line);
+  }
+  .pr-find {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    grid-column: 3 / 4;
+  }
+
+  .fixbox {
+    margin-top: 14px;
+    border-top: 1px dashed var(--line-strong);
+    padding-top: 12px;
+  }
+  .fix-h {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin: 0 0 8px;
+  }
+  ul.fix-list {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  ul.fix-list li {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .fix-tmpl {
+    margin: 11px 0 0;
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 9px;
+    padding: 9px 11px;
+    line-height: 1.55;
+  }
+  .fix-tmpl b {
+    color: var(--accent-strong);
+  }
+
+  /* ---------- prompt ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #1f2624;
+    color: #eef3f1;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 35, 32, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    li.pr-row {
+      grid-template-columns: auto 1fr;
+    }
+    .pr-find {
+      grid-column: 1 / 3;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">OKR 진단 · 핵심결과 4원칙</span>
+    <h1>핵심결과(KR) 측정가능성 체커</h1>
+    <p class="lede">
+      작성한 핵심결과가 좋은 KR의 4원칙 &mdash; 정량 중심, 결과 중심, 도전·현실
+      균형, 성과제목 정렬 &mdash; 을 통과하는지 한 줄씩 점검하고, 통과하지 못한
+      원칙에는 다시 쓰는 방향을 제시합니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>점검할 내용 입력</h2>
+    </div>
+    <p class="panel-sub">
+      성과제목(Objective)은 넣으면 '정렬'까지 점검됩니다. 핵심결과는 한 줄에 하나씩
+      입력하세요.
+    </p>
+
+    <label class="field-label" for="obj"
+      >성과제목 (Objective) <span class="opt">· 선택</span></label
+    >
+    <textarea
+      id="obj"
+      placeholder="예) 문의 분류 시스템과 AI 챗봇을 도입하여 고객 문의에 즉시 응답하게 한다"
+    ></textarea>
+    <p class="field-hint">
+      비워 두면 '성과제목 정렬' 원칙은 자가 점검 질문으로 대체됩니다.
+    </p>
+
+    <label class="field-label" for="krs">핵심결과 (Key Results) · 한 줄에 하나</label>
+    <textarea
+      id="krs"
+      placeholder="예) 한 줄에 하나씩 입력하세요&#10;고객 문의 평균 응답 시간 24시간 → 2시간&#10;AI 챗봇 12/20까지 구축 완료&#10;고객 대응 역량을 강화한다"
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+      없습니다.
+    </p>
+
+    <div class="actions">
+      <button class="btn-primary" id="check">점검하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>진단 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">�квадрат</div>
+        <p><strong>아직 점검 전입니다.</strong></p>
+        <p>핵심결과를 입력하고 '점검하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 성과제목(Objective)·핵심결과(Key
+      Results)·이니셔티브(Initiatives) 프레임워크의 '좋은 핵심결과 4원칙' &mdash;
+      ① 정량 중심(수치·비율·기한) ② 결과 중심(행동이 아닌 결과) ③ 도전·현실 균형
+      ④ 성과제목과 정렬. 정량·결과·정렬은 규칙 기반으로 자동 점검하고, 도전·현실
+      균형은 현재값(기준선)과 기간을 알아야 정확하므로 자가 점검 질문으로
+      돕습니다. 결과 기준의 두 패턴(수치 변화의 '결과 기반', 과업 완료의 '산출물
+      기반')을 함께 적용합니다.
+    </p>
+    <p>
+      이 도구는 판단을 돕는 보조 도구입니다. 좋은 핵심결과는 맥락 속에서
+      완성되며, 최종 확정과 도전 수위의 결정은 목표의 주인이 합니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ================================================================
+     핵심결과 4원칙 규칙 기반 점검
+     근거: okr-coach SKILL.md §6 (핵심결과 4원칙 + 2패턴 + 금지 서술어)
+     ① 정량 중심  ② 결과 중심(행동 아닌 결과)  ③ 도전·현실 균형  ④ 성과제목 정렬
+     ================================================================ */
+
+  // ---------- 정량(측정가능성) 신호 ----------
+  var RE_DIGIT = /[0-9０-９]/;
+  var RE_UNIT =
+    /[0-9０-９]\s*(원|억|만|천|명|건|개|곳|점|회|차|시간|시|분|일|주|개월|달|년|배|위|등급|등|종|팀|채널|국가|매장|지점|페이지|건당|명당|인|퍼|kg|㎏|톤|t|㎡|㎞|km|m|%)/i;
+  var RE_PCT = /[0-9０-９]\s*%|퍼센트|프로|％/;
+  var RE_DEADLINE =
+    /[0-9０-９]\s*월|[0-9０-９]\s*일|[0-9０-９]\s*주|[0-9０-９]\s*분기|분기\s*말|월\s*말|주\s*말|반기|상반기|하반기|연말|말까지|까지|Q[1-4]|[0-9]{4}\s*년|[0-9]{1,2}\s*\/\s*[0-9]{1,2}/i;
+  var RE_ARROW = /→|->|=>|~>|➔|▶|에서\s*\S+\s*(로|까지)|부터\s*\S+\s*까지/;
+  var RE_COMPARATOR = /이상|이하|초과|미만|유지|달성|도달|증가|감소|향상|상승|하락/;
+
+  // ---------- 결과 vs 행동 ----------
+  var RE_ABSTRACT =
+    /배운다|배우기|배워|이해한다|이해하기|파악(한다|하기|해)|인지(한다|하기)|숙지|고려(한다|하기)|검토(한다|하기)|준비(한다|하기)|계획(한다|하기)|공부|살펴본다|모니터링만/;
+  var RE_COMPLETION =
+    /완료|완성|구축|개발\s*완료|오픈|출시|런칭|출범|확보|달성|도달|전환|획득|체결|확정|승인|통과|등록|정착|안착|배포|발간|발행|전달|제출|납품|가동|개설|셋업|수립|마감/;
+  var RE_PROCESS =
+    /(추진|강화|진행|확대|운영|실시|노력|관리|지원|수행|참여|협력|독려|촉진|활성화|도모|모색|개선|향상|제고|대응|집중|홍보|소통|최적화|고도화|정비|점검|신경)\s*(한다|하기|하고|하며|함|중)|(추진|강화|개선|향상|확대|운영|관리|촉진|점검|대응|지원)\s*$/;
+
+  // ---------- 도전·현실 신호 ----------
+  var RE_UNDER = /유지한다|현행\s*유지|현상\s*유지|기존\s*수준|소폭|약간|조금|살짝|그대로/;
+  var RE_OVER_WORD =
+    /무결점|불량\s*0\s*건?|제로화|압도적|완벽(하게|한|히)?|업계\s*1\s*위|시장\s*1\s*위|글로벌\s*(1\s*위|no\.?1|넘버\s*원)|모든\s*(고객|직원|제품|매장)|전\s*직원|100\s*점/i;
+
+  // ---------- 한국어 키워드 토큰화(정렬 점검용) ----------
+  var STOP = {
+    그리고: 1, 하지만: 1, 그러나: 1, 또한: 1, 통해: 1, 위해: 1, 위한: 1,
+    대한: 1, 있는: 1, 있다: 1, 없는: 1, 한다: 1, 하는: 1, 하여: 1, 되는: 1,
+    된다: 1, 이런: 1, 저런: 1, 그런: 1, 우리: 1, 여러: 1, 각종: 1, 전반: 1,
+    관련: 1, 등을: 1, 등의: 1, 통한: 1, 매우: 1, 더욱: 1, 보다: 1, 오는: 1
+  };
+
+  function stripJosa(w) {
+    return w
+      .replace(
+        /(으로부터|에게서|에서|으로|에게|한테|까지|부터|라도|이나|처럼|보다|마다|밖에|조차|마저|을|를|이|가|은|는|에|의|로|와|과|도|만)$/,
+        ""
+      )
+      .replace(/(을|를|이|가|은|는|에|의|로|와|과|도|만)$/, "");
+  }
+
+  function keywords(s) {
+    var toks = String(s)
+      .replace(/[^가-힣a-zA-Z0-9\s]/g, " ")
+      .split(/\s+/);
+    var out = [];
+    toks.forEach(function (tok) {
+      if (!tok) return;
+      var w = stripJosa(tok);
+      if (w.length < 2) return;
+      if (STOP[w]) return;
+      if (out.indexOf(w) < 0) out.push(w);
+    });
+    return out;
+  }
+
+  // ---------- 한 개의 KR 분석 ----------
+  function analyzeKR(raw, objective) {
+    var t = String(raw)
+      .replace(/^\s*(?:[0-9]+[.)]|[-*•·▪]|KR\s*[0-9]*[:.]?)\s*/i, "")
+      .trim();
+
+    var hasDigit = RE_DIGIT.test(t);
+    var unit = RE_UNIT.test(t);
+    var pct = RE_PCT.test(t);
+    var deadline = RE_DEADLINE.test(t);
+    var arrow = RE_ARROW.test(t);
+    var comparator = RE_COMPARATOR.test(t);
+
+    var principles = [];
+
+    // ---- ① 정량 ----
+    var q = { key: "q", label: "정량 (측정 가능성)", fix: "" };
+    if (hasDigit && (unit || pct || arrow || deadline || comparator)) {
+      q.status = "pass";
+      q.find =
+        arrow || /에서/.test(t)
+          ? "기준값 → 목표값 형태로 수치가 명확합니다."
+          : "측정할 수치·기준이 담겨 있습니다.";
+    } else if (hasDigit) {
+      q.status = "warn";
+      q.find = "숫자는 있으나 단위·기한·변화 기준이 뚜렷하지 않습니다.";
+      q.fix =
+        '"얼마에서 얼마로, 언제까지"가 드러나도록 단위·기한·비교 기준을 붙이세요.';
+    } else if (deadline && RE_COMPLETION.test(t)) {
+      q.status = "warn";
+      q.find = "기한·완료 표현은 있으나 정량 수치가 없습니다.";
+      q.fix = "완료 기준을 숫자(개수·비율·상태 등급)로 못박으세요.";
+    } else {
+      q.status = "fail";
+      q.find = '측정할 수치·비율·기한이 없습니다. "무엇이 얼마나" 바뀌면 달성인지가 빠졌습니다.';
+      q.fix =
+        '측정 기준을 넣으세요 → [지표] [현재값] → [목표값] ([기한]). 예: "월 신규 리드 50 → 100 (분기말)".';
+    }
+    principles.push(q);
+
+    // ---- ② 결과 중심 ----
+    var o = { key: "o", label: "결과 중심 (행동 아닌 결과)", fix: "" };
+    var isProcess = RE_PROCESS.test(t);
+    if (RE_ABSTRACT.test(t)) {
+      o.status = "fail";
+      o.find = '"배운다/이해한다/파악한다/검토한다"류 표현은 결과가 아니라 학습·활동입니다.';
+      o.fix = '학습·활동을 결과로 바꾸세요. "…을 이해한다" → "…가 [수치/상태]가 된다".';
+    } else if (
+      arrow ||
+      RE_COMPLETION.test(t) ||
+      (hasDigit && comparator) ||
+      (q.status === "pass" && !isProcess)
+    ) {
+      o.status = "pass";
+      o.find = "결과(상태 변화 또는 산출물 완료)로 서술되어 있습니다.";
+    } else if (isProcess) {
+      o.status = "warn";
+      o.find = '"…을 강화/추진/개선한다"는 활동(이니셔티브)에 가깝습니다.';
+      o.fix =
+        "활동이 아니라 그 활동이 만들 결과 상태로 바꾸세요. 활동 자체는 이니셔티브로 따로 두세요.";
+    } else {
+      o.status = "warn";
+      o.find = "결과 상태인지 활동인지 모호합니다.";
+      o.fix = '"무엇이 어떤 상태가 된다"로 도달점을 분명히 하세요.';
+    }
+    principles.push(o);
+
+    // ---- ③ 도전·현실 균형 ----
+    var c = { key: "c", label: "도전·현실 균형", fix: "" };
+    var mult = t.match(/([0-9]+(?:\.[0-9]+)?)\s*배/);
+    var overFlag = (mult && parseFloat(mult[1]) >= 3) || RE_OVER_WORD.test(t);
+    var underFlag = RE_UNDER.test(t);
+    if (overFlag) {
+      c.status = "warn";
+      c.find = "목표치가 매우 공격적입니다. 기간 내 현실성을 다시 점검하세요.";
+      c.fix =
+        "현재값·가용 리소스 대비 달성 가능한지 확인하고, 무리하면 마일스톤으로 분할하세요.";
+    } else if (underFlag) {
+      c.status = "warn";
+      c.find = "도전성이 낮아 보입니다. 이미 예상되는 결과일 수 있습니다.";
+      c.fix = "기대 이상의 변화가 되도록 목표치를 한 단계 올려보세요.";
+    } else {
+      c.status = "review";
+      c.find =
+        '도전·현실 균형은 현재값과 기간을 알아야 정확합니다. "쉽지도 무리하지도 않은가?"를 스스로 점검하세요.';
+    }
+    principles.push(c);
+
+    // ---- ④ 성과제목 정렬 ----
+    var a = { key: "a", label: "성과제목 정렬", fix: "" };
+    if (!objective || !objective.trim()) {
+      a.status = "review";
+      a.find =
+        '상위 성과제목을 입력하면 핵심어 연결을 점검합니다. 지금은 "이 KR들을 모두 달성하면 성과제목이 완성되는가?"를 스스로 확인하세요.';
+    } else {
+      var okw = keywords(objective);
+      var kkw = keywords(t);
+      var shared = [];
+      kkw.forEach(function (w) {
+        okw.forEach(function (ow) {
+          if (
+            w.length >= 2 &&
+            ow.length >= 2 &&
+            (w === ow || w.indexOf(ow) === 0 || ow.indexOf(w) === 0)
+          ) {
+            if (shared.indexOf(w) < 0) shared.push(w);
+          }
+        });
+      });
+      if (shared.length > 0) {
+        a.status = "pass";
+        a.find =
+          '성과제목과 "' +
+          shared.slice(0, 3).join('", "') +
+          '" (으)로 연결됩니다.';
+        a.shared = shared.slice(0, 3);
+      } else {
+        a.status = "warn";
+        a.find =
+          "성과제목과 공유하는 핵심어가 보이지 않습니다. 이 KR이 정말 그 목표를 대변하는지 확인하세요.";
+        a.fix =
+          "성과제목의 핵심어와 이 KR을 연결하고, 모든 KR 달성 시 성과제목이 완성되는지 확인하세요.";
+      }
+    }
+    principles.push(a);
+
+    // ---- 종합 판정 (review는 중립, pass/warn/fail만 집계) ----
+    var fails = 0,
+      warns = 0;
+    principles.forEach(function (p) {
+      if (p.status === "fail") fails++;
+      else if (p.status === "warn") warns++;
+    });
+    var verdict = fails > 0 ? "bad" : warns > 0 ? "warn" : "good";
+
+    return { text: t, principles: principles, verdict: verdict };
+  }
+
+  /* ================================================================
+     렌더링
+     ================================================================ */
+
+  var VERDICT_LABEL = { good: "통과", warn: "보완 필요", bad: "미흡" };
+  var STATUS_CHIP = { pass: "통과", warn: "보완", fail: "미흡", review: "보류" };
+  var STATUS_PIP = { pass: "s-pass", warn: "s-warn", fail: "s-fail", review: "s-review" };
+  var STATUS_CHIPCLASS = {
+    pass: "c-pass",
+    warn: "c-warn",
+    fail: "c-fail",
+    review: "c-review"
+  };
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function renderCard(item, i) {
+    var v = item.verdict;
+    var html = '<div class="kr-card v-' + v + '">';
+    html += '<div class="kr-top">';
+    html += '<span class="kr-idx">KR ' + (i + 1) + "</span>";
+    html +=
+      '<span class="verdict-badge v-' +
+      v +
+      '">' +
+      esc(VERDICT_LABEL[v]) +
+      "</span>";
+    html += "</div>";
+    html += '<p class="kr-text">' + esc(item.text) + "</p>";
+
+    // meter
+    html += '<div class="pmeter" role="img" aria-label="4원칙 통과 상태">';
+    item.principles.forEach(function (p) {
+      html += '<span class="ppip ' + STATUS_PIP[p.status] + '"></span>';
+    });
+    html += "</div>";
+
+    // principle rows
+    html += '<ul class="pr-list">';
+    item.principles.forEach(function (p) {
+      html += '<li class="pr-row">';
+      html += '<span class="pr-name">' + esc(p.label) + "</span>";
+      html +=
+        '<span class="chip ' +
+        STATUS_CHIPCLASS[p.status] +
+        '">' +
+        esc(STATUS_CHIP[p.status]) +
+        "</span>";
+      html += '<p class="pr-find">' + esc(p.find) + "</p>";
+      html += "</li>";
+    });
+    html += "</ul>";
+
+    // fixes
+    var fixes = item.principles.filter(function (p) {
+      return p.fix;
+    });
+    if (fixes.length) {
+      html += '<div class="fixbox">';
+      html += '<p class="fix-h">이렇게 고쳐보세요</p>';
+      html += '<ul class="fix-list">';
+      fixes.forEach(function (p) {
+        html += "<li>" + esc(p.fix) + "</li>";
+      });
+      html += "</ul>";
+      html +=
+        '<p class="fix-tmpl"><b>참고 형식</b> · 결과 기반: "이탈률 10% → 5% (분기말)" · 산출물 기반: "고객 만족도 분석 보고서 7/15까지 전달"</p>';
+      html += "</div>";
+    }
+
+    html += "</div>";
+    return html;
+  }
+
+  function buildPrompt(items, objective) {
+    var L = [];
+    L.push(
+      "당신은 성과제목(Objective)-핵심결과(Key Results)-이니셔티브(Initiatives) 프레임워크에 정통한 OKR 코치입니다."
+    );
+    L.push(
+      "아래 핵심결과(KR)들이 좋은 KR의 4원칙 - ① 정량 중심 ② 결과 중심(행동이 아닌 결과) ③ 도전·현실 균형 ④ 성과제목과 정렬 - 을 모두 통과하도록 함께 다듬어 주세요."
+    );
+    L.push("");
+    L.push("【성과제목 (Objective)】");
+    L.push(
+      objective && objective.trim()
+        ? objective.trim()
+        : "(미입력 - 먼저 저에게 성과제목부터 물어봐 주세요)"
+    );
+    L.push("");
+    L.push("【점검 대상 핵심결과와 자가 진단】");
+    items.forEach(function (it, i) {
+      L.push(i + 1 + '. "' + it.text + '"');
+      var parts = it.principles.map(function (p) {
+        return p.label.replace(/\s*\(.*\)/, "") + ": " + STATUS_CHIP[p.status];
+      });
+      L.push("   - " + parts.join(" / "));
+    });
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 각 KR을 4원칙을 모두 통과하도록 고쳐, (a) 결과 기반(수치·상태 변화)과 (b) 산출물 기반(과업 완료·기한) 두 버전으로 제안해 주세요."
+    );
+    L.push(
+      '2. "…을 강화/추진/개선한다" 같은 활동 표현은 도달할 결과 상태로 바꾸고, "배운다/이해한다/파악한다/검토한다"류 서술어는 쓰지 마세요.'
+    );
+    L.push(
+      "3. 제가 제공하지 않은 수치는 지어내지 말고, 현재값(기준선)과 기간을 저에게 먼저 물어 도전·현실 균형을 맞춰 주세요."
+    );
+    L.push(
+      "4. 이 KR들을 모두 달성하면 성과제목이 완성되는지(정렬) 점검하고, 빠진 KR이 있으면 제안해 주세요."
+    );
+    L.push(
+      "5. 결론을 대신 확정하지 말고, 선택지와 근거를 함께 제시해 제가 스스로 고르게 해 주세요."
+    );
+    return L.join("\n");
+  }
+
+  var lastPrompt = "";
+  var resultEl = document.getElementById("result");
+  var objEl = document.getElementById("obj");
+  var krsEl = document.getElementById("krs");
+
+  function emptyStateHTML(msg, sub) {
+    return (
+      '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+      "<p><strong>" +
+      esc(msg) +
+      "</strong></p><p>" +
+      esc(sub) +
+      "</p></div>"
+    );
+  }
+
+  document.getElementById("check").addEventListener("click", function () {
+    var objective = objEl.value;
+    var lines = krsEl.value
+      .split("\n")
+      .map(function (s) {
+        return s.trim();
+      })
+      .filter(function (s) {
+        return s.length > 0;
+      });
+
+    if (lines.length === 0) {
+      resultEl.innerHTML = emptyStateHTML(
+        "핵심결과를 입력해 주세요.",
+        "한 줄에 하나씩, 점검할 KR을 적은 뒤 다시 눌러 주세요."
+      );
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var capped = lines.slice(0, 12);
+    var items = capped.map(function (l) {
+      return analyzeKR(l, objective);
+    });
+
+    // tally
+    var good = 0,
+      warn = 0,
+      bad = 0;
+    items.forEach(function (it) {
+      if (it.verdict === "good") good++;
+      else if (it.verdict === "warn") warn++;
+      else bad++;
+    });
+    var tone = bad > 0 ? "bad" : warn > 0 ? "warn" : "good";
+    var title =
+      tone === "good"
+        ? "모든 핵심결과가 4원칙을 통과했습니다"
+        : tone === "warn"
+        ? "대체로 좋습니다. 몇 가지 보완점이 있습니다"
+        : "다시 다듬을 핵심결과가 있습니다";
+    var desc =
+      tone === "good"
+        ? "형식은 탄탄합니다. 도전·현실 균형과 정렬은 맥락 속에서 한 번 더 점검하세요."
+        : "아래 카드에서 통과하지 못한 원칙과 고쳐 쓰는 방향을 확인하세요.";
+
+    var html = "";
+    html += '<div class="summary tone-' + tone + '">';
+    html += '<p class="summary-label">핵심결과 ' + items.length + "개 점검</p>";
+    html += '<p class="summary-title">' + esc(title) + "</p>";
+    html += '<p class="summary-desc">' + esc(desc) + "</p>";
+    html += '<div class="tally">';
+    html += '<span class="t good">통과 ' + good + "</span>";
+    html += '<span class="t warn">보완 ' + warn + "</span>";
+    html += '<span class="t bad">미흡 ' + bad + "</span>";
+    html += "</div>";
+    html += "</div>";
+
+    if (lines.length > capped.length) {
+      html +=
+        '<p class="panel-sub" style="margin:-6px 0 12px">입력이 많아 처음 ' +
+        capped.length +
+        "개만 점검했습니다.</p>";
+    }
+
+    html += '<div class="result-block-title">핵심결과별 진단</div>';
+    items.forEach(function (it, i) {
+      html += renderCard(it, i);
+    });
+
+    // prompt
+    lastPrompt = buildPrompt(items, objective);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 진단을 바탕으로 KR을 결과 기반·산출물 기반 두 버전으로 다시 다듬어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    objEl.value = "";
+    krsEl.value = "";
+    grow(objEl);
+    grow(krsEl);
+    resultEl.innerHTML = emptyStateHTML(
+      "아직 점검 전입니다.",
+      "핵심결과를 입력하고 '점검하기'를 누르세요."
+    );
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- auto-grow textareas ----
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  objEl.addEventListener("input", function () {
+    grow(objEl);
+  });
+  krsEl.addEventListener("input", function () {
+    grow(krsEl);
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text); // tier 3: manual modal
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

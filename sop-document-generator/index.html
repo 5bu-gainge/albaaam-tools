@@ -1,0 +1,1611 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>표준업무절차(SOP) 문서 생성기</title>
+<meta
+  name="description"
+  content="업무 단계를 순서대로 넣으면 목적·범위·절차·예외·기한·품질기준을 갖춘 SOP 문서를 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2d6a70;
+    --accent-strong: #21545a;
+    --accent-tint: #e9f2f2;
+    --accent-tint-2: #d3e6e6;
+    --ink: #1f2422;
+    --ink-soft: #45504e;
+    --ink-mute: #616b69;
+    --paper: #f6f8f7;
+    --card: #ffffff;
+    --line: #e2e8e6;
+    --line-strong: #ccd7d4;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #a8620f;
+    --warn-tint: #fbf1e3;
+    --shadow: 0 1px 2px rgba(31, 36, 34, 0.05), 0 6px 20px rgba(31, 36, 34, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  .field-group {
+    margin-bottom: 15px;
+  }
+  .field-group:last-child {
+    margin-bottom: 0;
+  }
+  input.text,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input.text {
+    min-height: 46px;
+  }
+  textarea {
+    min-height: 52px;
+    resize: none;
+    overflow: hidden;
+    display: block;
+  }
+  input.text:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: #fff;
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input.text::placeholder,
+  textarea::placeholder {
+    color: #9aa5a2;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- step cards ---------- */
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 4px;
+  }
+  .step-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fbfdfc;
+    padding: 14px 14px 16px;
+  }
+  .step-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .step-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+  }
+  .step-badge .num {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    color: var(--accent-strong);
+    font-size: 0.85rem;
+  }
+  .step-remove {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink-mute);
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    padding: 0;
+  }
+  .step-remove:hover {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+  .step-remove:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .step-card label.field-label {
+    font-size: 0.84rem;
+    margin-bottom: 6px;
+  }
+  .trip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 11px;
+    margin-bottom: 15px;
+  }
+  .trip .field-group {
+    margin-bottom: 0;
+  }
+  .add-step-btn {
+    margin-top: 14px;
+    width: 100%;
+    background: transparent;
+    border: 1.5px dashed var(--line-strong);
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  .add-step-btn:hover {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+
+  /* ---------- buttons ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 46px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  .form-error {
+    margin: 14px 0 0;
+    font-size: 0.9rem;
+    color: #b23b2e;
+    font-weight: 600;
+    display: none;
+  }
+  .form-error.show {
+    display: block;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* completeness meter */
+  .score-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 17px;
+    margin-bottom: 18px;
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .score-card.tone-good {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .score-card.tone-warn {
+    background: var(--warn-tint);
+    border-color: #f0dcc0;
+  }
+  .score-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .score-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0;
+  }
+  .score-val {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--accent-strong);
+  }
+  .score-card.tone-good .score-val {
+    color: var(--good);
+  }
+  .score-card.tone-warn .score-val {
+    color: var(--warn);
+  }
+  .bar {
+    height: 10px;
+    border-radius: 6px;
+    background: #e2ddd3;
+    margin: 12px 0 6px;
+    overflow: hidden;
+  }
+  .score-card .bar {
+    background: rgba(0, 0, 0, 0.07);
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: var(--accent);
+    transition: width 0.5s ease;
+  }
+  .score-card.tone-good .bar-fill {
+    background: var(--good);
+  }
+  .score-card.tone-warn .bar-fill {
+    background: var(--warn);
+  }
+  .score-desc {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin: 4px 0 0;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 11px;
+  }
+
+  /* gaps */
+  .gap-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .gap-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--warn);
+    border-radius: 10px;
+    padding: 11px 14px;
+    background: var(--warn-tint);
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .gap-item strong {
+    color: var(--warn);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* rendered SOP */
+  .sop-doc {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 18px;
+    background: #fff;
+  }
+  .sop-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin: 0 0 4px;
+    line-height: 1.35;
+  }
+  .sop-meta {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 0 0 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sop-meta span {
+    display: inline-block;
+    margin-right: 12px;
+    white-space: nowrap;
+  }
+  .sop-sec {
+    margin: 16px 0 0;
+  }
+  .sop-sec h3 {
+    font-size: 0.98rem;
+    font-weight: 800;
+    margin: 0 0 7px;
+    color: var(--accent-strong);
+  }
+  .sop-sec p {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+  .sop-sec p.auto {
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+  .rr-list,
+  .ep-list,
+  .q-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .rr-list li,
+  .ep-list li,
+  .q-list li {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .rr-list li strong {
+    color: var(--ink);
+  }
+  .ep-list li::before {
+    content: "◇ ";
+    color: var(--warn);
+    font-weight: 700;
+  }
+  .q-list li::before {
+    content: "☐ ";
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .muted {
+    color: var(--ink-mute);
+    font-style: italic;
+    font-size: 0.92rem;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    margin-top: 4px;
+  }
+  table.sop-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 620px;
+    font-size: 0.88rem;
+  }
+  table.sop-table th,
+  table.sop-table td {
+    border: 1px solid var(--line);
+    padding: 9px 10px;
+    text-align: left;
+    vertical-align: top;
+    color: var(--ink-soft);
+  }
+  table.sop-table th {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  table.sop-table td.no {
+    text-align: center;
+    font-weight: 700;
+    color: var(--accent-strong);
+    white-space: nowrap;
+  }
+  table.sop-table td.task {
+    color: var(--ink);
+    font-weight: 600;
+    min-width: 150px;
+  }
+
+  /* copy blocks */
+  .code-wrap {
+    position: relative;
+  }
+  pre.doc,
+  pre.prompt {
+    margin: 0;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.85rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  pre.doc {
+    background: #f3f6f5;
+    color: #2a302e;
+    border: 1px solid var(--line-strong);
+  }
+  pre.prompt {
+    background: #232a29;
+    color: #eef2f0;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 36, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 170px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 560px) {
+    .trip {
+      grid-template-columns: 1fr;
+      gap: 13px;
+    }
+  }
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #basic-panel,
+    #steps-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    .sop-doc {
+      border-color: #ccc;
+    }
+    pre.prompt {
+      display: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">업무 표준화 · SP/EP 구조</span>
+    <h1>표준업무절차(SOP) 문서 생성기</h1>
+    <p class="lede">
+      업무 단계를 순서대로 넣으면 목적·적용 범위·표준 절차·예외 처리·기한·품질
+      기준을 갖춘 SOP 문서를 만들어 드립니다. 빠진 칸은 자동으로 짚어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="basic-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>기본 정보</h2>
+    </div>
+    <p class="panel-sub">
+      어떤 업무의 절차서인지 적습니다. 목적·범위를 비워도 초안은 자동으로
+      채워지며, 검토가 필요하다고 표시됩니다.
+    </p>
+
+    <div class="field-group">
+      <label class="field-label" for="title">업무명 <span aria-hidden="true">*</span></label>
+      <input class="text" id="title" placeholder="예) 협력사 발주 및 검수 처리" />
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="purpose">목적 (선택)</label>
+      <textarea id="purpose" placeholder="예) 발주부터 검수·입고까지의 처리 기준을 통일해 누락과 재작업을 줄인다."></textarea>
+    </div>
+    <div class="trip">
+      <div class="field-group">
+        <label class="field-label" for="scope">적용 범위 (선택)</label>
+        <input class="text" id="scope" placeholder="예) 구매팀 전 발주 건" />
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="author">작성/담당 (선택)</label>
+        <input class="text" id="author" placeholder="예) 구매팀 김OO" />
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="scope2" style="visibility:hidden">-</label>
+        <div style="height:46px" aria-hidden="true"></div>
+      </div>
+    </div>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="steps-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>업무 단계 (순서대로)</h2>
+    </div>
+    <p class="panel-sub">
+      실제 일이 흘러가는 순서대로 한 단계씩 적습니다. 각 단계의 담당·산출물·기한·품질
+      기준을 채울수록 완성도가 올라갑니다. 예외(EP)는 그 단계가 지연·반려·오류 났을 때의
+      대응입니다.
+    </p>
+
+    <div class="steps-list" id="steps"></div>
+    <button class="add-step-btn" id="addStep" type="button">+ 단계 추가</button>
+
+    <div class="actions">
+      <button class="btn-primary" id="generate">SOP 문서 생성</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+    <p class="form-error" id="formError" role="alert"></p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>생성된 SOP 문서</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▤</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>업무명과 단계를 채우고 'SOP 문서 생성'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 컨설팅 현장의 프로세스 정리 구조(SP =
+      Standard Process 정상 흐름, EP = Exception Process 예외 처리)와 '일의 순서'
+      테이블 항목(입력 · 산출 · 핵심 과업 · 기한/주기 · 품질 기준)을 따릅니다.
+      각 단계의 산출물이 다음 단계의 입력이 되도록 연결하는 것이 표준 절차의
+      핵심입니다.
+    </p>
+    <p>
+      이 도구는 SOP 초안 작성을 돕는 보조 도구이며, 현장의 실제 규정·법규·안전
+      기준을 대신하지 않습니다. 생성된 문서는 담당자가 검토·확정할 재료로
+      활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- state ---------- */
+  function blankStep() {
+    return { task: "", owner: "", output: "", due: "", quality: "", ep: "" };
+  }
+  var steps = [blankStep(), blankStep(), blankStep()];
+
+  var stepsEl = document.getElementById("steps");
+  var resultEl = document.getElementById("result");
+  var formError = document.getElementById("formError");
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  function nz(s) {
+    return s && String(s).trim() ? String(s).trim() : "";
+  }
+
+  /* ---------- render steps ---------- */
+  var stepFields = [
+    { field: "task", label: "핵심 과업 (무엇을 한다)", type: "textarea", ph: "예) 발주서를 검토하고 승인한다" },
+    { field: "owner", label: "담당", type: "input", ph: "예) 구매팀" },
+    { field: "output", label: "산출물 / 전달", type: "input", ph: "예) 승인된 발주서" },
+    { field: "due", label: "기한 / 주기", type: "input", ph: "예) 접수 후 1일 이내" },
+    { field: "quality", label: "품질 기준", type: "textarea", ph: "예) 단가·수량 2인 교차 확인, 승인자 서명" },
+    { field: "ep", label: "예외 처리 (EP · 선택)", type: "textarea", ph: "예) 단가 한도 초과 시 팀장 재승인 요청" },
+  ];
+
+  function fieldHtml(idx, f) {
+    var id = "s" + idx + "-" + f.field;
+    if (f.type === "textarea") {
+      return (
+        '<div class="field-group">' +
+        '<label class="field-label" for="' + id + '">' + f.label + "</label>" +
+        '<textarea id="' + id + '" data-field="' + f.field + '" placeholder="' + esc(f.ph) + '"></textarea>' +
+        "</div>"
+      );
+    }
+    return (
+      '<div class="field-group">' +
+      '<label class="field-label" for="' + id + '">' + f.label + "</label>" +
+      '<input class="text" id="' + id + '" data-field="' + f.field + '" placeholder="' + esc(f.ph) + '" />' +
+      "</div>"
+    );
+  }
+
+  function renderSteps() {
+    var html = "";
+    for (var i = 0; i < steps.length; i++) {
+      html += '<div class="step-card" data-idx="' + i + '">';
+      html += '<div class="step-card-head">';
+      html +=
+        '<span class="step-badge"><span class="num">' +
+        (i + 1) +
+        "</span>단계</span>";
+      html +=
+        '<button type="button" class="step-remove" data-remove="' +
+        i +
+        '" aria-label="' +
+        (i + 1) +
+        '단계 삭제"' +
+        (steps.length <= 1 ? " disabled" : "") +
+        ">&times;</button>";
+      html += "</div>";
+      // task (full width)
+      html += fieldHtml(i, stepFields[0]);
+      // owner / output / due (trip)
+      html += '<div class="trip">';
+      html += fieldHtml(i, stepFields[1]);
+      html += fieldHtml(i, stepFields[2]);
+      html += fieldHtml(i, stepFields[3]);
+      html += "</div>";
+      // quality + ep (full width)
+      html += fieldHtml(i, stepFields[4]);
+      html += fieldHtml(i, stepFields[5]);
+      html += "</div>";
+    }
+    stepsEl.innerHTML = html;
+
+    // restore values + auto-grow
+    var cards = stepsEl.querySelectorAll(".step-card");
+    for (var c = 0; c < cards.length; c++) {
+      var card = cards[c];
+      var idx = +card.getAttribute("data-idx");
+      var controls = card.querySelectorAll("[data-field]");
+      for (var k = 0; k < controls.length; k++) {
+        var ctl = controls[k];
+        var fld = ctl.getAttribute("data-field");
+        ctl.value = steps[idx][fld] || "";
+        if (ctl.tagName === "TEXTAREA") grow(ctl);
+      }
+    }
+  }
+
+  stepsEl.addEventListener("input", function (e) {
+    var t = e.target;
+    var fld = t.getAttribute && t.getAttribute("data-field");
+    if (!fld) return;
+    var card = t.closest(".step-card");
+    if (!card) return;
+    var idx = +card.getAttribute("data-idx");
+    steps[idx][fld] = t.value;
+    if (t.tagName === "TEXTAREA") grow(t);
+  });
+
+  stepsEl.addEventListener("click", function (e) {
+    var rm = e.target.closest("[data-remove]");
+    if (!rm) return;
+    var i = +rm.getAttribute("data-remove");
+    if (steps.length > 1) {
+      steps.splice(i, 1);
+      renderSteps();
+    }
+  });
+
+  document.getElementById("addStep").addEventListener("click", function () {
+    steps.push(blankStep());
+    renderSteps();
+    var cards = stepsEl.querySelectorAll(".step-card");
+    var last = cards[cards.length - 1];
+    if (last) {
+      last.scrollIntoView({ behavior: "smooth", block: "center" });
+      var first = last.querySelector("textarea, input");
+      if (first) first.focus();
+    }
+  });
+
+  /* ---------- basic-info auto-grow ---------- */
+  var purposeEl = document.getElementById("purpose");
+  purposeEl.addEventListener("input", function () {
+    grow(purposeEl);
+  });
+
+  /* ---------- date / doc number ---------- */
+  function pad(n) {
+    return String(n).length < 2 ? "0" + n : String(n);
+  }
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+  function ymdStr() {
+    var d = new Date();
+    return "" + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
+  }
+
+  /* ---------- core: analyze + build ---------- */
+  function collectBasic() {
+    return {
+      title: nz(document.getElementById("title").value),
+      purpose: nz(purposeEl.value),
+      scope: nz(document.getElementById("scope").value),
+      author: nz(document.getElementById("author").value),
+    };
+  }
+
+  function activeSteps() {
+    // a step counts if it has any content
+    return steps
+      .map(function (s) {
+        return {
+          task: nz(s.task),
+          owner: nz(s.owner),
+          output: nz(s.output),
+          due: nz(s.due),
+          quality: nz(s.quality),
+          ep: nz(s.ep),
+        };
+      })
+      .filter(function (s) {
+        return s.task || s.owner || s.output || s.due || s.quality || s.ep;
+      });
+  }
+
+  function analyze(basic, active) {
+    var gaps = [];
+    var purposeAuto = !basic.purpose;
+
+    if (!basic.scope)
+      gaps.push({ where: "기본 정보", what: "적용 범위가 비어 있습니다 (대상 조직·업무·기간을 명시하세요)." });
+    if (purposeAuto)
+      gaps.push({ where: "기본 정보", what: "목적이 자동 생성되었습니다 — 실제 목적으로 검토·구체화하세요." });
+
+    // per-step core fields: task, owner, due, quality
+    var coreTotal = active.length * 4;
+    var coreFilled = 0;
+    active.forEach(function (s, i) {
+      var n = i + 1;
+      if (s.task) coreFilled++;
+      else gaps.push({ where: n + "단계", what: "핵심 과업이 비어 있습니다." });
+      if (s.owner) coreFilled++;
+      else gaps.push({ where: n + "단계", what: "담당자가 지정되지 않았습니다." });
+      if (s.due) coreFilled++;
+      else gaps.push({ where: n + "단계", what: "기한/주기가 없습니다." });
+      if (s.quality) coreFilled++;
+      else gaps.push({ where: n + "단계", what: "품질 기준이 없습니다." });
+    });
+
+    // chain continuity: an intermediate step with no output breaks input->output linkage
+    active.forEach(function (s, i) {
+      if (i < active.length - 1 && !s.output) {
+        gaps.push({
+          where: i + 1 + "단계",
+          what: "산출물이 없어 다음 단계 입력과 연결이 끊깁니다.",
+        });
+      }
+    });
+
+    // EP presence
+    var epCount = active.filter(function (s) {
+      return s.ep;
+    }).length;
+    if (epCount === 0)
+      gaps.push({
+        where: "예외 처리",
+        what: "정의된 예외(EP)가 없습니다 — 지연·반려·오류 시 대응을 1개 이상 추가하세요.",
+      });
+
+    // completeness score: core step fields (weight 4/step) + purpose + scope (2)
+    var total = coreTotal + 2;
+    var filled = coreFilled + (basic.purpose ? 1 : 0) + (basic.scope ? 1 : 0);
+    var pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+
+    var band, desc;
+    if (pct >= 85) {
+      band = "good";
+      desc = "표준 절차의 핵심 항목이 충실히 채워졌습니다. 예외 처리와 품질 기준의 측정 가능성만 다시 점검하세요.";
+    } else if (pct >= 60) {
+      band = "base";
+      desc = "골격은 갖춰졌습니다. 아래 '보완 필요' 항목을 채우면 바로 쓸 수 있는 SOP가 됩니다.";
+    } else {
+      band = "warn";
+      desc = "아직 초안 단계입니다. 담당·기한·품질 기준 같은 빈칸이 많습니다. 아래 항목부터 채워 보세요.";
+    }
+
+    return {
+      gaps: gaps,
+      pct: pct,
+      band: band,
+      desc: desc,
+      purposeAuto: purposeAuto,
+      epCount: epCount,
+    };
+  }
+
+  function derivePurpose(basic) {
+    if (basic.purpose) return basic.purpose;
+    var t = basic.title || "본 업무";
+    return (
+      "본 절차서는 '" +
+      t +
+      "' 업무를 담당·순서·기한·품질 기준에 따라 일관되게 수행하기 위한 표준을 정의한다."
+    );
+  }
+
+  function deriveRoles(active) {
+    var map = {};
+    var order = [];
+    active.forEach(function (s) {
+      var o = s.owner;
+      if (!o) return;
+      if (!map[o]) {
+        map[o] = [];
+        order.push(o);
+      }
+      map[o].push(s.task || "(과업 미기재)");
+    });
+    return order.map(function (o) {
+      return { owner: o, tasks: map[o] };
+    });
+  }
+
+  function inputFor(active, i) {
+    if (i === 0) return "업무 착수";
+    return active[i - 1].output || i + "단계 산출물";
+  }
+
+  /* ---------- markdown builder ---------- */
+  function mdCell(s) {
+    return (s || "-").replace(/\|/g, "／").replace(/\n+/g, " ");
+  }
+  function buildMarkdown(basic, active, roles, purpose, docNo, today) {
+    var L = [];
+    L.push("# 표준업무절차서(SOP): " + (basic.title || "(업무명 미입력)"));
+    L.push("");
+    L.push("- 문서번호: " + docNo);
+    L.push("- 버전: v1.0");
+    L.push("- 작성일: " + today);
+    L.push("- 작성/담당: " + (basic.author || "-"));
+    L.push("");
+    L.push("## 1. 목적");
+    L.push(purpose);
+    L.push("");
+    L.push("## 2. 적용 범위");
+    L.push(basic.scope || "(적용 범위 미입력 — 대상 조직·업무·기간을 명시하세요.)");
+    L.push("");
+    L.push("## 3. 역할과 책임");
+    if (roles.length) {
+      roles.forEach(function (r) {
+        L.push("- " + r.owner + ": " + r.tasks.join(", "));
+      });
+    } else {
+      L.push("- (담당자 미지정)");
+    }
+    L.push("");
+    L.push("## 4. 표준 절차 (Standard Process)");
+    L.push("| No | 담당 | 핵심 과업 | 입력 → 산출물 | 기한/주기 | 품질 기준 |");
+    L.push("| --- | --- | --- | --- | --- | --- |");
+    active.forEach(function (s, i) {
+      var io = inputFor(active, i) + " → " + (s.output || "(산출물 미정)");
+      L.push(
+        "| " +
+          (i + 1) +
+          " | " +
+          mdCell(s.owner || "-") +
+          " | " +
+          mdCell(s.task || "-") +
+          " | " +
+          mdCell(io) +
+          " | " +
+          mdCell(s.due || "-") +
+          " | " +
+          mdCell(s.quality || "-") +
+          " |"
+      );
+    });
+    L.push("");
+    L.push("## 5. 예외 처리 (Exception Process)");
+    var eps = active
+      .map(function (s, i) {
+        return { n: i + 1, ep: s.ep };
+      })
+      .filter(function (x) {
+        return x.ep;
+      });
+    if (eps.length) {
+      eps.forEach(function (x) {
+        L.push("- [" + x.n + "단계 예외] " + x.ep.replace(/\n+/g, " "));
+      });
+    } else {
+      L.push("- (정의된 예외 없음 — 지연·반려·오류·재작업 시 대응을 추가하세요.)");
+    }
+    L.push("");
+    L.push("## 6. 품질 기준 체크리스트");
+    var qs = active
+      .map(function (s, i) {
+        return { n: i + 1, q: s.quality, t: s.task };
+      })
+      .filter(function (x) {
+        return x.q;
+      });
+    if (qs.length) {
+      qs.forEach(function (x) {
+        L.push(
+          "- [ ] " + x.n + "단계(" + (x.t || "과업") + "): " + x.q.replace(/\n+/g, " ")
+        );
+      });
+    } else {
+      L.push("- (품질 기준 미정)");
+    }
+    L.push("");
+    L.push("## 7. 개정 이력");
+    L.push("| 버전 | 일자 | 변경 내용 | 작성자 |");
+    L.push("| --- | --- | --- | --- |");
+    L.push("| v1.0 | " + today + " | 최초 제정 | " + (basic.author || "-") + " |");
+    return L.join("\n");
+  }
+
+  /* ---------- prompt builder ---------- */
+  function buildPrompt(basic, analysisRes, md) {
+    var L = [];
+    L.push(
+      "당신은 업무 표준화(SOP) 전문가입니다. 아래 표준업무절차서 초안을 검토하고, 실무에서 바로 쓸 수 있는 SOP로 완성하도록 도와주세요."
+    );
+    L.push("");
+    L.push("【자가 점검 결과 · 완성도 " + analysisRes.pct + "%】");
+    if (analysisRes.gaps.length) {
+      L.push("보완이 필요한 항목:");
+      analysisRes.gaps.forEach(function (g, i) {
+        L.push(i + 1 + ". [" + g.where + "] " + g.what);
+      });
+    } else {
+      L.push("- 자가 점검상 빈칸은 없습니다. 내용의 정확성과 측정 가능성을 검증해 주세요.");
+    }
+    L.push("");
+    L.push("【SOP 초안】");
+    L.push(md);
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 각 단계의 '입력 → 산출물' 연결이 끊기지 않는지(앞 단계 산출물이 다음 단계 입력이 되는지) 점검하고, 끊긴 곳을 지적해 주세요."
+    );
+    L.push(
+      "2. 담당·기한/주기·품질 기준이 비었거나 모호한 칸을, 검증·측정 가능한 구체적 값으로 제안해 주세요."
+    );
+    L.push(
+      "3. 예외 처리(EP)가 필요한 지점(지연·반려·오류·재작업)을 찾아 대응 절차를 추가해 주세요."
+    );
+    L.push(
+      "4. 근거 없이 내용을 지어내지 말고, 모르는 값은 저에게 질문으로 되물어 주세요."
+    );
+    L.push(
+      "5. 최종본을 7개 섹션 구조(목적·적용 범위·역할과 책임·표준 절차·예외 처리·품질 체크리스트·개정 이력)로 정리해 주세요."
+    );
+    return L.join("\n");
+  }
+
+  /* ---------- render result ---------- */
+  var lastMd = "";
+  var lastPrompt = "";
+
+  function renderResult(basic, active, roles, purpose, analysisRes, docNo, today) {
+    var html = "";
+
+    // score card
+    var tone =
+      analysisRes.band === "good"
+        ? "tone-good"
+        : analysisRes.band === "warn"
+        ? "tone-warn"
+        : "";
+    var bandLabel =
+      analysisRes.band === "good"
+        ? "충실"
+        : analysisRes.band === "warn"
+        ? "미흡"
+        : "보통";
+    html += '<div class="score-card ' + tone + '">';
+    html += '<div class="score-top">';
+    html += '<p class="score-label">SOP 완성도</p>';
+    html +=
+      '<p class="score-val">' +
+      analysisRes.pct +
+      '% <span style="font-size:0.9rem;font-weight:700">· ' +
+      bandLabel +
+      "</span></p>";
+    html += "</div>";
+    html +=
+      '<div class="bar" role="img" aria-label="완성도 ' +
+      analysisRes.pct +
+      '퍼센트"><div class="bar-fill" style="width:' +
+      analysisRes.pct +
+      '%"></div></div>';
+    html += '<p class="score-desc">' + esc(analysisRes.desc) + "</p>";
+    html += "</div>";
+
+    // rendered SOP document
+    html += '<div class="result-block-title">SOP 문서</div>';
+    html += '<div class="sop-doc">';
+    html +=
+      '<p class="sop-title">표준업무절차서(SOP): ' +
+      esc(basic.title || "(업무명 미입력)") +
+      "</p>";
+    html += '<p class="sop-meta">';
+    html += "<span>문서번호: " + esc(docNo) + "</span>";
+    html += "<span>버전: v1.0</span>";
+    html += "<span>작성일: " + esc(today) + "</span>";
+    html += "<span>작성/담당: " + esc(basic.author || "-") + "</span>";
+    html += "</p>";
+
+    // 1. purpose
+    html += '<div class="sop-sec"><h3>1. 목적</h3>';
+    html +=
+      '<p' +
+      (analysisRes.purposeAuto ? ' class="auto"' : "") +
+      ">" +
+      esc(purpose) +
+      (analysisRes.purposeAuto ? "  (자동 생성 — 검토 필요)" : "") +
+      "</p></div>";
+
+    // 2. scope
+    html += '<div class="sop-sec"><h3>2. 적용 범위</h3>';
+    html +=
+      "<p" +
+      (basic.scope ? "" : ' class="auto"') +
+      ">" +
+      esc(basic.scope || "(적용 범위 미입력 — 대상 조직·업무·기간을 명시하세요.)") +
+      "</p></div>";
+
+    // 3. roles
+    html += '<div class="sop-sec"><h3>3. 역할과 책임</h3>';
+    if (roles.length) {
+      html += '<ul class="rr-list">';
+      roles.forEach(function (r) {
+        html +=
+          "<li><strong>" +
+          esc(r.owner) +
+          "</strong> — " +
+          esc(r.tasks.join(", ")) +
+          "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html += '<p class="muted">담당자가 지정되지 않았습니다.</p>';
+    }
+    html += "</div>";
+
+    // 4. procedure table
+    html += '<div class="sop-sec"><h3>4. 표준 절차 (Standard Process)</h3>';
+    html += '<div class="table-scroll"><table class="sop-table">';
+    html +=
+      "<thead><tr><th>No</th><th>담당</th><th>핵심 과업</th><th>입력 → 산출물</th><th>기한/주기</th><th>품질 기준</th></tr></thead><tbody>";
+    active.forEach(function (s, i) {
+      var io = inputFor(active, i) + " → " + (s.output || "(산출물 미정)");
+      html += "<tr>";
+      html += '<td class="no">' + (i + 1) + "</td>";
+      html += "<td>" + esc(s.owner || "-") + "</td>";
+      html += '<td class="task">' + esc(s.task || "-") + "</td>";
+      html += "<td>" + esc(io) + "</td>";
+      html += "<td>" + esc(s.due || "-") + "</td>";
+      html += "<td>" + esc(s.quality || "-") + "</td>";
+      html += "</tr>";
+    });
+    html += "</tbody></table></div></div>";
+
+    // 5. EP
+    html += '<div class="sop-sec"><h3>5. 예외 처리 (Exception Process)</h3>';
+    var eps = active
+      .map(function (s, i) {
+        return { n: i + 1, ep: s.ep };
+      })
+      .filter(function (x) {
+        return x.ep;
+      });
+    if (eps.length) {
+      html += '<ul class="ep-list">';
+      eps.forEach(function (x) {
+        html += "<li>[" + x.n + "단계] " + esc(x.ep) + "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html +=
+        '<p class="muted">정의된 예외가 없습니다 — 지연·반려·오류·재작업 시 대응을 추가하세요.</p>';
+    }
+    html += "</div>";
+
+    // 6. quality checklist
+    html += '<div class="sop-sec"><h3>6. 품질 기준 체크리스트</h3>';
+    var qs = active
+      .map(function (s, i) {
+        return { n: i + 1, q: s.quality, t: s.task };
+      })
+      .filter(function (x) {
+        return x.q;
+      });
+    if (qs.length) {
+      html += '<ul class="q-list">';
+      qs.forEach(function (x) {
+        html +=
+          "<li>" +
+          x.n +
+          "단계(" +
+          esc(x.t || "과업") +
+          "): " +
+          esc(x.q) +
+          "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html += '<p class="muted">품질 기준이 아직 없습니다.</p>';
+    }
+    html += "</div>";
+
+    html += "</div>"; // .sop-doc
+
+    // gaps
+    if (analysisRes.gaps.length) {
+      html += '<div class="result-block-title">보완 필요 (' + analysisRes.gaps.length + ")</div>";
+      html += '<ul class="gap-list">';
+      analysisRes.gaps.forEach(function (g) {
+        html +=
+          '<li class="gap-item"><strong>' +
+          esc(g.where) +
+          "</strong> · " +
+          esc(g.what) +
+          "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html +=
+        '<p class="clean-note" style="margin-top:22px">자가 점검상 빈칸이 없습니다. 그래도 SOP는 한 번 쓰고 끝이 아니라 현장에서 검증되며 개정됩니다. 아래 프롬프트로 내용의 정확성을 한 번 더 시험해 보세요.</p>';
+    }
+
+    // copy: markdown
+    html += '<div class="result-block-title">복사용 SOP (마크다운)</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">노션·워드·깃허브 등에 그대로 붙여넣을 수 있는 표준 문서입니다.</p>';
+    html += '<div class="code-wrap"><pre class="doc" id="md-text">' + esc(lastMd) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyMd">SOP 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="mdStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // copy: prompt
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">이 초안과 자가 점검 결과를 ChatGPT·Claude 등에 붙여넣으면, 빈칸을 함께 채우고 예외 처리를 보강해 줍니다.</p>';
+    html +=
+      '<div class="code-wrap"><pre class="prompt" id="prompt-text">' +
+      esc(lastPrompt) +
+      "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPrompt">프롬프트 복사</button>';
+    html +=
+      '<span class="copy-status" id="promptStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ---------- generate ---------- */
+  document.getElementById("generate").addEventListener("click", function () {
+    var basic = collectBasic();
+    var active = activeSteps();
+
+    // validation
+    if (!basic.title && active.length === 0) {
+      showError("업무명과 최소 한 단계 이상을 입력해 주세요.");
+      return;
+    }
+    if (active.length === 0) {
+      showError("업무 단계를 최소 한 개 이상 입력해 주세요 (핵심 과업).");
+      return;
+    }
+    var hasTask = active.some(function (s) {
+      return s.task;
+    });
+    if (!hasTask) {
+      showError("각 단계의 '핵심 과업'을 최소 한 개는 채워 주세요.");
+      return;
+    }
+    hideError();
+
+    var purpose = derivePurpose(basic);
+    var roles = deriveRoles(active);
+    var analysisRes = analyze(basic, active);
+    var docNo = "SOP-" + ymdStr() + "-01";
+    var today = todayStr();
+
+    lastMd = buildMarkdown(basic, active, roles, purpose, docNo, today);
+    lastPrompt = buildPrompt(basic, analysisRes, lastMd);
+
+    renderResult(basic, active, roles, purpose, analysisRes, docNo, today);
+  });
+
+  function showError(msg) {
+    formError.textContent = msg;
+    formError.classList.add("show");
+  }
+  function hideError() {
+    formError.textContent = "";
+    formError.classList.remove("show");
+  }
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    steps = [blankStep(), blankStep(), blankStep()];
+    document.getElementById("title").value = "";
+    purposeEl.value = "";
+    grow(purposeEl);
+    document.getElementById("scope").value = "";
+    document.getElementById("author").value = "";
+    hideError();
+    renderSteps();
+    lastMd = "";
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>업무명과 단계를 채우고 'SOP 문서 생성'을 누르세요.</p></div>";
+    document.getElementById("basic-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ---------- copy (3-tier fallback) ---------- */
+  function wireResultButtons() {
+    var copyMd = document.getElementById("copyMd");
+    var copyPrompt = document.getElementById("copyPrompt");
+    var printBtn = document.getElementById("printBtn");
+    if (copyMd)
+      copyMd.addEventListener("click", function () {
+        doCopy(lastMd, document.getElementById("mdStatus"));
+      });
+    if (copyPrompt)
+      copyPrompt.addEventListener("click", function () {
+        doCopy(lastPrompt, document.getElementById("promptStatus"));
+      });
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(el, msg) {
+    if (!el) return;
+    el.textContent = msg;
+    setTimeout(function () {
+      if (el) el.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy(text, statusEl) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(statusEl, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusEl);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusEl);
+  }
+
+  function legacyCopy(text, statusEl) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(statusEl, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  /* ---------- init ---------- */
+  renderSteps();
+</script>

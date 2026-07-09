@@ -1,0 +1,1358 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>이해관계자별 메시지 리프레이밍 빌더</title>
+<meta
+  name="description"
+  content="하나의 핵심 메시지를 CEO·재무·실무 등 청중별로 강조점과 예시만 바꿔 리프레이밍한 버전을 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3d5a80;
+    --accent-strong: #2b4260;
+    --accent-tint: #eef2f8;
+    --accent-tint-2: #dbe3f0;
+    --ink: #1f2530;
+    --ink-soft: #444d5c;
+    --ink-mute: #6a7280;
+    --paper: #f6f7fa;
+    --card: #ffffff;
+    --line: #e2e6ee;
+    --line-strong: #cdd4e0;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #9a5a1a;
+    --warn-tint: #fbf1e4;
+    --shadow: 0 1px 2px rgba(31, 37, 48, 0.05), 0 6px 20px rgba(31, 37, 48, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textareas ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  label.field-label .req {
+    color: var(--accent);
+    font-weight: 800;
+    margin-left: 2px;
+  }
+  label.field-label .opt {
+    color: var(--ink-mute);
+    font-weight: 600;
+    font-size: 0.84rem;
+    margin-left: 4px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 84px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfdff;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea.short {
+    min-height: 64px;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a4abb8;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 20px;
+  }
+  .field-hint:last-child {
+    margin-bottom: 0;
+  }
+  .field-error {
+    display: none;
+    font-size: 0.86rem;
+    color: #b23b3b;
+    font-weight: 700;
+    margin: 8px 0 0;
+  }
+  .field-error.show {
+    display: block;
+  }
+
+  /* ---------- audience checklist ---------- */
+  ul.audiences {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  li.aud {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fcfdff;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  li.aud.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .aud-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 13px 13px;
+    cursor: pointer;
+    height: 100%;
+  }
+  .aud-check {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    border: 2px solid var(--line-strong);
+    border-radius: 7px;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    transition: all 0.15s;
+  }
+  li.aud.on .aud-check {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .aud-check svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  li.aud.on .aud-check svg {
+    opacity: 1;
+  }
+  .aud-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .aud-name {
+    font-weight: 700;
+    font-size: 0.96rem;
+    margin: 0 0 2px;
+    color: var(--ink);
+  }
+  .aud-care {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.45;
+  }
+  .aud-row input.native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  li.aud:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.08em;
+    color: var(--line-strong);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* intent banner */
+  .intent {
+    border-radius: 14px;
+    padding: 16px 16px;
+    margin-bottom: 18px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .intent-top {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .intent-chip {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent);
+    padding: 4px 11px;
+    border-radius: 999px;
+  }
+  .intent-count {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+  .intent-msg {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .intent-lead {
+    margin: 8px 0 0;
+    font-size: 0.92rem;
+    color: var(--ink);
+  }
+  .intent-lead b {
+    color: var(--accent-strong);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 12px;
+  }
+
+  /* reframe cards */
+  .rcards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  article.rcard {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fcfdff;
+    padding: 16px 16px 6px;
+    overflow: hidden;
+  }
+  .rcard-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .mono {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    color: var(--accent-strong);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 1.05rem;
+  }
+  .rcard-name {
+    font-weight: 800;
+    font-size: 1.04rem;
+    margin: 0 0 2px;
+  }
+  .rcard-q {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+  }
+  .mini-label {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .rcard-angle {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 13px;
+    margin-bottom: 14px;
+  }
+  .rcard-angle p {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .rcard-angle .q {
+    color: var(--accent-strong);
+  }
+  .rc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .rc-block {
+    min-width: 0;
+  }
+  .rc-block ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .rc-block ul li {
+    margin-bottom: 5px;
+  }
+  .rc-block p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .rc-block.cut .mini-label {
+    color: var(--warn);
+  }
+  .rcard-open {
+    background: var(--accent-tint);
+    border-radius: 10px;
+    padding: 11px 13px;
+    margin-bottom: 14px;
+  }
+  .rcard-open .mini-label {
+    color: var(--accent-strong);
+  }
+  .rcard-open p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--ink);
+    font-style: normal;
+    line-height: 1.55;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232a36;
+    color: #eef1f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.85rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .btn-copy.sec {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-copy.sec:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 37, 48, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 170px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  footer.foot p {
+    margin: 0 0 10px;
+  }
+
+  @media (max-width: 560px) {
+    ul.audiences {
+      grid-template-columns: 1fr;
+    }
+    .rc-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #audience-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    article.rcard {
+      break-inside: avoid;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">메시지 설계 · 이해관계자 커뮤니케이션</span>
+    <h1>이해관계자별 메시지 리프레이밍 빌더</h1>
+    <p class="lede">
+      하나의 핵심 메시지를 그대로 전하지 마세요. 같은 내용을 CEO·재무·실무 등
+      청중별로 <strong>강조점과 예시만 바꿔</strong> 리프레이밍한 버전으로
+      설계합니다. 사실은 유지하고, 각 청중이 궁금해하는 축으로 번역합니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>전할 핵심 메시지</h2>
+    </div>
+    <p class="panel-sub">
+      모든 청중에게 공통으로 전하려는 하나의 메시지를 한두 문장으로 적으세요.
+      이 내용(사실)은 청중이 달라도 바뀌지 않습니다.
+    </p>
+    <label class="field-label" for="msg"
+      >핵심 메시지<span class="req">*</span></label
+    >
+    <textarea
+      id="msg"
+      aria-describedby="msg-error"
+      placeholder="예) 내년부터 영업 조직에 새 CRM을 도입해 고객 데이터를 한곳에서 관리하려 합니다."
+    ></textarea>
+    <p class="field-error" id="msg-error" role="alert">
+      전할 핵심 메시지를 먼저 입력해 주세요.
+    </p>
+
+    <label class="field-label" for="ctx"
+      >배경 · 근거 자료<span class="opt">(선택)</span></label
+    >
+    <textarea
+      id="ctx"
+      class="short"
+      placeholder="예) 현재 고객 정보가 3개 부서에 흩어져 있음 / 도입 예산·일정 초안 / 우려되는 반발 지점 등"
+    ></textarea>
+    <p class="field-hint">
+      배경을 적으면 각 청중용 예시·근거를 더 구체적으로 뽑을 수 있습니다. 입력한
+      내용은 이 브라우저 밖으로 전송되지 않습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="audience-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>리프레이밍할 청중 선택</h2>
+    </div>
+    <p class="panel-sub">
+      이 메시지를 전할 이해관계자를 모두 고르세요. 각 청중이 머릿속에 품은
+      질문에 맞춰 버전을 만들어 드립니다.
+    </p>
+    <ul class="audiences" id="audiences"></ul>
+
+    <div class="actions">
+      <button class="btn-primary" id="build">리프레이밍 생성</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>청중별 리프레이밍</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◑ ◐ ◓</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>핵심 메시지를 적고 청중을 고른 뒤 '리프레이밍 생성'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 이해관계자 커뮤니케이션의 청중 분석과
+      WIIFM('What's In It For Me', 상대에게 무슨 이득인가) 원칙, 그리고 아리스토텔레스
+      수사학의 청중 적응(에토스·파토스·로고스) 개념에 기반합니다. 각 청중 프로필의
+      관심축은 조직 내 역할별로 일반적으로 통용되는 관점(경영진=전략·성장,
+      재무=회수·리스크, 실무=실행 가능성 등)을 정리한 것입니다.
+    </p>
+    <p>
+      이 도구는 메시지를 청중에 맞게 재구성하도록 돕는 사고 보조 도구이며,
+      메시지의 사실 자체를 만들어 내거나 대신 확정해 주지 않습니다. 숫자·근거는
+      반드시 본인이 검증한 값으로 채우세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------------------------------------------------------
+     Audience profiles — role-based reframing lenses.
+     Each profile drives a genuinely distinct reframed brief.
+  ----------------------------------------------------------------*/
+  var AUDIENCES = [
+    {
+      id: "ceo",
+      mono: "경",
+      name: "CEO · 경영진",
+      care: "전략 방향, 성장, 경쟁 우위",
+      question: "이게 회사의 성장과 경쟁 위치에 무슨 의미가 있는가?",
+      angle:
+        "‘회사의 성장과 경쟁 우위에 어떤 의미인가’라는 한 문장으로 좁혀, 결론부터 제시하세요.",
+      emphasize: [
+        "결론과 의사결정 요청을 맨 앞에 (핵심 3줄 이내)",
+        "이 결정이 여는 기회와 경쟁 위치의 변화",
+        "우리가 감수하거나 포기하는 것과 그 대가",
+      ],
+      cut: "실행 절차의 세부 단계, 도구 화면, 기술 용어",
+      evidence: "시장·경쟁 맥락, 한 장짜리 그림, 대안과의 비교",
+      opening:
+        "결론부터 말씀드리면, [핵심 판단·요청]입니다. 이것이 중요한 이유는 세 가지입니다.",
+    },
+    {
+      id: "cfo",
+      mono: "재",
+      name: "재무 · CFO",
+      care: "ROI, 비용, 현금흐름, 리스크",
+      question: "돈이 얼마 들고, 언제 얼마로 돌아오며, 무엇이 위험한가?",
+      angle:
+        "‘투자 대비 회수·현금흐름·리스크’의 숫자 언어로 번역해 제시하세요.",
+      emphasize: [
+        "필요 투자와 회수 시점 (추정치임을 명시)",
+        "지금 하지 않을 때의 비용과 리스크",
+        "가정과 민감도 — 무엇이 바뀌면 숫자가 흔들리는가",
+      ],
+      cut: "비전 수사, 정성적 열망, 감성적 서사",
+      evidence: "비용·회수 표, 시나리오(보수/기본/낙관), 전제 조건",
+      opening:
+        "재무 관점에서 요약하면, 초기 [투자액] 대비 [회수 기준]입니다. 전제는 다음과 같습니다.",
+    },
+    {
+      id: "ic",
+      mono: "현",
+      name: "실무자 · 현장",
+      care: "실행 가능성, 업무량, 역할, 도구",
+      question: "내 일이 어떻게 바뀌고, 나는 무엇을 해야 하나?",
+      angle: "‘현장의 일이 구체적으로 어떻게 바뀌는가’로 번역해 제시하세요.",
+      emphasize: [
+        "내 역할과 할 일이 무엇으로 바뀌는지 구체적으로",
+        "업무량·불편이 늘거나 줄어드는 지점 (솔직하게)",
+        "지원·교육·도구와 도움을 요청할 경로",
+      ],
+      cut: "전사 전략 담론, 재무 지표, 추상적 비전",
+      evidence: "실제 업무 시나리오, 전/후 비교, 체크리스트",
+      opening:
+        "이 변화로 여러분의 일은 [핵심 변화]가 됩니다. 오늘부터 달라지는 건 다음 세 가지입니다.",
+    },
+    {
+      id: "mgr",
+      mono: "관",
+      name: "중간관리자 · 팀장",
+      care: "팀 목표 정렬, 자원, 일정, 사기",
+      question: "우리 팀 목표·자원·사람을 어떻게 정렬하나?",
+      angle: "‘팀 목표·자원·일정을 어떻게 정렬하는가’로 번역해 제시하세요.",
+      emphasize: [
+        "팀 목표와의 연결, 우선순위 재조정",
+        "필요한 자원·인력과 일정에 주는 영향",
+        "팀에 어떻게 설명하고 이끌어 갈지",
+      ],
+      cut: "최상위 전략의 추상 논의, 세부 기술 구현",
+      evidence: "팀 단위 로드맵, 우선순위 매트릭스, 마일스톤",
+      opening:
+        "우리 팀 관점에서 [핵심]은 [우선순위·자원]의 문제입니다. 조정할 지점은 다음과 같습니다.",
+    },
+    {
+      id: "board",
+      mono: "이",
+      name: "이사회 · 투자자",
+      care: "장기 가치, 거버넌스, 리스크",
+      question: "이게 장기 기업가치와 리스크에 어떤 영향을 주는가?",
+      angle:
+        "‘장기 기업가치와 리스크·거버넌스’ 관점으로 한 단계 올려 제시하세요.",
+      emphasize: [
+        "장기 가치와 전략 정합성",
+        "핵심 리스크와 완화 방안",
+        "검토한 대안과 자본 배분 논리",
+      ],
+      cut: "운영 세부, 단기 실행 디테일, 내부 용어",
+      evidence: "시나리오·민감도, 벤치마크, 리스크 매트릭스",
+      opening:
+        "장기 관점에서 [핵심]은 [가치·리스크]에 관한 논의입니다. 핵심 리스크와 대응부터 말씀드립니다.",
+    },
+    {
+      id: "customer",
+      mono: "고",
+      name: "고객",
+      care: "혜택, 문제 해결, 신뢰, 쉬움",
+      question: "이게 나에게 무슨 이득이고, 왜 믿어야 하나?",
+      angle:
+        "‘고객이 얻는 구체적 혜택(WIIFM)’으로, 회사 사정이 아니라 고객의 이득으로 번역하세요.",
+      emphasize: [
+        "고객이 겪던 문제와 그 해결",
+        "얻게 되는 혜택을 고객의 언어로",
+        "믿을 근거(사례·보증)와 다음 행동 한 가지",
+      ],
+      cut: "내부 조직·기술 구조, 회사 사정, 전문 용어",
+      evidence: "고객 사례, 전/후 경험, 쉬운 비유",
+      opening:
+        "[고객이 겪던 문제]로 불편하셨다면, 이제 [핵심 혜택]으로 달라집니다.",
+    },
+    {
+      id: "sales",
+      mono: "영",
+      name: "영업 · 세일즈",
+      care: "차별점, 반론 대응, 세일즈 포인트",
+      question: "이걸로 무엇을, 어떻게 팔 수 있나?",
+      angle:
+        "‘고객에게 파는 한 문장과 예상 반론 대응’으로 번역해 제시하세요.",
+      emphasize: [
+        "한 문장 세일즈 포인트와 경쟁사 대비 차별점",
+        "예상되는 고객 반론과 대응 스크립트",
+        "타깃 고객과 활용할 성공 사례",
+      ],
+      cut: "내부 개발 논리, 재무 회계 세부",
+      evidence: "경쟁사 대비 비교표, 레퍼런스, 반론 대응표",
+      opening:
+        "고객에게 이렇게 여세요: ‘[핵심 혜택 한 문장]’. 반론이 오면 이렇게 답합니다.",
+    },
+    {
+      id: "tech",
+      mono: "기",
+      name: "기술 · 개발팀",
+      care: "요구사항, 제약, 실현 가능성",
+      question: "무엇을, 어떤 제약 안에서, 어떻게 구현하나?",
+      angle:
+        "‘무엇을·어떤 제약 안에서·어떤 트레이드오프로 구현하는가’로 번역해 제시하세요.",
+      emphasize: [
+        "해결하려는 문제와 성공 기준 (왜 하는가)",
+        "명확한 요구사항과 제약·의존성",
+        "트레이드오프와 결정이 필요한 지점",
+      ],
+      cut: "판매 수사, 감성적 비전, 미확정 약속",
+      evidence: "요구사항 명세, 예외/엣지 케이스, 아키텍처 스케치",
+      opening:
+        "해결할 문제는 [핵심]이고 성공 기준은 [기준]입니다. 제약과 결정 지점은 다음과 같습니다.",
+    },
+  ];
+
+  var DEFAULT_ON = { ceo: true, cfo: true, ic: true };
+  var checked = {};
+
+  /* ---------------------------------------------------------------
+     Message-intent classifier — keyword heuristic.
+     Drives the lead-order recommendation shown above the cards.
+  ----------------------------------------------------------------*/
+  function detectIntent(m) {
+    var s = m || "";
+    if (/제안|도입|하자|추진|투자|시작|런칭|출시|채택|승인 ?요청|요청드|건의|제언/.test(s))
+      return {
+        key: "proposal",
+        label: "제안 · 요청",
+        lead: "상대가 내려야 할 <b>결정과 그 근거</b>를 먼저 제시하세요. 요청이 무엇인지 흐리지 마세요.",
+      };
+    if (/문제|리스크|위험|지연|실패|이슈|우려|장애|사고|하락|경고|미달|차질/.test(s))
+      return {
+        key: "problem",
+        label: "문제 · 리스크 제기",
+        lead: "<b>사실 → 영향 → 이미 취한 조치 → 남은 결정</b> 순서로 제시하세요. 감정보다 다음 행동에 집중합니다.",
+      };
+    if (/변경|개편|전환|재편|조직|정책|새로운|바꾸|이전|마이그레이션|리뉴얼|개정/.test(s))
+      return {
+        key: "change",
+        label: "변화 · 전환 안내",
+        lead: "<b>왜 바뀌는가 → 무엇이 달라지는가 → 각자 무엇을 하는가</b> 순서로 제시해 불안을 줄이세요.",
+      };
+    if (/완료|진행|현황|업데이트|보고|결과|성과|달성|현재 ?상|상태|마감|리포트/.test(s))
+      return {
+        key: "status",
+        label: "현황 · 보고",
+        lead: "<b>결론(잘됨/문제)</b>을 먼저, 그다음 근거와 다음 단계를 제시하세요. 시간순 나열을 피하세요.",
+      };
+    return {
+      key: "claim",
+      label: "핵심 주장",
+      lead: "<b>핵심 주장 한 문장</b>을 먼저, 그다음 이유와 근거를 제시하세요.",
+    };
+  }
+
+  /* ---- render audience checklist ---- */
+  var audEl = document.getElementById("audiences");
+  var checkSvg =
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 12.5L10 17.5L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  AUDIENCES.forEach(function (a) {
+    var on = !!DEFAULT_ON[a.id];
+    checked[a.id] = on;
+    var li = document.createElement("li");
+    li.className = "aud" + (on ? " on" : "");
+    li.dataset.id = a.id;
+    li.innerHTML =
+      '<label class="aud-row">' +
+      '<input type="checkbox" class="native" data-id="' +
+      a.id +
+      '"' +
+      (on ? " checked" : "") +
+      ' aria-label="' +
+      a.name +
+      '" />' +
+      '<span class="aud-check">' +
+      checkSvg +
+      "</span>" +
+      '<span class="aud-body">' +
+      '<p class="aud-name">' +
+      a.name +
+      "</p>" +
+      '<p class="aud-care">' +
+      a.care +
+      "</p>" +
+      "</span>" +
+      "</label>";
+    audEl.appendChild(li);
+  });
+
+  audEl.addEventListener("change", function (e) {
+    var box = e.target;
+    if (!box.classList || !box.classList.contains("native")) return;
+    var id = box.dataset.id;
+    checked[id] = box.checked;
+    var li = box.closest("li.aud");
+    if (li) li.classList.toggle("on", box.checked);
+  });
+
+  /* ---- auto-grow textareas ---- */
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  var msg = document.getElementById("msg");
+  var ctx = document.getElementById("ctx");
+  var msgError = document.getElementById("msg-error");
+  msg.addEventListener("input", function () {
+    grow(msg);
+    if (msg.value.trim()) msgError.classList.remove("show");
+  });
+  ctx.addEventListener("input", function () {
+    grow(ctx);
+  });
+
+  /* ---- helpers ---- */
+  var resultEl = document.getElementById("result");
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function selectedAudiences() {
+    return AUDIENCES.filter(function (a) {
+      return checked[a.id];
+    });
+  }
+
+  /* ---- build the AI prompt ---- */
+  function buildPrompt(list, message, context, intent) {
+    var L = [];
+    L.push(
+      "당신은 이해관계자 커뮤니케이션에 능한 메시지 전략 코치입니다. 하나의 핵심 메시지를 청중별로 리프레이밍하도록 도와주세요."
+    );
+    L.push(
+      "규칙: 메시지의 사실(무엇을·왜)은 청중이 달라도 절대 바꾸지 마세요. 바꾸는 것은 강조점, 예시, 톤, 여는 방식뿐입니다. 없는 숫자·근거를 지어내지 말고, 모르는 값은 [대괄호] 자리표시자로 남겨 제게 물어 주세요."
+    );
+    L.push("");
+    L.push("【공통 핵심 메시지 (사실 — 유지)】");
+    L.push(message.trim());
+    L.push("");
+    if (context && context.trim()) {
+      L.push("【배경 · 근거 자료】");
+      L.push(context.trim());
+      L.push("");
+    }
+    L.push("【감지된 메시지 유형】 " + intent.label);
+    L.push(
+      "→ 권장 리드 순서: " + intent.lead.replace(/<\/?b>/g, "")
+    );
+    L.push("");
+    L.push("【리프레이밍할 청중과 각 관점】");
+    list.forEach(function (a, i) {
+      L.push(
+        i +
+          1 +
+          ". " +
+          a.name +
+          " — 머릿속 질문: “" +
+          a.question +
+          "”  / 번역 축: " +
+          a.angle
+      );
+    });
+    L.push("");
+    L.push("【각 청중에 대해 아래 형식으로 작성】");
+    L.push("● 청중명");
+    L.push("- 리프레이밍된 헤드라인: (같은 사실을 이 청중의 관심축으로 표현한 한 문장)");
+    L.push("- 이렇게 열기: (첫 1~2문장)");
+    L.push("- 강조할 3가지: (이 청중이 중요하게 여기는 순서로)");
+    L.push("- 구체적 예시 1개: (배경 자료가 있으면 그것에서, 없으면 이 메시지 맥락에 맞는 현실적 예)");
+    L.push("- 덜어낼 것: (이 청중에게 불필요하거나 역효과인 요소)");
+    L.push("");
+    L.push(
+      "마지막으로, 청중 간에 같은 사실을 서로 다르게 말해 신뢰를 잃지 않도록, 모든 버전이 공유해야 할 '흔들리면 안 되는 한 문장'을 정리해 주세요."
+    );
+    return L.join("\n");
+  }
+
+  /* ---- build a plain-text brief of all cards ---- */
+  function buildBrief(list, message, context, intent) {
+    var L = [];
+    L.push("이해관계자별 메시지 리프레이밍 브리프");
+    L.push("========================================");
+    L.push("공통 핵심 메시지: " + message.trim());
+    if (context && context.trim()) L.push("배경 자료: " + context.trim());
+    L.push("감지된 메시지 유형: " + intent.label);
+    L.push("권장 리드 순서: " + intent.lead.replace(/<\/?b>/g, ""));
+    L.push("");
+    list.forEach(function (a) {
+      L.push("── " + a.name + " ──");
+      L.push("머릿속 질문: " + a.question);
+      L.push("리프레이밍 앵글: 「" + message.trim() + "」을(를) " + a.angle);
+      L.push("강조할 것:");
+      a.emphasize.forEach(function (e) {
+        L.push("  · " + e);
+      });
+      L.push("덜어낼 것: " + a.cut);
+      L.push("예시·근거 유형: " + a.evidence);
+      L.push("여는 문장 예: " + a.opening);
+      L.push("");
+    });
+    return L.join("\n");
+  }
+
+  var lastPrompt = "";
+  var lastBrief = "";
+
+  /* ---- generate ---- */
+  document.getElementById("build").addEventListener("click", function () {
+    var message = msg.value.trim();
+    if (!message) {
+      msgError.classList.add("show");
+      msg.focus();
+      document
+        .getElementById("input-panel")
+        .scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    var list = selectedAudiences();
+    var context = ctx.value;
+    var intent = detectIntent(message + " " + context);
+
+    var html = "";
+
+    if (list.length === 0) {
+      html +=
+        '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+        "<p><strong>청중을 한 곳 이상 선택해 주세요.</strong></p>" +
+        "<p>STEP 2에서 리프레이밍할 이해관계자를 고르세요.</p></div>";
+      resultEl.innerHTML = html;
+      document
+        .getElementById("audience-panel")
+        .scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    // intent banner
+    html += '<div class="intent">';
+    html += '<div class="intent-top">';
+    html += '<span class="intent-chip">' + esc(intent.label) + "</span>";
+    html +=
+      '<span class="intent-count">청중 ' +
+      list.length +
+      "개 버전</span>";
+    html += "</div>";
+    html +=
+      '<p class="intent-msg">공통 메시지: “' + esc(message) + "”</p>";
+    html += '<p class="intent-lead">권장 리드 순서: ' + intent.lead + "</p>";
+    html += "</div>";
+
+    html += '<div class="result-block-title">청중별 리프레이밍 브리프</div>';
+    html += '<div class="rcards">';
+    list.forEach(function (a) {
+      html += '<article class="rcard">';
+      html += '<div class="rcard-head">';
+      html += '<span class="mono" aria-hidden="true">' + a.mono + "</span>";
+      html += '<div class="rcard-h">';
+      html += '<p class="rcard-name">' + a.name + "</p>";
+      html +=
+        '<p class="rcard-q">머릿속 질문: “' + esc(a.question) + "”</p>";
+      html += "</div></div>";
+
+      // angle with the user's actual message embedded
+      html += '<div class="rcard-angle">';
+      html += '<span class="mini-label">리프레이밍 앵글</span>';
+      html +=
+        "<p>「<span class=\"q\">" +
+        esc(message) +
+        "</span>」을(를) " +
+        esc(a.angle) +
+        "</p>";
+      html += "</div>";
+
+      // emphasize / cut
+      html += '<div class="rc-grid">';
+      html += '<div class="rc-block">';
+      html += '<span class="mini-label">강조할 것</span>';
+      html += "<ul>";
+      a.emphasize.forEach(function (e) {
+        html += "<li>" + esc(e) + "</li>";
+      });
+      html += "</ul></div>";
+      html += '<div class="rc-block cut">';
+      html += '<span class="mini-label">덜어낼 것</span>';
+      html += "<p>" + esc(a.cut) + "</p>";
+      html +=
+        '<span class="mini-label" style="margin-top:12px">예시·근거 유형</span>';
+      html += "<p>" + esc(a.evidence) + "</p>";
+      html += "</div>";
+      html += "</div>";
+
+      // opening
+      html += '<div class="rcard-open">';
+      html += '<span class="mini-label">이렇게 열어 보세요</span>';
+      html += "<p>" + esc(a.opening) + "</p>";
+      html += "</div>";
+
+      html += "</article>";
+    });
+    html += "</div>";
+
+    // prompt
+    lastPrompt = buildPrompt(list, message, context, intent);
+    lastBrief = buildBrief(list, message, context, intent);
+    html +=
+      '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 브리프를 바탕으로 각 청중용 실제 문장까지 완성해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html +=
+      '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPrompt">프롬프트 복사</button>';
+    html +=
+      '<button class="btn-copy sec" id="copyBrief">브리프 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---- reset ---- */
+  document.getElementById("reset").addEventListener("click", function () {
+    msg.value = "";
+    ctx.value = "";
+    grow(msg);
+    grow(ctx);
+    msgError.classList.remove("show");
+    AUDIENCES.forEach(function (a) {
+      checked[a.id] = !!DEFAULT_ON[a.id];
+    });
+    Array.prototype.forEach.call(
+      audEl.querySelectorAll("input.native"),
+      function (b) {
+        var on = !!DEFAULT_ON[b.dataset.id];
+        b.checked = on;
+        b.closest("li.aud").classList.toggle("on", on);
+      }
+    );
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◑ ◐ ◓</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>핵심 메시지를 적고 청중을 고른 뒤 '리프레이밍 생성'을 누르세요.</p></div>";
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+    msg.focus();
+  });
+
+  /* ---- copy (3-tier fallback) + print ---- */
+  function wireResultButtons() {
+    var cp = document.getElementById("copyPrompt");
+    var cb = document.getElementById("copyBrief");
+    var pb = document.getElementById("printBtn");
+    if (cp)
+      cp.addEventListener("click", function () {
+        doCopy(lastPrompt);
+      });
+    if (cb)
+      cb.addEventListener("click", function () {
+        doCopy(lastBrief);
+      });
+    if (pb)
+      pb.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(m) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = m;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      ta.setSelectionRange(0, text.length);
+    } catch (e) {}
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---- manual modal ---- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      try {
+        modalText.setSelectionRange(0, modalText.value.length);
+      } catch (e) {}
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

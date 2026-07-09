@@ -1,0 +1,1726 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>최저임금 위반 진단기</title>
+<meta
+  name="description"
+  content="월급과 근로시간을 넣으면 시급으로 환산해 최저임금 산입범위까지 반영해 위반 여부를 판정합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    /* muted teal — calm, official, compliance-checking */
+    --accent: #216a6f;
+    --accent-strong: #164c50;
+    --accent-tint: #e7f2f2;
+    --accent-tint-2: #d2e6e6;
+    --ink: #1f2321;
+    --ink-soft: #464b48;
+    --ink-mute: #676d69;
+    --paper: #f6f8f7;
+    --card: #ffffff;
+    --line: #e2e6e3;
+    --line-strong: #cfd6d1;
+    --good: #2f6f4f;
+    --good-tint: #e7f2ec;
+    --good-line: #cbe3d6;
+    --warn: #9a5b12;
+    --warn-tint: #fff5e9;
+    --warn-line: #f0dcbf;
+    --bad: #b03636;
+    --bad-strong: #8f2a2a;
+    --bad-tint: #fbeaea;
+    --bad-line: #f0cdcd;
+    --shadow: 0 1px 2px rgba(31, 35, 33, 0.05), 0 6px 20px rgba(31, 35, 33, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field {
+    margin-bottom: 16px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  label.field-label .tag {
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    margin-left: 6px;
+    vertical-align: 1px;
+  }
+  .tag.incl {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+  }
+  .tag.excl {
+    color: var(--ink-mute);
+    background: #eef1ef;
+  }
+  .field-desc {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: -2px 0 7px;
+  }
+  .money {
+    position: relative;
+  }
+  input[type="text"].num,
+  input[type="text"].hourfld {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 40px 12px 14px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  input.num:focus,
+  input.hourfld:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .money .unit {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.92rem;
+    color: var(--ink-mute);
+    pointer-events: none;
+  }
+  input.num::placeholder {
+    color: #aab2ad;
+  }
+
+  /* subtotal note */
+  .subtotal {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 11px;
+    padding: 12px 14px;
+    margin-top: 4px;
+  }
+  .subtotal .st-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+  .subtotal .st-val {
+    font-size: 1.08rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- hours mode ---------- */
+  fieldset.hours {
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+  fieldset.hours legend {
+    padding: 0;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  .radio-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 10px;
+  }
+  .radio-pill {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 11px 13px;
+    cursor: pointer;
+    background: #fbfdfc;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: border-color 0.15s, background 0.15s;
+    min-width: 150px;
+  }
+  .radio-pill:hover {
+    border-color: var(--ink-mute);
+  }
+  .radio-pill input {
+    accent-color: var(--accent);
+    width: 17px;
+    height: 17px;
+    flex: none;
+  }
+  .radio-pill.sel {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .custom-hours {
+    display: none;
+    margin-top: 4px;
+  }
+  .custom-hours.show {
+    display: block;
+  }
+  .helper {
+    margin-top: 10px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    background: #fbfdfc;
+  }
+  .helper .h-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 0 0 9px;
+  }
+  .helper-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    align-items: flex-end;
+  }
+  .helper-grid .hg {
+    flex: 1 1 120px;
+  }
+  .helper-grid label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  .helper-grid input,
+  .helper-grid select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 9px;
+    padding: 9px 10px;
+  }
+  .helper-grid input:focus,
+  .helper-grid select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .btn-mini {
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    border-radius: 9px;
+    padding: 9px 14px;
+    cursor: pointer;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    white-space: nowrap;
+  }
+  .btn-mini:hover {
+    background: var(--accent-strong);
+    border-color: var(--accent-strong);
+  }
+  .helper-out {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 9px 0 0;
+    min-height: 1.1em;
+  }
+
+  /* ---------- probation & minwage ---------- */
+  .opt-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 14px;
+    background: #fbfdfc;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .opt-check.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .opt-check input {
+    accent-color: var(--accent);
+    width: 19px;
+    height: 19px;
+    margin-top: 2px;
+    flex: none;
+  }
+  .opt-check .oc-body p {
+    margin: 0;
+  }
+  .opt-check .oc-title {
+    font-weight: 700;
+    font-size: 0.96rem;
+    color: var(--ink);
+  }
+  .opt-check .oc-note {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin-top: 3px !important;
+  }
+  .minwage-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  .minwage-row .mw-field {
+    flex: 1 1 160px;
+  }
+  .minwage-note {
+    flex: 2 1 240px;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.5;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- disclaimer banner ---------- */
+  .disclaimer {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 12px;
+    padding: 13px 14px;
+    margin-bottom: 16px;
+  }
+  .disclaimer .di-ico {
+    flex: none;
+    font-size: 1.05rem;
+    line-height: 1.4;
+  }
+  .disclaimer p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #6f4a12;
+    line-height: 1.6;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 22px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .err-note {
+    background: var(--bad-tint);
+    border: 1px solid var(--bad-line);
+    color: var(--bad-strong);
+    border-radius: 11px;
+    padding: 13px 15px;
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-bad {
+    background: var(--bad-tint);
+    border-color: var(--bad-line);
+  }
+  .verdict.tone-warn {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-good {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-bad .verdict-title {
+    color: var(--bad-strong);
+  }
+  .verdict.tone-warn .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-good .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  /* compare block */
+  .compare {
+    display: flex;
+    gap: 10px;
+    margin: 16px 0 4px;
+    flex-wrap: wrap;
+  }
+  .cmp-cell {
+    flex: 1 1 140px;
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 11px;
+    padding: 12px 13px;
+  }
+  .cmp-cell .cc-k {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .cmp-cell .cc-v {
+    font-size: 1.28rem;
+    font-weight: 800;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+  }
+  .cmp-cell .cc-sub {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    margin: 3px 0 0;
+  }
+  .delta-line {
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin: 12px 0 0;
+  }
+  .tone-bad .delta-line {
+    color: var(--bad-strong);
+  }
+  .tone-warn .delta-line {
+    color: var(--warn);
+  }
+  .tone-good .delta-line {
+    color: var(--good);
+  }
+
+  /* breakdown table */
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table.calc {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    min-width: 320px;
+  }
+  table.calc th,
+  table.calc td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  table.calc td.n {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  table.calc tr.total td {
+    font-weight: 800;
+    border-top: 2px solid var(--line-strong);
+    border-bottom: none;
+    background: #fafcfb;
+  }
+  table.calc .row-k {
+    color: var(--ink-soft);
+  }
+  table.calc .muted td {
+    color: var(--ink-mute);
+  }
+
+  .note-card {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fbfdfc;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin: 10px 0 0;
+  }
+
+  ul.action-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  ul.action-list li {
+    display: flex;
+    gap: 11px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 12px 14px;
+    background: #fbfdfc;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  ul.action-list li .an {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+  }
+  ul.action-list li.bad .an {
+    background: var(--bad);
+  }
+
+  ul.legal {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  ul.legal li {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    padding-left: 14px;
+    position: relative;
+  }
+  ul.legal li::before {
+    content: "§";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 800;
+  }
+  ul.legal li b {
+    color: var(--ink);
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #21302f;
+    color: #edf3f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 35, 33, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    resize: vertical;
+    overflow-y: auto;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  footer.foot p {
+    margin: 0 0 10px;
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .cmp-cell {
+      flex: 1 1 100%;
+    }
+    .radio-pill {
+      flex: 1 1 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #hours-panel,
+    #options-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">최저임금법 진단 · 2026년 적용 기준</span>
+    <h1>최저임금 위반 진단기</h1>
+    <p class="lede">
+      월급과 근로시간을 넣으면 시급으로 환산하고, 최저임금 산입범위(2024년 이후
+      상여·복리후생 전액 산입)까지 반영해 위반 여부를 판정합니다. 인사·급여
+      담당자와 아르바이트 고용주를 위한 사전 점검 도구입니다.
+    </p>
+  </header>
+
+  <!-- STEP 1 : wage components -->
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>월 급여 구성</h2>
+    </div>
+    <p class="panel-sub">
+      매달 받는 금액을 항목별로 나눠 넣으세요. 최저임금 계산에는
+      <b>산입 항목만</b> 들어가고, 미산입 항목은 자동으로 제외됩니다.
+    </p>
+
+    <div class="field">
+      <label class="field-label" for="basic"
+        >기본급 · 매월 고정수당<span class="tag incl">산입</span></label
+      >
+      <p class="field-desc">
+        기본급과 직책수당처럼 매월 정기적·일률적으로 지급하는 임금.
+      </p>
+      <div class="money">
+        <input
+          type="text"
+          id="basic"
+          class="num"
+          inputmode="numeric"
+          placeholder="예) 1,900,000"
+          aria-describedby="basic-d"
+        />
+        <span class="unit">원</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="bonus"
+        >매월 지급 정기상여금<span class="tag incl">산입</span></label
+      >
+      <p class="field-desc">
+        매월 1회 이상 정기적으로 지급하는 상여금만 해당(2024년부터 전액 산입).
+        격월·분기·연 단위 상여금은 아래 미산입 칸에 넣으세요.
+      </p>
+      <div class="money">
+        <input
+          type="text"
+          id="bonus"
+          class="num"
+          inputmode="numeric"
+          placeholder="예) 0"
+        />
+        <span class="unit">원</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="welfare"
+        >매월 현금 복리후생비(식대·교통비 등)<span class="tag incl"
+          >산입</span
+        ></label
+      >
+      <p class="field-desc">
+        매월 현금으로 지급하는 식대·교통비 등(2024년부터 전액 산입). 현물(밥·기숙사
+        제공)은 산입되지 않으니 아래 칸에 넣으세요.
+      </p>
+      <div class="money">
+        <input
+          type="text"
+          id="welfare"
+          class="num"
+          inputmode="numeric"
+          placeholder="예) 0"
+        />
+        <span class="unit">원</span>
+      </div>
+    </div>
+
+    <div class="subtotal">
+      <span class="st-label">최저임금 산입 월임금 합계</span>
+      <span class="st-val" id="inclSum">0원</span>
+    </div>
+
+    <div class="field" style="margin-top: 18px">
+      <label class="field-label" for="ot"
+        >연장·야간·휴일 가산수당 등<span class="tag excl">미산입</span></label
+      >
+      <p class="field-desc">
+        초과근로에 대한 가산수당은 최저임금 계산에서 제외됩니다(참고용).
+      </p>
+      <div class="money">
+        <input
+          type="text"
+          id="ot"
+          class="num"
+          inputmode="numeric"
+          placeholder="예) 0"
+        />
+        <span class="unit">원</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="other"
+        >비월정기 상여 · 현물 복리후생<span class="tag excl">미산입</span></label
+      >
+      <p class="field-desc">
+        격월·분기·연 단위 상여금, 현물로 주는 식사·숙소 등(참고용).
+      </p>
+      <div class="money">
+        <input
+          type="text"
+          id="other"
+          class="num"
+          inputmode="numeric"
+          placeholder="예) 0"
+        />
+        <span class="unit">원</span>
+      </div>
+    </div>
+
+    <p class="field-desc" style="margin: 4px 0 0">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않으며, 서버나 외부 API를 전혀
+      호출하지 않습니다.
+    </p>
+  </section>
+
+  <!-- STEP 2 : working hours -->
+  <section class="panel" id="hours-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>월 소정근로시간</h2>
+    </div>
+    <p class="panel-sub">
+      월급을 시급으로 환산할 때 나누는 시간입니다. 주 40시간(하루 8시간·주 5일)
+      전일제라면 주휴시간을 포함해 월 209시간이 표준입니다.
+    </p>
+
+    <fieldset class="hours">
+      <legend>기준 시간 선택</legend>
+      <div class="radio-row" id="hoursRadios">
+        <label class="radio-pill sel">
+          <input type="radio" name="hoursMode" value="209" checked />
+          <span>주 40시간 · 월 209시간(주휴 포함)</span>
+        </label>
+        <label class="radio-pill">
+          <input type="radio" name="hoursMode" value="custom" />
+          <span>직접 입력</span>
+        </label>
+      </div>
+
+      <div class="custom-hours" id="customHours">
+        <div class="money">
+          <input
+            type="text"
+            id="hoursInput"
+            class="hourfld"
+            inputmode="decimal"
+            placeholder="예) 174"
+            aria-label="월 소정근로시간 직접 입력"
+          />
+          <span class="unit">시간</span>
+        </div>
+
+        <div class="helper">
+          <p class="h-title">주 단위로만 안다면? 월 환산 도우미</p>
+          <div class="helper-grid">
+            <div class="hg">
+              <label for="weekH">주 소정근로시간</label>
+              <input
+                type="text"
+                id="weekH"
+                inputmode="decimal"
+                placeholder="예) 40"
+              />
+            </div>
+            <div class="hg">
+              <label for="weekD">주 근무일수</label>
+              <select id="weekD">
+                <option value="5" selected>5일</option>
+                <option value="6">6일</option>
+                <option value="4">4일</option>
+                <option value="3">3일</option>
+                <option value="2">2일</option>
+                <option value="1">1일</option>
+              </select>
+            </div>
+            <div class="hg" style="flex: 0 0 auto">
+              <button type="button" class="btn-mini" id="convBtn">
+                월 시간으로 환산
+              </button>
+            </div>
+          </div>
+          <p class="helper-out" id="convOut" aria-live="polite"></p>
+        </div>
+      </div>
+    </fieldset>
+  </section>
+
+  <!-- STEP 3 : options + threshold -->
+  <section class="panel" id="options-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>적용 기준</h2>
+    </div>
+    <p class="panel-sub">수습 감액 여부와 비교할 최저시급을 확인하세요.</p>
+
+    <label class="opt-check" id="probLabel">
+      <input type="checkbox" id="probation" />
+      <span class="oc-body">
+        <p class="oc-title">수습근로자 감액(최저임금의 90%) 적용</p>
+        <p class="oc-note">
+          최저임금법 제5조 제2항: <b>1년 이상 근로계약</b>을 맺고
+          <b>수습 시작일부터 3개월 이내</b>인 경우에만 90% 적용이 가능합니다.
+          단순노무 종사자(고용노동부 고시)는 수습이라도 감액할 수 없습니다.
+        </p>
+      </span>
+    </label>
+
+    <div class="field" style="margin-top: 16px">
+      <label class="field-label" for="minwage">비교 기준 최저시급</label>
+      <div class="minwage-row">
+        <div class="mw-field">
+          <div class="money">
+            <input
+              type="text"
+              id="minwage"
+              class="num"
+              inputmode="numeric"
+              value="10,320"
+            />
+            <span class="unit">원</span>
+          </div>
+        </div>
+        <p class="minwage-note">
+          기준 시점: 2026년 7월. 2026년 적용 최저시급 <b>10,320원</b>이 기본값으로
+          채워져 있습니다(최저임금위원회 의결·고용노동부 고시, 전국·전 업종 동일).
+          다른 연도로 확인하려면 값을 직접 바꾸세요.
+        </p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="diagnose">위반 여부 판정하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <!-- Result -->
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 4</span>
+      <h2>판정 결과</h2>
+    </div>
+
+    <div class="disclaimer" role="note">
+      <span class="di-ico" aria-hidden="true">⚖️</span>
+      <p>
+        본 도구는 일반 정보 제공용 참고 자료이며 법적 효력이 있는 의견이
+        아닙니다. 개별 사안의 최종 판단은 공인노무사·세무사·변호사 등 전문가 상담이
+        필요합니다.
+      </p>
+    </div>
+
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">⏱</div>
+        <p><strong>아직 판정 전입니다.</strong></p>
+        <p>급여 구성과 근로시간을 입력하고 '위반 여부 판정하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 최저임금법 제5조(수습 감액),
+      제6조(최저임금의 효력·미달 부분 무효), 제28조(벌칙: 3년 이하 징역 또는
+      2천만원 이하 벌금)와 산입범위 규정(2024년부터 매월 지급 정기상여금·현금성
+      복리후생비 전액 산입). 비교 기준은 2026년 적용 최저시급 10,320원(월 209시간
+      환산 2,156,880원, 최저임금위원회 의결·고용노동부 고시). 표시되는 수치·조항은
+      2026년 7월 기준입니다.
+    </p>
+    <p>
+      이 도구는 시급 환산과 위반 여부를 미리 가늠하도록 돕는 계산 보조 도구이며,
+      실제 근로계약·급여명세의 개별 항목 성격(정기성·일률성·고정성 등)에 따라
+      결과가 달라질 수 있습니다. 확정 판단이 필요하면 급여명세서와 근로계약서를
+      갖추어 공인노무사와 상담하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  var MONTHLY_FACTOR = 365 / 7 / 12; // 주 -> 월 환산 계수 (약 4.345)
+
+  // ---------- helpers ----------
+  function won(v) {
+    var n = Number(String(v).replace(/[^0-9.]/g, ""));
+    if (!isFinite(n) || n < 0) return 0;
+    return Math.round(n);
+  }
+  function numFloat(v) {
+    var n = Number(String(v).replace(/[^0-9.]/g, ""));
+    if (!isFinite(n) || n < 0) return 0;
+    return n;
+  }
+  function fmt(n) {
+    return Math.round(n).toLocaleString("ko-KR");
+  }
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  var $ = function (id) {
+    return document.getElementById(id);
+  };
+
+  // ---------- live subtotal + thousands formatting ----------
+  var moneyFields = ["basic", "bonus", "welfare", "ot", "other", "minwage"];
+  moneyFields.forEach(function (id) {
+    var el = $(id);
+    el.addEventListener("input", function () {
+      formatThousands(el);
+      updateSubtotal();
+    });
+    el.addEventListener("blur", function () {
+      formatThousands(el);
+    });
+  });
+
+  function formatThousands(el) {
+    var raw = el.value.replace(/[^0-9]/g, "");
+    if (raw === "") {
+      el.value = "";
+      return;
+    }
+    // keep caret at end (simple, acceptable for right-aligned numeric fields)
+    el.value = Number(raw).toLocaleString("ko-KR");
+  }
+
+  function updateSubtotal() {
+    var sum = won($("basic").value) + won($("bonus").value) + won($("welfare").value);
+    $("inclSum").textContent = fmt(sum) + "원";
+  }
+  updateSubtotal();
+
+  // ---------- hours mode ----------
+  var hoursRadios = $("hoursRadios");
+  var customHours = $("customHours");
+  hoursRadios.addEventListener("change", function (e) {
+    var mode = e.target.value;
+    Array.prototype.forEach.call(
+      hoursRadios.querySelectorAll(".radio-pill"),
+      function (p) {
+        var input = p.querySelector("input");
+        p.classList.toggle("sel", input.checked);
+      }
+    );
+    customHours.classList.toggle("show", mode === "custom");
+  });
+
+  function currentHours() {
+    var mode = document.querySelector('input[name="hoursMode"]:checked').value;
+    if (mode === "209") return 209;
+    return numFloat($("hoursInput").value);
+  }
+
+  // weekly -> monthly helper
+  $("convBtn").addEventListener("click", function () {
+    var wh = numFloat($("weekH").value);
+    var wd = Number($("weekD").value) || 5;
+    if (wh <= 0) {
+      $("convOut").textContent = "주 소정근로시간을 입력하세요.";
+      return;
+    }
+    // 주휴시간: 주 15시간 이상이면 1일 소정근로시간(최대 8시간) 부여
+    var restH = wh >= 15 ? Math.min(wh / wd, 8) : 0;
+    var monthly = Math.round((wh + restH) * MONTHLY_FACTOR);
+    $("hoursInput").value = monthly;
+    var restTxt =
+      restH > 0
+        ? "주휴 " + (Math.round(restH * 10) / 10) + "시간 포함"
+        : "주 15시간 미만이라 주휴수당 없음";
+    $("convOut").textContent =
+      "환산 결과: 월 " + monthly + "시간 (" + restTxt + "). 필요하면 위 칸에서 직접 수정하세요.";
+  });
+
+  // ---------- probation toggle ----------
+  var probation = $("probation");
+  var probLabel = $("probLabel");
+  probation.addEventListener("change", function () {
+    probLabel.classList.toggle("on", probation.checked);
+  });
+
+  // ---------- legal references (verified against 최저임금법, 기준 2026-07) ----------
+  var LEGAL = [
+    {
+      t: "최저임금법 제6조 (최저임금의 효력)",
+      d: "사용자는 최저임금액 이상을 지급해야 하며, 최저임금에 미치지 못하는 근로계약 부분은 무효로 보아 최저임금액을 지급한 것으로 본다.",
+    },
+    {
+      t: "최저임금법 제5조 제2항 (수습근로자 감액)",
+      d: "1년 이상 근로계약을 체결하고 수습 중인 근로자로서 수습 시작일부터 3개월 이내인 경우 최저임금의 90%까지 감액 가능. 단순노무 종사자(고용노동부 고시)는 제외.",
+    },
+    {
+      t: "최저임금 산입범위 (2024년 이후)",
+      d: "매월 1회 이상 정기적으로 지급하는 정기상여금과 현금성 복리후생비(식대·교통비 등)는 전액 산입. 연장·야간·휴일 가산수당, 비월정기 상여, 현물 복리후생은 미산입.",
+    },
+    {
+      t: "최저임금법 제28조 (벌칙)",
+      d: "최저임금액보다 적은 임금을 지급한 사용자는 3년 이하의 징역 또는 2천만원 이하의 벌금(병과 가능).",
+    },
+  ];
+
+  // ---------- diagnose ----------
+  var resultEl = $("result");
+  var lastPrompt = "";
+
+  function bandFor(hourly, applMin) {
+    if (hourly < applMin) {
+      return {
+        tone: "bad",
+        label: "판정",
+        title: "최저임금 위반 소지가 있습니다",
+        desc: "산입 임금을 시급으로 환산한 값이 적용 최저시급에 미치지 못합니다. 부족분은 소급 지급 대상이 될 수 있습니다.",
+      };
+    }
+    if ((hourly - applMin) / applMin < 0.03) {
+      return {
+        tone: "warn",
+        label: "판정",
+        title: "적법하나 경계선입니다",
+        desc: "현재는 최저임금 이상이지만 여유가 3% 미만입니다. 매년 최저임금이 오르면(2026년 인상률 2.9%) 곧바로 위반이 될 수 있으니 관리가 필요합니다.",
+      };
+    }
+    return {
+      tone: "good",
+      label: "판정",
+      title: "최저임금 이상으로 적법합니다",
+      desc: "산입 임금 기준 환산 시급이 적용 최저시급을 넉넉히 웃돕니다. 다만 급여 항목의 성격 판단에 따라 결과가 달라질 수 있습니다.",
+    };
+  }
+
+  function buildPrompt(s) {
+    var L = [];
+    L.push(
+      "당신은 대한민국 공인노무사 수준의 노동법 지식을 갖춘 어시스턴트입니다. 아래 최저임금 위반 자가진단 결과를 검토하고 [결론 -> 법적 근거(법명+조항) -> 실무 포인트 -> 리스크·제재] 순서로 조언해 주세요."
+    );
+    L.push("");
+    L.push(
+      "[기준 시점] 2026년 7월 / 2026년 적용 최저임금 시급 10,320원(월 209시간 환산 2,156,880원, 전국·전 업종 동일)"
+    );
+    L.push("");
+    L.push("[입력 요약]");
+    L.push(
+      "- 산입 월임금: 기본급·고정수당 " +
+        fmt(s.basic) +
+        "원 + 매월 정기상여금 " +
+        fmt(s.bonus) +
+        "원 + 매월 현금 복리후생비 " +
+        fmt(s.welfare) +
+        "원 = 합계 " +
+        fmt(s.incl) +
+        "원"
+    );
+    L.push(
+      "- 미산입(참고): 연장·야간·휴일 가산수당 " +
+        fmt(s.ot) +
+        "원, 비월정기 상여·현물 복리후생 " +
+        fmt(s.other) +
+        "원"
+    );
+    L.push("- 월 소정근로시간: " + s.hours + "시간");
+    L.push("- 수습 감액(90%) 적용: " + (s.probation ? "예" : "아니오"));
+    L.push(
+      "- 적용 최저시급: " +
+        fmt(s.applMin) +
+        "원" +
+        (s.probation ? " (수습 90% 반영)" : "")
+    );
+    L.push("");
+    L.push("[자가 계산 결과]");
+    L.push(
+      "- 환산 시급 = 산입 월임금 " +
+        fmt(s.incl) +
+        "원 ÷ " +
+        s.hours +
+        "시간 = " +
+        fmt(s.hourly) +
+        "원"
+    );
+    L.push(
+      "- 시급 차이: " +
+        (s.hourly - s.applMin >= 0 ? "+" : "") +
+        fmt(s.hourly - s.applMin) +
+        "원 / 자가 판정: " +
+        s.verdictTitle
+    );
+    L.push("");
+    L.push("[요청]");
+    L.push(
+      "1. 위 계산이 최저임금법상 타당한지 검토해 주세요. 특히 산입범위(매월 지급 정기상여금·현금 복리후생비만 전액 산입, 연장수당·현물·비월정기 상여 제외)가 올바르게 적용됐는지 확인해 주세요."
+    );
+    L.push(
+      "2. 위반이라면 부족분 소급 지급·근로계약 정정 등 실무 조치와 기한, 신고·점검 시 리스크를 알려 주세요."
+    );
+    L.push(
+      "3. 근거 조항(최저임금법 제5조 수습감액, 제6조 효력, 제28조 벌칙 등)을 명시해 주세요."
+    );
+    L.push(
+      "4. 수습 감액을 적용했다면 요건(1년 이상 계약·수습 3개월 이내·단순노무 제외) 충족 여부를 확인 질문으로 짚어 주세요."
+    );
+    L.push(
+      "5. 이것은 확정 법률의견이 아니라 참고용이므로, 전문가(공인노무사) 상담이 필요한 지점을 알려 주세요. 확인되지 않은 사실은 지어내지 말고 저에게 되물어 주세요."
+    );
+    return L.join("\n");
+  }
+
+  function renderError(msg) {
+    resultEl.innerHTML = '<div class="err-note">' + esc(msg) + "</div>";
+    resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  $("diagnose").addEventListener("click", function () {
+    var s = {
+      basic: won($("basic").value),
+      bonus: won($("bonus").value),
+      welfare: won($("welfare").value),
+      ot: won($("ot").value),
+      other: won($("other").value),
+      hours: currentHours(),
+      minWage: won($("minwage").value),
+      probation: probation.checked,
+    };
+    s.incl = s.basic + s.bonus + s.welfare;
+
+    // validation
+    if (s.incl <= 0) {
+      renderError(
+        "산입 대상 임금(기본급·정기상여금·현금 복리후생비)을 하나 이상 입력하세요. 최저임금 계산은 이 항목들로만 이뤄집니다."
+      );
+      return;
+    }
+    if (s.hours <= 0) {
+      renderError(
+        "월 소정근로시간을 입력하세요. 주 40시간 전일제는 월 209시간이 표준입니다."
+      );
+      return;
+    }
+    if (s.minWage <= 0) {
+      renderError("비교 기준 최저시급을 입력하세요. 2026년 기준 기본값은 10,320원입니다.");
+      return;
+    }
+
+    s.applMin = s.probation ? Math.round(s.minWage * 0.9) : s.minWage;
+    s.hourly = s.incl / s.hours;
+    s.monthlyMin = s.applMin * s.hours;
+    s.monthlyDiff = s.incl - s.monthlyMin; // + 초과 / - 부족
+
+    var band = bandFor(s.hourly, s.applMin);
+    s.verdictTitle = band.title;
+    lastPrompt = buildPrompt(s);
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+
+    html += '<div class="compare">';
+    html += '<div class="cmp-cell"><p class="cc-k">환산 시급</p><p class="cc-v">' +
+      fmt(s.hourly) +
+      '원</p><p class="cc-sub">산입 임금 ÷ ' + s.hours + '시간</p></div>';
+    html += '<div class="cmp-cell"><p class="cc-k">적용 최저시급</p><p class="cc-v">' +
+      fmt(s.applMin) +
+      '원</p><p class="cc-sub">' +
+      (s.probation ? "수습 90% 적용" : "2026년 기준 100%") +
+      '</p></div>';
+    html += "</div>";
+
+    var gap = s.hourly - s.applMin;
+    if (gap < 0) {
+      html +=
+        '<p class="delta-line">시급 ' +
+        fmt(-gap) +
+        "원 부족 · 월 환산 약 " +
+        fmt(-s.monthlyDiff) +
+        "원 미달</p>";
+    } else {
+      html +=
+        '<p class="delta-line">시급 ' +
+        fmt(gap) +
+        "원 여유 · 월 환산 약 " +
+        fmt(s.monthlyDiff) +
+        "원 초과</p>";
+    }
+    html += "</div>"; // verdict
+
+    // breakdown table
+    html += '<div class="result-block-title">계산 내역</div>';
+    html += '<div class="table-scroll"><table class="calc">';
+    html += "<tbody>";
+    html +=
+      '<tr><td class="row-k">기본급·고정수당 <b>(산입)</b></td><td class="n">' +
+      fmt(s.basic) +
+      "원</td></tr>";
+    html +=
+      '<tr><td class="row-k">매월 정기상여금 <b>(산입)</b></td><td class="n">' +
+      fmt(s.bonus) +
+      "원</td></tr>";
+    html +=
+      '<tr><td class="row-k">매월 현금 복리후생비 <b>(산입)</b></td><td class="n">' +
+      fmt(s.welfare) +
+      "원</td></tr>";
+    html +=
+      '<tr class="total"><td>산입 월임금 합계</td><td class="n">' +
+      fmt(s.incl) +
+      "원</td></tr>";
+    html +=
+      '<tr><td class="row-k">÷ 월 소정근로시간</td><td class="n">' +
+      s.hours +
+      "시간</td></tr>";
+    html +=
+      '<tr class="total"><td>= 환산 시급</td><td class="n">' +
+      fmt(s.hourly) +
+      "원</td></tr>";
+    html +=
+      '<tr><td class="row-k">적용 최저시급</td><td class="n">' +
+      fmt(s.applMin) +
+      "원" +
+      (s.probation ? " (수습 90%)" : "") +
+      "</td></tr>";
+    if (s.ot + s.other > 0) {
+      html +=
+        '<tr class="muted"><td>미산입 제외액 (참고)</td><td class="n">' +
+        fmt(s.ot + s.other) +
+        "원</td></tr>";
+    }
+    html += "</tbody></table></div>";
+
+    if (s.ot + s.other > 0) {
+      html +=
+        '<p class="note-card">연장·야간·휴일 가산수당과 비월정기 상여·현물 복리후생 합계 ' +
+        fmt(s.ot + s.other) +
+        "원은 최저임금법상 산입되지 않아 시급 환산에서 제외했습니다.</p>";
+    }
+
+    // action list
+    html += '<div class="result-block-title">실무 포인트</div>';
+    html += '<ul class="action-list">';
+    if (band.tone === "bad") {
+      var actions = [
+        "부족분(시급 " +
+          fmt(-gap) +
+          "원 × 소정근로시간)을 소급 산정해 지급 계획을 세우세요. 최저임금 미달 부분은 무효로 보아 최저임금액을 지급한 것으로 봅니다(제6조).",
+        "근로계약서·급여명세서의 임금 구성을 최저임금 이상으로 정정하고, 정정 내역을 서면으로 남기세요.",
+        "산입 항목 판단을 재확인하세요. '매월 지급'이 아닌 상여금이나 현물 복리후생을 산입으로 잘못 넣지 않았는지 점검합니다.",
+        "고의·상습 미지급은 형사처벌(제28조: 3년 이하 징역 또는 2천만원 이하 벌금) 대상입니다. 금액이 크거나 분쟁 소지가 있으면 공인노무사와 상담하세요.",
+      ];
+      actions.forEach(function (a, i) {
+        html +=
+          '<li class="bad"><span class="an">' +
+          (i + 1) +
+          "</span><span>" +
+          esc(a) +
+          "</span></li>";
+      });
+    } else if (band.tone === "warn") {
+      var actionsW = [
+        "여유가 3% 미만입니다. 내년 최저임금 인상 시 자동으로 위반이 될 수 있으니 급여 인상 시점을 미리 계획하세요.",
+        "산입 항목 중 '매월 지급 정기성'이 흔들리는 항목(예: 지급 조건이 붙은 상여)이 있으면, 그 항목이 빠졌을 때 곧바로 미달됩니다. 항목 성격을 서면으로 명확히 하세요.",
+        "수습 감액을 적용 중이라면 3개월 종료 시점에 100% 기준으로 다시 점검하세요.",
+      ];
+      actionsW.forEach(function (a, i) {
+        html +=
+          '<li><span class="an">' +
+          (i + 1) +
+          "</span><span>" +
+          esc(a) +
+          "</span></li>";
+      });
+    } else {
+      var actionsG = [
+        "현재 기준으로는 최저임금 이상입니다. 급여명세서에 산입 항목이 정기적·일률적으로 지급됨을 기록으로 남겨 두세요.",
+        "매년 최저임금 고시(통상 8월 초 확정, 익년 1월 시행) 후 환산 시급을 다시 확인하세요.",
+        "수습·단시간 근로자 등 근로형태가 바뀌면 소정근로시간과 적용 기준이 달라지니 재점검하세요.",
+      ];
+      actionsG.forEach(function (a, i) {
+        html +=
+          '<li><span class="an">' +
+          (i + 1) +
+          "</span><span>" +
+          esc(a) +
+          "</span></li>";
+      });
+    }
+    html += "</ul>";
+
+    // legal basis
+    html += '<div class="result-block-title">법적 근거</div>';
+    html += '<ul class="legal">';
+    LEGAL.forEach(function (l) {
+      html += "<li><b>" + esc(l.t) + "</b> — " + esc(l.d) + "</li>";
+    });
+    html += "</ul>";
+
+    // prompt
+    html += '<div class="result-block-title">심화: 노무 AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 계산 결과를 바탕으로 노동법 조언을 결론·법적근거·실무 순서로 정리해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- reset ----------
+  $("reset").addEventListener("click", function () {
+    ["basic", "bonus", "welfare", "ot", "other", "hoursInput", "weekH"].forEach(
+      function (id) {
+        $(id).value = "";
+      }
+    );
+    $("minwage").value = "10,320";
+    $("convOut").textContent = "";
+    probation.checked = false;
+    probLabel.classList.remove("on");
+    // reset hours mode to 209
+    var r209 = document.querySelector('input[name="hoursMode"][value="209"]');
+    r209.checked = true;
+    Array.prototype.forEach.call(
+      hoursRadios.querySelectorAll(".radio-pill"),
+      function (p) {
+        p.classList.toggle("sel", p.querySelector("input").checked);
+      }
+    );
+    customHours.classList.remove("show");
+    updateSubtotal();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">⏱</div>' +
+      "<p><strong>아직 판정 전입니다.</strong></p>" +
+      "<p>급여 구성과 근로시간을 입력하고 '위반 여부 판정하기'를 누르세요.</p></div>";
+    $("input-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = $("copyBtn");
+    var printBtn = $("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var st = $("copyStatus");
+    if (!st) return;
+    st.textContent = msg;
+    setTimeout(function () {
+      if (st) st.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = $("modal");
+  var modalText = $("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  $("modal-close").addEventListener("click", closeModal);
+  $("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

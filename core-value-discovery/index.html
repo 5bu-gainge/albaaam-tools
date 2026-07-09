@@ -1,0 +1,1221 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>핵심가치 발견 워크시트</title>
+<meta name="description" content="6가지 발견 질문에 답하면 반복 키워드로 핵심가치 후보를 뽑고 A/B 부제 문장까지 초안화합니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #216b5a;
+    --accent-strong: #18594a;
+    --accent-tint: #e7f1ee;
+    --accent-tint-2: #d3e6e0;
+    --ink: #1f2523;
+    --ink-soft: #454b48;
+    --ink-mute: #67706b;
+    --paper: #f7f9f7;
+    --card: #ffffff;
+    --line: #e3e8e4;
+    --line-strong: #d0d8d2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --neutral-tint: #eeeae4;
+    --shadow: 0 1px 2px rgba(20, 30, 26, 0.05), 0 6px 20px rgba(20, 30, 26, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- question cards ---------- */
+  .qcard {
+    margin-bottom: 16px;
+  }
+  .qcard:last-of-type {
+    margin-bottom: 4px;
+  }
+  .q-label {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    cursor: default;
+  }
+  .q-num {
+    flex: none;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 7px;
+    padding: 3px 8px;
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+  }
+  .q-text {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  textarea {
+    width: 100%;
+    min-height: 66px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfcfb;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa39d;
+  }
+  .q-hint {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 7px 0 0;
+  }
+  .privacy {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 16px 0 0;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .summary {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 13px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+  }
+  .summary .s-title {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin: 0 0 3px;
+  }
+  .summary .s-desc {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 11px;
+  }
+
+  /* keyword map */
+  .kwmap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    border-radius: 999px;
+    padding: 6px 13px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .chip .cn {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+
+  /* value candidate cards */
+  .cand-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+  .cand {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 15px 16px;
+    background: #fbfcfb;
+  }
+  .cand-top {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .cand-rank {
+    flex: none;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 7px;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+  }
+  .cand-name {
+    font-size: 1.12rem;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .cand-en {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    letter-spacing: 0.01em;
+  }
+  .cand-ev {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .cand-ev b {
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+  .ab {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 13px;
+  }
+  .ab-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .ab-tag {
+    flex: none;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+  .ab-a {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+  }
+  .ab-b {
+    color: var(--ink-soft);
+    background: var(--neutral-tint);
+  }
+  .ab-text {
+    font-size: 0.94rem;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .cand-hint {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 0 0 14px;
+  }
+  .thin-note {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    background: #fff6ec;
+    border: 1px solid #f2ddc4;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #1f2523;
+    color: #eef2ef;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 30, 26, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    .actions,
+    .copy-row,
+    .privacy,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+      break-inside: avoid;
+    }
+    textarea {
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+    .cand {
+      break-inside: avoid;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">가치체계 코칭 · 비전하우스의 토대</span>
+    <h1>핵심가치 발견 워크시트</h1>
+    <p class="lede">
+      핵심가치는 새로 짓는 게 아니라 이미 우리 안에서 반복되던 원칙을 발견하는
+      일입니다. 6가지 질문에 답하면, 답변에서 되풀이되는 키워드로 핵심가치
+      후보를 뽑고 A/B 부제 문장까지 초안을 잡아 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>6가지 발견 질문</h2>
+    </div>
+    <p class="panel-sub">
+      정답을 찾는 질문이 아닙니다. 떠오르는 대로, 한두 문장씩 편하게 적어
+      보세요. 많이 적을수록 반복되는 원칙이 또렷하게 드러납니다.
+    </p>
+
+    <div id="questions"></div>
+
+    <p class="privacy">
+      입력한 답변은 이 브라우저 안에서만 처리됩니다. 서버나 외부 AI로
+      전송되지 않으며, 저장하거나 수집하지 않습니다.
+    </p>
+
+    <div class="actions no-print">
+      <button class="btn-primary" id="analyze">핵심가치 후보 뽑기</button>
+      <button class="btn-ghost" id="sample">예시로 채우기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>발견 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◇</div>
+        <p><strong>아직 분석 전입니다.</strong></p>
+        <p>위 질문에 답하고 '핵심가치 후보 뽑기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 가인지 비전하우스 프레임워크의
+      '핵심가치(토대)' 코칭 방법론. 조직이 쓰는 말에서 반복되는 원칙을
+      발견하고, A안(정서·관계형)·B안(결과·실행형) 두 방향의 부제 문장으로 판단을
+      돕는 방식을 따릅니다. "핵심가치가 행동 지침이 되면 규정이 줄어든다"는
+      원리, 그리고 적합한 사람의 기준이 곧 핵심가치라는 관점(짐 콜린스)에
+      기반합니다.
+    </p>
+    <p>
+      이 도구는 당신의 답변에서 반복된 키워드를 세어 후보를 비추는 사고 보조
+      도구입니다. 핵심가치를 대신 확정해 주지는 않습니다. 최종 선택과 문장은
+      당신과 팀의 몫입니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ------------------------------------------------------------------ *
+   * 6 discovery questions — sourced from value-system-coach SKILL.md
+   * (§5 핵심가치 코칭 발견 질문)
+   * ------------------------------------------------------------------ */
+  var QUESTIONS = [
+    {
+      id: "q1",
+      q: "우리 조직이 절대 타협하지 않는 원칙은 무엇입니까?",
+      hint: "양보할 수 없는 선, 오래 지켜온 약속.",
+      ph: "예) 고객과 한 약속은 무슨 일이 있어도 지킵니다. 손해를 보더라도 정직하지 않은 거래는 하지 않습니다.",
+    },
+    {
+      id: "q2",
+      q: "회사가 가장 잘 돌아갈 때, 어떤 원칙이 작동하고 있었습니까?",
+      hint: "최고의 순간마다 공통으로 있던 것.",
+      ph: "예) 서로 솔직하게 피드백하고, 각자 맡은 일을 끝까지 책임질 때 가장 좋은 결과가 나왔습니다.",
+    },
+    {
+      id: "q3",
+      q: "어떤 사람이 여기서 잘 맞고, 어떤 사람이 힘들어합니까? 그 차이를 만드는 것은?",
+      hint: "적합한 사람의 기준.",
+      ph: "예) 배우려는 자세가 있는 사람은 잘 적응합니다. 시키는 것만 하고 스스로 판단하지 않는 사람은 힘들어합니다.",
+    },
+    {
+      id: "q4",
+      q: "돈이 안 돼도 우리가 계속하는 이유는 무엇입니까?",
+      hint: "이익 너머의 동기.",
+      ph: "예) 우리가 만든 것으로 고객의 하루가 조금이라도 나아지는 걸 볼 때 보람을 느낍니다.",
+    },
+    {
+      id: "q5",
+      q: "이 중 하나를 포기해야 한다면, 가장 마지막까지 지키는 것은?",
+      hint: "최후의 보루.",
+      ph: "예) 결국 신뢰입니다. 실력이 조금 부족해도 믿을 수 있으면 함께 갑니다.",
+    },
+    {
+      id: "q6",
+      q: "고객이 “너희 회사는 OOO해서 좋다”고 말할 때, 그 OOO은?",
+      hint: "외부가 보는 우리다움.",
+      ph: "예) '꼼꼼하고 믿을 만하다', '약속을 지켜서 좋다'는 말을 자주 듣습니다.",
+    },
+  ];
+
+  /* ------------------------------------------------------------------ *
+   * Core-value lexicon.
+   * Each theme carries synonym roots (substring-matched against Korean
+   * answers) and A/B subtitle drafts. A = 정서/관계형, B = 결과/실행형
+   * (value-system-coach §Turn 4 pattern).
+   * ------------------------------------------------------------------ */
+  var LEX = [
+    {
+      key: "trust", kr: "신뢰", en: "Trust",
+      syn: ["신뢰", "믿", "신용", "약속"],
+      subA: "서로를 믿을 수 있을 때, 우리는 가장 멀리 간다.",
+      subB: "말한 것은 지키고, 지킬 수 있는 것만 말한다.",
+    },
+    {
+      key: "integrity", kr: "정직", en: "Integrity",
+      syn: ["정직", "진실", "솔직", "양심", "투명", "떳떳"],
+      subA: "숨길 것이 없을 때 마음이 가장 편하다.",
+      subB: "보는 사람이 없어도 옳은 방식으로 한다.",
+    },
+    {
+      key: "customer", kr: "고객중심", en: "Customer First",
+      syn: ["고객", "손님", "클라이언트", "사용자", "소비자"],
+      subA: "고객의 하루가 나아지는 것이 우리의 보람이다.",
+      subB: "모든 결정의 기준을 고객 가치에 둔다.",
+    },
+    {
+      key: "challenge", kr: "도전", en: "Challenge",
+      syn: ["도전", "시도", "모험", "돌파", "한계", "넘어"],
+      subA: "안 될 이유보다 될 방법을 먼저 찾는다.",
+      subB: "익숙한 길 대신 더 나은 길에 먼저 뛰어든다.",
+    },
+    {
+      key: "growth", kr: "성장", en: "Growth",
+      syn: ["성장", "배움", "배우", "학습", "발전", "성숙", "나아지"],
+      subA: "어제보다 나은 오늘의 우리를 기른다.",
+      subB: "분기마다 어제의 방식을 갱신한다.",
+    },
+    {
+      key: "ownership", kr: "책임", en: "Ownership",
+      syn: ["책임", "주인", "오너십", "맡", "끝까지", "완수"],
+      subA: "내 일처럼 여길 때 결과가 달라진다.",
+      subB: "맡은 일은 끝까지, 결과로 증명한다.",
+    },
+    {
+      key: "collab", kr: "협력", en: "Collaboration",
+      syn: ["협력", "협업", "함께", "팀워크", "동료", "같이", "합심"],
+      subA: "혼자보다 함께일 때 더 멀리 간다.",
+      subB: "경계를 넘어 하나의 목표로 정렬한다.",
+    },
+    {
+      key: "expertise", kr: "전문성", en: "Expertise",
+      syn: ["전문", "프로", "실력", "숙련", "노하우", "장인"],
+      subA: "맡기면 안심되는 사람들이 되고자 한다.",
+      subB: "각자의 분야에서 최고 수준을 유지한다.",
+    },
+    {
+      key: "innovation", kr: "혁신", en: "Innovation",
+      syn: ["혁신", "창의", "새로운", "변화", "개선", "아이디어", "창조"],
+      subA: "더 나은 방법은 늘 있다고 믿는다.",
+      subB: "관행을 의심하고 방식을 새로 짠다.",
+    },
+    {
+      key: "passion", kr: "열정", en: "Passion",
+      syn: ["열정", "몰입", "에너지", "즐거", "좋아", "사랑"],
+      subA: "좋아서 하는 마음이 결국 차이를 만든다.",
+      subB: "일에 온전히 몰입해 끝을 본다.",
+    },
+    {
+      key: "care", kr: "배려", en: "Care",
+      syn: ["배려", "존중", "섬김", "돌봄", "친절", "공감", "이해"],
+      subA: "사람을 먼저 헤아리는 곳이 되고자 한다.",
+      subB: "결정 앞에서 상대의 입장을 먼저 확인한다.",
+    },
+    {
+      key: "speed", kr: "속도", en: "Speed",
+      syn: ["속도", "빠르", "신속", "기민", "민첩", "즉시"],
+      subA: "기다리게 하지 않는 것이 우리의 예의다.",
+      subB: "완벽보다 빠른 실행으로 먼저 배운다.",
+    },
+    {
+      key: "quality", kr: "품질", en: "Quality",
+      syn: ["품질", "완성도", "꼼꼼", "디테일", "정교", "완벽", "퀄리티"],
+      subA: "우리 이름이 붙는 것에 부끄럽지 않게 한다.",
+      subB: "기준에 못 미치는 것은 내보내지 않는다.",
+    },
+    {
+      key: "devotion", kr: "정성", en: "Sincerity",
+      syn: ["정성", "성실", "진정성", "최선", "공들", "꾸준"],
+      subA: "정성을 다한 것은 결국 전해진다고 믿는다.",
+      subB: "보이지 않는 곳까지 공들여 마무리한다.",
+    },
+    {
+      key: "principle", kr: "원칙", en: "Principle",
+      syn: ["원칙", "기준", "공정", "일관", "정도", "규율"],
+      subA: "흔들릴 때 돌아올 기준이 있는 조직이고자 한다.",
+      subB: "예외 앞에서도 같은 기준을 적용한다.",
+    },
+    {
+      key: "autonomy", kr: "자율", en: "Autonomy",
+      syn: ["자율", "주도", "스스로", "자발", "권한", "자유"],
+      subA: "믿고 맡길 때 사람은 더 크게 자란다.",
+      subB: "스스로 판단하고 스스로 책임진다.",
+    },
+    {
+      key: "comm", kr: "소통", en: "Communication",
+      syn: ["소통", "대화", "경청", "공유", "피드백"],
+      subA: "말할 수 있는 분위기가 좋은 결정을 만든다.",
+      subB: "숨기지 않고 빠르게 공유한다.",
+    },
+    {
+      key: "contribution", kr: "사회공헌", en: "Contribution",
+      syn: ["사회", "공헌", "기여", "선한", "세상", "이바지"],
+      subA: "우리가 사라지면 아쉬울 존재가 되고자 한다.",
+      subB: "이익 너머의 기여로 존재를 증명한다.",
+    },
+  ];
+
+  /* josa / particle roots stripped for the raw-keyword frequency map.
+     Ordered longest-first so multi-char particles peel before singles. */
+  var JOSA = [
+    "으로서", "으로써", "에서는", "에게서", "이라고", "이라는", "에게는",
+    "으로", "에서", "에게", "한테", "처럼", "만큼", "부터", "까지", "조차",
+    "마저", "라는", "이라", "라고", "이나", "에는", "에도", "라도", "든지",
+    "밖에", "이랑", "은", "는", "이", "가", "을", "를", "에", "의", "도",
+    "로", "과", "와", "만", "께", "란", "든", "랑", "뿐",
+  ];
+
+  var STOP = {};
+  ("우리 저희 회사 조직 그것 이것 저것 무엇 사람 사람들 때문 정말 항상 " +
+    "조금 많이 그리고 그래서 하지만 그런데 그러나 대해 위해 통해 있는 " +
+    "없는 하는 되는 같은 같이 매우 가장 계속 서로 모두 각자 자주 바로 " +
+    "아주 다시 그냥 어떤 무슨 이런 저런 그런 여기 거기 저기 이제 지금 " +
+    "부분 경우 정도 생각 마음 우리가 우리는 것이 수가 때가 때는 " +
+    "그때 이때 그건 이건 저건 라고 하고 해서 하면 되면 라는 보다")
+    .split(" ")
+    .forEach(function (w) {
+      STOP[w] = 1;
+    });
+
+  /* ---------- render questions ---------- */
+  var questionsEl = document.getElementById("questions");
+  QUESTIONS.forEach(function (q) {
+    var div = document.createElement("div");
+    div.className = "qcard";
+    div.innerHTML =
+      '<label class="q-label" for="' + q.id + '">' +
+      '<span class="q-num">' + q.id.toUpperCase() + "</span>" +
+      '<span class="q-text">' + esc(q.q) + "</span>" +
+      "</label>" +
+      '<textarea id="' + q.id + '" placeholder="' + esc(q.ph) + '"></textarea>' +
+      '<p class="q-hint">' + esc(q.hint) + "</p>";
+    questionsEl.appendChild(div);
+  });
+
+  function fields() {
+    return QUESTIONS.map(function (q) {
+      return document.getElementById(q.id);
+    });
+  }
+
+  /* ---------- auto-grow ---------- */
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  fields().forEach(function (el) {
+    el.addEventListener("input", function () {
+      grow(el);
+    });
+  });
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function countOcc(hay, needle) {
+    var c = 0, idx = 0;
+    while ((idx = hay.indexOf(needle, idx)) !== -1) {
+      c++;
+      idx += needle.length;
+    }
+    return c;
+  }
+
+  function lastHasJong(s) {
+    if (!s) return false;
+    var c = s.charCodeAt(s.length - 1);
+    if (c < 0xac00 || c > 0xd7a3) return false;
+    return (c - 0xac00) % 28 !== 0;
+  }
+  // pick the right particle by final-consonant (받침)
+  function pj(word, withJong, without) {
+    return lastHasJong(word) ? withJong : without;
+  }
+
+  function stripJosa(tok) {
+    var w = tok.trim();
+    for (var i = 0; i < JOSA.length; i++) {
+      var j = JOSA[i];
+      if (w.length > j.length + 1 && w.slice(-j.length) === j) {
+        return w.slice(0, -j.length);
+      }
+    }
+    return w;
+  }
+
+  /* ---------- core analysis ---------- */
+  function analyzeThemes(answers) {
+    var out = [];
+    LEX.forEach(function (t) {
+      var hits = 0;
+      var qset = {};
+      answers.forEach(function (text, qi) {
+        if (!text) return;
+        var local = 0;
+        for (var s = 0; s < t.syn.length; s++) {
+          local += countOcc(text, t.syn[s]);
+        }
+        if (local > 0) {
+          hits += local;
+          qset[qi] = true;
+        }
+      });
+      if (hits > 0) {
+        var qList = Object.keys(qset)
+          .map(Number)
+          .sort(function (a, b) {
+            return a - b;
+          });
+        out.push({
+          theme: t,
+          hits: hits,
+          qList: qList,
+          qCount: qList.length,
+          // cross-question recurrence weighted x2 over raw frequency
+          score: qList.length * 2 + hits,
+        });
+      }
+    });
+    out.sort(function (a, b) {
+      return b.score - a.score || b.qCount - a.qCount || b.hits - a.hits;
+    });
+    return out;
+  }
+
+  function rawKeywords(answers) {
+    var freq = {}, inQ = {};
+    answers.forEach(function (text, qi) {
+      if (!text) return;
+      var toks = text.split(/[\s,.·!?"'()\[\]{}:;~\-\/…“”‘’]+/);
+      toks.forEach(function (tok) {
+        var w = stripJosa(tok);
+        if (w.length < 2) return;
+        if (STOP[w]) return;
+        if (!/[가-힣]/.test(w)) return;
+        freq[w] = (freq[w] || 0) + 1;
+        (inQ[w] = inQ[w] || {})[qi] = true;
+      });
+    });
+    return Object.keys(freq)
+      .map(function (w) {
+        return { w: w, n: freq[w], q: Object.keys(inQ[w]).length };
+      })
+      .filter(function (o) {
+        return o.n >= 2 || o.q >= 2;
+      })
+      .sort(function (a, b) {
+        return b.q - a.q || b.n - a.n || a.w.localeCompare(b.w);
+      })
+      .slice(0, 14);
+  }
+
+  /* ---------- AI prompt ---------- */
+  function buildPrompt(answers, themes) {
+    var L = [];
+    L.push("당신은 조직의 가치체계(비전하우스)를 코칭으로 돕는 전문 코치입니다.");
+    L.push("핵심가치는 코치가 정해 주는 것이 아니라 조직이 스스로 발견하는 것입니다. 결론을 강요하지 말고, 근거와 질문으로 제가 직접 고르도록 도와주세요.");
+    L.push("");
+    L.push("【6가지 발견 질문과 나의 답변】");
+    QUESTIONS.forEach(function (q, i) {
+      L.push(i + 1 + ". " + q.q);
+      var a = (answers[i] || "").trim();
+      L.push("   → " + (a ? a : "(미응답)"));
+    });
+    L.push("");
+    L.push("【자가 분석: 반복 키워드로 뽑은 핵심가치 후보】");
+    if (themes.length === 0) {
+      L.push("- (뚜렷한 후보가 잡히지 않았습니다. 제 답변을 함께 읽고 후보를 찾아 주세요.)");
+    } else {
+      themes.forEach(function (t, i) {
+        L.push(
+          i + 1 + ". " + t.theme.kr + " (" + t.theme.en + ") — 질문 " +
+            t.qList.map(function (x) { return x + 1; }).join("·") +
+            "에서 " + t.hits + "회 언급"
+        );
+        L.push("   A안(정서/관계형): " + t.theme.subA);
+        L.push("   B안(결과/실행형): " + t.theme.subB);
+      });
+    }
+    L.push("");
+    L.push("【요청 사항】");
+    L.push("1. 내 답변을 근거로 핵심가치 5~6개를 확정 정리해 주세요. 각 가치는 한국어명 + 영어명 + 한 줄 정의로.");
+    L.push("2. 가치마다 부제 문장을 A안(정서/관계형)과 B안(결과/실행형) 두 방향으로 제안해, 제가 고르게 해 주세요.");
+    L.push("3. 각 가치의 근거를 제 답변에서 직접 인용해 주세요. 제가 말하지 않은 내용은 지어내지 말고, 가정이면 가정이라고 표시한 뒤 저에게 되물어 주세요.");
+    L.push("4. 가치별로 일상에서 실천할 핵심습관을 신호(Cue) → 반복행동(Routine) → 보상(Reward) 형태로 1개씩 제안해 주세요.");
+    L.push("5. 마지막으로, 이 가치들이 서로 겹치거나 충돌하는 지점을 짚어 주고, 우선순위를 정하도록 질문 2~3개를 던져 주세요.");
+    return L.join("\n");
+  }
+
+  /* ---------- render result ---------- */
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function candCard(rank, name, en, evHtml, subA, subB) {
+    var h = '<li class="cand">';
+    h += '<div class="cand-top">';
+    h += '<span class="cand-rank">' + rank + "</span>";
+    h += '<span class="cand-name">' + esc(name) + "</span>";
+    if (en) h += '<span class="cand-en">' + esc(en) + "</span>";
+    h += "</div>";
+    if (evHtml) h += '<p class="cand-ev">' + evHtml + "</p>";
+    h += '<div class="ab">';
+    h += '<div class="ab-row"><span class="ab-tag ab-a">A · 정서</span><span class="ab-text">' + esc(subA) + "</span></div>";
+    h += '<div class="ab-row"><span class="ab-tag ab-b">B · 실행</span><span class="ab-text">' + esc(subB) + "</span></div>";
+    h += "</div></li>";
+    return h;
+  }
+
+  function runAnalysis() {
+    var els = fields();
+    var answers = els.map(function (el) {
+      return el.value || "";
+    });
+    var answered = answers.filter(function (a) {
+      return a.trim().length > 0;
+    }).length;
+
+    // guard: nothing to work with
+    if (answered === 0) {
+      resultEl.innerHTML =
+        '<p class="thin-note">아직 답변이 없습니다. 위 6가지 질문 중 <b>최소 한두 개</b>라도 문장으로 적은 뒤 다시 눌러 주세요. 지어낸 결과 대신, 당신이 실제로 쓴 말에서만 후보를 뽑습니다.</p>';
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var themes = analyzeThemes(answers).slice(0, 6);
+    var raw = rawKeywords(answers);
+
+    var html = "";
+
+    // summary
+    var candCount = themes.length;
+    html += '<div class="summary">';
+    if (candCount > 0) {
+      html += '<p class="s-title">답변 ' + answered + "개에서 핵심가치 후보 " + candCount + "개를 찾았습니다</p>";
+      html += '<p class="s-desc">여러 질문에 걸쳐 되풀이될수록 상위에 놓입니다. 확정이 아니라 대화의 출발점입니다.</p>';
+    } else {
+      html += '<p class="s-title">되풀이되는 원칙의 실마리를 모았습니다</p>';
+      html += '<p class="s-desc">사전에 정의된 가치어와 맞아떨어진 항목은 적지만, 아래 반복 키워드가 당신만의 고유한 가치어일 수 있습니다.</p>';
+    }
+    html += "</div>";
+
+    // keyword map
+    if (raw.length > 0) {
+      html += '<div class="result-block-title">반복 키워드 맵</div>';
+      html += '<p class="panel-sub" style="margin-bottom:12px">답변 전체에서 되풀이된 말입니다. 후보를 뽑는 근거가 됩니다.</p>';
+      html += '<div class="kwmap">';
+      raw.forEach(function (o) {
+        html += '<span class="chip">' + esc(o.w) +
+          '<span class="cn">' + o.n + "회" +
+          (o.q >= 2 ? " · " + o.q + "질문" : "") + "</span></span>";
+      });
+      html += "</div>";
+    }
+
+    // candidate cards
+    html += '<div class="result-block-title">핵심가치 후보 &amp; A/B 부제 초안</div>';
+    if (candCount > 0) {
+      html += '<ul class="cand-list">';
+      themes.forEach(function (t, i) {
+        var ev =
+          "질문 <b>" +
+          t.qList.map(function (x) { return "Q" + (x + 1); }).join("·") +
+          "</b>에서 " + t.hits + "회 언급";
+        html += candCard(i + 1, t.theme.kr, t.theme.en, ev, t.theme.subA, t.theme.subB);
+      });
+      html += "</ul>";
+    } else if (raw.length > 0) {
+      // fallback: propose top raw keywords as user-named candidates
+      html += '<p class="cand-hint">사전 가치어와 딱 맞는 후보는 적었지만, 아래 반복어를 <b>당신의 언어로 된 핵심가치 후보</b>로 삼아 이름을 붙여 보세요. 부제 문장은 방향만 잡아 둔 뼈대입니다.</p>';
+      html += '<ul class="cand-list">';
+      raw.slice(0, 5).forEach(function (o, i) {
+        var w = o.w;
+        var subA = "‘" + w + "’" + pj(w, "은", "는") + " 우리가 사람을 대하는 방식에 담겨 있다.";
+        var subB = "‘" + w + "’" + pj(w, "을", "를") + " 판단과 실행의 기준으로 삼는다.";
+        var ev = "답변에서 " + o.n + "회" + (o.q >= 2 ? " · " + o.q + "개 질문" : "") + " 반복";
+        html += candCard(i + 1, w, "", ev, subA, subB);
+      });
+      html += "</ul>";
+    } else {
+      html += '<p class="thin-note">키워드를 뽑기에는 답변이 짧습니다. 각 질문에 <b>한두 문장씩</b> 더 적으면 반복되는 원칙이 드러납니다.</p>';
+    }
+
+    // AI prompt
+    lastPrompt = buildPrompt(answers, themes);
+    html += '<div class="result-block-title">심화 · AI에 붙여넣을 프롬프트</div>';
+    html += '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 초안을 바탕으로 핵심가치를 확정하고 가치별 핵심습관까지 함께 잡아 줍니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("analyze").addEventListener("click", runAnalysis);
+
+  /* ---------- sample fill ---------- */
+  document.getElementById("sample").addEventListener("click", function () {
+    var els = fields();
+    els.forEach(function (el, i) {
+      el.value = QUESTIONS[i].ph.replace(/^예\)\s*/, "");
+      grow(el);
+    });
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    fields().forEach(function (el) {
+      el.value = "";
+      grow(el);
+    });
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◇</div>' +
+      "<p><strong>아직 분석 전입니다.</strong></p>" +
+      "<p>위 질문에 답하고 '핵심가치 후보 뽑기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

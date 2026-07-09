@@ -1,0 +1,1569 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>이메일 정중함·레지스터 조절기</title>
+<meta
+  name="description"
+  content="한국어 이메일 초안을 수신자·상황에 맞춰 담백함과 정중함 사이 원하는 격식으로 다듬는 프롬프트를 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3d5a80;
+    --accent-strong: #2c445f;
+    --accent-tint: #eef2f8;
+    --accent-tint-2: #dbe4f1;
+    --ink: #20242b;
+    --ink-soft: #454b56;
+    --ink-mute: #6a717c;
+    --paper: #f6f8fb;
+    --card: #ffffff;
+    --line: #e3e7ee;
+    --line-strong: #d2d8e2;
+    --good: #2f6f4f;
+    --good-tint: #e7f2ec;
+    --good-line: #cfe4d8;
+    --warn: #9a5a15;
+    --warn-tint: #fbf1e4;
+    --warn-line: #f0ddc2;
+    --shadow: 0 1px 2px rgba(20, 24, 31, 0.05), 0 6px 20px rgba(20, 24, 31, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 118px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfdff;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a3abb7;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .warn-inline {
+    font-size: 0.88rem;
+    color: var(--warn);
+    font-weight: 700;
+    margin: 10px 0 0;
+    display: none;
+  }
+  .warn-inline.show {
+    display: block;
+  }
+
+  /* ---------- chips (radio groups) ---------- */
+  fieldset.chipset {
+    border: none;
+    margin: 0 0 16px;
+    padding: 0;
+  }
+  fieldset.chipset:last-of-type {
+    margin-bottom: 0;
+  }
+  legend {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    padding: 0;
+    margin-bottom: 9px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 8px 15px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: #fcfdff;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: border-color 0.14s, background 0.14s, color 0.14s;
+  }
+  .chip:hover {
+    border-color: var(--ink-mute);
+  }
+  .chip.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .chip:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- register slider ---------- */
+  .reg-current {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    margin-bottom: 4px;
+  }
+  .reg-current .lvlnum {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .reg-current .lvlname {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .reg-desc {
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+    margin: 0 0 14px;
+    min-height: 1.3em;
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 6px;
+    background: linear-gradient(
+      to right,
+      var(--accent-tint-2),
+      var(--accent)
+    );
+    outline: none;
+    margin: 2px 0 0;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 4px rgba(20, 24, 31, 0.3);
+    cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 4px rgba(20, 24, 31, 0.3);
+    cursor: pointer;
+  }
+  input[type="range"]:focus-visible {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .tick-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  .tick-row span {
+    flex: 1 1 0;
+    text-align: center;
+  }
+  .tick-row span:first-child {
+    text-align: left;
+  }
+  .tick-row span:last-child {
+    text-align: right;
+  }
+  .reco-hint {
+    margin: 14px 0 0;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 9px;
+    padding: 9px 12px;
+  }
+  .reco-hint strong {
+    color: var(--accent-strong);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-raise {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-lower {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-match {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-raise .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-lower .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-match .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 16px 0 4px;
+  }
+  .pip {
+    position: relative;
+    flex: 1 1 0;
+    height: 10px;
+    border-radius: 5px;
+    background: #e2e6ee;
+  }
+  .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-match .pip.lit {
+    background: var(--good);
+  }
+  .verdict.tone-lower .pip.lit {
+    background: var(--warn);
+  }
+  .pip.target::after {
+    content: "목표";
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .pip.target {
+    outline: 2px solid var(--ink-soft);
+    outline-offset: 2px;
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 10px 0 0;
+    font-weight: 600;
+  }
+
+  .sig-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 12px 0 2px;
+  }
+  .badge {
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 7px;
+    background: #eef1f6;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+  }
+  .badge.flag {
+    background: var(--warn-tint);
+    color: var(--warn);
+    border-color: var(--warn-line);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  .fix-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .fix-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 15px;
+    background: #fcfdff;
+  }
+  .fix-item .fx-title {
+    font-weight: 700;
+    font-size: 0.97rem;
+    margin: 0 0 4px;
+  }
+  .fix-item .fx-why {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23272e;
+    color: #eef1f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 24, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .verdict-title {
+      font-size: 1.18rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #context-panel,
+    #register-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">이메일 톤 · 경어법 레지스터</span>
+    <h1>이메일 정중함·레지스터 조절기</h1>
+    <p class="lede">
+      고객·상사에게 보낼 한국어 이메일 초안을 붙여넣으면, 지금 얼마나 격식 있게
+      읽히는지 진단하고, 원하는 정중함으로 다듬는 AI 프롬프트를 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>이메일 초안</h2>
+    </div>
+    <p class="panel-sub">
+      메모·불릿·문장 조각·반말 초안 모두 괜찮습니다. 있는 그대로 붙여넣으세요.
+    </p>
+    <label class="field-label" for="draft">보낼 이메일 초안</label>
+    <textarea
+      id="draft"
+      placeholder="예) 김대리님 지난번 견적서 관련 확인 부탁. 이번주 금요일까지 회신 주면 좋겠음. 일정 급해서 미안."
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+      없습니다.
+    </p>
+    <p class="warn-inline" id="draftWarn">
+      먼저 이메일 초안을 붙여넣어 주세요. 진단은 초안 문장을 분석해 이뤄집니다.
+    </p>
+  </section>
+
+  <section class="panel" id="context-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>수신자와 상황</h2>
+    </div>
+    <p class="panel-sub">
+      누구에게, 어떤 목적으로 보내는지에 따라 적정 격식이 달라집니다.
+    </p>
+    <fieldset class="chipset">
+      <legend>수신자</legend>
+      <div class="chips" id="recipientChips"></div>
+    </fieldset>
+    <fieldset class="chipset">
+      <legend>상황</legend>
+      <div class="chips" id="situationChips"></div>
+    </fieldset>
+  </section>
+
+  <section class="panel" id="register-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>원하는 격식</h2>
+    </div>
+    <p class="panel-sub">
+      담백함(핵심만)과 최고 정중함 사이에서 목표 지점을 고르세요.
+    </p>
+    <div class="reg-current">
+      <span class="lvlnum" id="lvlNum">4</span>
+      <span class="lvlname" id="lvlName">정중 격식</span>
+    </div>
+    <p class="reg-desc" id="lvlDesc"></p>
+    <input
+      type="range"
+      id="reg"
+      min="1"
+      max="5"
+      step="1"
+      value="4"
+      aria-label="원하는 격식 단계 (1 담백 ~ 5 최고 정중)"
+    />
+    <div class="tick-row" aria-hidden="true">
+      <span>담백</span><span>편안</span><span>표준</span><span>정중</span
+      ><span>최고</span>
+    </div>
+    <p class="reco-hint" id="recoHint"></p>
+
+    <div class="actions">
+      <button class="btn-primary" id="run">다듬기 프롬프트 만들기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">결과</span>
+      <h2>진단 &amp; 프롬프트</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">✉</div>
+        <p><strong>아직 진단 전입니다.</strong></p>
+        <p>초안을 붙여넣고 '다듬기 프롬프트 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 레지스터 조정 원칙은
+      consultant-message-polisher 스킬의 메시지 정제 원칙(사실 보존, 존댓말
+      일관성, 클리셰·번역투 배제, 호칭 → 용건 → 배경 → 대안 → 마무리 구조
+      재배열, A/B 두 톤 대비)과 한국어 경어법 체계(해요체·합쇼체)를 이메일
+      맥락에 맞춰 적용합니다. 레지스터 감지는 문장 종결어미와 높임 표지를 규칙
+      기반으로 분석한 추정치입니다.
+    </p>
+    <p>
+      이 도구는 초안을 대신 써 주지 않고, 어떤 격식으로 어떻게 다듬을지 스스로
+      판단하도록 돕는 보조 도구입니다. 최종 문장과 사실 확인은 직접 하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ============================================================
+   * 레지스터 단계 정의 (담백 1 ~ 최고 정중 5)
+   * ========================================================== */
+  var LEVELS = [
+    null,
+    {
+      n: 1,
+      name: "담백 · 사실 전달",
+      desc: "군더더기 없이 핵심 사실만. 내부 메모나 아주 가까운 사이.",
+    },
+    {
+      n: 2,
+      name: "편안한 존중",
+      desc: "해요체 기본, 부드럽지만 격식은 낮음. 편한 동료·잦은 협업.",
+    },
+    {
+      n: 3,
+      name: "표준 비즈니스",
+      desc: "해요체 정중. 대부분의 실무 이메일에 무난한 기본값.",
+    },
+    {
+      n: 4,
+      name: "정중 격식",
+      desc: "합쇼체 표준(~합니다/~드립니다). 상사·고객·공식 관계.",
+    },
+    {
+      n: 5,
+      name: "최고 정중",
+      desc: "합쇼체 격식. 임원·대표·중요 고객·민감한 사안.",
+    },
+  ];
+
+  var RECIPIENTS = [
+    "고객",
+    "상사·윗사람",
+    "동료",
+    "외부 파트너/거래처",
+    "임원·대표",
+  ];
+  var SITUATIONS = [
+    "요청·부탁",
+    "보고·공유",
+    "사과",
+    "거절",
+    "감사",
+    "독촉·리마인드",
+    "안내·공지",
+  ];
+
+  var RECIPIENT_BASE = {
+    "고객": 4,
+    "상사·윗사람": 4,
+    "동료": 2,
+    "외부 파트너/거래처": 4,
+    "임원·대표": 5,
+  };
+
+  var state = {
+    recipient: "고객",
+    situation: "요청·부탁",
+    target: 4,
+    userMovedSlider: false,
+  };
+
+  /* ============================================================
+   * 유틸
+   * ========================================================== */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function clamp(v, lo, hi) {
+    return Math.max(lo, Math.min(hi, v));
+  }
+
+  /* ============================================================
+   * 레지스터 감지 엔진 (규칙 기반)
+   *  - 문장 종결어미로 합쇼체 / 해요체 / 반말·개조식 분류
+   *  - 높임 표지, 이모지, 클리셰, 번역투 감지
+   *  - 종합 점수 -> 1~5 단계
+   * ========================================================== */
+  var HONORIFICS = [
+    "부탁드립",
+    "부탁드려",
+    "감사드립",
+    "감사합",
+    "죄송",
+    "양해",
+    "정중",
+    "회신",
+    "검토",
+    "귀하",
+    "귀사",
+    "께서",
+    "드립니다",
+    "님",
+  ];
+  var CLICHES = [
+    "다름이 아니라",
+    "바쁘신 줄",
+    "바쁘신데",
+    "번거로우시겠지만",
+    "좋은 하루 되세요",
+    "좋은 하루 보내세요",
+    "노고가 많으십니다",
+  ];
+  var TRANSLATIONESE = [
+    "이 메일이 잘",
+    "잘 지내시길 바랍니다",
+    "임을 알려드리는 바",
+    "하는 바입니다",
+    "에 다름 아니",
+  ];
+  var EMOJI_RE =
+    /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}❤⭐✅✔️]/u;
+  var GUEO_RE = /[ㅋㅎㅠㅜ]{2,}/;
+
+  function normalizeBreaks(t) {
+    return t
+      .replace(/\r/g, "")
+      .replace(/([다요죠])\s+(?=[가-힣])/g, "$1\n")
+      .replace(/(니다|니까|시오)(?=\s|$)/g, "$1\n");
+  }
+
+  function splitSentences(t) {
+    return normalizeBreaks(t)
+      .split(/[\n。.!?！？·•]+/)
+      .map(function (s) {
+        return s.trim();
+      })
+      .filter(Boolean);
+  }
+
+  function classifyEnding(sentRaw) {
+    // 종결부의 부호·이모지·웃음 제거
+    var s = sentRaw
+      .replace(EMOJI_RE, "")
+      .replace(/[\s.!?~…♥♡]+$/g, "")
+      .replace(/[)\]"'”’』」]+$/g, "")
+      .replace(/[ㅋㅎㅠㅜ]+$/g, "")
+      .trim();
+    if (!s) return "etc";
+    if (/(니다|니까|시오)$/.test(s)) return "formal"; // 합쇼체
+    if (/(요|죠|쥬)$/.test(s)) return "polite"; // 해요체
+    if (
+      /(다|라|어|아|지|네|야|자|냐|니|걸|군|든|음|임|함|봄|삼|줘|게|래|대|든지|거든|는데|은데|잖아|겠다|는다|ㄴ다|였다|었다|았다|이다|한다|해|돼)$/.test(
+        s
+      )
+    )
+      return "plain"; // 반말/평서
+    return "noun"; // 명사·개조식 종결
+  }
+
+  function analyze(text) {
+    var sents = splitSentences(text);
+    var counts = { formal: 0, polite: 0, plain: 0, noun: 0 };
+    sents.forEach(function (s) {
+      var c = classifyEnding(s);
+      if (counts[c] !== undefined) counts[c]++;
+    });
+    var totalEnd = counts.formal + counts.polite + counts.plain + counts.noun;
+
+    // 높임 표지
+    var honorHits = [];
+    HONORIFICS.forEach(function (h) {
+      if (text.indexOf(h) !== -1) honorHits.push(h);
+    });
+    // 클리셰 / 번역투
+    var clicheHits = CLICHES.filter(function (c) {
+      return text.indexOf(c) !== -1;
+    });
+    var transHits = TRANSLATIONESE.filter(function (c) {
+      return text.indexOf(c) !== -1;
+    });
+    var hasEmoji = EMOJI_RE.test(text) || GUEO_RE.test(text);
+    var mixedHigh = counts.formal > 0 && counts.polite > 0;
+    var mixedBanmal =
+      counts.plain + counts.noun > 0 && counts.formal + counts.polite > 0;
+
+    // 종합 점수 -> 단계
+    var level;
+    if (totalEnd === 0) {
+      level = honorHits.length >= 2 ? 3 : 1;
+    } else {
+      var formScore = (counts.formal * 1.0 + counts.polite * 0.5) / totalEnd; // 0..1
+      var honorBoost = Math.min(honorHits.length * 0.32, 1.05);
+      var emojiPenalty = hasEmoji ? 0.6 : 0;
+      var plainRatio = (counts.plain + counts.noun) / totalEnd;
+      var val =
+        formScore * 3 + honorBoost - emojiPenalty - plainRatio * 0.6;
+      if (val < 0.6) level = 1;
+      else if (val < 1.3) level = 2;
+      else if (val < 2.1) level = 3;
+      else if (val < 2.8) level = 4;
+      else level = 5;
+    }
+
+    return {
+      level: level,
+      counts: counts,
+      totalEnd: totalEnd,
+      honor: honorHits,
+      cliches: clicheHits,
+      translationese: transHits,
+      emoji: hasEmoji,
+      mixedHigh: mixedHigh,
+      mixedBanmal: mixedBanmal,
+    };
+  }
+
+  /* ============================================================
+   * 추천 격식 (수신자 + 상황)
+   * ========================================================== */
+  function recommend() {
+    var base = RECIPIENT_BASE[state.recipient] || 3;
+    var adj = /사과|거절/.test(state.situation) ? 1 : 0;
+    return clamp(base + adj, 1, 5);
+  }
+
+  /* ============================================================
+   * 조정 체크리스트 (감지 결과 + 격차 기반)
+   * ========================================================== */
+  function buildChecklist(det, tgt) {
+    var items = [];
+    var cur = det.level;
+    var banmal = det.counts.plain + det.counts.noun;
+
+    if (cur < tgt) {
+      if (banmal > 0) {
+        items.push({
+          t: "반말·개조식 문장을 존댓말 완결 문장으로",
+          w:
+            "감지된 반말/메모형 문장 " +
+            banmal +
+            "개를 " +
+            (tgt >= 4 ? '합쇼체("~합니다")' : '해요체("~요")') +
+            "로 바꿔 격식을 맞춥니다.",
+        });
+      }
+      if (tgt >= 4 && det.counts.polite > 0) {
+        items.push({
+          t: "해요체를 합쇼체로 승격",
+          w: '상사·고객·공식 관계에는 "~합니다 / ~드립니다"가 더 안정적입니다.',
+        });
+      }
+      items.push({
+        t: "핵심 용건을 정중한 한 문장으로 단정",
+        w: "무엇을 언제까지 부탁하는지 존댓말로 분명히 밝힙니다.",
+      });
+    } else if (cur > tgt) {
+      items.push({
+        t: "과한 격식·군더더기 덜어내기",
+        w:
+          "현재(" +
+          cur +
+          "단계)가 목표(" +
+          tgt +
+          "단계)보다 높습니다. 상투적 인사와 겹수식을 걷어내 담백하게 만듭니다.",
+      });
+      if (tgt <= 2) {
+        items.push({
+          t: "핵심만 남긴 짧은 문장",
+          w: "가까운 사이라면 인사보다 용건이 먼저 읽히도록 압축합니다.",
+        });
+      }
+    } else {
+      items.push({
+        t: "격식 수준은 적절 — 결만 다듬기",
+        w: "현재 레지스터가 목표와 맞습니다. 문장 순서와 표현만 정리합니다.",
+      });
+    }
+
+    // 일관성·품질 신호
+    if (det.mixedHigh) {
+      items.push({
+        t: "존댓말 체계 통일 (해요체/합쇼체 중 하나)",
+        w: '한 이메일 안에서 "~요"와 "~습니다"가 섞이면 격식이 흔들립니다.',
+      });
+    }
+    if (det.emoji && tgt >= 4) {
+      items.push({
+        t: "이모지·구어 표현(ㅋㅋ 등) 제거",
+        w: "격식 있는 업무 이메일에는 어울리지 않습니다.",
+      });
+    }
+    if (det.cliches.length) {
+      items.push({
+        t: "공허한 관용구 정리: " + det.cliches.join(", "),
+        w: '"다름이 아니라" 같은 상투어는 원문이 요구하지 않으면 뺍니다.',
+      });
+    }
+    if (det.translationese.length) {
+      items.push({
+        t: "번역투 표현 자연스럽게",
+        w: '"' + det.translationese.join(", ") + '" 같은 표현을 한국어 어순으로.',
+      });
+    }
+
+    // 항상
+    items.push({
+      t: "구조 재배열: 호칭 → 용건 → 배경 → 대안 → 마무리",
+      w: "거친 초안을 5단계로 재배치하면 30초 안에 읽힙니다.",
+    });
+    items.push({
+      t: "사실 보존",
+      w: "원문에 없는 이름·일정·수치·약속을 새로 지어내지 않습니다.",
+    });
+    return items;
+  }
+
+  /* ============================================================
+   * 생성 프롬프트
+   * ========================================================== */
+  function buildPrompt(det, tgt, draft) {
+    var L = LEVELS[tgt];
+    var cur = LEVELS[det.level];
+    var lines = [];
+
+    // 진단 요약 문장
+    var issue = [];
+    if (det.mixedBanmal) issue.push("반말·개조식과 존댓말이 섞여 있음");
+    else if (det.mixedHigh) issue.push("해요체와 합쇼체가 섞여 있음");
+    if (det.emoji) issue.push("이모지·구어 표현 있음");
+    if (det.cliches.length) issue.push("상투어 감지");
+    if (det.translationese.length) issue.push("번역투 감지");
+    var issueStr = issue.length ? " (" + issue.join(", ") + ")" : "";
+
+    lines.push(
+      "당신은 한국어 비즈니스 이메일을 다듬는 에디터입니다. 한국어 경어법(해요체·합쇼체)과 레지스터 조절에 능숙합니다."
+    );
+    lines.push(
+      "아래 이메일 초안을 지정한 수신자·상황·격식에 맞춰 자연스럽게 다시 써 주세요."
+    );
+    lines.push("");
+    lines.push("【수신자】 " + state.recipient);
+    lines.push("【상황】 " + state.situation);
+    lines.push(
+      "【목표 격식】 " + tgt + "단계 · " + L.name + " — " + L.desc
+    );
+    lines.push(
+      "【현재 초안 진단】 " +
+        det.level +
+        "단계(" +
+        cur.name +
+        ")로 읽힙니다" +
+        issueStr +
+        "."
+    );
+    lines.push("");
+    lines.push("【이메일 초안】");
+    lines.push(draft.trim() ? draft.trim() : "(여기에 초안을 붙여넣으세요)");
+    lines.push("");
+    lines.push("【다듬기 규칙】");
+    lines.push(
+      "1. 목표 격식을 정확히 맞춥니다. " +
+        (tgt >= 4
+          ? '"~합니다 / ~드립니다" 합쇼체'
+          : tgt === 3
+          ? '정중한 "~요" 해요체'
+          : '담백한 표현') +
+        "를 기본으로 하고, 한 이메일 안에서 존댓말 체계를 섞지 마세요."
+    );
+    lines.push(
+      "2. 사실 보존: 원문에 없는 이름·일정·장소·수치·약속을 새로 지어내지 마세요. 정보가 모호하면 채우지 말고 저에게 무엇이 필요한지 물어보세요."
+    );
+    lines.push(
+      "3. 구조: 호칭 → 핵심 용건(한 문장) → 배경·이유 → 대안·여유 조항 → 마무리 인사 순으로 재배치합니다. 모든 단계가 필요하진 않습니다."
+    );
+    lines.push(
+      '4. 공허한 상투어("다름이 아니라", "바쁘신 줄 알지만")와 번역투("이 메일이 잘 도착하길 바랍니다")는 원문이 요구하지 않으면 쓰지 마세요.'
+    );
+    lines.push(
+      '5. 강조 부사("정말로", "진심으로")는 한 통에 2회 이하로 절제합니다. 이모지는 원문에 있을 때만 살립니다.'
+    );
+    lines.push("6. 한 줄짜리 제목(subject)도 함께 제안해 주세요.");
+    lines.push("");
+    lines.push("【출력 형식】 두 가지 버전으로 주세요.");
+    lines.push(
+      "- 버전 A: 목표 " + tgt + "단계 격식을 정확히 맞춘 표준 버전"
+    );
+    lines.push(
+      "- 버전 B: 같은 내용을 반 단계 더 따뜻하게(상대에 대한 존중·배려 1~2줄 추가, 과하지 않게)"
+    );
+    lines.push(
+      "각 버전은 제목 + 본문으로 주고, 끝에 바꾼 핵심 포인트 1~2개만 한 줄로 덧붙여 주세요."
+    );
+    return lines.join("\n");
+  }
+
+  /* ============================================================
+   * 렌더링
+   * ========================================================== */
+  var recipientChips = document.getElementById("recipientChips");
+  var situationChips = document.getElementById("situationChips");
+
+  function renderChips(container, list, name, current) {
+    list.forEach(function (v) {
+      var id = name + "-" + v;
+      var label = document.createElement("label");
+      label.className = "chip" + (v === current ? " on" : "");
+      label.innerHTML =
+        '<input type="radio" name="' +
+        name +
+        '" value="' +
+        esc(v) +
+        '" ' +
+        (v === current ? "checked" : "") +
+        ' id="' +
+        esc(id) +
+        '" /><span>' +
+        esc(v) +
+        "</span>";
+      container.appendChild(label);
+    });
+  }
+  renderChips(recipientChips, RECIPIENTS, "recipient", state.recipient);
+  renderChips(situationChips, SITUATIONS, "situation", state.situation);
+
+  function wireChipGroup(container, name, onChange) {
+    container.addEventListener("change", function (e) {
+      if (e.target.name !== name) return;
+      Array.prototype.forEach.call(
+        container.querySelectorAll(".chip"),
+        function (c) {
+          c.classList.remove("on");
+        }
+      );
+      var lab = e.target.closest(".chip");
+      if (lab) lab.classList.add("on");
+      onChange(e.target.value);
+    });
+  }
+  wireChipGroup(recipientChips, "recipient", function (v) {
+    state.recipient = v;
+    afterContextChange();
+  });
+  wireChipGroup(situationChips, "situation", function (v) {
+    state.situation = v;
+    afterContextChange();
+  });
+
+  // ---- slider ----
+  var reg = document.getElementById("reg");
+  var lvlNum = document.getElementById("lvlNum");
+  var lvlName = document.getElementById("lvlName");
+  var lvlDesc = document.getElementById("lvlDesc");
+  var recoHint = document.getElementById("recoHint");
+
+  function updateSliderUI() {
+    var L = LEVELS[state.target];
+    lvlNum.textContent = state.target;
+    lvlName.textContent = L.name;
+    lvlDesc.textContent = L.desc;
+    reg.value = state.target;
+  }
+  function updateRecoHint() {
+    var r = recommend();
+    recoHint.innerHTML =
+      "이 조합(" +
+      esc(state.recipient) +
+      " · " +
+      esc(state.situation) +
+      ") 추천: <strong>" +
+      r +
+      "단계 · " +
+      esc(LEVELS[r].name) +
+      "</strong>" +
+      (state.userMovedSlider
+        ? ""
+        : " — 자동으로 맞춰 두었어요. 슬라이더로 바꿀 수 있습니다.");
+  }
+  function afterContextChange() {
+    if (!state.userMovedSlider) {
+      state.target = recommend();
+      updateSliderUI();
+    }
+    updateRecoHint();
+  }
+  reg.addEventListener("input", function () {
+    state.userMovedSlider = true;
+    state.target = parseInt(reg.value, 10);
+    updateSliderUI();
+    updateRecoHint();
+  });
+
+  // init slider from recommendation
+  state.target = recommend();
+  updateSliderUI();
+  updateRecoHint();
+
+  // ---- auto-grow textarea ----
+  var draft = document.getElementById("draft");
+  var draftWarn = document.getElementById("draftWarn");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  draft.addEventListener("input", function () {
+    grow(draft);
+    if (draft.value.trim()) draftWarn.classList.remove("show");
+  });
+
+  /* ============================================================
+   * 실행
+   * ========================================================== */
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function verdictFor(cur, tgt) {
+    if (cur < tgt)
+      return {
+        tone: "raise",
+        label: "격식 올리기 필요",
+        title: "지금보다 정중하게 다듬는 게 좋습니다",
+      };
+    if (cur > tgt)
+      return {
+        tone: "lower",
+        label: "격식 낮추기 여지",
+        title: "지금은 목표보다 격식이 높습니다",
+      };
+    return {
+      tone: "match",
+      label: "격식 적정",
+      title: "원하는 격식과 대체로 맞습니다",
+    };
+  }
+
+  document.getElementById("run").addEventListener("click", function () {
+    var text = draft.value;
+    if (!text.trim()) {
+      draftWarn.classList.add("show");
+      draft.focus();
+      draft.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    var det = analyze(text);
+    var tgt = state.target;
+    var cur = det.level;
+    var v = verdictFor(cur, tgt);
+    var curL = LEVELS[cur];
+    var tgtL = LEVELS[tgt];
+
+    var html = "";
+
+    // ---- verdict ----
+    html += '<div class="verdict tone-' + v.tone + '">';
+    html += '<p class="verdict-label">' + esc(v.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(v.title) + "</p>";
+    html +=
+      '<p class="verdict-desc">현재 초안은 <strong>' +
+      cur +
+      "단계 · " +
+      esc(curL.name) +
+      "</strong>로 읽히고, 목표는 <strong>" +
+      tgt +
+      "단계 · " +
+      esc(tgtL.name) +
+      "</strong>입니다.</p>";
+
+    // meter
+    html += '<div class="meter" role="img" aria-label="현재 ' +
+      cur +
+      "단계, 목표 " +
+      tgt +
+      '단계">';
+    for (var p = 1; p <= 5; p++) {
+      var cls = "pip";
+      if (p <= cur) cls += " lit";
+      if (p === tgt) cls += " target";
+      html += '<span class="' + cls + '"></span>';
+    }
+    html += "</div>";
+    html +=
+      '<p class="meter-caption">현재 ' +
+      cur +
+      " / 5 · 목표 " +
+      tgt +
+      " / 5</p>";
+
+    // signal badges
+    var badges = [];
+    if (det.counts.formal)
+      badges.push({ t: "합쇼체 " + det.counts.formal + "회", flag: false });
+    if (det.counts.polite)
+      badges.push({ t: "해요체 " + det.counts.polite + "회", flag: false });
+    if (det.counts.plain + det.counts.noun)
+      badges.push({
+        t: "반말·개조식 " + (det.counts.plain + det.counts.noun) + "회",
+        flag: cur < tgt,
+      });
+    if (det.honor.length)
+      badges.push({
+        t: "높임 표지: " + det.honor.slice(0, 4).join("·"),
+        flag: false,
+      });
+    if (det.mixedHigh) badges.push({ t: "존댓말 혼용", flag: true });
+    if (det.emoji) badges.push({ t: "이모지/구어", flag: tgt >= 4 });
+    if (det.cliches.length) badges.push({ t: "상투어", flag: true });
+    if (det.translationese.length) badges.push({ t: "번역투", flag: true });
+    if (badges.length) {
+      html += '<div class="sig-badges">';
+      badges.forEach(function (b) {
+        html +=
+          '<span class="badge' +
+          (b.flag ? " flag" : "") +
+          '">' +
+          esc(b.t) +
+          "</span>";
+      });
+      html += "</div>";
+    }
+    html += "</div>"; // verdict
+
+    // ---- checklist ----
+    var items = buildChecklist(det, tgt);
+    html += '<div class="result-block-title">이렇게 다듬으세요</div>';
+    html += '<ul class="fix-list">';
+    items.forEach(function (it) {
+      html += '<li class="fix-item">';
+      html += '<p class="fx-title">' + esc(it.t) + "</p>";
+      html += '<p class="fx-why">' + esc(it.w) + "</p>";
+      html += "</li>";
+    });
+    html += "</ul>";
+
+    // ---- prompt ----
+    lastPrompt = buildPrompt(det, tgt, text);
+    html += '<div class="result-block-title">AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 진단을 바탕으로 초안을 목표 격식의 이메일 두 버전으로 다시 써 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html +=
+      '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    draft.value = "";
+    grow(draft);
+    draftWarn.classList.remove("show");
+    state.recipient = "고객";
+    state.situation = "요청·부탁";
+    state.userMovedSlider = false;
+    // reset chips
+    Array.prototype.forEach.call(
+      recipientChips.querySelectorAll("input"),
+      function (i) {
+        i.checked = i.value === "고객";
+        i.closest(".chip").classList.toggle("on", i.value === "고객");
+      }
+    );
+    Array.prototype.forEach.call(
+      situationChips.querySelectorAll("input"),
+      function (i) {
+        i.checked = i.value === "요청·부탁";
+        i.closest(".chip").classList.toggle("on", i.value === "요청·부탁");
+      }
+    );
+    state.target = recommend();
+    updateSliderUI();
+    updateRecoHint();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">✉</div>' +
+      "<p><strong>아직 진단 전입니다.</strong></p>" +
+      "<p>초안을 붙여넣고 '다듬기 프롬프트 만들기'를 누르세요.</p></div>";
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ============================================================
+   * 복사 (3단 폴백) + 인쇄
+   * ========================================================== */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) flashStatus("복사되었습니다");
+    else openModal(text);
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

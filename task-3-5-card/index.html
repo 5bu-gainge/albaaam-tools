@@ -1,0 +1,1511 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3대 과업·5대 해결과제 카드</title>
+<meta
+  name="description"
+  content="직무·입사일을 넣으면 지속적으로 맡을 3대 과업과 마감일이 붙은 5대 결과물(해결과제)을 적응 곡선으로 역산해 카드로 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    /* calm pine-teal accent (planning / adaptation / growth) */
+    --accent: #2f7d6f;
+    --accent-strong: #22665a;
+    --accent-tint: #e8f4f1;
+    --accent-tint-2: #d3e8e3;
+    --ink: #202422;
+    --ink-soft: #46504c;
+    --ink-mute: #69726d;
+    --paper: #f7f6f3;
+    --card: #ffffff;
+    --line: #e5e2db;
+    --line-strong: #d5d1c8;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn-ink: #9a6a1e;
+    --warn-tint: #fbf1e3;
+    --shadow: 0 1px 2px rgba(32, 36, 34, 0.05), 0 6px 20px rgba(32, 36, 34, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.7rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- form ---------- */
+  .fgroup {
+    margin-bottom: 16px;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .req {
+    color: var(--accent);
+  }
+  .sub-help {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 7px 0 0;
+  }
+  input[type="text"],
+  input[type="date"],
+  select,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    color: var(--ink);
+    background: #fdfcfb;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 13px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input[type="text"],
+  input[type="date"],
+  select {
+    min-height: 46px;
+  }
+  textarea {
+    min-height: 74px;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.6;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #a7a49c;
+  }
+  .row2 {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .row2 > div {
+    flex: 1 1 160px;
+    min-width: 160px;
+    margin-bottom: 0;
+  }
+
+  /* segmented control */
+  .seg {
+    display: flex;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    overflow: hidden;
+    background: #fdfcfb;
+  }
+  .seg-opt {
+    flex: 1;
+    margin: 0;
+    position: relative;
+  }
+  .seg-opt:not(:last-child) {
+    border-right: 1px solid var(--line);
+  }
+  .seg-opt input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .seg-opt span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 8px 6px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    text-align: center;
+  }
+  .seg-opt input:checked + span {
+    background: var(--accent);
+    color: #fff;
+  }
+  .seg-opt input:focus-visible + span {
+    box-shadow: inset 0 0 0 2px var(--accent-strong);
+  }
+
+  .err {
+    color: #c0392b;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin: 4px 0 0;
+    min-height: 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    min-height: 46px;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .link-btn {
+    background: none;
+    border: none;
+    color: var(--accent-strong);
+    font-size: 0.86rem;
+    font-weight: 700;
+    padding: 4px 2px;
+    min-height: 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* stage summary */
+  .stage-wrap {
+    border-radius: 14px;
+    padding: 16px 16px;
+    margin-bottom: 18px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .stage-badge {
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent);
+    padding: 4px 11px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .stage-badge.st-b {
+    background: #6a8f2f;
+  }
+  .stage-badge.st-c {
+    background: #4a6da8;
+  }
+  .stage-note {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .stage-assume {
+    margin: 8px 0 0;
+    font-size: 0.82rem;
+    color: var(--warn-ink);
+    background: var(--warn-tint);
+    border-radius: 8px;
+    padding: 7px 10px;
+  }
+
+  /* timeline */
+  .tl {
+    margin: 4px 0 6px;
+    padding-top: 22px;
+  }
+  .tl-track {
+    position: relative;
+    height: 44px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #f2efe9;
+    overflow: hidden;
+  }
+  .tl-band {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--ink-mute);
+    padding-top: 5px;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .tl-band.b1 {
+    background: var(--accent-tint);
+  }
+  .tl-band.b2 {
+    background: #eef4ec;
+  }
+  .tl-band.b3 {
+    background: #f4f2ee;
+  }
+  .tl-band + .tl-band {
+    border-left: 1px dashed var(--line-strong);
+  }
+  .tl-today {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    width: 2px;
+    background: var(--ink);
+    z-index: 3;
+  }
+  .tl-today::after {
+    content: "오늘";
+    position: absolute;
+    top: -17px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.66rem;
+    font-weight: 800;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .tl-dot {
+    position: absolute;
+    bottom: 7px;
+    transform: translateX(-50%);
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+    z-index: 4;
+  }
+  .tl-axis {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    margin-top: 8px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* task cards */
+  .tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .task {
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--tc);
+    border-radius: 12px;
+    background: #fdfcfb;
+    padding: 14px 15px;
+  }
+  .task-badge {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--tc);
+    color: #fff;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+  .task-label {
+    font-weight: 800;
+    font-size: 1.02rem;
+    margin: 0 0 5px;
+    color: var(--ink);
+  }
+  .task-detail {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .task-src {
+    display: inline-block;
+    margin-top: 9px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .task-src.me {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .task-src.sug {
+    background: var(--warn-tint);
+    color: var(--warn-ink);
+  }
+  @media (min-width: 620px) {
+    .tasks {
+      flex-direction: row;
+    }
+    .task {
+      flex: 1 1 0;
+    }
+  }
+
+  /* resolve table */
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  table.rtable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 440px;
+  }
+  .rtable thead th {
+    background: #f2efe9;
+    color: var(--ink-mute);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-align: left;
+    padding: 10px 12px;
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid var(--line);
+  }
+  .rtable td {
+    padding: 12px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .rtable tr:last-child td {
+    border-bottom: none;
+  }
+  .rnum {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.76rem;
+  }
+  .rtext {
+    font-weight: 700;
+    color: var(--ink);
+    min-width: 140px;
+  }
+  .cpill {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .rdate {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-soft);
+  }
+  .dday {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin-top: 2px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #24302c;
+    color: #eef4f1;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 36, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+    .table-scroll {
+      overflow: visible;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">과업 코칭 · 3-5카드</span>
+    <h1>3대 과업 · 5대 해결과제 카드</h1>
+    <p class="lede">
+      직무와 입사일을 넣으면, 목표 기간 동안 지속적으로 맡을 <strong>3대 과업</strong>과
+      마감일이 붙은 <strong>5대 결과물(해결과제)</strong>을 직무 적응 곡선으로 역산해
+      한 장의 카드로 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>내 직무 정보</h2>
+    </div>
+    <p class="panel-sub">
+      아래를 채우고 '카드 만들기'를 누르세요. 처음이라면
+      <button type="button" class="link-btn" id="fillDemo">예시로 채우기</button>를
+      눌러 결과를 먼저 볼 수 있습니다.
+    </p>
+
+    <div class="fgroup">
+      <label class="field-label" for="name">이름 · 직함 (선택)</label>
+      <input id="name" type="text" placeholder="예) 홍길동 사원" />
+    </div>
+
+    <div class="fgroup">
+      <label class="field-label" for="role">직무 · 역할 <span class="req">*</span></label>
+      <input
+        id="role"
+        type="text"
+        placeholder="예) 인사팀 급여 담당 · 마케팅 콘텐츠 매니저 · 영업 2팀 팀장"
+      />
+      <p class="sub-help">지금 맡고 있는 일을 한 줄로.</p>
+    </div>
+
+    <div class="fgroup">
+      <label class="field-label" for="stage-group">현재 위치</label>
+      <div class="seg" id="stage-group" role="radiogroup" aria-label="현재 위치">
+        <label class="seg-opt"
+          ><input type="radio" name="stage" value="신입" checked /><span>신입</span></label
+        >
+        <label class="seg-opt"
+          ><input type="radio" name="stage" value="실무자" /><span>실무자</span></label
+        >
+        <label class="seg-opt"
+          ><input type="radio" name="stage" value="팀리더" /><span>팀리더</span></label
+        >
+      </div>
+      <p class="sub-help">과업의 성격을 정합니다 (파악 중심 / 실행 중심 / 팀 관리 중심).</p>
+    </div>
+
+    <div class="row2 fgroup">
+      <div>
+        <label class="field-label" for="startdate">직무 시작일 (입사·발령일)</label>
+        <input id="startdate" type="date" />
+        <p class="sub-help">마감일 역산의 기준점.</p>
+      </div>
+      <div>
+        <label class="field-label" for="period">목표 기간</label>
+        <select id="period">
+          <option value="30">1개월</option>
+          <option value="90" selected>3개월 (분기)</option>
+          <option value="180">반기</option>
+          <option value="365">연간</option>
+        </select>
+        <p class="sub-help">해결과제를 배치할 창.</p>
+      </div>
+    </div>
+
+    <div class="fgroup">
+      <label class="field-label" for="resp">주요 책임 · 하는 일 (선택, 한 줄에 하나)</label>
+      <textarea
+        id="resp"
+        placeholder="예)&#10;급여 계산 및 지급&#10;4대보험 신고&#10;연말정산 지원&#10;급여 문의 응대"
+      ></textarea>
+      <p class="sub-help">적을수록 예시 과업으로 채워집니다. 3줄 이상이면 그대로 과업이 됩니다.</p>
+    </div>
+
+    <div class="fgroup">
+      <label class="field-label" for="issue">지금 가장 시급한 문제 (선택)</label>
+      <textarea
+        id="issue"
+        placeholder="예) 첫 급여 결산을 혼자 처리해야 하는데 절차가 아직 손에 안 익음"
+      ></textarea>
+    </div>
+
+    <p class="sub-help">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+    <p class="err" id="err" role="alert"></p>
+
+    <div class="actions">
+      <button class="btn-primary" id="build">카드 만들기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>내 3-5 카드</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">🗂️</div>
+        <p><strong>아직 카드가 없습니다.</strong></p>
+        <p>직무 정보를 채우고 '카드 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 가인지컨설팅그룹의
+      <em>3대 과업 · 5대 해결과제(3-5카드)</em> 코칭 방법론. <strong>과업</strong>은
+      목표 기간 동안 지속적으로 수행하는 역할(마감일 없음), <strong>해결과제</strong>는
+      숫자·버전·기간이 담긴 '완성할 결과물'(마감일 있음)입니다. 마감일은 직무 적응
+      곡선(0~4주 파악 → 5~8주 첫 사이클 → 9~12주 표준화)으로 역산하며, 재직 6개월
+      이상이면 곡선 대신 난이도·의존 순서로 배치합니다.
+    </p>
+    <p>
+      이 카드는 스스로 생각을 구조화하도록 돕는 초안 보조 도구입니다. 과업 · 해결과제 ·
+      마감일은 실제 상황에 맞게 직접 검토하고 확정하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- constants ---------- */
+  var WD = ["일", "월", "화", "수", "목", "금", "토"];
+
+  // task color mapping (from 3-5-card SKILL: 과업1 파랑, 과업2 틸, 과업3 보라)
+  var TC = [
+    { bar: "#2563eb", tint: "#eaf1fe", ink: "#1d4ed8" },
+    { bar: "#0d9488", tint: "#e3f4f1", ink: "#0f766e" },
+    { bar: "#7c3aed", tint: "#f1eafe", ink: "#6d28d9" },
+  ];
+
+  // deliverable placement fractions of the horizon (front-loaded quick wins)
+  var NEW_FRACS = [0.16, 0.28, 0.5, 0.66, 0.92];
+  var SKILLED_FRACS = [0.2, 0.4, 0.62, 0.8, 0.96];
+
+  var ARCH = {
+    신입: [
+      { label: "업무 파악 · 기준 습득", detail: "담당 업무의 흐름과 규칙을 빠르게 익히기" },
+      { label: "기존 자료 · 이력 정리", detail: "인수인계 자료와 과거 기록을 한곳에 모아 이해" },
+      { label: "첫 사이클 실전 수행", detail: "도움을 받아 한 번의 전체 업무 주기를 직접 완수" },
+    ],
+    실무자: [
+      { label: "담당 업무 실행", detail: "맡은 일을 기한과 품질 기준에 맞춰 처리" },
+      { label: "반복 업무 개선", detail: "자주 하는 일의 오류와 걸리는 시간을 줄이기" },
+      { label: "협업 · 요청 대응", detail: "주변 요청과 문의를 정리된 흐름으로 처리" },
+    ],
+    팀리더: [
+      { label: "팀 목표 정렬", detail: "팀의 방향과 각자의 역할을 목표에 맞추기" },
+      { label: "사람 관리 · 성장", detail: "구성원 상태를 파악하고 성장을 돕기" },
+      { label: "프로세스 · 성과 관리", detail: "일하는 방식과 결과를 점검하고 개선" },
+    ],
+  };
+
+  /* ---------- date helpers (local midnight) ---------- */
+  function midnight(d) {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+  function today() {
+    return midnight(new Date());
+  }
+  function parseInput(v) {
+    if (!v) return null;
+    var p = v.split("-");
+    if (p.length !== 3) return null;
+    var d = new Date(+p[0], +p[1] - 1, +p[2]);
+    return isNaN(d.getTime()) ? null : midnight(d);
+  }
+  function addDays(d, n) {
+    var x = new Date(d.getTime());
+    x.setDate(x.getDate() + n);
+    return midnight(x);
+  }
+  function daysBetween(a, b) {
+    return Math.round((b.getTime() - a.getTime()) / 86400000);
+  }
+  function pad(n) {
+    return n < 10 ? "0" + n : "" + n;
+  }
+  function isoDate(d) {
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+  function fmtDate(d) {
+    return isoDate(d) + " (" + WD[d.getDay()] + ")";
+  }
+  function snapWeekdayForward(d) {
+    var g = d.getDay();
+    if (g === 6) return addDays(d, 2); // 토 -> 월
+    if (g === 0) return addDays(d, 1); // 일 -> 월
+    return d;
+  }
+  function snapToDom(d, dom) {
+    // move to the `dom`-th of this month, or next month if already passed
+    var t = new Date(d.getFullYear(), d.getMonth(), dom);
+    t = midnight(t);
+    if (t.getTime() < d.getTime()) t = midnight(new Date(d.getFullYear(), d.getMonth() + 1, dom));
+    return t;
+  }
+
+  /* ---------- domain detection ---------- */
+  function detectCycle(text) {
+    var t = text || "";
+    if (/급여|월급|페이롤|payroll/i.test(t)) return { word: "급여 결산", monthly: true };
+    if (/결산|마감|정산/.test(t)) return { word: "마감·정산", monthly: true };
+    if (/청구|수금|입금|세금계산서|인보이스/.test(t)) return { word: "청구·수금", monthly: true };
+    if (/채용|리크루|면접/.test(t)) return { word: "채용", monthly: false };
+    if (/영업|세일즈|매출|수주|제안/.test(t)) return { word: "영업 사이클", monthly: false };
+    if (/생산|제조|출하|재고|물류/.test(t)) return { word: "생산·출하", monthly: false };
+    if (/고객|상담|문의|cs/i.test(t)) return { word: "고객 응대", monthly: false };
+    if (/개발|배포|릴리즈|스프린트|qa/i.test(t)) return { word: "개발 스프린트", monthly: false };
+    return { word: "업무 사이클", monthly: false };
+  }
+  function domainWord(role, cycle) {
+    var map = {
+      "급여 결산": "급여",
+      "마감·정산": "정산",
+      "청구·수금": "청구",
+      채용: "채용",
+      "영업 사이클": "영업",
+      "생산·출하": "생산",
+      "고객 응대": "고객",
+      "개발 스프린트": "개발",
+    };
+    if (map[cycle.word]) return map[cycle.word];
+    var f = (role || "").trim().split(/\s+/)[0] || "담당";
+    return f.length > 7 ? "담당" : f;
+  }
+
+  /* ---------- task derivation from user responsibilities ---------- */
+  function formatTask(line) {
+    var s = line.replace(/\s+/g, " ").trim();
+    var label, detail;
+    var parts = s.split(/\s*[:\-—–·|]\s*/);
+    if (parts.length >= 2 && parts[0].length <= 16 && parts[0].length >= 2) {
+      label = parts[0];
+      detail = parts.slice(1).join(" · ");
+    } else if (s.length <= 16) {
+      label = s;
+      detail = "목표 기간 동안 지속적으로 수행하는 핵심 역할";
+    } else {
+      var words = s.split(" ");
+      label = "";
+      for (var i = 0; i < words.length; i++) {
+        if ((label + " " + words[i]).trim().length > 12 && label) break;
+        label = (label + " " + words[i]).trim();
+      }
+      if (!label) label = words[0];
+      detail = s;
+    }
+    label = label.replace(/(담당자|담당|책임자|책임|관리자|관리)$/, "").trim() || label;
+    return { label: label, detail: detail, fromUser: true };
+  }
+  function buildTasks(stageKey, respText) {
+    var lines = (respText || "")
+      .split(/\r?\n|[•‣▪◦]/)
+      .map(function (l) {
+        return l.replace(/^\s*[\d]+[.)]\s*/, "").trim();
+      })
+      .filter(function (l) {
+        return l.length > 1;
+      });
+    var tasks = [];
+    for (var i = 0; i < lines.length && tasks.length < 3; i++) {
+      tasks.push(formatTask(lines[i]));
+    }
+    var arch = ARCH[stageKey];
+    var ai = 0;
+    while (tasks.length < 3 && ai < arch.length) {
+      tasks.push({ label: arch[ai].label, detail: arch[ai].detail, fromUser: false });
+      ai++;
+    }
+    return tasks;
+  }
+
+  /* ---------- deliverable templates ---------- */
+  function buildTemplates(stageKey, D, cycle) {
+    var C = cycle.word;
+    if (stageKey === "신입")
+      return [
+        { p: 1, t: 0, text: D + " 업무 현황 정리표 v1" },
+        { p: 1, t: 0, text: "핵심 업무 체크리스트 15개+" },
+        { p: 2, t: 2, text: "첫 " + C + " 실전 수행 기록", monthly: cycle.monthly },
+        { p: 2, t: 1, text: "자주 쓰는 양식 · 기준 모음 v1" },
+        { p: 3, t: 0, text: "업무 처리 절차 메모 v1" },
+      ];
+    if (stageKey === "실무자")
+      return [
+        { p: 1, t: 0, text: D + " 업무 현황 · 이슈 정리표 v1" },
+        { p: 1, t: 2, text: "자주 오는 문의 20개 정리" },
+        { p: 2, t: 1, text: "반복 업무 3건 시간 단축안" },
+        { p: 2, t: 0, text: "핵심 업무 기준표 · 양식 v1" },
+        {
+          p: 3,
+          t: 1,
+          text: (C === "업무 사이클" ? "업무" : C) + " 표준 절차 문서 v1",
+        },
+      ];
+    return [
+      { p: 1, t: 0, text: "팀 목표 · 역할 정리표 v1" },
+      { p: 1, t: 1, text: "구성원 1:1 대화 1차 (전원)" },
+      { p: 2, t: 2, text: "팀 업무 프로세스 현황도 v1" },
+      { p: 2, t: 0, text: "분기 목표 · 우선순위 정렬안" },
+      { p: 3, t: 2, text: "팀 성과 점검 리듬(주간·월간) v1" },
+    ];
+  }
+
+  /* ---------- core: back-calc deadlines from adaptation curve ---------- */
+  function computeCard() {
+    var name = document.getElementById("name").value.trim();
+    var role = document.getElementById("role").value.trim();
+    var stageKey =
+      (document.querySelector('input[name="stage"]:checked') || {}).value || "신입";
+    var startVal = document.getElementById("startdate").value;
+    var horizon = parseInt(document.getElementById("period").value, 10) || 90;
+    var respText = document.getElementById("resp").value;
+    var issue = document.getElementById("issue").value.trim();
+
+    var t0 = today();
+    var start = parseInput(startVal);
+    var assumedStart = false;
+    if (!start) {
+      start = t0;
+      assumedStart = true;
+    }
+    // if user typed a future start date, adaptation begins then; elapsed is 0
+    var elapsedDays = Math.max(0, daysBetween(start, t0));
+    var elapsedWeeks = Math.round(elapsedDays / 7);
+
+    var skilled = elapsedDays >= 182; // 재직 약 6개월+
+    var horizonEnd = addDays(start, horizon);
+    var remain = daysBetween(t0, horizonEnd);
+    // if the start-anchored window is mostly behind us, plan from today
+    var fromToday = skilled || remain < Math.round(horizon * 0.5);
+    var anchorBase = fromToday ? t0 : start;
+    var fracs = skilled ? SKILLED_FRACS : NEW_FRACS;
+
+    var stage = skilled ? "숙련기" : elapsedWeeks < 13 ? "적응기" : "정착기";
+
+    var cycle = detectCycle(role + " " + respText + " " + issue);
+    var D = domainWord(role, cycle);
+    var tasks = buildTasks(stageKey, respText);
+    var templates = buildTemplates(stageKey, D, cycle);
+
+    // place 5 deadlines, monotonic with >=5-day gaps, weekday-snapped
+    var minDate = addDays(t0, 3);
+    var deadlines = [];
+    var prev = null;
+    for (var i = 0; i < 5; i++) {
+      var raw = addDays(anchorBase, Math.round(fracs[i] * horizon));
+      if (templates[i].monthly) raw = snapToDom(raw, 25); // payroll/closing cadence
+      if (daysBetween(t0, raw) < 3) raw = minDate;
+      if (prev && daysBetween(prev, raw) < 5) raw = addDays(prev, 5);
+      raw = snapWeekdayForward(raw);
+      if (prev && raw.getTime() <= prev.getTime())
+        raw = snapWeekdayForward(addDays(prev, 3));
+      deadlines.push(raw);
+      prev = raw;
+    }
+
+    return {
+      name: name,
+      role: role,
+      stageKey: stageKey,
+      start: start,
+      assumedStart: assumedStart,
+      horizon: horizon,
+      elapsedWeeks: elapsedWeeks,
+      skilled: skilled,
+      fromToday: fromToday,
+      stage: stage,
+      cycle: cycle,
+      tasks: tasks,
+      templates: templates,
+      deadlines: deadlines,
+      issue: issue,
+      horizonEnd: horizonEnd,
+    };
+  }
+
+  /* ---------- render ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  var PERIOD_LABEL = { 30: "1개월", 90: "3개월", 180: "반기", 365: "연간" };
+
+  function stageDesc(c) {
+    if (c.stage === "적응기")
+      return "지금은 업무 파악과 첫 실전이 우선입니다. 마감일을 적응 곡선(0~4주 파악 → 5~8주 첫 사이클 → 9~12주 표준화)에 맞춰 역산했습니다.";
+    if (c.stage === "정착기")
+      return "기초 파악 단계는 지났습니다. 첫 사이클 완수와 기준 · 문서화를 중심으로 마감일을 배치했습니다.";
+    return "재직 6개월 이상입니다. 적응 곡선 대신 업무 난이도와 의존 순서에 따라 목표 기간 전체에 고르게 배치했습니다.";
+  }
+
+  function renderTimeline(c) {
+    var tlStart = c.fromToday ? addDays(today(), -7) : c.start;
+    var last = c.deadlines[c.deadlines.length - 1];
+    var tlEnd = c.horizonEnd.getTime() > last.getTime() ? c.horizonEnd : last;
+    if (daysBetween(tlStart, tlEnd) < 7) tlEnd = addDays(tlStart, 7);
+    var span = tlEnd.getTime() - tlStart.getTime();
+    function pct(d) {
+      var p = ((d.getTime() - tlStart.getTime()) / span) * 100;
+      return Math.max(0, Math.min(100, p));
+    }
+
+    var bands = "";
+    if (!c.skilled) {
+      var hEnd = c.horizonEnd;
+      var hp = pct(hEnd);
+      var s1 = hp / 3,
+        s2 = (2 * hp) / 3;
+      bands =
+        '<div class="tl-band b1" style="left:0;width:' +
+        s1 +
+        '%">1단계<br>파악·정리</div>' +
+        '<div class="tl-band b2" style="left:' +
+        s1 +
+        "%;width:" +
+        (s2 - s1) +
+        '%">2단계<br>첫 실전</div>' +
+        '<div class="tl-band b3" style="left:' +
+        s2 +
+        "%;width:" +
+        (hp - s2) +
+        '%">3단계<br>표준화</div>';
+    } else {
+      bands =
+        '<div class="tl-band b2" style="left:0;width:' +
+        pct(c.horizonEnd) +
+        '%">목표 기간 · 난이도 순 배치</div>';
+    }
+
+    var todayP = pct(today());
+    var todayLeft = Math.max(4, Math.min(96, todayP));
+    var dots = "";
+    for (var i = 0; i < c.deadlines.length; i++) {
+      var col = TC[c.templates[i].t].bar;
+      dots +=
+        '<span class="tl-dot" style="left:' +
+        pct(c.deadlines[i]) +
+        "%;background:" +
+        col +
+        '" title="' +
+        esc(c.templates[i].text) +
+        " · " +
+        fmtDate(c.deadlines[i]) +
+        '">' +
+        (i + 1) +
+        "</span>";
+    }
+
+    return (
+      '<div class="tl"><div class="tl-track">' +
+      bands +
+      '<div class="tl-today" style="left:' +
+      todayLeft +
+      '%"></div>' +
+      dots +
+      '</div><div class="tl-axis"><span>' +
+      isoDate(tlStart) +
+      "</span><span>" +
+      isoDate(tlEnd) +
+      "</span></div></div>"
+    );
+  }
+
+  function buildPrompt(c) {
+    var L = [];
+    L.push(
+      "당신은 가인지컨설팅그룹의 '3대 과업 · 5대 해결과제(3-5카드)' 코칭 방법론에 정통한 실행 코치입니다."
+    );
+    L.push(
+      "아래는 한 구성원이 자가 입력한 정보와, 도구가 적응 곡선으로 역산해 만든 카드 초안입니다. 이 초안을 그 사람의 상황에 맞게 정교화해 주세요."
+    );
+    L.push("");
+    L.push("[대상]");
+    if (c.name) L.push("- 이름/직함: " + c.name);
+    L.push("- 직무·역할: " + (c.role || "(미입력)"));
+    L.push("- 현재 위치: " + c.stageKey);
+    L.push(
+      "- 직무 시작일: " +
+        isoDate(c.start) +
+        (c.assumedStart ? " (미입력 → 오늘로 가정)" : "") +
+        " · 재직 " +
+        c.elapsedWeeks +
+        "주차 · 단계 " +
+        c.stage
+    );
+    L.push("- 목표 기간: " + PERIOD_LABEL[c.horizon]);
+    if (c.issue) L.push("- 가장 시급한 문제: " + c.issue);
+    L.push("");
+    L.push("[도구가 만든 초안]");
+    L.push("■ 3대 과업 (마감일 없이 지속 수행하는 역할)");
+    c.tasks.forEach(function (t, i) {
+      L.push(i + 1 + ". " + t.label + " - " + t.detail + (t.fromUser ? "" : " (예시 제안)"));
+    });
+    L.push("■ 5대 해결과제 (마감일 있는 완성 결과물)");
+    c.templates.forEach(function (r, i) {
+      L.push(
+        i +
+          1 +
+          ". " +
+          r.text +
+          " | 연결: 과업 " +
+          (r.t + 1) +
+          " | 마감 " +
+          fmtDate(c.deadlines[i])
+      );
+    });
+    L.push("");
+    L.push("[요청]");
+    L.push(
+      "1. 과업은 '역할명 - 핵심 내용' 형식으로, '...담당/책임자'로 끝나지 않게 다듬어 주세요. 지속 수행 역할이므로 마감일을 붙이지 마세요."
+    );
+    L.push(
+      "2. 해결과제는 '행동'이 아니라 '완성할 결과물'로, 숫자·버전·기간 중 하나 이상을 넣어 구체화해 주세요."
+    );
+    L.push(
+      "3. 마감일이 적응 곡선(0~4주 파악 → 5~8주 첫 사이클 → 9~12주 표준화, 숙련자는 난이도·의존 순서)에 비춰 현실적인지 점검하고, 조정이 필요하면 이유와 함께 다시 제안해 주세요. 월 주기 업무(급여·결산 등)는 실제 마감 주기에 맞춰 주세요."
+    );
+    L.push(
+      "4. 결론을 대신 확정하지 말고, 먼저 근거와 1~2개의 코칭 질문을 제시한 뒤 당신의 해석을 비교용으로 덧붙여 주세요."
+    );
+    L.push(
+      "5. 제가 입력하지 않은 사실은 지어내지 말고, 필요한 정보는 저에게 질문해 주세요."
+    );
+    return L.join("\n");
+  }
+
+  var lastPrompt = "";
+  var resultEl = document.getElementById("result");
+
+  function render(c) {
+    var subBits = [];
+    if (c.name) subBits.push(esc(c.name));
+    if (c.role) subBits.push(esc(c.role));
+    subBits.push(esc(c.stageKey));
+    subBits.push(PERIOD_LABEL[c.horizon]);
+    var subLine = subBits.join(" · ");
+
+    var html = "";
+
+    // stage summary + timeline
+    var stCls = c.stage === "정착기" ? "st-b" : c.stage === "숙련기" ? "st-c" : "st-a";
+    html += '<div class="stage-wrap">';
+    html += '<span class="stage-badge ' + stCls + '">적응 단계 · ' + c.stage + "</span>";
+    if (subLine) html += '<p class="stage-note" style="font-weight:700;margin-bottom:4px">' + subLine + "</p>";
+    html +=
+      '<p class="stage-note">직무 시작일 ' +
+      fmtDate(c.start) +
+      " 기준 재직 <strong>" +
+      c.elapsedWeeks +
+      "주차</strong>. " +
+      stageDesc(c) +
+      "</p>";
+    if (c.assumedStart)
+      html +=
+        '<p class="stage-assume">직무 시작일을 입력하지 않아 <strong>오늘</strong>을 시작일(0주차)로 가정했습니다. 실제 입사·발령일을 넣으면 마감일이 더 정교해집니다.</p>';
+    html += renderTimeline(c);
+    html += "</div>";
+
+    // 3대 과업
+    html += '<div class="result-block-title">3대 과업 · 지속 수행 역할</div>';
+    html += '<div class="tasks">';
+    c.tasks.forEach(function (t, i) {
+      html +=
+        '<div class="task" style="--tc:' +
+        TC[i].bar +
+        '"><div class="task-badge">' +
+        (i + 1) +
+        '</div><p class="task-label">' +
+        esc(t.label) +
+        '</p><p class="task-detail">' +
+        esc(t.detail) +
+        '</p><span class="task-src ' +
+        (t.fromUser ? "me" : "sug") +
+        '">' +
+        (t.fromUser ? "내 입력 기반" : "예시 제안 · 확인 필요") +
+        "</span></div>";
+    });
+    html += "</div>";
+
+    // 5대 해결과제
+    html += '<div class="result-block-title">5대 해결과제 · 마감일 있는 결과물</div>';
+    html += '<div class="table-scroll"><table class="rtable">';
+    html +=
+      "<thead><tr><th>#</th><th>해결과제 (완성할 결과물)</th><th>연결 과업</th><th>마감일</th></tr></thead><tbody>";
+    c.templates.forEach(function (r, i) {
+      var tc = TC[r.t];
+      var dl = c.deadlines[i];
+      var dd = daysBetween(today(), dl);
+      html +=
+        "<tr><td><span class=\"rnum\" style=\"background:" +
+        tc.bar +
+        '">' +
+        (i + 1) +
+        '</span></td><td class="rtext">' +
+        esc(r.text) +
+        '</td><td><span class="cpill" style="background:' +
+        tc.tint +
+        ";color:" +
+        tc.ink +
+        '">과업 ' +
+        (r.t + 1) +
+        '</span></td><td class="rdate">' +
+        fmtDate(dl) +
+        '<span class="dday">D-' +
+        dd +
+        "</span></td></tr>";
+    });
+    html += "</tbody></table></div>";
+
+    // AI prompt
+    lastPrompt = buildPrompt(c);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 코칭 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 이 카드를 바탕으로 과업 · 해결과제를 함께 다듬어 줍니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    document.getElementById("result-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }
+
+  /* ---------- auto-grow textareas ---------- */
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  ["resp", "issue"].forEach(function (id) {
+    var el = document.getElementById(id);
+    el.addEventListener("input", function () {
+      grow(el);
+    });
+  });
+
+  /* ---------- build / validate ---------- */
+  var errEl = document.getElementById("err");
+  document.getElementById("build").addEventListener("click", function () {
+    var role = document.getElementById("role").value.trim();
+    if (!role) {
+      errEl.textContent = "직무 · 역할을 입력해 주세요. (필수)";
+      document.getElementById("role").focus();
+      return;
+    }
+    errEl.textContent = "";
+    render(computeCard());
+  });
+
+  /* ---------- demo fill ---------- */
+  document.getElementById("fillDemo").addEventListener("click", function () {
+    document.getElementById("name").value = "홍길동 사원";
+    document.getElementById("role").value = "인사팀 급여 담당 (신입)";
+    var neu = document.querySelector('input[name="stage"][value="신입"]');
+    if (neu) neu.checked = true;
+    var d = addDays(today(), -14);
+    document.getElementById("startdate").value = isoDate(d);
+    document.getElementById("period").value = "90";
+    document.getElementById("resp").value =
+      "급여 계산 및 지급\n4대보험 신고\n연말정산 지원\n급여 문의 응대";
+    document.getElementById("issue").value =
+      "첫 급여 결산을 혼자 처리해야 하는데 절차가 아직 손에 안 익음";
+    grow(document.getElementById("resp"));
+    grow(document.getElementById("issue"));
+    errEl.textContent = "";
+  });
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    ["name", "role", "startdate", "resp", "issue"].forEach(function (id) {
+      document.getElementById(id).value = "";
+    });
+    document.getElementById("period").value = "90";
+    var neu = document.querySelector('input[name="stage"][value="신입"]');
+    if (neu) neu.checked = true;
+    grow(document.getElementById("resp"));
+    grow(document.getElementById("issue"));
+    errEl.textContent = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">🗂️</div>' +
+      "<p><strong>아직 카드가 없습니다.</strong></p>" +
+      "<p>직무 정보를 채우고 '카드 만들기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) flashStatus("복사되었습니다");
+    else openModal(text);
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

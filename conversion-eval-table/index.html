@@ -1,0 +1,1640 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>정규직 전환 평가표 생성기</title>
+<meta name="description" content="핵심가치와 직무 유형을 넣으면 핵심가치에 2배 가중을 준 정규직 전환 평가표와 S~D 등급 기준을 자동 구성합니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3a5a7d;
+    --accent-strong: #2c4560;
+    --accent-tint: #eaf0f6;
+    --accent-tint-2: #d6e2ee;
+    --ink: #20242a;
+    --ink-soft: #454b54;
+    --ink-mute: #69707a;
+    --paper: #f6f8fb;
+    --card: #ffffff;
+    --line: #e2e7ee;
+    --line-strong: #ccd4de;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #a35a12;
+    --warn-tint: #fff6ec;
+    --warn-line: #f2ddc4;
+    --shadow: 0 1px 2px rgba(32, 36, 42, 0.05), 0 6px 20px rgba(32, 36, 42, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- inputs ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  input[type="text"],
+  select,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2369707a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    padding-right: 38px;
+    cursor: pointer;
+  }
+  textarea {
+    min-height: 76px;
+    resize: none;
+    overflow: hidden;
+  }
+  input[type="text"]:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    background: #fff;
+  }
+  ::placeholder {
+    color: #9aa1ac;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  .basic-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .basic-grid .full {
+    grid-column: 1 / -1;
+  }
+
+  /* ---------- core value rows ---------- */
+  .val-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .val-row {
+    display: grid;
+    grid-template-columns: minmax(96px, 0.9fr) 2fr auto;
+    gap: 9px;
+    align-items: start;
+  }
+  .val-row .val-idx {
+    display: none;
+  }
+  .btn-remove {
+    flex: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink-mute);
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
+  .btn-remove:hover {
+    border-color: #d67a6a;
+    color: #b8402c;
+    background: #fdf1ee;
+  }
+  .btn-add {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border: 1px dashed var(--accent-tint-2);
+    font-size: 0.94rem;
+    padding: 11px 16px;
+    width: 100%;
+  }
+  .btn-add:hover {
+    background: var(--accent-tint-2);
+  }
+  .weight-note {
+    font-size: 0.86rem;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 10px;
+    padding: 10px 13px;
+    margin: 14px 0 0;
+    font-weight: 600;
+  }
+
+  /* ---------- competency checklist ---------- */
+  .comp-group {
+    margin-bottom: 16px;
+  }
+  .comp-group:last-child {
+    margin-bottom: 0;
+  }
+  .comp-head {
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--ink-soft);
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .comp-head .tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    background: #eef1f5;
+    border-radius: 6px;
+    padding: 2px 7px;
+  }
+  .check-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .check-item {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fbfcfe;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .check-item.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .check-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 11px 13px;
+    cursor: pointer;
+  }
+  .check-box {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    border: 2px solid var(--line-strong);
+    border-radius: 6px;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    transition: all 0.15s;
+  }
+  .check-item.on .check-box {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .check-box svg {
+    width: 13px;
+    height: 13px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .check-item.on .check-box svg {
+    opacity: 1;
+  }
+  .check-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+  .check-row input.native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .check-item:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  .form-error {
+    color: #b8402c;
+    background: #fdf1ee;
+    border: 1px solid #f2d3ca;
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 14px 0 0;
+    display: none;
+  }
+  .form-error.show {
+    display: block;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .summary {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 20px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .summary-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .summary-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 4px;
+    line-height: 1.28;
+    color: var(--accent-strong);
+  }
+  .summary-title .pt {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .summary-desc {
+    margin: 0 0 14px;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat {
+    background: #fff;
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 11px;
+    padding: 11px 12px;
+    text-align: center;
+  }
+  .stat .num {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    line-height: 1.15;
+  }
+  .stat .cap {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    margin-top: 3px;
+  }
+  .meter {
+    display: flex;
+    gap: 5px;
+    margin: 6px 0 6px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #d3dbe6;
+  }
+  .pip.lit {
+    background: var(--accent);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--accent-strong);
+    margin: 0;
+    font-weight: 700;
+  }
+  .baseline-chip {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--good);
+    padding: 7px 13px;
+    border-radius: 8px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  table.eval,
+  table.grade {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+    background: #fff;
+    min-width: 540px;
+  }
+  table.grade {
+    min-width: 460px;
+  }
+  table.eval th,
+  table.eval td,
+  table.grade th,
+  table.grade td {
+    border: 1px solid var(--line);
+    padding: 9px 11px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  table.eval thead th,
+  table.grade thead th {
+    background: var(--accent-strong);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.84rem;
+    border-color: var(--accent-strong);
+  }
+  table.eval td.cat {
+    background: #eef2f7;
+    font-weight: 700;
+    color: var(--ink-soft);
+    white-space: nowrap;
+    width: 84px;
+  }
+  table.eval td.item {
+    text-align: left;
+    color: var(--ink);
+    min-width: 220px;
+  }
+  table.eval td.sc {
+    width: 46px;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  table.eval tr.value-row td.item {
+    font-weight: 600;
+  }
+  table.eval tr.value-row td.cat {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  table.eval tr.value-row td.sc {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  table.eval tfoot td {
+    background: #f3f6fa;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  table.eval tfoot td.total {
+    background: var(--accent-strong);
+    color: #fff;
+  }
+  table.grade td.g-name {
+    font-weight: 800;
+    font-size: 1rem;
+    width: 56px;
+  }
+  table.grade td.g-range {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  table.grade tr.pass td {
+    background: var(--good-tint);
+  }
+  table.grade tr.pass td.g-name {
+    color: var(--good);
+  }
+  table.grade td.g-note {
+    text-align: left;
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+  }
+  table.grade td.g-note .pass-mark {
+    color: var(--good);
+    font-weight: 800;
+  }
+
+  .caption-note {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 2px 0;
+  }
+
+  /* ---------- prompt ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23272e;
+    color: #eef1f5;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.85rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 36, 42, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 170px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .basic-grid {
+      grid-template-columns: 1fr;
+    }
+    .val-row {
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        "name remove"
+        "def def";
+    }
+    .val-row .val-name {
+      grid-area: name;
+    }
+    .val-row .val-def {
+      grid-area: def;
+    }
+    .val-row .btn-remove {
+      grid-area: remove;
+    }
+    .stat-grid {
+      grid-template-columns: 1fr;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #basic-panel,
+    #value-panel,
+    #comp-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border: none;
+      padding: 0;
+    }
+    .table-scroll {
+      overflow: visible;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">정규직 전환 평가 설계</span>
+    <h1>정규직 전환 평가표 생성기</h1>
+    <p class="lede">
+      회사의 핵심가치와 직무 유형만 넣으면, 핵심가치 실천에
+      <strong>2배 가중(문항당 20점)</strong>을 준 정규직 전환 평가표와 S~D 등급
+      기준을 자동으로 구성합니다. 전환은 수습 기간을 채우는 일이 아니라, 함께 갈
+      사람인지 판단하는 과정이니까요.
+    </p>
+  </header>
+
+  <section class="panel" id="basic-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>기본 정보</h2>
+    </div>
+    <p class="panel-sub">
+      평가표 제목과 직무별 업무역량 문항 세트가 여기에 맞춰 구성됩니다.
+    </p>
+    <div class="basic-grid">
+      <div class="full">
+        <label class="field-label" for="company">회사명 (선택)</label>
+        <input type="text" id="company" placeholder="예) 밝은식품(주)" />
+      </div>
+      <div>
+        <label class="field-label" for="jobtype">직무 유형</label>
+        <select id="jobtype"></select>
+      </div>
+      <div>
+        <label class="field-label" for="probation">수습 기간 (선택)</label>
+        <input type="text" id="probation" placeholder="예) 3개월" />
+      </div>
+    </div>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+      전혀 없습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="value-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>핵심가치 입력</h2>
+    </div>
+    <p class="panel-sub">
+      회사의 핵심가치를 이름과 한 줄 정의로 적으세요. 각 가치는 평가 문항으로
+      자동 변환되고, 업무역량 문항의 <strong>2배</strong>로 가중됩니다.
+    </p>
+    <div class="val-list" id="val-list"></div>
+    <button class="btn-add" id="add-value" type="button">+ 핵심가치 추가</button>
+    <p class="weight-note" id="weight-note">
+      핵심가치 문항 = 20점 · 업무역량 문항 = 10점 (핵심가치 2배 가중)
+    </p>
+  </section>
+
+  <section class="panel" id="comp-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>업무역량 문항</h2>
+    </div>
+    <p class="panel-sub">
+      직무 유형에 맞는 문항이 자동으로 채워집니다. 회사 상황에 맞게 켜고 끄세요.
+      켠 문항 수만큼 총점이 자동 계산됩니다. (각 10점)
+    </p>
+    <div id="comp-list"></div>
+
+    <label class="field-label" for="extra" style="margin-top: 18px"
+      >추가 업무역량 문항 (선택 · 한 줄에 하나)</label
+    >
+    <textarea
+      id="extra"
+      placeholder="예) 마감 기한을 스스로 관리하고 지연을 미리 알리는가?"
+    ></textarea>
+
+    <div class="actions">
+      <button class="btn-primary" id="generate" type="button">평가표 생성</button>
+      <button class="btn-ghost" id="reset" type="button">초기화</button>
+    </div>
+    <p class="form-error" id="form-error" role="alert"></p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 4</span>
+      <h2>생성된 평가표</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▤</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>핵심가치를 적고 '평가표 생성'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 정규직 전환 평가 설계 방법론.
+      정규직 전환은 업무 역량뿐 아니라 <em>핵심가치 실천</em>을 가장 높은 비중으로
+      본다는 원칙에 따라, 핵심가치 문항에 2배 가중(문항당 20점)을 적용하고, 총점
+      대비 비율로 S(90%+)·A(80%)·B(70%)·C(60%)·D 등급을 구성합니다. 정규직 전환
+      기준선은 <strong>B등급(70%) 이상</strong>을 기본값으로 제시합니다.
+    </p>
+    <p>
+      이 도구는 평가표 설계를 돕는 보조 도구입니다. 실제 채점 기준(행동 기술서)의
+      확정과 전환 여부의 최종 판단은 평가자와 회사의 몫입니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select" type="button">전체 선택</button>
+      <button class="btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* =========================================================
+   * 도메인 로직 원천: conversion-eval-builder SKILL.md
+   *  - 업무역량 문항 = 10점 / 핵심가치 문항 = 20점 (x2 가중)
+   *  - 총점 = 업무역량 문항수*10 + 핵심가치 수*20
+   *  - 등급: S 90%+ / A 80~89% / B 70~79% / C 60~69% / D 59% 이하
+   *  - 전환 기준선: B등급(70%) 이상
+   * ========================================================= */
+
+  var SCORE_WORK = [
+    { label: "매우 우수", pt: 10 },
+    { label: "우수", pt: 8 },
+    { label: "보통", pt: 6 },
+    { label: "부족", pt: 4 },
+    { label: "매우 부족", pt: 2 },
+  ];
+  var SCORE_VALUE = [
+    { label: "매우 우수", pt: 20 },
+    { label: "우수", pt: 16 },
+    { label: "보통", pt: 12 },
+    { label: "부족", pt: 8 },
+    { label: "매우 부족", pt: 4 },
+  ];
+
+  // 근무태도 / 인성평가 = 직무 공통, 업무처리능력 = 직무별
+  var COMMON = {
+    attitude: [
+      "정해진 근무 시간과 근태 규율을 지키는가?",
+      "결근·지각 시 사전에 공유하고 대안을 마련하는가?",
+      "업무 지시와 회사 방침을 성실히 따르는가?",
+    ],
+    personality: [
+      "동료와 협력하며 팀 분위기에 긍정적으로 기여하는가?",
+      "피드백을 열린 태도로 수용하고 개선하려 하는가?",
+    ],
+  };
+
+  var JOBS = {
+    "사무직": {
+      hint: "보고·협업·일정 관리",
+      process: [
+        "담당 업무를 기한 내 정확하게 처리하는가?",
+        "보고와 공유를 제때, 이해하기 쉽게 하는가?",
+        "문서와 데이터를 정확하고 체계적으로 관리하는가?",
+        "유관 부서와 원활히 협업하며 일정을 조율하는가?",
+      ],
+    },
+    "생산직": {
+      hint: "공정·안전·품질",
+      process: [
+        "표준 작업 절차(SOP)를 준수하며 공정을 수행하는가?",
+        "안전 수칙을 지키고 위험 요소를 사전에 발견·보고하는가?",
+        "품질 기준에 맞춰 작업하고 불량을 최소화하는가?",
+        "설비·도구를 바르게 다루고 정리정돈(5S)을 유지하는가?",
+      ],
+    },
+    "운영·서비스직": {
+      hint: "현장 운영·고객 응대",
+      process: [
+        "현장·매장 운영 절차를 정확히 이행하는가?",
+        "회사 기준에 맞는 고객 응대와 서비스를 제공하는가?",
+        "재고·자산·현금을 정확하게 관리하는가?",
+        "돌발 상황에 침착하게 대응하고 즉시 보고하는가?",
+      ],
+    },
+    "영업직": {
+      hint: "제안·목표·고객관계",
+      process: [
+        "고객의 니즈를 파악해 적합한 제안을 하는가?",
+        "목표 대비 활동량(방문·연락)을 꾸준히 유지하는가?",
+        "계약과 정산 절차를 정확하게 처리하는가?",
+        "고객 관계를 지속적으로 관리하며 신뢰를 쌓는가?",
+      ],
+    },
+    "연구·기술직": {
+      hint: "과제 추진·문제 해결",
+      process: [
+        "담당 과제를 계획대로 추진하고 결과를 문서화하는가?",
+        "기술 문제를 논리적으로 분석하고 해결하는가?",
+        "새로운 지식을 학습해 업무에 적용하는가?",
+        "데이터와 실험을 정확하고 재현 가능하게 기록하는가?",
+      ],
+    },
+    "기본(공통)": {
+      hint: "직무 무관 공통",
+      process: [
+        "담당 업무를 기한 내 정확하게 수행하는가?",
+        "문제 상황을 스스로 파악하고 해결하려 하는가?",
+        "업무에 필요한 지식과 기술을 습득하는가?",
+      ],
+    },
+  };
+
+  var CAT = {
+    attitude: "근무태도",
+    process: "업무처리능력",
+    personality: "인성평가",
+    extra: "추가 역량",
+    value: "핵심가치 실천",
+  };
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  // 핵심가치 -> 평가 문항 변환 (실제 로직)
+  function valueQuestion(name, def) {
+    var base = def && def.trim() ? name + "(" + def.trim() + ")" : name;
+    return base + "의 가치를 일상 업무에서 구체적 행동으로 실천하는가?";
+  }
+
+  var checkSvg =
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 12.5L10 17.5L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  /* ---------- STEP 1: job select ---------- */
+  var jobSel = document.getElementById("jobtype");
+  Object.keys(JOBS).forEach(function (k) {
+    var o = document.createElement("option");
+    o.value = k;
+    o.textContent = k + " · " + JOBS[k].hint;
+    jobSel.appendChild(o);
+  });
+  jobSel.value = "사무직";
+
+  /* ---------- STEP 2: core value rows ---------- */
+  var valList = document.getElementById("val-list");
+  var valSeq = 0;
+
+  function addValueRow(name, def) {
+    valSeq++;
+    var row = document.createElement("div");
+    row.className = "val-row";
+    row.innerHTML =
+      '<input type="text" class="val-name" placeholder="가치명 (예: 성장)" aria-label="핵심가치 이름" />' +
+      '<input type="text" class="val-def" placeholder="한 줄 정의 (예: 어제보다 나아지려는 태도)" aria-label="핵심가치 정의" />' +
+      '<button type="button" class="btn-remove" aria-label="이 핵심가치 삭제" title="삭제">&times;</button>';
+    valList.appendChild(row);
+    if (name) row.querySelector(".val-name").value = name;
+    if (def) row.querySelector(".val-def").value = def;
+    row.querySelector(".btn-remove").addEventListener("click", function () {
+      if (valList.querySelectorAll(".val-row").length <= 1) {
+        row.querySelector(".val-name").value = "";
+        row.querySelector(".val-def").value = "";
+        return;
+      }
+      valList.removeChild(row);
+    });
+  }
+
+  // seed with 3 empty rows
+  addValueRow("", "");
+  addValueRow("", "");
+  addValueRow("", "");
+  document
+    .getElementById("add-value")
+    .addEventListener("click", function () {
+      addValueRow("", "");
+    });
+
+  /* ---------- STEP 3: competency checklist ---------- */
+  var compList = document.getElementById("comp-list");
+
+  function checkItemHtml(cat, text) {
+    return (
+      '<li class="check-item on">' +
+      '<label class="check-row">' +
+      '<input type="checkbox" class="native" checked data-cat="' +
+      cat +
+      '" data-q="' +
+      esc(text) +
+      '" />' +
+      '<span class="check-box">' +
+      checkSvg +
+      "</span>" +
+      '<span class="check-text">' +
+      esc(text) +
+      "</span>" +
+      "</label>" +
+      "</li>"
+    );
+  }
+
+  function groupHtml(cat, title, tag, items) {
+    var lis = items
+      .map(function (t) {
+        return checkItemHtml(cat, t);
+      })
+      .join("");
+    return (
+      '<div class="comp-group">' +
+      '<p class="comp-head">' +
+      esc(title) +
+      '<span class="tag">' +
+      esc(tag) +
+      "</span></p>" +
+      '<ul class="check-list">' +
+      lis +
+      "</ul>" +
+      "</div>"
+    );
+  }
+
+  function renderCompetency() {
+    var job = jobSel.value;
+    var proc = JOBS[job] ? JOBS[job].process : JOBS["기본(공통)"].process;
+    compList.innerHTML =
+      groupHtml("attitude", CAT.attitude, "직무 공통", COMMON.attitude) +
+      groupHtml("process", CAT.process, job, proc) +
+      groupHtml("personality", CAT.personality, "직무 공통", COMMON.personality);
+  }
+  renderCompetency();
+  jobSel.addEventListener("change", renderCompetency);
+
+  compList.addEventListener("change", function (e) {
+    var box = e.target;
+    if (!box.classList || !box.classList.contains("native")) return;
+    var item = box.closest(".check-item");
+    if (item) item.classList.toggle("on", box.checked);
+  });
+
+  /* ---------- auto-grow textarea ---------- */
+  var extra = document.getElementById("extra");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  extra.addEventListener("input", function () {
+    grow(extra);
+  });
+
+  /* ---------- gather + compute ---------- */
+  function gather() {
+    // core values
+    var values = [];
+    Array.prototype.forEach.call(
+      valList.querySelectorAll(".val-row"),
+      function (r) {
+        var name = r.querySelector(".val-name").value.trim();
+        var def = r.querySelector(".val-def").value.trim();
+        if (name) values.push({ name: name, def: def });
+      }
+    );
+
+    // competency (checked only), grouped in fixed order
+    var order = ["attitude", "process", "personality"];
+    var groups = {};
+    order.forEach(function (c) {
+      groups[c] = [];
+    });
+    Array.prototype.forEach.call(
+      compList.querySelectorAll("input.native"),
+      function (b) {
+        if (b.checked) groups[b.dataset.cat].push(b.dataset.q);
+      }
+    );
+
+    // extra custom competency (one per line)
+    var extras = extra.value
+      .split("\n")
+      .map(function (s) {
+        return s.trim();
+      })
+      .filter(function (s) {
+        return s.length > 0;
+      });
+
+    return {
+      company: document.getElementById("company").value.trim(),
+      job: jobSel.value,
+      probation: document.getElementById("probation").value.trim(),
+      values: values,
+      groups: groups,
+      extras: extras,
+    };
+  }
+
+  function compute(data) {
+    var workCount =
+      data.groups.attitude.length +
+      data.groups.process.length +
+      data.groups.personality.length +
+      data.extras.length;
+    var valueCount = data.values.length;
+    var workMax = workCount * 10;
+    var valueMax = valueCount * 20;
+    var total = workMax + valueMax;
+    var share = total > 0 ? Math.round((valueMax / total) * 100) : 0;
+
+    var bands = [
+      { g: "S", min: Math.ceil(total * 0.9), pct: "90% 이상" },
+      { g: "A", min: Math.ceil(total * 0.8), pct: "80~89%" },
+      { g: "B", min: Math.ceil(total * 0.7), pct: "70~79%", pass: true },
+      { g: "C", min: Math.ceil(total * 0.6), pct: "60~69%" },
+      { g: "D", min: 0, pct: "59% 이하" },
+    ];
+    // range 계산 (상한 = 상위 등급 하한 - 1)
+    for (var i = 0; i < bands.length; i++) {
+      bands[i].max = i === 0 ? total : bands[i - 1].min - 1;
+    }
+
+    return {
+      workCount: workCount,
+      valueCount: valueCount,
+      workMax: workMax,
+      valueMax: valueMax,
+      total: total,
+      share: share,
+      bands: bands,
+      passMin: bands[2].min,
+    };
+  }
+
+  /* ---------- prompt builder ---------- */
+  function buildPrompt(data, calc) {
+    var L = [];
+    L.push(
+      "당신은 정규직 전환 평가 설계 전문가입니다. 아래 설정을 바탕으로 실제 배포 가능한 정규직 전환 평가표를 완성해 주세요."
+    );
+    L.push("");
+    L.push("【기본 정보】");
+    L.push("· 회사: " + (data.company || "(미입력)"));
+    L.push("· 직무 유형: " + data.job + " (" + JOBS[data.job].hint + ")");
+    L.push("· 수습 기간: " + (data.probation || "(미입력)"));
+    L.push("");
+    L.push("【핵심가치 실천 문항 — 각 20점 · 업무역량의 2배 가중】");
+    if (data.values.length === 0) {
+      L.push("(핵심가치 미입력)");
+    } else {
+      data.values.forEach(function (v, i) {
+        L.push(
+          i +
+            1 +
+            ". " +
+            v.name +
+            (v.def ? " — " + v.def : "") +
+            "\n   질문: " +
+            valueQuestion(v.name, v.def)
+        );
+      });
+    }
+    L.push("");
+    L.push("【업무역량 문항 — 각 10점】");
+    L.push("· 근무태도: " + (data.groups.attitude.join(" / ") || "(없음)"));
+    L.push("· 업무처리능력: " + (data.groups.process.join(" / ") || "(없음)"));
+    L.push("· 인성평가: " + (data.groups.personality.join(" / ") || "(없음)"));
+    if (data.extras.length) {
+      L.push("· 추가 역량: " + data.extras.join(" / "));
+    }
+    L.push("");
+    L.push("【배점 구조】");
+    L.push(
+      "· 업무역량 " +
+        calc.workCount +
+        "문항 x10 = " +
+        calc.workMax +
+        "점 + 핵심가치 " +
+        calc.valueCount +
+        "문항 x20 = " +
+        calc.valueMax +
+        "점 → 총 " +
+        calc.total +
+        "점 만점 (핵심가치 비중 " +
+        calc.share +
+        "%)"
+    );
+    L.push("【등급 기준 (총점 대비 비율)】");
+    calc.bands.forEach(function (b) {
+      L.push(
+        "· " +
+          b.g +
+          ": " +
+          b.min +
+          "점 이상 (" +
+          b.pct +
+          ")" +
+          (b.pass ? "  ← 정규직 전환 기준선" : "")
+      );
+    });
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 위 모든 평가 문항에 대해 5단계(매우 우수/우수/보통/부족/매우 부족) 행동 기술서를 작성해 주세요. 태도가 아니라 리더가 현장에서 관찰 가능한 구체적 행동으로, 등급 간 차이가 분명하게, 각 2줄 이내로 써 주세요."
+    );
+    L.push(
+      "2. 직무 유형(" +
+        data.job +
+        " · " +
+        JOBS[data.job].hint +
+        ")에 맞는 구체적 상황을 반영해 업무역량 문항을 더 날카롭게 다듬어 주세요."
+    );
+    L.push(
+      "3. 가상의 대상자 1명을 채점한 예시표를 만들어, 리더가 채점 방법을 이해하도록 도와주세요."
+    );
+    L.push(
+      "4. 근거 없는 미사여구로 채우지 말고, 회사 맥락이 더 필요하면 저에게 사실을 먼저 물어봐 주세요."
+    );
+    L.push(
+      "5. 전환 여부의 최종 판단은 사람이 내리도록, 당신은 판단 근거(행동 기술서·관찰 포인트)를 제공하는 데 집중해 주세요."
+    );
+    return L.join("\n");
+  }
+
+  /* ---------- render result ---------- */
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function scoreCells(levels) {
+    return levels
+      .map(function (l) {
+        return '<td class="sc">' + l.pt + "</td>";
+      })
+      .join("");
+  }
+
+  function evalRowsForGroup(catKey, items, weighted) {
+    var levels = weighted ? SCORE_VALUE : SCORE_WORK;
+    var rowsHtml = "";
+    items.forEach(function (it, idx) {
+      var cls = weighted ? ' class="value-row"' : "";
+      rowsHtml += "<tr" + cls + ">";
+      if (idx === 0) {
+        rowsHtml +=
+          '<td class="cat" rowspan="' +
+          items.length +
+          '">' +
+          esc(CAT[catKey]) +
+          "</td>";
+      }
+      rowsHtml +=
+        '<td class="item">' + esc(it) + "</td>" + scoreCells(levels) + "</tr>";
+    });
+    return rowsHtml;
+  }
+
+  function render(data, calc) {
+    var html = "";
+
+    /* summary */
+    html += '<div class="summary">';
+    html += '<p class="summary-label">' + esc(data.job);
+    if (data.company) html += " · " + esc(data.company);
+    html += "</p>";
+    html +=
+      '<p class="summary-title">' +
+      calc.total +
+      '점 만점 평가표 <span class="pt">/ ' +
+      (calc.workCount + calc.valueCount) +
+      "개 문항</span></p>";
+    html +=
+      '<p class="summary-desc">업무역량 ' +
+      calc.workCount +
+      "문항(" +
+      calc.workMax +
+      "점) + 핵심가치 " +
+      calc.valueCount +
+      "문항(" +
+      calc.valueMax +
+      "점). 핵심가치 문항은 업무역량의 <strong>2배</strong>로 가중됩니다.</p>";
+
+    html += '<div class="stat-grid">';
+    html +=
+      '<div class="stat"><div class="num">' +
+      calc.total +
+      '</div><div class="cap">총점(만점)</div></div>';
+    html +=
+      '<div class="stat"><div class="num">' +
+      calc.share +
+      '%</div><div class="cap">핵심가치 비중</div></div>';
+    html +=
+      '<div class="stat"><div class="num">' +
+      calc.passMin +
+      '</div><div class="cap">전환 기준선(B)</div></div>';
+    html += "</div>";
+
+    var litRaw = Math.round(calc.share / 10);
+    var lit = calc.share > 0 && litRaw === 0 ? 1 : litRaw;
+    html += '<div class="meter" role="img" aria-label="핵심가치 비중 ' + calc.share + '퍼센트">';
+    for (var p = 0; p < 10; p++) {
+      html += '<span class="pip' + (p < lit ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html +=
+      '<p class="meter-caption">핵심가치가 전체 배점의 ' +
+      calc.share +
+      "%를 차지합니다.</p>";
+    html +=
+      '<span class="baseline-chip">정규직 전환 기준선 · B등급(' +
+      calc.passMin +
+      "점 · 70%) 이상</span>";
+    html += "</div>";
+
+    /* evaluation table */
+    html += '<div class="result-block-title">평가표 (배점 구조)</div>';
+    html += '<div class="table-scroll">';
+    html += '<table class="eval">';
+    html +=
+      "<thead><tr><th>구분</th><th>평가 항목</th><th>매우<br>우수</th><th>우수</th><th>보통</th><th>부족</th><th>매우<br>부족</th></tr></thead>";
+    html += "<tbody>";
+    html += evalRowsForGroup("attitude", data.groups.attitude, false);
+    html += evalRowsForGroup("process", data.groups.process, false);
+    html += evalRowsForGroup("personality", data.groups.personality, false);
+    if (data.extras.length)
+      html += evalRowsForGroup("extra", data.extras, false);
+    // core value rows (weighted)
+    var valueItems = data.values.map(function (v) {
+      return v.name + ": " + valueQuestion(v.name, v.def);
+    });
+    html += evalRowsForGroup("value", valueItems, true);
+    html += "</tbody>";
+    html += "<tfoot>";
+    html +=
+      '<tr><td class="cat">합계</td><td class="item">업무역량 ' +
+      calc.workCount +
+      "문항 (각 10점)</td><td colspan='5'>" +
+      calc.workMax +
+      "점</td></tr>";
+    html +=
+      '<tr><td class="cat">합계</td><td class="item">핵심가치 ' +
+      calc.valueCount +
+      "문항 (각 20점 · x2)</td><td colspan='5'>" +
+      calc.valueMax +
+      "점</td></tr>";
+    html +=
+      '<tr><td class="cat total">총점</td><td class="item total">전체 만점</td><td class="total" colspan="5">' +
+      calc.total +
+      "점</td></tr>";
+    html += "</tfoot>";
+    html += "</table>";
+    html += "</div>";
+    html +=
+      '<p class="caption-note">각 문항은 5단계(매우 우수~매우 부족)로 채점합니다. 색으로 강조된 핵심가치 행은 배점이 2배입니다.</p>';
+
+    /* grade table */
+    html += '<div class="result-block-title">등급 기준 (S~D)</div>';
+    html += '<div class="table-scroll">';
+    html += '<table class="grade">';
+    html +=
+      "<thead><tr><th>등급</th><th>점수 구간</th><th>비율</th><th>구분</th></tr></thead>";
+    html += "<tbody>";
+    calc.bands.forEach(function (b) {
+      var range =
+        b.g === "D"
+          ? b.max + "점 이하"
+          : b.g === "S"
+          ? b.min + "점 ~ " + b.max + "점"
+          : b.min + "점 ~ " + b.max + "점";
+      html += "<tr" + (b.pass ? ' class="pass"' : "") + ">";
+      html += '<td class="g-name">' + b.g + "</td>";
+      html += '<td class="g-range">' + range + "</td>";
+      html += "<td>" + b.pct + "</td>";
+      html +=
+        '<td class="g-note">' +
+        (b.pass
+          ? '<span class="pass-mark">✓ 정규직 전환 기준선</span>'
+          : b.g === "S"
+          ? "탁월"
+          : b.g === "A"
+          ? "우수"
+          : b.g === "C"
+          ? "전환 재검토"
+          : "전환 부적합") +
+        "</td>";
+      html += "</tr>";
+    });
+    html += "</tbody></table>";
+    html += "</div>";
+    html +=
+      '<p class="caption-note">전환 기준선은 B등급(70%) 이상이 기본값입니다. 회사 정책에 따라 조정할 수 있습니다.</p>';
+
+    /* prompt */
+    lastPrompt = buildPrompt(data, calc);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 구조를 바탕으로 각 문항의 5단계 행동 기술서와 채점 예시표까지 완성해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn" type="button">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ---------- generate ---------- */
+  var errEl = document.getElementById("form-error");
+  function showError(msg) {
+    errEl.textContent = msg;
+    errEl.classList.add("show");
+  }
+  function clearError() {
+    errEl.textContent = "";
+    errEl.classList.remove("show");
+  }
+
+  document
+    .getElementById("generate")
+    .addEventListener("click", function () {
+      var data = gather();
+      if (data.values.length === 0) {
+        showError("핵심가치를 1개 이상 입력하세요. (가치명 필수)");
+        document
+          .getElementById("value-panel")
+          .scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      var workCount =
+        data.groups.attitude.length +
+        data.groups.process.length +
+        data.groups.personality.length +
+        data.extras.length;
+      if (workCount === 0) {
+        showError("업무역량 문항을 1개 이상 선택하거나 추가하세요.");
+        document
+          .getElementById("comp-panel")
+          .scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      clearError();
+      var calc = compute(data);
+      render(data, calc);
+    });
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    document.getElementById("company").value = "";
+    document.getElementById("probation").value = "";
+    jobSel.value = "사무직";
+    renderCompetency();
+    valList.innerHTML = "";
+    addValueRow("", "");
+    addValueRow("", "");
+    addValueRow("", "");
+    extra.value = "";
+    grow(extra);
+    clearError();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>핵심가치를 적고 '평가표 생성'을 누르세요.</p></div>";
+    document
+      .getElementById("basic-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

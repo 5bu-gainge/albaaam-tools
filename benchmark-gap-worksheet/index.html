@@ -1,0 +1,1561 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>벤치마킹 갭 분석 워크시트</title>
+<meta
+  name="description"
+  content="만들 것의 좋은 사례와 실패 사례를 정리해 복제할 구조·피할 함정·실험할 지점을 한 장으로 뽑는다"
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2c6e6a;
+    --accent-strong: #22544f;
+    --accent-tint: #e7f2f0;
+    --accent-tint-2: #d2e6e3;
+    --ink: #202422;
+    --ink-soft: #474a46;
+    --ink-mute: #6a6d68;
+    --paper: #f6f7f5;
+    --card: #ffffff;
+    --line: #e4e2db;
+    --line-strong: #d4d1c8;
+
+    --good: #1f6b4a;
+    --good-tint: #e7f2ec;
+    --good-line: #cbe3d6;
+    --slate: #3f5773;
+    --slate-tint: #eaeef4;
+    --slate-line: #d3dae6;
+    --warn: #8a5a12;
+    --warn-tint: #f8efdc;
+    --warn-line: #ebdcbd;
+    --alert: #9a3b2f;
+    --alert-tint: #f7e8e4;
+    --alert-line: #ecccc5;
+
+    --shadow: 0 1px 2px rgba(32, 36, 34, 0.05),
+      0 6px 20px rgba(32, 36, 34, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field-lab,
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  textarea,
+  input[type="text"],
+  select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfcfb;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    min-height: 46px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 80px;
+    resize: none;
+    overflow: hidden;
+  }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236a6d68' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+  textarea:focus,
+  input[type="text"]:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder,
+  input::placeholder {
+    color: #a3a8a2;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- reference cards ---------- */
+  .refset {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .refcard {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfcfb;
+    padding: 14px 14px 16px;
+  }
+  .refcard-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .refcard-index {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+  .ref-remove {
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 9px;
+    padding: 7px 12px;
+    cursor: pointer;
+    min-height: 38px;
+  }
+  .ref-remove:hover {
+    color: var(--alert);
+    border-color: var(--alert-line);
+    background: var(--alert-tint);
+  }
+  .ref-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .ref-field {
+    display: block;
+    margin: 0;
+  }
+  .ref-field.full {
+    grid-column: 1 / -1;
+  }
+  .ref-lab {
+    display: block;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .note-field {
+    margin: 0;
+  }
+
+  .livecov {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 10px;
+    padding: 10px 13px;
+    margin: 2px 0 16px;
+  }
+  .livecov b {
+    color: var(--accent-strong);
+    font-weight: 800;
+  }
+
+  .addbar {
+    margin-top: 15px;
+  }
+  .btn-add {
+    width: 100%;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border: 1px dashed var(--accent-tint-2);
+  }
+  .btn-add:hover {
+    background: var(--accent-tint-2);
+  }
+
+  /* ---------- buttons ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-solid {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict.tone-mixed {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-thin {
+    background: var(--alert-tint);
+    border-color: var(--alert-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.34rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-solid .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-thin .verdict-title {
+    color: var(--alert);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  /* coverage meters */
+  .cov {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .cov-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cov-name {
+    flex: none;
+    width: 116px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .cov-pips {
+    flex: 1 1 auto;
+    display: flex;
+    gap: 5px;
+  }
+  .cov-pips .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #ffffff;
+    border: 1px solid var(--line-strong);
+  }
+  .cov-pips .pip.lit {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .cov-pips .pip.over {
+    background: var(--good);
+    border-color: var(--good);
+  }
+  .cov-count {
+    flex: none;
+    width: 40px;
+    text-align: right;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--ink-mute);
+  }
+  .cov-count.met {
+    color: var(--good);
+  }
+
+  .incomplete-note {
+    margin: 14px 0 0;
+    font-size: 0.86rem;
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 9px;
+    padding: 10px 12px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* gaps */
+  .gap-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .gap-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--warn);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fff;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .gap-item b {
+    color: var(--ink);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* one-sheet buckets */
+  .buckets {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .bucket {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .bucket-head {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    padding: 13px 15px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .bucket-badge {
+    flex: none;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .bucket-name {
+    font-size: 1.02rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--ink);
+  }
+  .bucket-count {
+    margin-left: auto;
+    flex: none;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--ink-mute);
+  }
+  .bucket-desc {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 0;
+    padding: 8px 15px 0;
+  }
+  .bucket-body {
+    padding: 12px 15px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .bi {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 13px;
+    background: #fbfcfb;
+  }
+  .bi-name {
+    font-weight: 700;
+    font-size: 0.96rem;
+    margin: 0 0 3px;
+    color: var(--ink);
+  }
+  .bi-note {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .bi-note.muted {
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+  .bi-signal {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    background: #eeefe c;
+    background: #eef0ee;
+    border: 1px solid var(--line);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .bi-tag {
+    display: inline-block;
+    margin-top: 8px;
+    margin-left: 6px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--alert);
+    background: var(--alert-tint);
+    border: 1px solid var(--alert-line);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .bucket-empty {
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+    margin: 0;
+  }
+
+  .b-copy .bucket-badge {
+    color: var(--good);
+    background: var(--good-tint);
+  }
+  .b-copy .bucket-head {
+    border-bottom-color: var(--good-line);
+  }
+  .b-adapt .bucket-badge {
+    color: var(--slate);
+    background: var(--slate-tint);
+  }
+  .b-adapt .bucket-head {
+    border-bottom-color: var(--slate-line);
+  }
+  .b-exp .bucket-badge {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+  }
+  .b-exp .bucket-head {
+    border-bottom-color: var(--accent-tint-2);
+  }
+  .b-avoid .bucket-badge {
+    color: var(--alert);
+    background: var(--alert-tint);
+  }
+  .b-avoid .bucket-head {
+    border-bottom-color: var(--alert-line);
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232a29;
+    color: #eef3f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 36, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .ref-grid {
+      grid-template-columns: 1fr;
+    }
+    .cov-name {
+      width: 92px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #refs-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">벤치마킹 · Benchmark Before Building</span>
+    <h1>벤치마킹 갭 분석 워크시트</h1>
+    <p class="lede">
+      만들 것의 좋은 사례와 실패 사례를 한자리에 정리하면, 그대로 복제할 구조,
+      피해야 할 함정, 먼저 검증할 실험 지점을 한 장으로 뽑아 줍니다. 독창성이
+      아니라 현실에서 출발하세요.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>무엇을 만드나요?</h2>
+    </div>
+    <p class="panel-sub">
+      벤치마킹할 대상을 한 문장으로 좁히세요. 막연한 주제("온보딩 개선")가 아니라
+      구체적 목표("B2B 첫 주 온보딩 흐름")로.
+    </p>
+    <label class="field-label" for="target">벤치마크 대상 (한 문장)</label>
+    <textarea
+      id="target"
+      placeholder="예) 소상공인 대상 무료 진단 도구의 랜딩-첫사용 흐름을 벤치마킹한다"
+    ></textarea>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="refs-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>참고 사례 수집</h2>
+    </div>
+    <p class="panel-sub">
+      실제 이름·출처가 있는 사례만 넣으세요. 기억 속 막연한 '베스트 프랙티스'는
+      가짜 근거입니다. 최소 세트는
+      <b>직접 벤치마크 3 · 인접 유사 2 · 반면교사 1</b>입니다.
+    </p>
+
+    <div class="livecov" id="livecov" aria-live="polite">
+      현재 수집: <span id="livecov-text"><b>직접 0/3</b> · 인접 0/2 · 반면교사 0/1</span>
+    </div>
+
+    <div class="refset" id="refs"></div>
+
+    <div class="addbar">
+      <button class="btn-add" id="addRef" type="button">+ 사례 추가</button>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="analyze">한 장으로 분석하기</button>
+      <button class="btn-ghost" id="example" type="button">예시로 채워보기</button>
+      <button class="btn-ghost" id="reset" type="button">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>한 장 요약</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▟</div>
+        <p><strong>아직 분석 전입니다.</strong></p>
+        <p>사례를 채우고 '한 장으로 분석하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 이 워크시트는 'Benchmark Before Building'
+      사고 규율을 따릅니다. 핵심 원칙은 "독창성이 아니라 현실에서 출발한다"이며,
+      최소 세트(직접 벤치마크 3 · 인접 유사 2 · 반면교사 1)와
+      복제(Copy) · 수정(Adapt) · 실험(Experiment) · 회피(Avoid) 네 가지 판단이
+      방법론의 골격입니다.
+    </p>
+    <p>
+      이 도구는 사고를 돕는 워크시트이며, 무엇을 베끼고 무엇을 피할지를 대신
+      결정하지 않습니다. 커버리지와 분류는 스스로 판단할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------- meta maps (from benchmark-before-building SKILL.md) ----------
+  var TYPE_META = {
+    direct: { label: "직접 벤치마크", short: "직접", min: 3 },
+    adjacent: { label: "인접 유사", short: "인접", min: 2 },
+    counter: { label: "반면교사", short: "반면교사", min: 1 },
+  };
+  var TYPE_ORDER = ["direct", "adjacent", "counter"];
+
+  var MOVE_META = {
+    copy: { label: "복제" },
+    adapt: { label: "수정" },
+    experiment: { label: "실험" },
+    avoid: { label: "회피" },
+  };
+
+  // buckets = the one-sheet deliverable (copy / adapt / experiment / avoid)
+  var BUCKETS = [
+    {
+      key: "copy",
+      cls: "b-copy",
+      badge: "COPY",
+      name: "복제할 구조",
+      desc: "그대로 가져올, 이미 통하는 검증된 패턴.",
+      empty:
+        "복제로 표시한 사례가 없습니다. 맥락이 맞고 이미 통하는 구조를 최소 1개는 그대로 가져오세요.",
+    },
+    {
+      key: "adapt",
+      cls: "b-adapt",
+      badge: "ADAPT",
+      name: "수정해서 가져올 것",
+      desc: "논리는 두고, 내 맥락에 맞게 바꿀 부분.",
+      empty:
+        "수정 대상이 없습니다. 대상·제약·브랜드가 다른데 그대로 베끼면 어긋납니다.",
+    },
+    {
+      key: "experiment",
+      cls: "b-exp",
+      badge: "TEST",
+      name: "실험할 지점",
+      desc: "근거가 약하거나 내 상황이 달라 먼저 검증할 가정.",
+      empty:
+        "실험 항목이 없습니다. 사례가 엇갈리거나 내 맥락이 크게 다른 지점을 실험으로 남기세요.",
+    },
+    {
+      key: "avoid",
+      cls: "b-avoid",
+      badge: "AVOID",
+      name: "피할 함정",
+      desc: "가져오면 위험한 실패·안티패턴 (반면교사 포함).",
+      empty:
+        "반면교사가 없습니다. 실패 사례를 최소 1개 넣어 같은 함정을 피하세요.",
+    },
+  ];
+
+  // ---------- example data ----------
+  var EXAMPLE_TARGET =
+    "소상공인 대상 무료 진단 도구의 랜딩-첫사용 흐름을 벤치마킹한다";
+  var EXAMPLE_REFS = [
+    {
+      name: "토스 홈 첫 화면",
+      type: "direct",
+      move: "copy",
+      signal: "가입 전환 업계 최고 수준",
+      note:
+        "핵심 가치를 3초 안에 보여주고, 무거운 설정(계좌 연결)은 건너뛸 수 있게 배치한 진입 구조.",
+    },
+    {
+      name: "노션 템플릿 갤러리",
+      type: "adjacent",
+      move: "adapt",
+      signal: "신규 사용자 활성화율 개선",
+      note:
+        "빈 화면 대신 바로 쓸 수 있는 템플릿을 먼저 제시. 우리 맥락에선 예시 3개로 압축해 선택 피로를 줄인다.",
+    },
+    {
+      name: "12단계 설정 마법사형 B2B SaaS",
+      type: "counter",
+      move: "avoid",
+      signal: "가입 중 이탈 다수, 첫 사용 도달률 낮음",
+      note:
+        "모든 설정을 앞단에 몰아넣어 가치 확인 전에 이탈을 유발. 설정은 첫 성공 이후로 미룰 것.",
+    },
+  ];
+
+  // ---------- state / refs UI ----------
+  var refsEl = document.getElementById("refs");
+  var ridSeq = 0;
+
+  function grow(el) {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  function optionHtml(map, order) {
+    var out = "";
+    for (var i = 0; i < order.length; i++) {
+      var k = order[i];
+      out += '<option value="' + k + '">' + map[k].optLabel + "</option>";
+    }
+    return out;
+  }
+
+  var TYPE_OPTS =
+    '<option value="direct">직접 벤치마크 (같은 문제·같은 일)</option>' +
+    '<option value="adjacent">인접 유사 (다른 분야, 구조가 비슷)</option>' +
+    '<option value="counter">반면교사 (실패·안티패턴)</option>';
+  var MOVE_OPTS =
+    '<option value="copy">복제 — 그대로 가져온다</option>' +
+    '<option value="adapt">수정 — 논리는 두고 일부 바꾼다</option>' +
+    '<option value="experiment">실험 — 먼저 검증한다</option>' +
+    '<option value="avoid">회피 — 가져오지 않는다</option>';
+
+  function buildCard(pref) {
+    pref = pref || {};
+    var rid = ++ridSeq;
+    var card = document.createElement("div");
+    card.className = "refcard";
+    card.dataset.rid = String(rid);
+    card.innerHTML =
+      '<div class="refcard-head">' +
+      '<span class="refcard-index">사례</span>' +
+      '<button class="ref-remove" type="button">삭제</button>' +
+      "</div>" +
+      '<div class="ref-grid">' +
+      '<label class="ref-field">' +
+      '<span class="ref-lab">사례 이름 / 출처</span>' +
+      '<input type="text" class="ref-name" placeholder="예) 토스 홈 첫 화면" />' +
+      "</label>" +
+      '<label class="ref-field">' +
+      '<span class="ref-lab">관찰된 결과 신호 (선택)</span>' +
+      '<input type="text" class="ref-signal" placeholder="예) 가입 전환 상승 / 3개월 만에 철수" />' +
+      "</label>" +
+      '<label class="ref-field">' +
+      '<span class="ref-lab">유형</span>' +
+      '<select class="ref-type">' +
+      TYPE_OPTS +
+      "</select>" +
+      "</label>" +
+      '<label class="ref-field">' +
+      '<span class="ref-lab">취할 판단</span>' +
+      '<select class="ref-move">' +
+      MOVE_OPTS +
+      "</select>" +
+      "</label>" +
+      "</div>" +
+      '<label class="ref-field full note-field">' +
+      '<span class="ref-lab">구체적으로 무엇을 (복제/수정/실험/회피할 지점)</span>' +
+      '<textarea class="ref-note" placeholder="예) 첫 화면에서 무거운 설정을 건너뛸 수 있게 한 단계 배치"></textarea>' +
+      "</label>";
+
+    // prefill
+    if (pref.name) card.querySelector(".ref-name").value = pref.name;
+    if (pref.signal) card.querySelector(".ref-signal").value = pref.signal;
+    if (pref.type) card.querySelector(".ref-type").value = pref.type;
+    if (pref.move) card.querySelector(".ref-move").value = pref.move;
+    if (pref.note) card.querySelector(".ref-note").value = pref.note;
+
+    return card;
+  }
+
+  function addCard(pref) {
+    var card = buildCard(pref);
+    refsEl.appendChild(card);
+    renumber();
+    updateLive();
+    grow(card.querySelector(".ref-note"));
+    return card;
+  }
+
+  function renderRefs(list) {
+    refsEl.innerHTML = "";
+    for (var i = 0; i < list.length; i++) buildAndAppend(list[i]);
+    renumber();
+    updateLive();
+  }
+  function buildAndAppend(pref) {
+    var card = buildCard(pref);
+    refsEl.appendChild(card);
+    grow(card.querySelector(".ref-note"));
+  }
+
+  function renumber() {
+    var cards = refsEl.querySelectorAll(".refcard");
+    for (var i = 0; i < cards.length; i++) {
+      cards[i].querySelector(".refcard-index").textContent = "사례 " + (i + 1);
+    }
+  }
+
+  // delegated events
+  refsEl.addEventListener("input", function (e) {
+    if (e.target.classList.contains("ref-note")) grow(e.target);
+    updateLive();
+  });
+  refsEl.addEventListener("change", function (e) {
+    // when type set to counterexample, default the move to 회피 (avoid)
+    if (e.target.classList.contains("ref-type") && e.target.value === "counter") {
+      var card = e.target.closest(".refcard");
+      if (card) card.querySelector(".ref-move").value = "avoid";
+    }
+    updateLive();
+  });
+  refsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest(".ref-remove");
+    if (!btn) return;
+    var card = btn.closest(".refcard");
+    if (card) card.parentNode.removeChild(card);
+    renumber();
+    updateLive();
+  });
+
+  // ---------- collect / count ----------
+  function collect() {
+    var cards = refsEl.querySelectorAll(".refcard");
+    var refs = [];
+    var anonymous = 0;
+    for (var i = 0; i < cards.length; i++) {
+      var c = cards[i];
+      var name = c.querySelector(".ref-name").value.trim();
+      var signal = c.querySelector(".ref-signal").value.trim();
+      var note = c.querySelector(".ref-note").value.trim();
+      var type = c.querySelector(".ref-type").value;
+      var move = c.querySelector(".ref-move").value;
+      var hasAny = name || signal || note;
+      if (!hasAny) continue; // fully empty card: ignore
+      if (!name) {
+        anonymous++; // has content but no named example -> excluded
+        continue;
+      }
+      refs.push({ name: name, signal: signal, note: note, type: type, move: move });
+    }
+    return { refs: refs, anonymous: anonymous };
+  }
+
+  function countByType(refs) {
+    var c = { direct: 0, adjacent: 0, counter: 0 };
+    for (var i = 0; i < refs.length; i++) c[refs[i].type]++;
+    return c;
+  }
+
+  function updateLive() {
+    var data = collect();
+    var c = countByType(data.refs);
+    function seg(type) {
+      var m = TYPE_META[type];
+      var met = c[type] >= m.min;
+      var body = m.short + " " + c[type] + "/" + m.min;
+      return met ? "<b>" + body + "</b>" : body;
+    }
+    document.getElementById("livecov-text").innerHTML =
+      seg("direct") + " · " + seg("adjacent") + " · " + seg("counter");
+  }
+
+  // ---------- escape ----------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  // ---------- verdict logic ----------
+  function bandFor(counts, total) {
+    var full =
+      counts.direct >= 3 && counts.adjacent >= 2 && counts.counter >= 1;
+    if (total === 0) {
+      return {
+        tone: "thin",
+        label: "사례 0개",
+        title: "아직 벤치마크가 없습니다",
+        desc:
+          "지금 만들기 시작하면 기억 속 막연한 '베스트 프랙티스'로 짓게 됩니다. 실제 이름이 있는 사례부터 최소 1개 넣으세요.",
+      };
+    }
+    if (full) {
+      return {
+        tone: "solid",
+        label: "최소 세트 충족 · 사례 " + total + "개",
+        title: "벤치마크 지형이 충분합니다",
+        desc:
+          "복제·수정·실험·회피를 판단할 재료가 갖춰졌습니다. 아래 한 장 요약을 출발점으로 초안을 시작하세요.",
+      };
+    }
+    if (counts.direct >= 1) {
+      return {
+        tone: "mixed",
+        label: "부분 충족 · 사례 " + total + "개",
+        title: "골격은 잡혔지만 빈 곳이 있습니다",
+        desc:
+          "직접 벤치마크는 확보했으나 최소 세트가 덜 찼습니다. 아래 커버리지 갭을 메우면 근거가 단단해집니다.",
+      };
+    }
+    return {
+      tone: "thin",
+      label: "근거 얇음 · 사례 " + total + "개",
+      title: "아직 근거가 얇습니다",
+      desc:
+        "같은 문제를 직접 푼 사례(직접 벤치마크)가 없습니다. 인접 사례만으로 지으면 핵심을 놓치기 쉽습니다. 직접 사례부터 채우세요.",
+    };
+  }
+
+  function computeGaps(counts) {
+    var gaps = [];
+    if (counts.direct < 3)
+      gaps.push({
+        head: "직접 벤치마크 " + (3 - counts.direct) + "개 더 필요",
+        why:
+          "같은 문제·같은 일을 직접 푼 사례가 " +
+          counts.direct +
+          "/3. 복제·수정의 핵심 재료입니다.",
+      });
+    if (counts.adjacent < 2)
+      gaps.push({
+        head: "인접 유사 사례 " + (2 - counts.adjacent) + "개 더 필요",
+        why:
+          "다른 분야지만 구조가 닮은 사례가 " +
+          counts.adjacent +
+          "/2. 관례를 넘는 발상이 여기서 나옵니다.",
+      });
+    if (counts.counter < 1)
+      gaps.push({
+        head: "반면교사(실패 사례) 1개 필요",
+        why: "피할 함정을 정의할 실패 사례가 0/1. 없으면 같은 실수를 반복합니다.",
+      });
+    return gaps;
+  }
+
+  // ---------- one-sheet buckets ----------
+  function bucketize(refs) {
+    var out = { copy: [], adapt: [], experiment: [], avoid: [] };
+    for (var i = 0; i < refs.length; i++) {
+      var r = refs[i];
+      // counterexamples are things to avoid by definition -> also routed to avoid
+      if (r.type === "counter") {
+        if (out.avoid.indexOf(r) === -1) out.avoid.push(r);
+        // if user also picked a non-avoid move, still honour that bucket
+        if (r.move !== "avoid" && out[r.move].indexOf(r) === -1)
+          out[r.move].push(r);
+      } else {
+        out[r.move].push(r);
+      }
+    }
+    return out;
+  }
+
+  // ---------- prompt builder ----------
+  function buildPrompt(target, refs, counts, gaps) {
+    var L = [];
+    L.push(
+      "당신은 'Benchmark Before Building'(만들기 전에 선례를 벤치마킹하는 규율)에 정통한 리서치 파트너입니다."
+    );
+    L.push("핵심 원칙: 독창성이 아니라 현실에서 출발한다. 무엇을 복제·수정·실험·회피할지 함께 정합니다.");
+    L.push("");
+    L.push("【만들려는 것】");
+    L.push("- " + (target ? target : "(아직 한 문장으로 정의되지 않음 — 먼저 좁히도록 도와주세요)"));
+    L.push("");
+    L.push("【지금까지 모은 사례】");
+    if (refs.length === 0) {
+      L.push("- (아직 없음)");
+    } else {
+      for (var i = 0; i < refs.length; i++) {
+        var r = refs[i];
+        L.push(
+          i +
+            1 +
+            ". [" +
+            TYPE_META[r.type].short +
+            "/" +
+            MOVE_META[r.move].label +
+            "] " +
+            r.name +
+            (r.note ? " — " + r.note : "") +
+            " (결과 신호: " +
+            (r.signal ? r.signal : "미기재") +
+            ")"
+        );
+      }
+    }
+    L.push("");
+    L.push("【커버리지 현황】 최소 세트 = 직접 벤치마크 3 · 인접 유사 2 · 반면교사 1");
+    L.push("- 직접 벤치마크: " + counts.direct + "/3");
+    L.push("- 인접 유사: " + counts.adjacent + "/2");
+    L.push("- 반면교사: " + counts.counter + "/1");
+    if (gaps.length) {
+      var g = [];
+      for (var j = 0; j < gaps.length; j++) g.push(gaps[j].head);
+      L.push("- 부족한 칸: " + g.join(" / "));
+    } else {
+      L.push("- 최소 세트를 모두 채웠습니다.");
+    }
+    L.push("");
+    L.push("【요청】");
+    L.push(
+      "1. 부족한 칸을 채울 실제 사례를 이름/출처와 함께 제안해 주세요. 막연한 '베스트 프랙티스' 금지 — 각 항목은 반드시 named example에 근거해야 합니다."
+    );
+    L.push(
+      "2. 각 사례에서 (a) 관례에서 복제한 것 (b) 맥락 때문에 바꾼 것 (c) 테스트·최적화한 것 (d) 관찰되는 성과 신호 (e) 남는 미지수 를 뽑아 주세요."
+    );
+    L.push("3. 사실 / 추론 / 추천을 구분하고, 공개 자료에서 미루어 짐작한 것은 [추론]으로 표시해 주세요.");
+    L.push("4. 아래 표로 갭 분석을 해 주세요: | 항목 | 벤치마크 패턴 | 현재 상태 | 갭 | 시사점 |");
+    L.push(
+      "5. 각 요소를 복제(Copy) / 수정(Adapt) / 실험(Experiment) / 회피(Avoid)로 분류하고, 바로 착수할 스타터(초안 구조 또는 우선순위 실험 목록) 하나를 만들어 주세요."
+    );
+    L.push(
+      "6. 결론을 대신 확정하지 말고, 근거와 선택지를 먼저 제시한 뒤 최종 판단은 저에게 남겨 주세요."
+    );
+    return L.join("\n");
+  }
+
+  // ---------- render result ----------
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function renderResult() {
+    var data = collect();
+    var refs = data.refs;
+    var counts = countByType(refs);
+    var total = refs.length;
+    var band = bandFor(counts, total);
+    var gaps = computeGaps(counts);
+    var buckets = bucketize(refs);
+    var target = document.getElementById("target").value.trim();
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+
+    // coverage meters
+    html += '<div class="cov">';
+    for (var t = 0; t < TYPE_ORDER.length; t++) {
+      var key = TYPE_ORDER[t];
+      var m = TYPE_META[key];
+      var cnt = counts[key];
+      var met = cnt >= m.min;
+      var pipN = Math.max(m.min, cnt);
+      html +=
+        '<div class="cov-row" role="img" aria-label="' +
+        m.label +
+        " " +
+        cnt +
+        "개, 최소 " +
+        m.min +
+        '개">';
+      html += '<span class="cov-name">' + m.label + "</span>";
+      html += '<span class="cov-pips">';
+      for (var p = 0; p < pipN; p++) {
+        var cls = "pip";
+        if (p < cnt) cls += p < m.min ? " lit" : " over";
+        html += '<span class="' + cls + '"></span>';
+      }
+      html += "</span>";
+      html +=
+        '<span class="cov-count' +
+        (met ? " met" : "") +
+        '">' +
+        cnt +
+        "/" +
+        m.min +
+        "</span>";
+      html += "</div>";
+    }
+    html += "</div>"; // .cov
+
+    if (data.anonymous > 0) {
+      html +=
+        '<p class="incomplete-note">이름 없는 사례 ' +
+        data.anonymous +
+        "개는 집계에서 제외했습니다. 벤치마킹은 실제 이름·출처가 있는 사례에만 근거해야 합니다.</p>";
+    }
+    html += "</div>"; // .verdict
+
+    // coverage gaps
+    html += '<div class="result-block-title">커버리지 갭</div>';
+    if (gaps.length === 0 && total > 0) {
+      html +=
+        '<p class="clean-note">최소 세트를 모두 채웠습니다. 이제 지형이 아니라 깊이의 문제입니다. 아래 한 장 요약을 초안의 출발점으로 쓰세요.</p>';
+    } else if (gaps.length === 0) {
+      html +=
+        '<p class="clean-note">먼저 사례를 추가하면 부족한 칸을 짚어 드립니다.</p>';
+    } else {
+      html += '<ul class="gap-list">';
+      for (var gi = 0; gi < gaps.length; gi++) {
+        html +=
+          '<li class="gap-item"><b>' +
+          esc(gaps[gi].head) +
+          "</b><br />" +
+          esc(gaps[gi].why) +
+          "</li>";
+      }
+      html += "</ul>";
+    }
+
+    // one-sheet buckets
+    html += '<div class="result-block-title">한 장 요약 — 복제 · 수정 · 실험 · 회피</div>';
+    html += '<div class="buckets">';
+    for (var b = 0; b < BUCKETS.length; b++) {
+      var bk = BUCKETS[b];
+      var items = buckets[bk.key];
+      html += '<div class="bucket ' + bk.cls + '">';
+      html += '<div class="bucket-head">';
+      html += '<span class="bucket-badge">' + bk.badge + "</span>";
+      html += '<p class="bucket-name">' + bk.name + "</p>";
+      html += '<span class="bucket-count">' + items.length + "개</span>";
+      html += "</div>";
+      html += '<p class="bucket-desc">' + bk.desc + "</p>";
+      html += '<div class="bucket-body">';
+      if (items.length === 0) {
+        html += '<p class="bucket-empty">' + bk.empty + "</p>";
+      } else {
+        for (var k = 0; k < items.length; k++) {
+          var it = items[k];
+          html += '<div class="bi">';
+          html += '<p class="bi-name">' + esc(it.name) + "</p>";
+          if (it.note) {
+            html += '<p class="bi-note">' + esc(it.note) + "</p>";
+          } else {
+            html +=
+              '<p class="bi-note muted">구체 메모 없음 — 무엇을 ' +
+              bk.name.replace(/할.*$/, "") +
+              "할지 한 줄로 적으면 실행 가능해집니다.</p>";
+          }
+          if (it.signal)
+            html += '<span class="bi-signal">신호: ' + esc(it.signal) + "</span>";
+          if (bk.key === "avoid" && it.type === "counter")
+            html += '<span class="bi-tag">반면교사</span>';
+          html += "</div>";
+        }
+      }
+      html += "</div></div>"; // body / bucket
+    }
+    html += "</div>"; // .buckets
+
+    // prompt
+    lastPrompt = buildPrompt(target, refs, counts, gaps);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 워크시트를 바탕으로 부족한 사례를 채우고 갭 분석을 마무리해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("analyze").addEventListener("click", renderResult);
+
+  // ---------- add / example / reset ----------
+  document.getElementById("addRef").addEventListener("click", function () {
+    var card = addCard();
+    card.querySelector(".ref-name").focus();
+  });
+
+  document.getElementById("example").addEventListener("click", function () {
+    document.getElementById("target").value = EXAMPLE_TARGET;
+    grow(document.getElementById("target"));
+    renderRefs(EXAMPLE_REFS);
+  });
+
+  function freshCards() {
+    renderRefs([{}, {}, {}]);
+  }
+
+  document.getElementById("reset").addEventListener("click", function () {
+    document.getElementById("target").value = "";
+    grow(document.getElementById("target"));
+    freshCards();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▟</div>' +
+      "<p><strong>아직 분석 전입니다.</strong></p>" +
+      "<p>사례를 채우고 '한 장으로 분석하기'를 누르세요.</p></div>";
+    document.getElementById("refs-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  // ---------- target auto-grow ----------
+  var targetEl = document.getElementById("target");
+  targetEl.addEventListener("input", function () {
+    grow(targetEl);
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // ---------- init ----------
+  freshCards();
+</script>

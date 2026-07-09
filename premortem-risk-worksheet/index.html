@@ -1,0 +1,1539 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>프리모템 리스크 워크시트</title>
+<meta
+  name="description"
+  content="'6개월 뒤 이 계획이 실패했다면 왜?'를 구조적으로 상상해 리스크 등록부로 바꿉니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3d5a80;
+    --accent-strong: #2f4a70;
+    --accent-tint: #eef2f8;
+    --accent-tint-2: #dde6f2;
+    --ink: #22262e;
+    --ink-soft: #454b57;
+    --ink-mute: #6b7280;
+    --paper: #f7f8fb;
+    --card: #ffffff;
+    --line: #e4e7ee;
+    --line-strong: #d3d8e2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+
+    --sev-crit: #a5342a;
+    --sev-crit-bg: #fbeae7;
+    --sev-crit-bd: #f0cfc8;
+    --sev-high: #985310;
+    --sev-high-bg: #fdf0e2;
+    --sev-high-bd: #f2ddc0;
+    --sev-med: #7a6112;
+    --sev-med-bg: #faf3d8;
+    --sev-med-bd: #ecdfb0;
+    --sev-low: #2f6f4f;
+    --sev-low-bg: #e8f2ec;
+    --sev-low-bd: #cfe4d8;
+
+    --shadow: 0 1px 2px rgba(34, 38, 46, 0.05),
+      0 6px 20px rgba(34, 38, 46, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .mini-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  .mini-mute {
+    font-weight: 500;
+    color: var(--ink-mute);
+  }
+  textarea,
+  input[type="text"],
+  select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fdfdfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 74px;
+    resize: none;
+    overflow: hidden;
+  }
+  input[type="text"],
+  select {
+    min-height: 46px;
+  }
+  select {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%236b7280' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 34px;
+    cursor: pointer;
+  }
+  textarea:focus,
+  input[type="text"]:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder,
+  input::placeholder {
+    color: #a3a9b5;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .setup-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 560px) {
+    .setup-grid {
+      grid-template-columns: 1.6fr 1fr;
+    }
+  }
+
+  /* premortem framing banner */
+  .frame {
+    margin: 4px 0 18px;
+    padding: 14px 15px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 12px;
+    font-size: 0.96rem;
+    color: var(--ink);
+    line-height: 1.62;
+  }
+  .frame strong {
+    color: var(--accent-strong);
+  }
+
+  /* ---------- risk cards ---------- */
+  #risk-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .risk-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fcfcfe;
+    padding: 15px 15px 16px;
+  }
+  .rc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 11px;
+  }
+  .rc-num {
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .rc-del {
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    color: var(--ink-mute);
+    font-size: 0.86rem;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 8px;
+    min-height: 34px;
+    cursor: pointer;
+  }
+  .rc-del:hover {
+    border-color: var(--sev-crit-bd);
+    color: var(--sev-crit);
+    background: var(--sev-crit-bg);
+  }
+  .rc-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-top: 13px;
+  }
+  @media (min-width: 560px) {
+    .rc-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .rc-field.cat {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* segmented 1-5 control */
+  .seg {
+    display: flex;
+    gap: 6px;
+  }
+  .seg-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 0;
+    font-family: inherit;
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 9px;
+    cursor: pointer;
+    min-height: 44px;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .seg-btn:hover {
+    border-color: var(--accent);
+  }
+  .seg-btn.on {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .seg-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .seg-ends {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--ink-mute);
+    margin-top: 6px;
+  }
+
+  .add-risk {
+    margin-top: 14px;
+    width: 100%;
+    background: transparent;
+    color: var(--accent-strong);
+    border: 1px dashed var(--line-strong);
+    font-weight: 700;
+    padding: 13px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.96rem;
+  }
+  .add-risk:hover {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .notice {
+    border: 1px solid var(--sev-high-bd);
+    background: var(--sev-high-bg);
+    color: #7a4a0d;
+    border-radius: 12px;
+    padding: 15px 16px;
+    font-size: 0.94rem;
+    font-weight: 600;
+  }
+
+  /* summary */
+  .summary {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .summary.tone-crit {
+    background: var(--sev-crit-bg);
+    border-color: var(--sev-crit-bd);
+  }
+  .summary.tone-high {
+    background: var(--sev-high-bg);
+    border-color: var(--sev-high-bd);
+  }
+  .summary.tone-med {
+    background: var(--sev-med-bg);
+    border-color: var(--sev-med-bd);
+  }
+  .summary.tone-low {
+    background: var(--good-tint);
+    border-color: var(--sev-low-bd);
+  }
+  .summary-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .summary-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.32;
+  }
+  .summary.tone-crit .summary-title {
+    color: var(--sev-crit);
+  }
+  .summary.tone-high .summary-title {
+    color: var(--sev-high);
+  }
+  .summary.tone-med .summary-title {
+    color: var(--sev-med);
+  }
+  .summary.tone-low .summary-title {
+    color: var(--sev-low);
+  }
+  .summary-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .dist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .dist-chip {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 4px 11px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+  }
+
+  /* severity color sets (shared by badge + chip) */
+  .sev-crit {
+    color: var(--sev-crit);
+    background: var(--sev-crit-bg);
+    border-color: var(--sev-crit-bd);
+  }
+  .sev-high {
+    color: var(--sev-high);
+    background: var(--sev-high-bg);
+    border-color: var(--sev-high-bd);
+  }
+  .sev-med {
+    color: var(--sev-med);
+    background: var(--sev-med-bg);
+    border-color: var(--sev-med-bd);
+  }
+  .sev-low {
+    color: var(--sev-low);
+    background: var(--sev-low-bg);
+    border-color: var(--sev-low-bd);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 12px;
+  }
+
+  /* probability-impact matrix */
+  .matrix-block {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr auto;
+    gap: 8px;
+    max-width: 460px;
+  }
+  .mb-ylabel {
+    grid-row: 1;
+    grid-column: 1;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    align-self: center;
+  }
+  .mb-main {
+    grid-row: 1;
+    grid-column: 2;
+  }
+  .mb-xlabel {
+    grid-row: 2;
+    grid-column: 2;
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+  }
+  .pi-grid {
+    display: grid;
+    grid-template-columns: 16px repeat(5, 1fr);
+    gap: 5px;
+  }
+  .pi-tick {
+    display: grid;
+    place-items: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+  }
+  .pi-corner {
+    width: 16px;
+  }
+  .pi-cell {
+    aspect-ratio: 1 / 1;
+    border-radius: 7px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+  }
+  .pi-cell.band-low {
+    background: #e9f0ec;
+  }
+  .pi-cell.band-med {
+    background: #f6ecca;
+  }
+  .pi-cell.band-high {
+    background: #f3d7ba;
+  }
+  .pi-cell.band-crit {
+    background: #eab9af;
+  }
+  .pi-dot {
+    background: var(--ink);
+    color: #fff;
+    border-radius: 50%;
+    width: 21px;
+    height: 21px;
+    display: grid;
+    place-items: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+
+  /* register list */
+  .reg-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .reg-item {
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 14px 15px;
+    background: #fcfcfe;
+  }
+  .reg-item.band-crit {
+    border-left-color: var(--sev-crit);
+  }
+  .reg-item.band-high {
+    border-left-color: var(--sev-high);
+  }
+  .reg-item.band-med {
+    border-left-color: var(--sev-med);
+  }
+  .reg-item.band-low {
+    border-left-color: var(--sev-low);
+  }
+  .reg-top {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 9px;
+  }
+  .reg-rank {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .sev-badge {
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+  }
+  .reg-cat {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: #eef0f5;
+    border: 1px solid var(--line);
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .reg-score {
+    margin-left: auto;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    white-space: nowrap;
+  }
+  .reg-cause {
+    margin: 0;
+    font-size: 0.98rem;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .reg-strategy {
+    margin-top: 11px;
+    padding: 11px 13px;
+    background: #f5f6f9;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+  }
+  .strat-label {
+    font-weight: 800;
+    font-size: 0.9rem;
+  }
+  .strat-avoid .strat-label {
+    color: var(--sev-crit);
+  }
+  .strat-transfer .strat-label {
+    color: var(--sev-high);
+  }
+  .strat-mitigate .strat-label {
+    color: var(--sev-med);
+  }
+  .strat-accept .strat-label {
+    color: var(--sev-low);
+  }
+  .strat-guide {
+    margin: 4px 0 0;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23282f;
+    color: #eef1f5;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(34, 38, 46, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .reg-score {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #setup-panel,
+    #premortem-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">사전 부검 · Premortem</span>
+    <h1>프리모템 리스크 워크시트</h1>
+    <p class="lede">
+      계획이 성공하길 바라기 전에, 먼저 <strong>실패했다고 가정</strong>합니다.
+      '6개월 뒤 이 계획이 무너졌다면 왜?'를 구조적으로 상상해, 흩어진 걱정을
+      가능성 &times; 영향으로 채점한 <strong>리스크 등록부</strong>로 바꿔
+      드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="setup-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>계획을 정의합니다</h2>
+    </div>
+    <p class="panel-sub">
+      무엇을, 언제까지 성공시키려는지 적으면 상상의 시점이 또렷해집니다.
+    </p>
+    <div class="setup-grid">
+      <div>
+        <label class="field-label" for="plan">계획 · 프로젝트 이름</label>
+        <input
+          type="text"
+          id="plan"
+          placeholder="예) 신규 구독 서비스 정식 출시"
+        />
+      </div>
+      <div>
+        <label class="field-label" for="horizon">평가 시계 (언제 돌아볼까)</label>
+        <select id="horizon">
+          <option>3개월 뒤</option>
+          <option selected>6개월 뒤</option>
+          <option>1년 뒤</option>
+        </select>
+      </div>
+    </div>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. (서버 저장·외부 전송
+      없음)
+    </p>
+  </section>
+
+  <section class="panel" id="premortem-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>실패를 상상합니다</h2>
+    </div>
+    <div class="frame" id="frame"></div>
+    <div id="risk-list"></div>
+    <button class="add-risk" id="add-risk" type="button">
+      + 실패 시나리오 추가
+    </button>
+
+    <div class="actions">
+      <button class="btn-primary" id="generate">리스크 등록부 만들기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>리스크 등록부</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">&#9635;</div>
+        <p><strong>아직 등록부가 없습니다.</strong></p>
+        <p>실패 시나리오를 적고 '리스크 등록부 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 게리 클라인(Gary Klein)이 제안한
+      <em>프리모템(사전 부검)</em> 기법 &mdash; 일이 이미 실패했다고 가정하고
+      원인을 거꾸로 상상하는 '예상된 사후확신(prospective hindsight)'입니다.
+      각 원인의 점수와 대응은 프로젝트 리스크 관리의
+      <em>확률&ndash;영향 매트릭스</em>와 표준 대응 전략(회피 &middot; 전가
+      &middot; 완화 &middot; 수용)을 따릅니다.
+    </p>
+    <p>
+      이 도구는 사고를 돕는 진단 보조 도구이며, 리스크의 실제 크기나 대응을
+      대신 확정해 주지 않습니다. 점수는 상대적 우선순위를 잡기 위한 재료로
+      활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  var CATEGORIES = [
+    "일정 지연",
+    "예산·자원 부족",
+    "범위·요구사항 변경",
+    "사람·팀 이탈",
+    "기술·품질 결함",
+    "시장·고객 변화",
+    "이해관계자·의사결정",
+    "외부·규제·공급망",
+    "기타",
+  ];
+
+  // seed scenarios help the user model the method (they are placeholders in the
+  // textarea only; nothing is scored until the user actually types)
+  var SEEDS = [
+    "예) 핵심 인력이 중도 이탈해 출시가 두 달 밀렸다",
+    "예) 초기 고객 반응이 미지근해 재구매가 일어나지 않았다",
+    "예) 예상 못 한 규제·검수로 배포가 막혔다",
+  ];
+
+  var risks = [];
+  var seq = 0;
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // ---------- premortem framing ----------
+  var planEl = document.getElementById("plan");
+  var horizonEl = document.getElementById("horizon");
+  var frameEl = document.getElementById("frame");
+
+  function updateFrame() {
+    var name = planEl.value.trim();
+    var subject = name ? "「" + esc(name) + "」" : "이 계획";
+    var when = esc(horizonEl.value);
+    frameEl.innerHTML =
+      "지금은 <strong>" +
+      when +
+      "</strong>. " +
+      subject +
+      "은(는) <strong>명백히 실패했습니다.</strong> 무엇이 잘못됐는지, 떠오르는 실패 원인을 하나씩 솔직하게 적어 내려가세요. 판단은 잠시 미루고, 가능한 한 많이.";
+  }
+  planEl.addEventListener("input", updateFrame);
+  horizonEl.addEventListener("change", updateFrame);
+
+  // ---------- textarea auto-grow ----------
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  // ---------- risk cards ----------
+  var listEl = document.getElementById("risk-list");
+
+  function segHtml(scale, val) {
+    var b = "";
+    for (var i = 1; i <= 5; i++) {
+      var on = i === val;
+      b +=
+        '<button type="button" class="seg-btn' +
+        (on ? " on" : "") +
+        '" data-val="' +
+        i +
+        '" role="radio" aria-checked="' +
+        (on ? "true" : "false") +
+        '" aria-label="' +
+        i +
+        '점">' +
+        i +
+        "</button>";
+    }
+    return (
+      '<div class="seg" role="radiogroup" data-scale="' +
+      scale +
+      '" aria-label="' +
+      (scale === "L" ? "가능성 1에서 5" : "영향도 1에서 5") +
+      '">' +
+      b +
+      "</div>"
+    );
+  }
+
+  function createRiskCard(risk, placeholder) {
+    var card = document.createElement("div");
+    card.className = "risk-card";
+    card.dataset.id = risk.id;
+
+    var catOpts = CATEGORIES.map(function (c) {
+      return (
+        '<option value="' +
+        esc(c) +
+        '"' +
+        (c === risk.category ? " selected" : "") +
+        ">" +
+        esc(c) +
+        "</option>"
+      );
+    }).join("");
+
+    card.innerHTML =
+      '<div class="rc-head">' +
+      '<span class="rc-num">리스크 #<span class="rc-idx">1</span></span>' +
+      '<button type="button" class="rc-del" aria-label="이 리스크 삭제">삭제</button>' +
+      "</div>" +
+      '<label class="field-label">이 실패의 원인 &mdash; 무슨 일이 있었나?</label>' +
+      '<textarea class="rc-cause"></textarea>' +
+      '<div class="rc-grid">' +
+      '<div class="rc-field cat">' +
+      '<label class="mini-label">영역</label>' +
+      '<select class="rc-cat">' +
+      catOpts +
+      "</select>" +
+      "</div>" +
+      '<div class="rc-field">' +
+      '<label class="mini-label">가능성 <span class="mini-mute">(얼마나 잦은가)</span></label>' +
+      segHtml("L", risk.L) +
+      '<div class="seg-ends"><span>희박</span><span>빈번</span></div>' +
+      "</div>" +
+      '<div class="rc-field">' +
+      '<label class="mini-label">영향도 <span class="mini-mute">(터지면 얼마나 아픈가)</span></label>' +
+      segHtml("I", risk.I) +
+      '<div class="seg-ends"><span>경미</span><span>치명</span></div>' +
+      "</div>" +
+      "</div>";
+
+    var ta = card.querySelector(".rc-cause");
+    ta.placeholder = placeholder || "예) 실패로 이어진 구체적인 사건을 한 문장으로";
+    ta.value = risk.cause || "";
+    ta.addEventListener("input", function () {
+      risk.cause = ta.value;
+      grow(ta);
+    });
+
+    card.querySelector(".rc-cat").addEventListener("change", function (e) {
+      risk.category = e.target.value;
+    });
+
+    Array.prototype.forEach.call(card.querySelectorAll(".seg"), function (seg) {
+      seg.addEventListener("click", function (e) {
+        var btn = e.target.closest(".seg-btn");
+        if (!btn) return;
+        var scale = seg.dataset.scale;
+        risk[scale] = parseInt(btn.dataset.val, 10);
+        Array.prototype.forEach.call(
+          seg.querySelectorAll(".seg-btn"),
+          function (x) {
+            var on = x === btn;
+            x.classList.toggle("on", on);
+            x.setAttribute("aria-checked", on ? "true" : "false");
+          }
+        );
+      });
+    });
+
+    card.querySelector(".rc-del").addEventListener("click", function () {
+      removeRisk(risk.id);
+    });
+
+    return card;
+  }
+
+  function relabel() {
+    Array.prototype.forEach.call(
+      listEl.querySelectorAll(".risk-card"),
+      function (card, i) {
+        var idx = card.querySelector(".rc-idx");
+        if (idx) idx.textContent = i + 1;
+      }
+    );
+  }
+
+  function addRisk(focus) {
+    var risk = { id: ++seq, cause: "", category: CATEGORIES[0], L: 3, I: 3 };
+    risks.push(risk);
+    var ph = SEEDS[(risks.length - 1) % SEEDS.length];
+    var card = createRiskCard(risk, ph);
+    listEl.appendChild(card);
+    relabel();
+    if (focus) {
+      var ta = card.querySelector(".rc-cause");
+      ta.focus();
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  function removeRisk(id) {
+    risks = risks.filter(function (r) {
+      return r.id !== id;
+    });
+    var card = listEl.querySelector('.risk-card[data-id="' + id + '"]');
+    if (card) card.parentNode.removeChild(card);
+    if (risks.length === 0) addRisk(false); // always keep one slot
+    relabel();
+  }
+
+  document.getElementById("add-risk").addEventListener("click", function () {
+    addRisk(true);
+  });
+
+  // ---------- scoring logic ----------
+  function bandFor(score) {
+    if (score >= 15) return { key: "crit", label: "심각" };
+    if (score >= 10) return { key: "high", label: "높음" };
+    if (score >= 5) return { key: "med", label: "중간" };
+    return { key: "low", label: "낮음" };
+  }
+
+  // probability-impact quadrant -> standard risk response strategy
+  function strategyFor(L, I) {
+    var hiL = L >= 3,
+      hiI = I >= 3;
+    if (hiL && hiI)
+      return {
+        key: "avoid",
+        label: "회피 · 최우선 대응",
+        guide:
+          "가능성과 영향이 모두 큽니다. 계획의 구조 자체를 바꿔 이 원인을 제거하거나, 착수 전에 완화책을 최우선으로 배치하세요.",
+      };
+    if (!hiL && hiI)
+      return {
+        key: "transfer",
+        label: "전가 · 비상계획",
+        guide:
+          "드물지만 터지면 치명적입니다. 계약·보험·이중화로 위험을 넘기고, 발생 시 즉시 가동할 비상계획(Plan B)을 미리 준비하세요.",
+      };
+    if (hiL && !hiI)
+      return {
+        key: "mitigate",
+        label: "완화 · 적극 관리",
+        guide:
+          "자주 일어나지만 타격은 제한적입니다. 발생 빈도를 낮추는 절차·체크리스트로 일상적으로 관리하세요.",
+      };
+    return {
+      key: "accept",
+      label: "수용 · 모니터링",
+      guide:
+        "지금 자원을 크게 쓸 리스크는 아닙니다. 조기 경보 신호만 정해 두고 주기적으로 관찰하세요.",
+    };
+  }
+
+  // ---------- matrix ----------
+  function buildMatrix(sorted) {
+    var byCell = {};
+    sorted.forEach(function (r) {
+      var k = r.L + "-" + r.I;
+      (byCell[k] = byCell[k] || []).push(r.rank);
+    });
+
+    var h = '<div class="pi-grid" role="img" aria-label="확률-영향 매트릭스. 세로축 가능성, 가로축 영향도. 오른쪽 위로 갈수록 위험이 큽니다.">';
+    for (var L = 5; L >= 1; L--) {
+      h += '<div class="pi-tick">' + L + "</div>";
+      for (var I = 1; I <= 5; I++) {
+        var band = bandFor(L * I);
+        var ranks = byCell[L + "-" + I] || [];
+        h += '<div class="pi-cell band-' + band.key + '">';
+        ranks.forEach(function (rk) {
+          h += '<span class="pi-dot" title="리스크 #' + rk + '">' + rk + "</span>";
+        });
+        h += "</div>";
+      }
+    }
+    h += '<div class="pi-corner"></div>';
+    for (var c = 1; c <= 5; c++) {
+      h += '<div class="pi-tick">' + c + "</div>";
+    }
+    h += "</div>";
+
+    return (
+      '<div class="matrix-block">' +
+      '<div class="mb-ylabel">가능성 &rarr;</div>' +
+      '<div class="mb-main">' +
+      h +
+      "</div>" +
+      '<div class="mb-xlabel">영향도 &rarr;</div>' +
+      "</div>"
+    );
+  }
+
+  // ---------- prompt ----------
+  function buildPrompt(sorted, plan, horizon) {
+    var lines = [];
+    lines.push(
+      "당신은 프로젝트 리스크 관리와 프리모템(사전 부검) 기법에 정통한 리스크 코치입니다."
+    );
+    lines.push(
+      "아래는 제가 '" +
+        horizon +
+        " 이 계획이 실패했다면 왜?'를 상상해 만든 리스크 등록부입니다."
+    );
+    lines.push("");
+    lines.push("【계획】 " + (plan ? plan : "(이름 미기재)") + " · 평가 시계: " + horizon);
+    lines.push("");
+    lines.push(
+      "【리스크 등록부】 (순위. [심각도·대응] (가능성L×영향도I=점수) 영역 — 실패 원인)"
+    );
+    sorted.forEach(function (r) {
+      lines.push(
+        r.rank +
+          ". [" +
+          r.band.label +
+          "·" +
+          r.strat.label.split(" · ")[0] +
+          "] (L" +
+          r.L +
+          "×I" +
+          r.I +
+          "=" +
+          r.score +
+          ") " +
+          r.category +
+          " — " +
+          r.cause.trim()
+      );
+    });
+    lines.push("");
+    lines.push("【요청】");
+    lines.push(
+      "1. 상위 리스크부터, 근본 원인을 한 단계 더 파고들어(5 Whys) 진짜 원인을 짚어 주세요."
+    );
+    lines.push(
+      "2. 상위 3개 리스크에 대해 구체적인 완화책과, 위험이 커지고 있음을 미리 알려 줄 '조기 경보 신호(leading indicator)'를 제안해 주세요."
+    );
+    lines.push(
+      "3. 제가 놓쳤을 법한 '숨은 리스크'를 영역별(일정·자원·사람·기술·시장·외부)로 2~3개 더 제시해 주세요."
+    );
+    lines.push(
+      "4. 대응 우선순위를 정하고, 지금 당장 착수할 첫 번째 행동 한 가지를 지정해 주세요."
+    );
+    lines.push(
+      "5. 근거 없는 낙관이나 일반론으로 채우지 말고, 판단에 사실이 더 필요하면 저에게 먼저 물어 주세요."
+    );
+    return lines.join("\n");
+  }
+
+  // ---------- generate ----------
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function emptyStateHtml() {
+    return (
+      '<div class="empty-state"><div class="big" aria-hidden="true">▣</div>' +
+      "<p><strong>아직 등록부가 없습니다.</strong></p>" +
+      "<p>실패 시나리오를 적고 '리스크 등록부 만들기'를 누르세요.</p></div>"
+    );
+  }
+
+  document.getElementById("generate").addEventListener("click", function () {
+    var valid = risks.filter(function (r) {
+      return r.cause && r.cause.trim() !== "";
+    });
+
+    if (valid.length === 0) {
+      resultEl.innerHTML =
+        '<div class="notice">실패 원인을 최소 1개 이상 적어 주세요. 아무리 사소해도, 떠오르는 대로 먼저 적는 것이 프리모템의 핵심입니다.</div>';
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    // compute + sort (desc by score, tie-break impact then likelihood)
+    var scored = valid.map(function (r) {
+      var score = r.L * r.I;
+      return {
+        cause: r.cause,
+        category: r.category,
+        L: r.L,
+        I: r.I,
+        score: score,
+        band: bandFor(score),
+        strat: strategyFor(r.L, r.I),
+      };
+    });
+    scored.sort(function (a, b) {
+      if (b.score !== a.score) return b.score - a.score;
+      if (b.I !== a.I) return b.I - a.I;
+      return b.L - a.L;
+    });
+    scored.forEach(function (r, i) {
+      r.rank = i + 1;
+    });
+
+    var plan = planEl.value.trim();
+    var horizon = horizonEl.value;
+
+    // distribution
+    var counts = { crit: 0, high: 0, med: 0, low: 0 };
+    scored.forEach(function (r) {
+      counts[r.band.key]++;
+    });
+    var top = scored[0];
+
+    var titleMap = {
+      crit: "지금 당장 손봐야 할 심각 리스크가 있습니다",
+      high: "높은 리스크가 감지됐습니다",
+      med: "중간 수준의 리스크들입니다",
+      low: "리스크는 대체로 낮습니다",
+    };
+
+    var html = "";
+
+    // summary
+    html += '<div class="summary tone-' + top.band.key + '">';
+    html += '<p class="summary-label">최고 심각도 · ' + esc(top.band.label) + "</p>";
+    html += '<p class="summary-title">' + esc(titleMap[top.band.key]) + "</p>";
+    html +=
+      '<p class="summary-desc">총 <strong>' +
+      scored.length +
+      "</strong>개의 실패 시나리오를 채점했습니다. 가장 위험한 것은 #1 「" +
+      esc(top.category) +
+      "」(" +
+      esc(top.band.label) +
+      ", 점수 " +
+      top.score +
+      ")입니다. 아래 매트릭스의 오른쪽 위에 놓인 리스크부터 손대세요.</p>";
+    html += '<div class="dist">';
+    [
+      ["crit", "심각"],
+      ["high", "높음"],
+      ["med", "중간"],
+      ["low", "낮음"],
+    ].forEach(function (pair) {
+      if (counts[pair[0]] > 0) {
+        html +=
+          '<span class="dist-chip sev-' +
+          pair[0] +
+          '">' +
+          pair[1] +
+          " " +
+          counts[pair[0]] +
+          "</span>";
+      }
+    });
+    html += "</div></div>";
+
+    // matrix
+    html += '<div class="result-block-title">확률-영향 매트릭스</div>';
+    html += buildMatrix(scored);
+
+    // register
+    html += '<div class="result-block-title">리스크 등록부 (위험 순)</div>';
+    html += '<div class="reg-list">';
+    scored.forEach(function (r) {
+      html += '<div class="reg-item band-' + r.band.key + '">';
+      html += '<div class="reg-top">';
+      html += '<span class="reg-rank">#' + r.rank + "</span>";
+      html +=
+        '<span class="sev-badge sev-' +
+        r.band.key +
+        '">' +
+        esc(r.band.label) +
+        "</span>";
+      html += '<span class="reg-cat">' + esc(r.category) + "</span>";
+      html +=
+        '<span class="reg-score">가능성 ' +
+        r.L +
+        " &times; 영향 " +
+        r.I +
+        " = <strong>" +
+        r.score +
+        "</strong></span>";
+      html += "</div>";
+      html += '<p class="reg-cause">“' + esc(r.cause.trim()) + "”</p>";
+      html += '<div class="reg-strategy strat-' + r.strat.key + '">';
+      html += '<span class="strat-label">' + esc(r.strat.label) + "</span>";
+      html += '<p class="strat-guide">' + esc(r.strat.guide) + "</p>";
+      html += "</div>";
+      html += "</div>";
+    });
+    html += "</div>";
+
+    // prompt
+    lastPrompt = buildPrompt(scored, plan, horizon);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">이 등록부를 ChatGPT·Claude 등에 붙여넣으면, 근본 원인 분석과 완화책·조기 경보 신호까지 함께 파고들어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- reset ----------
+  document.getElementById("reset").addEventListener("click", function () {
+    risks = [];
+    seq = 0;
+    listEl.innerHTML = "";
+    planEl.value = "";
+    horizonEl.value = "6개월 뒤";
+    addRisk(false);
+    updateFrame();
+    resultEl.innerHTML = emptyStateHtml();
+    document
+      .getElementById("premortem-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // ---------- init ----------
+  updateFrame();
+  addRisk(false);
+</script>

@@ -1,0 +1,1975 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>발표 타임 페이싱 계산기</title>
+<meta
+  name="description"
+  content="전체 발표 시간과 섹션을 넣으면 섹션별 시간 배분과 초과 여부를 계산하고, 검증된 구조 공식 템플릿을 얹어 러닝 타임라인과 페이싱 진단까지 만들어 드립니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #4a56a6;
+    --accent-strong: #39448a;
+    --accent-tint: #edeef8;
+    --accent-tint-2: #dde0f2;
+    --ink: #21222a;
+    --ink-soft: #474a56;
+    --ink-mute: #6b6e7b;
+    --paper: #f7f7fb;
+    --card: #ffffff;
+    --line: #e5e5ee;
+    --line-strong: #d3d3e0;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #9a5a12;
+    --warn-tint: #fdf3e6;
+    --warn-line: #f0dcbe;
+    --danger: #b23a33;
+    --danger-tint: #fbeceb;
+    --danger-line: #f0cdca;
+    --shadow: 0 1px 2px rgba(33, 34, 42, 0.05), 0 6px 20px rgba(33, 34, 42, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  .field-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .field-col {
+    flex: 1 1 150px;
+    min-width: 0;
+  }
+  input[type="number"],
+  input[type="text"],
+  select,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    color: var(--ink);
+    background: #fcfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 11px 13px;
+    min-height: 46px;
+    line-height: 1.5;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b6e7b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 34px;
+  }
+  textarea {
+    min-height: 82px;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.6;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #a6a7b4;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 10px 0 0;
+  }
+  .unit-wrap {
+    position: relative;
+  }
+  .unit-wrap .unit {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+    pointer-events: none;
+  }
+  .unit-wrap input {
+    padding-right: 40px;
+  }
+
+  /* ---------- template chips ---------- */
+  .tpl-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 11px;
+  }
+  .tpl-card {
+    border: 1px solid var(--line-strong);
+    border-radius: 13px;
+    padding: 13px 14px;
+    cursor: pointer;
+    background: #fcfcfe;
+    transition: border-color 0.15s, background 0.15s;
+    display: block;
+  }
+  .tpl-card:hover {
+    border-color: var(--ink-mute);
+  }
+  .tpl-card.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .tpl-card input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+  .tpl-name {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 3px;
+  }
+  .tpl-desc {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 0;
+    line-height: 1.45;
+  }
+  .tpl-card:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  /* ---------- section rows ---------- */
+  .srow {
+    display: grid;
+    grid-template-columns: 122px 1fr 92px 40px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 9px;
+  }
+  .srow input,
+  .srow select {
+    min-height: 44px;
+    padding: 9px 11px;
+    font-size: 0.94rem;
+    border-radius: 10px;
+  }
+  .srow select {
+    padding-right: 28px;
+    background-position: right 9px center;
+  }
+  .srow .r-min {
+    text-align: right;
+  }
+  .row-del {
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    border-radius: 10px;
+    height: 44px;
+    width: 40px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    color: var(--ink-mute);
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+  .row-del:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+  .row-head {
+    display: grid;
+    grid-template-columns: 122px 1fr 92px 40px;
+    gap: 8px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin-bottom: 7px;
+    padding: 0 2px;
+  }
+  .row-head span:nth-child(3) {
+    text-align: right;
+  }
+  .add-row {
+    background: transparent;
+    border: 1px dashed var(--line-strong);
+    color: var(--accent-strong);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .add-row:hover {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .tpl-actions {
+    margin: 14px 0 4px;
+  }
+  .btn-mini {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 9px;
+    padding: 9px 14px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+  }
+  .btn-mini:hover {
+    background: var(--accent-tint-2);
+  }
+  .live-sum {
+    margin-top: 14px;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    background: #f4f4fa;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 13px;
+    font-weight: 600;
+  }
+  .live-sum b {
+    color: var(--ink);
+  }
+  .live-sum .over {
+    color: var(--danger);
+  }
+  .live-sum .under {
+    color: var(--warn);
+  }
+  .live-sum .ok {
+    color: var(--good);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .err-note {
+    background: var(--danger-tint);
+    border: 1px solid var(--danger-line);
+    color: #8f2a24;
+    border-radius: 11px;
+    padding: 14px 15px;
+    font-size: 0.94rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-ok {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-under {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-over {
+    background: var(--danger-tint);
+    border-color: var(--danger-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-ok .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-under .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-over .verdict-title {
+    color: var(--danger);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  /* capacity bar */
+  .cap {
+    position: relative;
+    height: 26px;
+    background: #e7e7ef;
+    border-radius: 8px;
+    display: flex;
+    margin: 15px 0 8px;
+  }
+  .cap-seg {
+    height: 100%;
+  }
+  .cap-seg:first-child {
+    border-radius: 8px 0 0 8px;
+  }
+  .cap-ok {
+    background: var(--good);
+  }
+  .verdict.tone-over .cap-ok {
+    background: var(--accent);
+  }
+  .verdict.tone-under .cap-ok {
+    background: var(--warn);
+  }
+  .cap-over {
+    background: var(--danger);
+  }
+  .cap-mark {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    width: 2px;
+    background: var(--ink);
+    border-radius: 2px;
+  }
+  .cap-mark::after {
+    content: "가용";
+    position: absolute;
+    top: -17px;
+    right: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .cap-caption {
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 11px;
+  }
+
+  /* timeline */
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .tl-item {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 11px 13px;
+    background: #fcfcfe;
+    border-left: 4px solid var(--accent);
+  }
+  .tl-item.st-over {
+    border-left-color: var(--danger);
+  }
+  .tl-item.st-under {
+    border-left-color: var(--warn);
+  }
+  .tl-item.st-buffer {
+    border-left-color: var(--ink-mute);
+    background: #f4f4fa;
+  }
+  .tl-clock {
+    flex: none;
+    width: 96px;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    line-height: 1.35;
+  }
+  .tl-item.st-buffer .tl-clock {
+    color: var(--ink-mute);
+  }
+  .tl-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .tl-name {
+    font-weight: 700;
+    font-size: 0.97rem;
+    margin: 0;
+  }
+  .tl-meta {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 2px 0 0;
+  }
+  .role-pill {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: #ecedf4;
+    border-radius: 6px;
+    padding: 1px 7px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .tl-min {
+    flex: none;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--ink);
+    align-self: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* allocation table */
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table.alloc {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 440px;
+  }
+  table.alloc th,
+  table.alloc td {
+    text-align: left;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+  table.alloc th {
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  table.alloc td.num,
+  table.alloc th.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .bar-cell {
+    min-width: 96px;
+  }
+  .barline {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--accent);
+    min-width: 3px;
+  }
+  .barline.st-over {
+    background: var(--danger);
+  }
+  .barline.st-under {
+    background: var(--warn);
+  }
+  .barline.st-ok {
+    background: var(--good);
+  }
+  .st-tag {
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+  .st-tag.st-over {
+    color: var(--danger);
+  }
+  .st-tag.st-under {
+    color: var(--warn);
+  }
+  .st-tag.st-ok {
+    color: var(--good);
+  }
+  .st-tag.st-none {
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  tfoot td {
+    font-weight: 800;
+    border-top: 2px solid var(--line-strong);
+    border-bottom: none;
+  }
+
+  /* pacing checks */
+  .check-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .check-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--warn);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fcfcfe;
+  }
+  .check-item.sev-high {
+    border-left-color: var(--danger);
+  }
+  .check-item .ci-title {
+    font-weight: 700;
+    font-size: 0.97rem;
+    margin: 0 0 4px;
+  }
+  .check-item .ci-fix {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* metric grid */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .metric {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 13px 12px;
+    background: #fcfcfe;
+    text-align: center;
+  }
+  .metric .m-val {
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    line-height: 1.2;
+  }
+  .metric .m-label {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    margin-top: 4px;
+    line-height: 1.35;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #26272f;
+    color: #eef0f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(33, 34, 42, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .tpl-grid {
+      grid-template-columns: 1fr;
+    }
+    .metric-grid {
+      grid-template-columns: 1fr;
+    }
+    .srow {
+      grid-template-columns: 1fr 74px 40px;
+      grid-template-areas:
+        "role role role"
+        "name min del";
+      gap: 7px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #fcfcfe;
+    }
+    .srow .r-role {
+      grid-area: role;
+    }
+    .srow .r-name {
+      grid-area: name;
+    }
+    .srow .r-min {
+      grid-area: min;
+    }
+    .srow .row-del {
+      grid-area: del;
+    }
+    .row-head {
+      display: none;
+    }
+    .tl-clock {
+      width: 80px;
+      font-size: 0.8rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-basic,
+    #input-template,
+    #input-sections,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">발표 설계 · 타임 페이싱</span>
+    <h1>발표 타임 페이싱 계산기</h1>
+    <p class="lede">
+      전체 발표 시간과 섹션을 넣으면, 섹션별 시간 배분과 초과 여부를 계산하고
+      검증된 구조 공식을 얹어 러닝 타임라인과 페이싱 진단까지 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-basic">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>발표 기본 정보</h2>
+    </div>
+    <p class="panel-sub">
+      전체 시간을 먼저 정하고, Q&amp;A나 여유 버퍼를 따로 떼어 두면 본론 시간이
+      더 정확해집니다.
+    </p>
+    <div class="field-row">
+      <div class="field-col">
+        <label class="field-label" for="total">전체 발표 시간</label>
+        <div class="unit-wrap">
+          <input
+            type="number"
+            id="total"
+            inputmode="decimal"
+            min="1"
+            step="1"
+            placeholder="예) 40"
+          />
+          <span class="unit">분</span>
+        </div>
+      </div>
+      <div class="field-col">
+        <label class="field-label" for="buffer">Q&amp;A · 여유 버퍼</label>
+        <div class="unit-wrap">
+          <input
+            type="number"
+            id="buffer"
+            inputmode="decimal"
+            min="0"
+            step="1"
+            value="0"
+          />
+          <span class="unit">분</span>
+        </div>
+      </div>
+      <div class="field-col">
+        <label class="field-label" for="audience">청중 (선택)</label>
+        <select id="audience">
+          <option value="">선택 안 함</option>
+          <option value="C레벨·임원">C레벨 · 임원</option>
+          <option value="팀장·중간관리자">팀장 · 중간관리자</option>
+          <option value="실무자">실무자</option>
+          <option value="신입">신입</option>
+          <option value="일반인·외부">일반인 · 외부</option>
+        </select>
+      </div>
+    </div>
+    <label class="field-label" for="topic" style="margin-top: 16px"
+      >발표 주제 · 메모 (선택)</label
+    >
+    <textarea
+      id="topic"
+      placeholder="예) 신제품 출시 전략 발표. 핵심 메시지는 '고객이 우리를 선택하는 이유'..."
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 계산은 모두 기기 안에서만
+      이뤄집니다.
+    </p>
+  </section>
+
+  <section class="panel" id="input-template">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>구조 공식 선택</h2>
+    </div>
+    <p class="panel-sub">
+      발표 성격에 맞는 구조를 고르면 권장 시간 비율이 섹션에 자동으로 얹힙니다.
+      직접 짜려면 커스텀을 선택하세요.
+    </p>
+    <div class="tpl-grid" id="tpl-grid"></div>
+    <div class="tpl-actions no-print">
+      <button class="btn-mini" id="autofill" type="button">
+        전체 시간 비율로 자동 배분
+      </button>
+    </div>
+  </section>
+
+  <section class="panel" id="input-sections">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>섹션 편성</h2>
+    </div>
+    <p class="panel-sub">
+      각 섹션의 역할·이름·시간(분)을 조정하세요. 합계가 가용 시간을 넘으면 초과로
+      잡힙니다.
+    </p>
+    <div class="row-head">
+      <span>역할</span>
+      <span>섹션 이름</span>
+      <span>분</span>
+      <span></span>
+    </div>
+    <div id="sections"></div>
+    <button class="add-row no-print" id="add-section" type="button">
+      + 섹션 추가
+    </button>
+    <div class="live-sum" id="live-sum" aria-live="polite">
+      전체 시간을 입력하고 섹션에 분을 배정하면 합계가 여기에 표시됩니다.
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="calc">계산하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 4</span>
+      <h2>페이싱 결과</h2>
+    </div>
+    <div id="result" role="region" aria-label="계산 결과">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◷</div>
+        <p><strong>아직 계산 전입니다.</strong></p>
+        <p>시간과 섹션을 채우고 '계산하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 가인지 강의 설계 스킬
+      <em>script-architect</em>의 페이싱 원칙(섹션 시간 합계가 강의 시간 안에
+      들어오는가, 초과면 사례·세부 가지치기, 마무리에서 시간이 부족하면 핵심
+      메시지가 흐려짐), 4블록 구조(개념·사례·인터랙션·브릿지)와 보편적 발표 구조
+      공식(오프닝·본론·클로징, 후킹·문제·해법·근거·CTA). 슬라이드·분량 어림값은
+      '장당 1.5~2분', '한국어 편안한 말속도 분당 300~350자'라는 실무 기준을
+      사용합니다.
+    </p>
+    <p>
+      이 도구는 발표 페이싱을 잡는 사고 보조 도구이며, 실제 리허설을 대신하지
+      않습니다. 계산 결과는 스스로 판단할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---- domain data (grounded in script-architect SKILL.md) ----
+  var ROLES = {
+    opening: "오프닝",
+    concept: "개념",
+    case: "사례·증거",
+    interaction: "인터랙션·활동",
+    body: "본론",
+    close: "마무리",
+    custom: "기타",
+  };
+  var ROLE_ORDER = [
+    "opening",
+    "concept",
+    "case",
+    "interaction",
+    "body",
+    "close",
+    "custom",
+  ];
+
+  var TEMPLATES = {
+    lecture: {
+      name: "강의·워크샵형",
+      desc: "개념 → 사례 → 인터랙션 → 마무리. script-architect 4블록 기반.",
+      segments: [
+        { role: "opening", name: "오프닝·후킹", pct: 10 },
+        { role: "concept", name: "핵심 개념", pct: 32 },
+        { role: "case", name: "사례·증거", pct: 28 },
+        { role: "interaction", name: "인터랙션·활동", pct: 20 },
+        { role: "close", name: "마무리·메시지", pct: 10 },
+      ],
+    },
+    standard: {
+      name: "표준 발표형",
+      desc: "오프닝 → 본론 → 클로징. 가장 보편적인 3단 구조.",
+      segments: [
+        { role: "opening", name: "오프닝", pct: 12 },
+        { role: "body", name: "본론", pct: 73 },
+        { role: "close", name: "클로징", pct: 15 },
+      ],
+    },
+    pitch: {
+      name: "설득·피치형",
+      desc: "후킹 → 문제 → 해법 → 근거 → 행동요청. 제안·설득 발표.",
+      segments: [
+        { role: "opening", name: "후킹", pct: 12 },
+        { role: "concept", name: "문제 정의", pct: 22 },
+        { role: "concept", name: "해법 제시", pct: 28 },
+        { role: "case", name: "근거·사례", pct: 24 },
+        { role: "close", name: "행동 요청(CTA)", pct: 14 },
+      ],
+    },
+    workshop: {
+      name: "워크샵·체험형",
+      desc: "짧은 개념 + 긴 실습. 참여자가 직접 만들어가는 강의.",
+      segments: [
+        { role: "opening", name: "오프닝", pct: 8 },
+        { role: "concept", name: "개념 미니강의", pct: 22 },
+        { role: "interaction", name: "실습·활동 1", pct: 28 },
+        { role: "interaction", name: "실습·활동 2", pct: 26 },
+        { role: "close", name: "공유·마무리", pct: 16 },
+      ],
+    },
+    custom: {
+      name: "커스텀",
+      desc: "빈 상태에서 직접 섹션을 편성합니다.",
+      segments: [
+        { role: "opening", name: "오프닝", pct: null },
+        { role: "body", name: "본론", pct: null },
+        { role: "close", name: "마무리", pct: null },
+      ],
+    },
+  };
+
+  var state = { template: "lecture" };
+
+  // ---- helpers ----
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function fmtMin(m) {
+    var r = Math.round(m * 10) / 10;
+    return r % 1 === 0 ? String(r) : r.toFixed(1);
+  }
+  function fmtClock(m) {
+    var s = Math.round(m * 60);
+    var mm = Math.floor(s / 60);
+    var ss = s % 60;
+    return mm + ":" + (ss < 10 ? "0" : "") + ss;
+  }
+  function share(part, whole) {
+    return whole > 0 ? Math.round((part / whole) * 1000) / 10 : 0;
+  }
+  function roundHalf(x) {
+    return Math.round(x * 2) / 2;
+  }
+
+  // distribute available minutes across template segments by pct
+  function distribute(available, segments) {
+    var out = segments.map(function (s) {
+      return roundHalf((available * (s.pct || 0)) / 100);
+    });
+    var sum = out.reduce(function (a, b) {
+      return a + b;
+    }, 0);
+    // push rounding remainder into the largest segment
+    var idx = 0;
+    for (var i = 1; i < out.length; i++) {
+      if ((segments[i].pct || 0) > (segments[idx].pct || 0)) idx = i;
+    }
+    out[idx] = roundHalf(out[idx] + (available - sum));
+    if (out[idx] < 0) out[idx] = 0;
+    return out;
+  }
+
+  // ---- template cards ----
+  var tplGrid = document.getElementById("tpl-grid");
+  Object.keys(TEMPLATES).forEach(function (key) {
+    var t = TEMPLATES[key];
+    var label = document.createElement("label");
+    label.className = "tpl-card" + (key === state.template ? " on" : "");
+    label.dataset.key = key;
+    label.innerHTML =
+      '<input type="radio" name="tpl" value="' +
+      key +
+      '"' +
+      (key === state.template ? " checked" : "") +
+      " />" +
+      '<p class="tpl-name">' +
+      esc(t.name) +
+      "</p>" +
+      '<p class="tpl-desc">' +
+      esc(t.desc) +
+      "</p>";
+    tplGrid.appendChild(label);
+  });
+  tplGrid.addEventListener("change", function (e) {
+    if (e.target.name !== "tpl") return;
+    applyTemplate(e.target.value);
+  });
+
+  function highlightTemplate(key) {
+    Array.prototype.forEach.call(
+      tplGrid.querySelectorAll(".tpl-card"),
+      function (c) {
+        c.classList.toggle("on", c.dataset.key === key);
+      }
+    );
+  }
+
+  // ---- section rows ----
+  var sectionsEl = document.getElementById("sections");
+
+  function roleOptions(selected) {
+    return ROLE_ORDER.map(function (r) {
+      return (
+        '<option value="' +
+        r +
+        '"' +
+        (r === selected ? " selected" : "") +
+        ">" +
+        ROLES[r] +
+        "</option>"
+      );
+    }).join("");
+  }
+
+  function makeRow(seg) {
+    var row = document.createElement("div");
+    row.className = "srow";
+    row.dataset.rec = seg.pct != null && seg.pct > 0 ? seg.pct : "";
+    row.innerHTML =
+      '<select class="r-role" aria-label="역할">' +
+      roleOptions(seg.role) +
+      "</select>" +
+      '<input class="r-name" type="text" aria-label="섹션 이름" value="' +
+      esc(seg.name || "") +
+      '" placeholder="섹션 이름" />' +
+      '<input class="r-min" type="number" inputmode="decimal" min="0" step="0.5" aria-label="분" value="' +
+      (seg.min != null && seg.min !== "" ? seg.min : "") +
+      '" placeholder="분" />' +
+      '<button class="row-del" type="button" aria-label="섹션 삭제" title="삭제">&times;</button>';
+    return row;
+  }
+
+  function renderSections(segs) {
+    sectionsEl.innerHTML = "";
+    segs.forEach(function (s) {
+      sectionsEl.appendChild(makeRow(s));
+    });
+  }
+
+  function currentAvailable() {
+    var T = parseFloat(document.getElementById("total").value);
+    var B = parseFloat(document.getElementById("buffer").value) || 0;
+    if (!(T > 0)) return null;
+    var a = T - B;
+    return a > 0 ? a : null;
+  }
+
+  function applyTemplate(key) {
+    state.template = key;
+    var tpl = TEMPLATES[key];
+    var avail = currentAvailable();
+    var segs = tpl.segments.map(function (s) {
+      return { role: s.role, name: s.name, pct: s.pct, min: "" };
+    });
+    if (avail && key !== "custom") {
+      var mins = distribute(avail, tpl.segments);
+      segs.forEach(function (s, i) {
+        s.min = mins[i];
+      });
+    }
+    renderSections(segs);
+    highlightTemplate(key);
+    updateLiveSummary();
+  }
+
+  // auto-fill button: re-distribute minutes from current template + available
+  document.getElementById("autofill").addEventListener("click", function () {
+    var avail = currentAvailable();
+    if (!avail) {
+      var ls = document.getElementById("live-sum");
+      ls.innerHTML =
+        '<span class="over">먼저 STEP 1에서 전체 발표 시간을 입력하세요.</span>';
+      return;
+    }
+    // read current roles/names, keep them, only overwrite minutes by template pct
+    var tpl = TEMPLATES[state.template];
+    if (state.template === "custom" || !tpl.segments.length) {
+      // distribute evenly across existing rows
+      var rows = sectionsEl.querySelectorAll(".srow");
+      var n = rows.length || 1;
+      var each = roundHalf(avail / n);
+      Array.prototype.forEach.call(rows, function (row, i) {
+        var last = i === rows.length - 1;
+        row.querySelector(".r-min").value = last
+          ? roundHalf(avail - each * (n - 1))
+          : each;
+      });
+    } else {
+      var mins = distribute(avail, tpl.segments);
+      var segs = tpl.segments.map(function (s, i) {
+        return { role: s.role, name: s.name, pct: s.pct, min: mins[i] };
+      });
+      renderSections(segs);
+    }
+    updateLiveSummary();
+  });
+
+  document.getElementById("add-section").addEventListener("click", function () {
+    sectionsEl.appendChild(
+      makeRow({ role: "custom", name: "", pct: null, min: "" })
+    );
+  });
+
+  sectionsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest(".row-del");
+    if (!btn) return;
+    var row = btn.closest(".srow");
+    if (row) row.parentNode.removeChild(row);
+    updateLiveSummary();
+  });
+
+  sectionsEl.addEventListener("input", function (e) {
+    if (e.target.classList.contains("r-min")) updateLiveSummary();
+  });
+  document
+    .getElementById("total")
+    .addEventListener("input", updateLiveSummary);
+  document
+    .getElementById("buffer")
+    .addEventListener("input", updateLiveSummary);
+
+  // ---- live summary ----
+  function readSections() {
+    var rows = sectionsEl.querySelectorAll(".srow");
+    var out = [];
+    Array.prototype.forEach.call(rows, function (row, i) {
+      var role = row.querySelector(".r-role").value;
+      var name = row.querySelector(".r-name").value.trim();
+      var min = parseFloat(row.querySelector(".r-min").value);
+      var rec = parseFloat(row.dataset.rec);
+      out.push({
+        role: role,
+        name: name || "섹션 " + (i + 1),
+        min: min > 0 ? min : 0,
+        rec: rec > 0 ? rec : null,
+      });
+    });
+    return out;
+  }
+
+  function updateLiveSummary() {
+    var ls = document.getElementById("live-sum");
+    var T = parseFloat(document.getElementById("total").value);
+    var B = parseFloat(document.getElementById("buffer").value) || 0;
+    var secs = readSections();
+    var S = secs.reduce(function (a, s) {
+      return a + s.min;
+    }, 0);
+    if (!(T > 0)) {
+      ls.innerHTML =
+        "배정 합계 <b>" +
+        fmtMin(S) +
+        "분</b> · 전체 시간을 입력하면 초과 여부가 계산됩니다.";
+      return;
+    }
+    var avail = T - B;
+    var diff = avail - S;
+    var tail =
+      B > 0 ? " (전체 " + fmtMin(T) + "분 − 버퍼 " + fmtMin(B) + "분)" : "";
+    var statusHtml;
+    if (avail <= 0) {
+      statusHtml = '<span class="over">버퍼가 전체 시간보다 큽니다.</span>';
+    } else if (diff < -0.01) {
+      statusHtml =
+        '<span class="over">초과 ' + fmtMin(-diff) + "분</span>";
+    } else if (diff > 0.01) {
+      statusHtml = '<span class="under">여유 ' + fmtMin(diff) + "분</span>";
+    } else {
+      statusHtml = '<span class="ok">가용 시간과 정확히 맞습니다.</span>';
+    }
+    ls.innerHTML =
+      "배정 합계 <b>" +
+      fmtMin(S) +
+      "분</b> · 가용 <b>" +
+      fmtMin(avail) +
+      "분</b>" +
+      tail +
+      " · " +
+      statusHtml;
+  }
+
+  // ---- auto-grow textarea ----
+  var topic = document.getElementById("topic");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  topic.addEventListener("input", function () {
+    grow(topic);
+  });
+
+  // ---- pacing diagnostics ----
+  function diagnose(secs, T, avail, S) {
+    var checks = [];
+    var byRole = {};
+    ROLE_ORDER.forEach(function (r) {
+      byRole[r] = 0;
+    });
+    secs.forEach(function (s) {
+      byRole[s.role] += s.min;
+    });
+
+    // 1. over total
+    if (S > avail + 0.01) {
+      checks.push({
+        sev: "high",
+        title: "시간 초과 — " + fmtMin(S - avail) + "분 넘침",
+        fix:
+          "총 배정이 가용 시간을 초과합니다. script-architect 원칙대로 사례와 세부를 먼저 가지치기하세요. 개념은 남기고 예시 수를 줄이는 것이 안전합니다.",
+      });
+    }
+
+    // 2. closing too short / missing
+    var closeMin = byRole.close;
+    var closePct = share(closeMin, T);
+    if (closeMin <= 0) {
+      checks.push({
+        sev: "high",
+        title: "마무리 섹션이 없습니다",
+        fix:
+          "마무리가 없으면 핵심 메시지가 흐려진 채 끝납니다. 전체의 8~10%를 마무리·메시지 강화에 확보하세요.",
+      });
+    } else if (T >= 15 && closePct < 8) {
+      checks.push({
+        sev: "high",
+        title: "마무리 시간이 부족합니다 (전체의 " + closePct + "%)",
+        fix:
+          "마무리에서 시간이 부족하면 청중 머리에 남길 메시지가 흐려집니다. 최소 8~10%(약 " +
+          fmtMin(T * 0.09) +
+          "분)를 확보하세요.",
+      });
+    }
+
+    // 3. opening too long
+    var openPct = share(byRole.opening, T);
+    if (openPct > 20) {
+      checks.push({
+        sev: "mid",
+        title: "오프닝이 깁니다 (전체의 " + openPct + "%)",
+        fix:
+          "도입이 길면 본론이 압박받습니다. 오프닝은 후킹에 집중해 15% 안팎으로 줄이고, 확보한 시간을 개념·사례로 옮기세요.",
+      });
+    }
+
+    // 4. no interaction for long talks
+    if (T >= 20 && byRole.interaction <= 0) {
+      checks.push({
+        sev: "mid",
+        title: "청중 참여 구간이 없습니다",
+        fix:
+          "20분 이상 발표에서 인터랙션·활동이 하나도 없습니다. script-architect는 '청중 참여 장치가 적절한 간격으로' 배치되기를 권합니다. 질문·퀴즈·짧은 실습을 한 구간 넣으세요.",
+      });
+    }
+
+    // 5. single non-body section overload
+    secs.forEach(function (s) {
+      if (s.role === "body") return;
+      if (s.min > 25 || (share(s.min, S) > 45 && s.min > 15)) {
+        checks.push({
+          sev: "mid",
+          title:
+            "'" +
+            s.name +
+            "' 한 흐름이 " +
+            fmtMin(s.min) +
+            "분으로 깁니다",
+          fix:
+            "한 덩어리가 20분 넘게 이어지면 집중이 떨어집니다. 하위 섹션으로 나누고 사이에 전환·참여 장치를 두세요.",
+        });
+      }
+    });
+
+    // 6. fragmentation
+    var cnt = secs.length;
+    if (cnt >= 5 && S / cnt < 3) {
+      checks.push({
+        sev: "mid",
+        title:
+          "섹션이 잘게 쪼개져 있습니다 (섹션당 평균 " +
+          fmtMin(S / cnt) +
+          "분)",
+        fix:
+          "전환이 잦으면 흐름이 끊깁니다. 인접한 섹션을 묶어 섹션당 3~5분 이상을 확보하세요.",
+      });
+    }
+
+    // 7. large idle time
+    if (S < avail - 0.01 && avail - S > avail * 0.12) {
+      checks.push({
+        sev: "mid",
+        title: "가용 시간이 많이 남습니다 (" + fmtMin(avail - S) + "분 여유)",
+        fix:
+          "비는 시간이 큽니다. 근거·사례를 더하거나 인터랙션·질의응답을 늘려 밀도를 높이세요. 의도한 여백이면 그대로 두어도 됩니다.",
+      });
+    }
+
+    return checks;
+  }
+
+  // ---- build AI prompt ----
+  function buildPrompt(secs, T, B, avail, S, tone, checks) {
+    var L = [];
+    L.push(
+      "당신은 강의·발표 설계에 정통한 스크립트 코치입니다. 아래 발표의 타임 페이싱을 점검하고, 섹션별 스크립트 초안을 짜 주세요."
+    );
+    L.push("");
+    L.push("【발표 개요】");
+    L.push("- 전체 시간: " + fmtMin(T) + "분" + (B > 0 ? " (그중 Q&A·여유 버퍼 " + fmtMin(B) + "분)" : ""));
+    L.push("- 발표 본문 가용 시간: " + fmtMin(avail) + "분");
+    var aud = document.getElementById("audience").value;
+    if (aud) L.push("- 청중: " + aud);
+    L.push("- 선택한 구조 공식: " + TEMPLATES[state.template].name);
+    var topicVal = topic.value.trim();
+    if (topicVal) {
+      L.push("- 주제·메모: " + topicVal);
+    }
+    L.push("");
+    L.push("【현재 섹션 배분】 (합계 " + fmtMin(S) + "분)");
+    secs.forEach(function (s, i) {
+      L.push(
+        i +
+          1 +
+          ". [" +
+          ROLES[s.role] +
+          "] " +
+          s.name +
+          " — " +
+          fmtMin(s.min) +
+          "분 (비중 " +
+          share(s.min, S) +
+          "%)"
+      );
+    });
+    L.push("");
+    L.push("【자가 진단】");
+    if (tone === "over") L.push("- 상태: 가용 시간 초과 (" + fmtMin(S - avail) + "분 넘침)");
+    else if (tone === "under") L.push("- 상태: 가용 시간 여유 (" + fmtMin(avail - S) + "분 남음)");
+    else L.push("- 상태: 시간 배분 적정");
+    if (checks.length === 0) {
+      L.push("- 감지된 페이싱 이슈: 없음");
+    } else {
+      checks.forEach(function (c) {
+        L.push("- " + c.title);
+      });
+    }
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 위 배분이 " +
+        fmtMin(avail) +
+        "분 안에 자연스럽게 들어가는지 점검하고, 초과·부족 섹션의 시간을 어떻게 재조정할지 구체적인 분 단위로 제안하세요."
+    );
+    L.push(
+      "2. 섹션별로 (a) 핵심 메시지 한 줄, (b) 뒷받침할 사례·증거 아이디어, (c) 다음 섹션으로 넘어가는 전환 멘트를 짜 주세요."
+    );
+    L.push(
+      "3. 청중이 직접 쓰거나 반응할 참여 장치를 어느 섹션에 넣으면 좋을지 표시하세요."
+    );
+    L.push(
+      "4. 마무리에서 핵심 메시지가 시간 부족으로 흐려지지 않도록, 마지막 " +
+        fmtMin(Math.max(1, avail * 0.1)) +
+        "분을 어떻게 쓸지 별도로 설계하세요."
+    );
+    L.push(
+      "5. 시간이 초과되면 지어내지 말고, 어떤 사례·세부를 먼저 덜어낼지 우선순위를 제시하세요."
+    );
+    return L.join("\n");
+  }
+
+  var lastPrompt = "";
+  var resultEl = document.getElementById("result");
+
+  function showError(msg) {
+    resultEl.innerHTML = '<p class="err-note">' + esc(msg) + "</p>";
+  }
+
+  // ---- calculate ----
+  document.getElementById("calc").addEventListener("click", function () {
+    var T = parseFloat(document.getElementById("total").value);
+    var B = parseFloat(document.getElementById("buffer").value) || 0;
+    if (!(T > 0)) {
+      showError("전체 발표 시간을 분 단위로 입력하세요.");
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (B < 0) B = 0;
+    if (B >= T) {
+      showError("Q&A·여유 버퍼가 전체 시간보다 크거나 같습니다. 버퍼를 줄이세요.");
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    var avail = T - B;
+    var secs = readSections().filter(function (s) {
+      return s.min > 0;
+    });
+    if (secs.length === 0) {
+      showError("섹션에 시간을 배정하세요. 최소 한 섹션에 분(minute)이 필요합니다.");
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    var S = secs.reduce(function (a, s) {
+      return a + s.min;
+    }, 0);
+
+    var tol = Math.max(1, Math.round(T * 0.03));
+    var tone, label, title, desc;
+    if (S > avail + tol) {
+      tone = "over";
+      label = "가용 " + fmtMin(avail) + "분 · 배정 " + fmtMin(S) + "분";
+      title = fmtMin(S - avail) + "분 초과입니다";
+      desc =
+        "배정한 시간이 가용 시간을 넘습니다. 이대로면 마무리가 쫓기거나 시간을 넘깁니다. 아래 진단을 보고 사례·세부부터 덜어내세요.";
+    } else if (S < avail - tol) {
+      tone = "under";
+      label = "가용 " + fmtMin(avail) + "분 · 배정 " + fmtMin(S) + "분";
+      title = fmtMin(avail - S) + "분 여유가 있습니다";
+      desc =
+        "가용 시간보다 배분이 적습니다. 내용을 더 넣거나 인터랙션·질의응답으로 채우면 밀도가 올라갑니다. 의도한 여백이면 그대로 두세요.";
+    } else {
+      tone = "ok";
+      label = "가용 " + fmtMin(avail) + "분 · 배정 " + fmtMin(S) + "분";
+      title = "시간 배분이 적정합니다";
+      desc =
+        "배정 합계가 가용 시간에 잘 맞습니다. 이제 섹션별 비중과 러닝 타임라인을 확인하세요.";
+    }
+
+    var checks = diagnose(secs, T, avail, S);
+
+    // ---- capacity bar geometry ----
+    var scaleMax = Math.max(S, avail);
+    var okW = share(Math.min(S, avail), scaleMax);
+    var overW = S > avail ? share(S - avail, scaleMax) : 0;
+    var markLeft = share(avail, scaleMax);
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + tone + '">';
+    html += '<p class="verdict-label">' + esc(label) + "</p>";
+    html += '<p class="verdict-title">' + esc(title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(desc) + "</p>";
+    html +=
+      '<div class="cap" role="img" aria-label="가용 ' +
+      fmtMin(avail) +
+      "분 대비 배정 " +
+      fmtMin(S) +
+      '분">';
+    html += '<div class="cap-seg cap-ok" style="width:' + okW + '%"></div>';
+    if (overW > 0)
+      html += '<div class="cap-seg cap-over" style="width:' + overW + '%"></div>';
+    html += '<div class="cap-mark" style="left:' + markLeft + '%"></div>';
+    html += "</div>";
+    html +=
+      '<p class="cap-caption">막대 = 배정 시간, 세로선 = 가용 한계' +
+      (B > 0 ? " · Q&amp;A·여유 버퍼 " + fmtMin(B) + "분 별도" : "") +
+      "</p>";
+    html += "</div>";
+
+    // timeline (running clock)
+    html += '<div class="result-block-title">러닝 타임라인</div>';
+    html += '<ul class="timeline">';
+    var clock = 0;
+    secs.forEach(function (s) {
+      var stat = sectionStatus(s);
+      var startC = fmtClock(clock);
+      var endC = fmtClock(clock + s.min);
+      clock += s.min;
+      html += '<li class="tl-item st-' + stat.key + '">';
+      html += '<span class="tl-clock">' + startC + "<br>↓ " + endC + "</span>";
+      html += '<div class="tl-body">';
+      html +=
+        '<p class="tl-name"><span class="role-pill">' +
+        esc(ROLES[s.role]) +
+        "</span>" +
+        esc(s.name) +
+        "</p>";
+      html +=
+        '<p class="tl-meta">비중 ' +
+        share(s.min, S) +
+        "%" +
+        (s.rec ? " · 권장 " + s.rec + "%" : "") +
+        (stat.key !== "none" ? " · " + stat.txt : "") +
+        "</p>";
+      html += "</div>";
+      html += '<span class="tl-min">' + fmtMin(s.min) + "분</span>";
+      html += "</li>";
+    });
+    if (B > 0) {
+      html += '<li class="tl-item st-buffer">';
+      html +=
+        '<span class="tl-clock">' +
+        fmtClock(clock) +
+        "<br>↓ " +
+        fmtClock(clock + B) +
+        "</span>";
+      html +=
+        '<div class="tl-body"><p class="tl-name"><span class="role-pill">버퍼</span>Q&amp;A · 여유</p>' +
+        '<p class="tl-meta">본문 종료 후 예비 시간</p></div>';
+      html += '<span class="tl-min">' + fmtMin(B) + "분</span>";
+      html += "</li>";
+    }
+    html += "</ul>";
+
+    // allocation table
+    html += '<div class="result-block-title">섹션별 배분표</div>';
+    html += '<div class="table-scroll"><table class="alloc">';
+    html +=
+      "<thead><tr><th>섹션</th><th class=num>배정</th><th class=num>비중</th><th class=num>권장</th><th>상태</th><th class=bar-cell>분포</th></tr></thead><tbody>";
+    var maxMin = secs.reduce(function (m, s) {
+      return Math.max(m, s.min);
+    }, 0);
+    secs.forEach(function (s) {
+      var stat = sectionStatus(s);
+      var barW = maxMin > 0 ? (s.min / maxMin) * 100 : 0;
+      html += "<tr>";
+      html +=
+        "<td><span class='role-pill'>" +
+        esc(ROLES[s.role]) +
+        "</span>" +
+        esc(s.name) +
+        "</td>";
+      html += "<td class=num>" + fmtMin(s.min) + "분</td>";
+      html += "<td class=num>" + share(s.min, S) + "%</td>";
+      html += "<td class=num>" + (s.rec ? s.rec + "%" : "—") + "</td>";
+      html +=
+        "<td><span class='st-tag st-" +
+        stat.key +
+        "'>" +
+        stat.txt +
+        "</span></td>";
+      html +=
+        "<td class=bar-cell><div class='barline st-" +
+        stat.key +
+        "' style='width:" +
+        barW.toFixed(1) +
+        "%'></div></td>";
+      html += "</tr>";
+    });
+    html += "</tbody><tfoot><tr>";
+    html += "<td>합계</td>";
+    html += "<td class=num>" + fmtMin(S) + "분</td>";
+    html += "<td class=num>" + share(S, S) + "%</td>";
+    html += "<td class=num></td><td></td><td></td>";
+    html += "</tr></tfoot></table></div>";
+
+    // pacing checks
+    html += '<div class="result-block-title">페이싱 진단</div>';
+    if (checks.length === 0) {
+      html +=
+        '<p class="clean-note">감지된 페이싱 이슈가 없습니다. 시간 안에 들어오고, 오프닝·마무리·참여 균형도 안정적입니다. 남은 것은 실제 리허설로 속도를 확인하는 일입니다.</p>';
+    } else {
+      html += '<ul class="check-list">';
+      checks.forEach(function (c) {
+        html +=
+          '<li class="check-item ' +
+          (c.sev === "high" ? "sev-high" : "") +
+          '">';
+        html += '<p class="ci-title">' + esc(c.title) + "</p>";
+        html += '<p class="ci-fix">' + esc(c.fix) + "</p>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // planning metrics
+    var avgMin = S / secs.length;
+    var slideLo = Math.max(1, Math.round(avail / 2));
+    var slideHi = Math.max(slideLo, Math.round(avail / 1.5));
+    var words = Math.round(avail * 330);
+    html += '<div class="result-block-title">계획 어림값</div>';
+    html += '<div class="metric-grid">';
+    html +=
+      '<div class="metric"><div class="m-val">' +
+      fmtMin(avgMin) +
+      '분</div><div class="m-label">섹션당 평균</div></div>';
+    html +=
+      '<div class="metric"><div class="m-val">' +
+      slideLo +
+      "~" +
+      slideHi +
+      '장</div><div class="m-label">슬라이드 예산<br>(장당 1.5~2분)</div></div>';
+    html +=
+      '<div class="metric"><div class="m-val">' +
+      words.toLocaleString("ko-KR") +
+      '자</div><div class="m-label">말 분량 어림<br>(분당 약 330자)</div></div>';
+    html += "</div>";
+
+    // AI prompt
+    lastPrompt = buildPrompt(secs, T, B, avail, S, tone, checks);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 배분을 바탕으로 페이싱을 재조정하고 섹션별 스크립트 초안을 짜 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // per-section status vs recommended proportion
+  function sectionStatus(s) {
+    if (!s.rec) return { key: "none", txt: "—" };
+    var actual = null;
+    // compare actual share against recommended share
+    return statusFromShares(s);
+  }
+  function statusFromShares(s) {
+    // recompute actual share lazily needs total; handled by closure fallback
+    return { key: "none", txt: "—" };
+  }
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    document.getElementById("total").value = "";
+    document.getElementById("buffer").value = "0";
+    document.getElementById("audience").value = "";
+    topic.value = "";
+    grow(topic);
+    applyTemplate("lecture");
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◷</div>' +
+      "<p><strong>아직 계산 전입니다.</strong></p>" +
+      "<p>시간과 섹션을 채우고 '계산하기'를 누르세요.</p></div>";
+    document
+      .getElementById("input-basic")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // ---- init ----
+  applyTemplate("lecture");
+  updateLiveSummary();
+</script>

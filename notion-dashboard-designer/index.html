@@ -1,0 +1,1660 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>노션 대시보드 설계기</title>
+<meta
+  name="description"
+  content="만들 대시보드의 '할 일 한 문장'을 잡고 NAVI 4요소와 아키타입을 골라 설계 스펙과 AI 빌드 프롬프트를 뽑습니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3f5c86;
+    --accent-strong: #2f4767;
+    --accent-tint: #eef2f8;
+    --accent-tint-2: #dde5f0;
+    --ink: #22262b;
+    --ink-soft: #474d55;
+    --ink-mute: #6b727b;
+    --paper: #f7f8fa;
+    --card: #ffffff;
+    --line: #e4e7ec;
+    --line-strong: #d3d8e0;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #a35a12;
+    --warn-tint: #fff6ec;
+    --warn-line: #f2ddc4;
+    --shadow: 0 1px 2px rgba(34, 38, 43, 0.05), 0 6px 20px rgba(34, 38, 43, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- inputs ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  input[type="text"],
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfcfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 74px;
+    resize: none;
+    overflow: hidden;
+  }
+  input[type="text"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #a2a8b1;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-row {
+    margin-bottom: 16px;
+  }
+  .field-row:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ---------- archetype grid ---------- */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 11px;
+  }
+  label.arch {
+    position: relative;
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fcfcfd;
+    padding: 13px 13px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+  label.arch:hover {
+    border-color: var(--line-strong);
+  }
+  label.arch.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  label.arch:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+  label.arch input.native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .arch-code {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: #eceff4;
+    color: var(--accent-strong);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--accent-tint-2);
+    transition: all 0.15s;
+  }
+  label.arch.on .arch-code {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .arch-body {
+    min-width: 0;
+  }
+  .arch-title {
+    font-weight: 700;
+    font-size: 0.96rem;
+    margin: 0 0 3px;
+  }
+  .arch-desc {
+    margin: 0;
+    font-size: 0.83rem;
+    color: var(--ink-mute);
+    line-height: 1.5;
+  }
+
+  /* ---------- NAVI fields ---------- */
+  .navi-legend {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 16px;
+    margin: 0 0 18px;
+    padding: 13px 15px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 12px;
+  }
+  .navi-legend div {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+  .navi-legend b {
+    color: var(--accent-strong);
+  }
+  .navi-field {
+    margin-bottom: 16px;
+  }
+  .navi-field:last-of-type {
+    margin-bottom: 0;
+  }
+  .navi-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .navi-tag .k {
+    display: inline-grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+  .navi-tag .sub {
+    font-weight: 500;
+    color: var(--ink-mute);
+    font-size: 0.82rem;
+  }
+
+  /* ---------- view chips ---------- */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+  label.chip {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    background: #fcfcfd;
+    padding: 9px 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 0;
+  }
+  label.chip:hover {
+    border-color: var(--ink-mute);
+  }
+  label.chip.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  label.chip:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+  label.chip input.native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .chip-label {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .chip-best {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-early {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-partial {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-ready {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-early .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-partial .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-ready .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #dfe3e9;
+  }
+  .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-ready .pip.lit {
+    background: var(--good);
+  }
+  .verdict.tone-partial .pip.lit {
+    background: var(--warn);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* spec cards */
+  .spec-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .spec-item {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 12px 14px;
+    background: #fcfcfd;
+  }
+  .spec-item .si-k {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--accent-strong);
+    margin: 0 0 4px;
+  }
+  .spec-item .si-v {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink);
+  }
+  .spec-item .si-v.muted {
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+
+  .navi-card {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fcfcfd;
+  }
+  .navi-card .nc-k {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin: 0 0 5px;
+  }
+  .navi-card .nc-k .k {
+    display: inline-grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.74rem;
+  }
+  .navi-card .nc-v {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+  .navi-card .nc-v.muted {
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+
+  /* tables */
+  .tbl-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+  }
+  table.spec-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    min-width: 340px;
+  }
+  table.spec-tbl th,
+  table.spec-tbl td {
+    text-align: left;
+    padding: 10px 13px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  table.spec-tbl th {
+    background: #f2f4f7;
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+  }
+  table.spec-tbl tr:last-child td {
+    border-bottom: none;
+  }
+  .type-badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 2px 9px;
+    border-radius: 6px;
+  }
+
+  /* warnings */
+  .warn-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .warn-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    border: 1px solid var(--warn-line);
+    background: var(--warn-tint);
+    border-radius: 10px;
+    padding: 11px 13px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .warn-item .wi-mark {
+    flex: none;
+    font-weight: 800;
+    color: var(--warn);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232733;
+    color: #eef1f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(34, 38, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .arch-grid {
+      grid-template-columns: 1fr;
+    }
+    .navi-legend {
+      grid-template-columns: 1fr;
+    }
+    label.chip {
+      flex: 1 1 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #arch-panel,
+    #navi-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">노션 대시보드 설계 · NAVI 프레임</span>
+    <h1>노션 대시보드 설계기</h1>
+    <p class="lede">
+      대시보드를 만들기 전에, 먼저 '할 일 한 문장'을 잡습니다. 아키타입을 고르면
+      NAVI 4요소(목적·데이터·뷰·운영)가 채워지고, 노션에서 바로 만들 수 있는 설계
+      스펙과 AI 빌드 프롬프트가 나옵니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>할 일 한 문장</h2>
+    </div>
+    <p class="panel-sub">
+      이 대시보드가 무엇을 돕는지 한 문장으로 정합니다. 도구·화면이 아니라 '누가,
+      언제, 무엇을 판단하거나 실행하는가'를 적으세요.
+    </p>
+    <div class="field-row">
+      <label class="field-label" for="dashName">대시보드 이름 (선택)</label>
+      <input
+        type="text"
+        id="dashName"
+        placeholder="예) 마케팅팀 콘텐츠 허브"
+        autocomplete="off"
+      />
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="jtbd">할 일 한 문장</label>
+      <textarea
+        id="jtbd"
+        placeholder="예) 우리 팀이 매주 회의 전에, 콘텐츠가 어느 단계에 있고 이번 주 무엇을 발행해야 하는지 한눈에 보고 결정한다."
+      ></textarea>
+      <p class="field-hint">
+        입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+        없습니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="panel" id="arch-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>아키타입 선택</h2>
+    </div>
+    <p class="panel-sub">
+      가장 가까운 대시보드 유형을 하나 고르면, 아래 NAVI 4요소가 그 유형의 기본
+      설계로 채워집니다. 직접 고친 칸은 덮어쓰지 않습니다.
+    </p>
+    <div class="arch-grid" id="archGrid"></div>
+  </section>
+
+  <section class="panel" id="navi-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>NAVI 4요소 확정</h2>
+    </div>
+    <p class="panel-sub">
+      대시보드 하나를 세우는 데 필요한 네 축입니다. 아키타입 기본값을 그대로 두거나
+      우리 상황에 맞게 고치세요.
+    </p>
+    <div class="navi-legend" aria-hidden="true">
+      <div><b>N</b> 목적·독자 (Need)</div>
+      <div><b>A</b> 데이터·속성 (Assets)</div>
+      <div><b>V</b> 뷰·표현 (Views)</div>
+      <div><b>I</b> 운영·리듬 (Interaction)</div>
+    </div>
+
+    <div class="navi-field">
+      <span class="navi-tag"
+        ><span class="k">N</span> 목적·독자
+        <span class="sub">누구를 위해, 무엇을 판단·실행하는가</span></span
+      >
+      <textarea
+        id="navi-n"
+        placeholder="예) 콘텐츠팀이 발행 병목과 다음 발행물을 파악하도록 돕는다."
+      ></textarea>
+    </div>
+
+    <div class="navi-field">
+      <span class="navi-tag"
+        ><span class="k">A</span> 데이터·핵심 속성
+        <span class="sub">어떤 데이터베이스와 속성 위에 서는가</span></span
+      >
+      <textarea
+        id="navi-a"
+        placeholder="예) 콘텐츠 DB · 상태(Status), 채널(Multi-select), 발행일(Date), 담당(Person)"
+      ></textarea>
+    </div>
+
+    <div class="navi-field">
+      <span class="navi-tag"
+        ><span class="k">V</span> 뷰·표현
+        <span class="sub">어떤 뷰로 보여주는가 (2~3개 권장)</span></span
+      >
+      <div class="chips" id="viewChips" role="group" aria-label="뷰 유형 선택"></div>
+    </div>
+
+    <div class="navi-field">
+      <span class="navi-tag"
+        ><span class="k">I</span> 운영·업데이트 리듬
+        <span class="sub">누가 언제 갱신해 살아있게 하는가</span></span
+      >
+      <textarea
+        id="navi-i"
+        placeholder="예) 주간: 매주 편집회의 전 담당자가 상태·발행일 갱신"
+      ></textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="build">설계 스펙 생성</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">결과</span>
+      <h2>설계 스펙 &amp; 빌드 프롬프트</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◫</div>
+        <p><strong>아직 설계 전입니다.</strong></p>
+        <p>할 일 한 문장을 적고 아키타입을 고른 뒤 '설계 스펙 생성'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 'NAVI'는 대시보드 설계에 널리 통용되는
+      네 가지 관점(목적, 데이터, 뷰, 운영)을 이 도구용으로 묶은 설계 렌즈이며,
+      특정 저작권 프레임워크가 아닙니다. 뷰 유형(표·보드·캘린더·타임라인·갤러리·리스트)과
+      속성 타입(Status·Select·Date·Person·Relation 등)은 노션(Notion)의 표준
+      데이터베이스 기능 이름을 따랐습니다. 아키타입별 기본값은 일반적으로 통용되는
+      실무 관행을 요약한 출발점이며, 특정 수치나 정답을 보장하지 않습니다.
+    </p>
+    <p>
+      이 도구는 설계 사고를 돕는 보조 도구이며, 대시보드를 대신 확정해 주지
+      않습니다. 결과는 팀 상황에 맞춰 스스로 판단할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- view-type catalog (Notion database views) ---------- */
+  var VIEWS = [
+    { id: "table", label: "표(Table)", best: "전체 목록·합계·정렬" },
+    { id: "board", label: "보드(Board)", best: "상태·단계별 진행(칸반)" },
+    { id: "calendar", label: "캘린더(Calendar)", best: "날짜 기준 일정·마감" },
+    { id: "timeline", label: "타임라인(Timeline)", best: "기간·의존관계가 있는 일정" },
+    { id: "gallery", label: "갤러리(Gallery)", best: "썸네일·카드 중심 자료" },
+    { id: "list", label: "리스트(List)", best: "간결한 문서·공지 나열" },
+  ];
+  var VIEW_LABEL = {};
+  VIEWS.forEach(function (v) {
+    VIEW_LABEL[v.id] = v.label;
+  });
+
+  /* ---------- archetypes with NAVI defaults ---------- */
+  var ARCH = [
+    {
+      id: "project",
+      code: "PT",
+      name: "프로젝트·태스크 트래커",
+      desc: "진행 상태·마감·담당을 칸반과 타임라인으로 관리",
+      n: "팀이 진행 중인 프로젝트와 태스크의 상태·마감을 한눈에 보고, 다음에 무엇을 할지 정한다. 독자: 팀원·팀리더.",
+      a: "태스크 DB · 상태(Status), 담당자(Person), 마감일(Date), 우선순위(Select), 프로젝트(Relation)",
+      props: [
+        ["상태", "Status"],
+        ["담당자", "Person"],
+        ["마감일", "Date"],
+        ["우선순위", "Select"],
+        ["프로젝트", "Relation"],
+      ],
+      views: ["board", "timeline", "table"],
+      i: "주간: 매주 스탠드업 전 담당자가 상태·마감 갱신",
+    },
+    {
+      id: "hub",
+      code: "TH",
+      name: "팀 홈·운영 허브",
+      desc: "공지·핵심 링크·자료를 모은 팀 공용 홈",
+      n: "팀이 매일 드나드는 공용 홈. 공지·핵심 링크·자료를 한 곳에 모아 '그거 어디 있지'를 없앤다. 독자: 팀 전원.",
+      a: "리소스·공지 DB · 분류(Select), 담당(Person), 링크(URL), 고정(Checkbox), 갱신일(Date)",
+      props: [
+        ["분류", "Select"],
+        ["담당", "Person"],
+        ["링크", "URL"],
+        ["고정", "Checkbox"],
+        ["갱신일", "Date"],
+      ],
+      views: ["gallery", "list", "table"],
+      i: "상시: 공지 발생 시 즉시, 월 1회 링크·자료 정리",
+    },
+    {
+      id: "content",
+      code: "CC",
+      name: "콘텐츠·발행 캘린더",
+      desc: "무엇을 언제 어느 채널에 발행할지 캘린더로 관리",
+      n: "무엇을 언제 어느 채널에 발행하는지 관리하고 병목을 본다. 독자: 콘텐츠·마케팅 담당.",
+      a: "콘텐츠 DB · 상태(Status), 채널(Multi-select), 발행일(Date), 유형(Select), 담당(Person)",
+      props: [
+        ["상태", "Status"],
+        ["채널", "Multi-select"],
+        ["발행일", "Date"],
+        ["유형", "Select"],
+        ["담당", "Person"],
+      ],
+      views: ["calendar", "board", "table"],
+      i: "주간: 편집회의에서 상태·발행일 갱신",
+    },
+    {
+      id: "crm",
+      code: "SP",
+      name: "영업 파이프라인(CRM)",
+      desc: "딜 단계와 다음 액션을 파이프라인으로 추적",
+      n: "진행 중인 딜이 어느 단계에 있고 이번 주 무엇을 밀어야 하는지 본다. 독자: 영업 담당·리더.",
+      a: "딜 DB · 단계(Status), 예상금액(Number), 담당(Person), 다음 액션일(Date), 거래처(Relation)",
+      props: [
+        ["단계", "Status"],
+        ["예상금액", "Number"],
+        ["담당", "Person"],
+        ["다음 액션일", "Date"],
+        ["거래처", "Relation"],
+      ],
+      views: ["board", "table", "calendar"],
+      i: "주간: 파이프라인 리뷰에서 단계·다음 액션 갱신",
+    },
+    {
+      id: "okr",
+      code: "OK",
+      name: "목표·OKR 트래커",
+      desc: "분기 목표·핵심결과의 진척을 추적",
+      n: "분기 목표와 핵심결과의 진척을 추적하고 뒤처진 곳을 드러낸다. 독자: 리더·팀원.",
+      a: "목표·핵심결과 DB · 분기(Select), 진척도(Number), 상태(Status), 담당(Person), 상위목표(Relation)",
+      props: [
+        ["분기", "Select"],
+        ["진척도", "Number"],
+        ["상태", "Status"],
+        ["담당", "Person"],
+        ["상위목표", "Relation"],
+      ],
+      views: ["table", "board", "timeline"],
+      i: "격주 체크인 + 분기 리뷰: 담당자가 진척도 갱신",
+    },
+    {
+      id: "wiki",
+      code: "KB",
+      name: "지식베이스·위키",
+      desc: "팀 문서·지식을 분류해 검색 가능하게 축적",
+      n: "팀 지식·문서를 분류해 검색 가능하게 축적한다. 독자: 팀 전원·신규 입사자.",
+      a: "문서 DB · 카테고리(Select), 태그(Multi-select), 상태(Select: 초안/검토/공개), 작성자(Person), 최종수정(Last edited)",
+      props: [
+        ["카테고리", "Select"],
+        ["태그", "Multi-select"],
+        ["상태", "Select"],
+        ["작성자", "Person"],
+        ["최종수정", "Last edited"],
+      ],
+      views: ["gallery", "table", "list"],
+      i: "분기: 콘텐츠 감사로 오래된 문서 검토·정리",
+    },
+    {
+      id: "meeting",
+      code: "MN",
+      name: "회의록 허브",
+      desc: "회의록과 후속 액션아이템을 한 곳에서 추적",
+      n: "회의록과 그 자리에서 나온 액션아이템을 한 곳에서 추적한다. 독자: 회의 참석자·PM.",
+      a: "회의록 DB · 날짜(Date), 유형(Select), 참석자(Person), 관련 프로젝트(Relation), 액션아이템(Relation)",
+      props: [
+        ["날짜", "Date"],
+        ["유형", "Select"],
+        ["참석자", "Person"],
+        ["관련 프로젝트", "Relation"],
+        ["액션아이템", "Relation"],
+      ],
+      views: ["list", "calendar", "table"],
+      i: "회의 직후: 기록자가 회의록·액션아이템 입력",
+    },
+    {
+      id: "asset",
+      code: "AR",
+      name: "자산·재고 관리",
+      desc: "자산·재고의 상태·위치·수량을 기록·점검",
+      n: "보유 자산·재고의 상태·위치·담당을 기록하고 점검한다. 독자: 총무·운영 담당.",
+      a: "자산 DB · 상태(Status), 위치(Select), 담당자(Person), 취득일(Date), 수량(Number)",
+      props: [
+        ["상태", "Status"],
+        ["위치", "Select"],
+        ["담당자", "Person"],
+        ["취득일", "Date"],
+        ["수량", "Number"],
+      ],
+      views: ["table", "board", "gallery"],
+      i: "월간: 재고·자산 실사 후 상태·수량 갱신",
+    },
+  ];
+  var ARCH_BY_ID = {};
+  ARCH.forEach(function (a) {
+    ARCH_BY_ID[a.id] = a;
+  });
+
+  /* ---------- state ---------- */
+  var selectedArch = null;
+  var selectedViews = {};
+  var manual = { n: false, a: false, i: false, v: false };
+
+  /* ---------- element refs ---------- */
+  var elName = document.getElementById("dashName");
+  var elJtbd = document.getElementById("jtbd");
+  var elN = document.getElementById("navi-n");
+  var elA = document.getElementById("navi-a");
+  var elI = document.getElementById("navi-i");
+  var archGrid = document.getElementById("archGrid");
+  var viewChips = document.getElementById("viewChips");
+  var resultEl = document.getElementById("result");
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  function setVal(el, val) {
+    el.value = val;
+    grow(el);
+  }
+
+  /* ---------- render archetype grid ---------- */
+  ARCH.forEach(function (a) {
+    var lab = document.createElement("label");
+    lab.className = "arch";
+    lab.dataset.id = a.id;
+    lab.innerHTML =
+      '<input type="radio" class="native" name="archetype" value="' +
+      a.id +
+      '" />' +
+      '<span class="arch-code" aria-hidden="true">' +
+      a.code +
+      "</span>" +
+      '<span class="arch-body">' +
+      '<p class="arch-title">' +
+      esc(a.name) +
+      "</p>" +
+      '<p class="arch-desc">' +
+      esc(a.desc) +
+      "</p>" +
+      "</span>";
+    archGrid.appendChild(lab);
+  });
+
+  archGrid.addEventListener("change", function (e) {
+    if (!e.target.classList || !e.target.classList.contains("native")) return;
+    selectedArch = e.target.value;
+    Array.prototype.forEach.call(
+      archGrid.querySelectorAll("label.arch"),
+      function (l) {
+        l.classList.toggle("on", l.dataset.id === selectedArch);
+      }
+    );
+    applyArchetype(ARCH_BY_ID[selectedArch]);
+  });
+
+  function applyArchetype(a) {
+    if (!a) return;
+    if (!manual.n) setVal(elN, a.n);
+    if (!manual.a) setVal(elA, a.a);
+    if (!manual.i) setVal(elI, a.i);
+    if (!manual.v) {
+      selectedViews = {};
+      a.views.forEach(function (id) {
+        selectedViews[id] = true;
+      });
+      syncChips();
+    }
+  }
+
+  /* ---------- render view chips ---------- */
+  VIEWS.forEach(function (v) {
+    var lab = document.createElement("label");
+    lab.className = "chip";
+    lab.dataset.id = v.id;
+    lab.innerHTML =
+      '<input type="checkbox" class="native" value="' +
+      v.id +
+      '" />' +
+      '<span class="chip-label">' +
+      esc(v.label) +
+      "</span>" +
+      '<span class="chip-best">' +
+      esc(v.best) +
+      "</span>";
+    viewChips.appendChild(lab);
+  });
+
+  viewChips.addEventListener("change", function (e) {
+    if (!e.target.classList || !e.target.classList.contains("native")) return;
+    manual.v = true;
+    var id = e.target.value;
+    if (e.target.checked) selectedViews[id] = true;
+    else delete selectedViews[id];
+    var lab = e.target.closest("label.chip");
+    if (lab) lab.classList.toggle("on", e.target.checked);
+  });
+
+  function syncChips() {
+    Array.prototype.forEach.call(
+      viewChips.querySelectorAll("label.chip"),
+      function (lab) {
+        var id = lab.dataset.id;
+        var box = lab.querySelector("input.native");
+        var on = !!selectedViews[id];
+        box.checked = on;
+        lab.classList.toggle("on", on);
+      }
+    );
+  }
+
+  /* ---------- track manual edits + auto-grow ---------- */
+  elN.addEventListener("input", function () {
+    manual.n = true;
+    grow(elN);
+  });
+  elA.addEventListener("input", function () {
+    manual.a = true;
+    grow(elA);
+  });
+  elI.addEventListener("input", function () {
+    manual.i = true;
+    grow(elI);
+  });
+  elJtbd.addEventListener("input", function () {
+    grow(elJtbd);
+  });
+
+  /* ---------- diagnostics ---------- */
+  function hasDate(text) {
+    return /(날짜|마감|발행|일정|기한|예정일|date)/i.test(text);
+  }
+  function hasStatus(text) {
+    return /(상태|단계|진행|status|select)/i.test(text);
+  }
+
+  function computeWarnings(d) {
+    var w = [];
+    if (!d.jtbd) {
+      w.push(
+        "할 일 한 문장이 비어 있습니다. 대시보드가 무엇을 돕는지부터 한 문장으로 정하세요."
+      );
+    }
+    if (!d.arch) {
+      w.push(
+        "아키타입을 고르지 않았습니다. 기본 구조 추천을 받으려면 STEP 2에서 유형을 선택하세요."
+      );
+    }
+    if (!d.n) w.push("N(목적·독자)이 비어 있습니다. 누구의 어떤 결정을 돕는지 적으세요.");
+    if (!d.a)
+      w.push(
+        "A(데이터·속성)가 비어 있습니다. 대시보드는 결국 데이터베이스 위에 섭니다."
+      );
+    var vc = d.views.length;
+    if (vc === 0) w.push("선택된 뷰가 없습니다. 최소 1개 뷰(표 권장)를 고르세요.");
+    if (vc > 4)
+      w.push(
+        "뷰가 " +
+          vc +
+          "개입니다. 초기에는 2~3개로 줄여 과설계를 피하세요. 뷰는 나중에 얼마든지 추가할 수 있습니다."
+      );
+    if (!d.i)
+      w.push(
+        "I(운영·리듬)가 비어 있습니다. 누가 언제 갱신할지 없으면 대시보드는 곧 방치됩니다."
+      );
+    // structural: view <-> property coherence
+    var needDateView = d.views.indexOf("calendar") > -1 || d.views.indexOf("timeline") > -1;
+    if (needDateView && d.a && !hasDate(d.a)) {
+      w.push(
+        "캘린더·타임라인 뷰에는 날짜(Date) 속성이 필요합니다. A(데이터·속성)에 마감일·발행일 같은 날짜 속성을 추가하세요."
+      );
+    }
+    if (d.views.indexOf("board") > -1 && d.a && !hasStatus(d.a)) {
+      w.push(
+        "보드(칸반) 뷰에는 상태(Status/Select) 속성이 필요합니다. A(데이터·속성)에 상태·단계를 추가하세요."
+      );
+    }
+    return w;
+  }
+
+  function bandFor(score) {
+    if (score >= 5)
+      return {
+        tone: "ready",
+        label: "설계 요소 " + score + " / 6",
+        title: "설계 준비 완료",
+        desc: "핵심 설계 정보가 채워졌습니다. 아래 스펙과 AI 빌드 프롬프트로 바로 노션에서 만들기 시작하세요.",
+      };
+    if (score >= 3)
+      return {
+        tone: "partial",
+        label: "설계 요소 " + score + " / 6",
+        title: "골격은 섰고, 빈칸이 남았습니다",
+        desc: "구조는 잡혔지만 몇 칸이 비어 있습니다. 아래 점검 항목을 채우면 실행 가능한 설계가 됩니다.",
+      };
+    return {
+      tone: "early",
+      label: "설계 요소 " + score + " / 6",
+      title: "아직 설계 정보가 부족합니다",
+      desc: "대시보드를 세울 정보가 부족합니다. 할 일 한 문장과 아키타입부터 정하고 NAVI를 채우세요.",
+    };
+  }
+
+  /* ---------- build AI prompt ---------- */
+  function buildPrompt(d) {
+    var L = [];
+    L.push("당신은 노션(Notion) 워크스페이스를 설계하는 전문가입니다.");
+    L.push(
+      "아래 설계 스펙을 바탕으로, 이 대시보드를 노션에서 실제로 만들 수 있게 단계별로 안내해 주세요."
+    );
+    L.push("");
+    L.push("【대시보드】");
+    L.push("- 이름: " + (d.name || "(미정)"));
+    L.push("- 할 일 한 문장: " + (d.jtbd || "(미정)"));
+    L.push("- 아키타입: " + (d.archName || "(미선택)"));
+    L.push("");
+    L.push("【NAVI 설계】");
+    L.push("- N 목적·독자: " + (d.n || "(미정)"));
+    L.push("- A 데이터·핵심 속성: " + (d.a || "(미정)"));
+    L.push(
+      "- V 뷰 구성: " +
+        (d.views.length
+          ? d.views
+              .map(function (id) {
+                return VIEW_LABEL[id];
+              })
+              .join(", ")
+          : "(미정)")
+    );
+    L.push("- I 운영·리듬: " + (d.i || "(미정)"));
+    if (d.props && d.props.length) {
+      L.push("");
+      L.push("【추천 속성 스키마 (" + d.archName + ")】");
+      d.props.forEach(function (p) {
+        L.push("- " + p[0] + " : " + p[1]);
+      });
+    }
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 데이터베이스부터 만드는 순서로 안내: 데이터베이스 생성 → 각 속성(이름·타입·Select 옵션 예시) → 뷰 → 각 뷰의 필터·정렬·그룹 설정 → 홈 페이지에 임베드·링크 배치."
+    );
+    L.push(
+      "2. 위 V의 각 뷰가 왜 이 대시보드에 맞는지, 어떤 필터·그룹·정렬로 세팅할지 구체적으로 제안해 주세요."
+    );
+    L.push(
+      "3. 운영 리듬(I)이 지켜지도록 반복 템플릿(템플릿 버튼)·데이터베이스 자동화·리마인더를 제안해 주세요."
+    );
+    L.push(
+      "4. 과설계를 피하도록, 처음에 최소로 시작해 확장하는 순서를 알려 주세요. (뷰는 2~3개로 시작)"
+    );
+    L.push(
+      "5. 캘린더·타임라인 뷰가 있으면 날짜 속성, 보드 뷰가 있으면 상태(Status/Select) 속성이 반드시 있는지 점검해 주세요."
+    );
+    L.push(
+      "6. 정보가 부족하면 지어내지 말고, 먼저 저에게 필요한 사실을 질문해 주세요. 근거 없는 결과는 만들지 마세요."
+    );
+    return L.join("\n");
+  }
+
+  /* ---------- gather + render ---------- */
+  var lastPrompt = "";
+
+  function gather() {
+    var arch = selectedArch ? ARCH_BY_ID[selectedArch] : null;
+    var viewsOrdered = VIEWS.map(function (v) {
+      return v.id;
+    }).filter(function (id) {
+      return selectedViews[id];
+    });
+    return {
+      name: elName.value.trim(),
+      jtbd: elJtbd.value.trim(),
+      arch: selectedArch,
+      archName: arch ? arch.name : "",
+      props: arch ? arch.props : null,
+      n: elN.value.trim(),
+      a: elA.value.trim(),
+      i: elI.value.trim(),
+      views: viewsOrdered,
+    };
+  }
+
+  document.getElementById("build").addEventListener("click", function () {
+    var d = gather();
+
+    var naviCount =
+      (d.n ? 1 : 0) + (d.a ? 1 : 0) + (d.views.length ? 1 : 0) + (d.i ? 1 : 0);
+    var jtbdOk = d.jtbd.length >= 8 ? 1 : 0;
+    var archOk = d.arch ? 1 : 0;
+    var score = naviCount + jtbdOk + archOk; // 0..6
+    var band = bandFor(score);
+    var warnings = computeWarnings(d);
+
+    var html = "";
+
+    /* verdict */
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html +=
+      '<div class="meter" role="img" aria-label="6개 중 ' +
+      score +
+      '개 설계 요소 충족">';
+    for (var p = 0; p < 6; p++) {
+      html += '<span class="pip' + (p < score ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html += '<p class="meter-caption">' + score + " / 6 설계 요소</p>";
+    html += "</div>";
+
+    /* warnings */
+    if (warnings.length) {
+      html += '<div class="result-block-title">점검 항목</div>';
+      html += '<ul class="warn-list">';
+      warnings.forEach(function (msg) {
+        html +=
+          '<li class="warn-item"><span class="wi-mark" aria-hidden="true">!</span><span>' +
+          esc(msg) +
+          "</span></li>";
+      });
+      html += "</ul>";
+    } else {
+      html +=
+        '<p class="clean-note" style="margin-top:16px">점검에서 걸린 항목이 없습니다. 설계가 서로 맞물립니다. 아래 스펙과 프롬프트로 바로 만들기 시작하세요.</p>';
+    }
+
+    /* spec summary */
+    html += '<div class="result-block-title">설계 스펙</div>';
+    html += '<ul class="spec-list">';
+    html += specItem("대시보드 이름", d.name);
+    html += specItem("할 일 한 문장", d.jtbd);
+    html += specItem("아키타입", d.archName);
+    html += "</ul>";
+
+    /* NAVI cards */
+    html += '<div class="result-block-title">NAVI 4요소</div>';
+    html += '<ul class="spec-list">';
+    html += naviCard("N", "목적·독자", d.n);
+    html += naviCard("A", "데이터·핵심 속성", d.a);
+    html += naviCard(
+      "V",
+      "뷰 구성",
+      d.views.length
+        ? d.views
+            .map(function (id) {
+              return VIEW_LABEL[id];
+            })
+            .join(", ")
+        : ""
+    );
+    html += naviCard("I", "운영·리듬", d.i);
+    html += "</ul>";
+
+    /* recommended schema table */
+    if (d.props && d.props.length) {
+      html +=
+        '<div class="result-block-title">추천 데이터베이스 속성 (' +
+        esc(d.archName) +
+        ")</div>";
+      html += '<div class="tbl-scroll"><table class="spec-tbl">';
+      html += "<thead><tr><th>속성</th><th>타입</th></tr></thead><tbody>";
+      d.props.forEach(function (pr) {
+        html +=
+          "<tr><td>" +
+          esc(pr[0]) +
+          '</td><td><span class="type-badge">' +
+          esc(pr[1]) +
+          "</span></td></tr>";
+      });
+      html += "</tbody></table></div>";
+    }
+
+    /* recommended views table */
+    html += '<div class="result-block-title">뷰 구성</div>';
+    if (d.views.length) {
+      html += '<div class="tbl-scroll"><table class="spec-tbl">';
+      html += "<thead><tr><th>뷰</th><th>언제 좋은가</th></tr></thead><tbody>";
+      d.views.forEach(function (id) {
+        var v = VIEWS.filter(function (x) {
+          return x.id === id;
+        })[0];
+        html +=
+          "<tr><td>" + esc(v.label) + "</td><td>" + esc(v.best) + "</td></tr>";
+      });
+      html += "</tbody></table></div>";
+    } else {
+      html +=
+        '<p class="spec-item si-v muted" style="border:1px solid var(--line);border-radius:11px;padding:12px 14px">선택된 뷰가 없습니다. STEP 3에서 뷰를 1개 이상 고르세요.</p>';
+    }
+
+    /* AI build prompt */
+    lastPrompt = buildPrompt(d);
+    html += '<div class="result-block-title">AI 빌드 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 Claude·ChatGPT 등에 붙여넣으면, 이 설계를 바탕으로 노션에서 만드는 단계별 가이드를 만들어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function specItem(k, v) {
+    var muted = !v;
+    return (
+      '<li class="spec-item"><p class="si-k">' +
+      esc(k) +
+      '</p><p class="si-v' +
+      (muted ? " muted" : "") +
+      '">' +
+      (muted ? "(미정)" : esc(v)) +
+      "</p></li>"
+    );
+  }
+  function naviCard(k, sub, v) {
+    var muted = !v;
+    return (
+      '<li class="navi-card"><span class="nc-k"><span class="k">' +
+      k +
+      "</span>" +
+      esc(sub) +
+      '</span><p class="nc-v' +
+      (muted ? " muted" : "") +
+      '">' +
+      (muted ? "(미정)" : esc(v)) +
+      "</p></li>"
+    );
+  }
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    selectedArch = null;
+    selectedViews = {};
+    manual = { n: false, a: false, i: false, v: false };
+    elName.value = "";
+    setVal(elJtbd, "");
+    setVal(elN, "");
+    setVal(elA, "");
+    setVal(elI, "");
+    Array.prototype.forEach.call(
+      archGrid.querySelectorAll("input.native"),
+      function (b) {
+        b.checked = false;
+      }
+    );
+    Array.prototype.forEach.call(
+      archGrid.querySelectorAll("label.arch"),
+      function (l) {
+        l.classList.remove("on");
+      }
+    );
+    syncChips();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◫</div>' +
+      "<p><strong>아직 설계 전입니다.</strong></p>" +
+      "<p>할 일 한 문장을 적고 아키타입을 고른 뒤 '설계 스펙 생성'을 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) flashStatus("복사되었습니다");
+    else openModal(text);
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

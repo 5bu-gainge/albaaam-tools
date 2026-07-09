@@ -1,0 +1,1170 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>경비 사용내역 구체화 도우미</title>
+<meta
+  name="description"
+  content="거친 영수증 항목을 붙여넣으면 대상·목적·이동내역을 갖춘 구체적 사용내역과 계정 분류로 다듬는다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2c6e63;
+    --accent-strong: #21564d;
+    --accent-tint: #e7f2ef;
+    --accent-tint-2: #d2e7e1;
+    --ink: #1f2523;
+    --ink-soft: #454e4a;
+    --ink-mute: #6a736e;
+    --paper: #f6f8f7;
+    --card: #ffffff;
+    --line: #e3e8e6;
+    --line-strong: #d2dad7;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #9a5a12;
+    --warn-tint: #fbf1e2;
+    --warn-line: #eeddc2;
+    --shadow: 0 1px 2px rgba(31, 37, 35, 0.05), 0 6px 20px rgba(31, 37, 35, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 140px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa39e;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-hint strong {
+    color: var(--ink-soft);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 170px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .btn-text {
+    background: transparent;
+    color: var(--accent-strong);
+    border-color: transparent;
+    padding: 13px 8px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .btn-text:hover {
+    color: var(--accent);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* summary */
+  .summary {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 14px;
+    padding: 16px 16px 14px;
+    margin-bottom: 18px;
+  }
+  .summary-total {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .summary-meta {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin: 4px 0 0;
+    font-weight: 600;
+  }
+  .cat-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 12px;
+  }
+  .chip {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid var(--accent-tint-2);
+    color: var(--ink-soft);
+  }
+  .chip b {
+    color: var(--accent-strong);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* item cards */
+  ul.items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  li.item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    background: #fbfdfc;
+    padding: 14px 15px;
+  }
+  .item-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 7px;
+  }
+  .item-date {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border-radius: 6px;
+    padding: 2px 9px;
+    flex: none;
+  }
+  .item-amount {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .item-detail {
+    font-size: 1.04rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 8px;
+    line-height: 1.45;
+  }
+  .item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+  .item-vendor {
+    color: var(--ink-soft);
+  }
+  .item-vendor b {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .badge {
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 999px;
+    flex: none;
+  }
+  .c-park {
+    background: #e3efec;
+    color: #1f5148;
+  }
+  .c-fuel {
+    background: #f3ecdd;
+    color: #6f531a;
+  }
+  .c-meet {
+    background: #e6edf6;
+    color: #2c4f7c;
+  }
+  .c-meal {
+    background: #f6ebe1;
+    color: #8a4e20;
+  }
+  .c-event {
+    background: #efe8f4;
+    color: #574089;
+  }
+  .c-trans {
+    background: #e4eff0;
+    color: #245a61;
+  }
+  .c-etc {
+    background: #eaecec;
+    color: #4f5854;
+  }
+  .item-note {
+    margin: 9px 0 0;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    padding: 8px 11px;
+    border-radius: 8px;
+  }
+  .note-confirm {
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    color: #7d4a10;
+  }
+  .note-confirm b {
+    color: var(--warn);
+  }
+  .note-merge {
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    color: #2b5d43;
+    margin-top: 7px;
+  }
+  .note-pay {
+    color: var(--ink-mute);
+    font-size: 0.82rem;
+    margin: 7px 0 0;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #22302c;
+    color: #eef4f1;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 37, 35, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 160px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  footer.foot p {
+    margin: 0 0 8px;
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .item-top {
+      flex-wrap: wrap;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">경비정산 · 사용내역 구체화</span>
+    <h1>경비 사용내역 구체화 도우미</h1>
+    <p class="lede">
+      카드앱·영수증에서 긁어온 거친 항목을 붙여넣으면, 대상(고객사·팀·참석자)과
+      목적·이동내역을 갖춘 구체적인 사용내역으로 다듬고 계정까지 분류합니다.
+      같은 거래(카드앱+매장영수증)는 1건으로 합쳐 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>영수증 항목 붙여넣기</h2>
+    </div>
+    <p class="panel-sub">
+      한 줄에 한 건씩. 일자·사용처·금액이 섞여 있어도 알아서 뽑아냅니다.
+      (예: <code>5/8 GS칼텍스 성수주유소 70,000</code>)
+    </p>
+    <label class="field-label" for="raw">거친 사용내역</label>
+    <textarea
+      id="raw"
+      placeholder="5/2 아마노 성수드림빌드 주차 3,000&#10;5/13 CU 성수역점 12,500&#10;5/13 올리브영 32,000&#10;5/15 멜팅스톤 5,500&#10;5/8 GS칼텍스 70,000&#10;5/20 서울만남의광장휴게소 9,000"
+    ></textarea>
+    <p class="field-hint">
+      <strong>입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</strong>
+      서버·외부 AI 호출 없이 기기 안에서만 처리됩니다. 정산기간 기본값은 전월 27일 ~ 당월 26일입니다.
+    </p>
+
+    <div class="actions">
+      <button class="btn-primary" id="run">사용내역 다듬기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+      <button class="btn-text no-print" id="sample" type="button">예시 채우기</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>다듬어진 사용내역</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▤</div>
+        <p><strong>아직 다듬기 전입니다.</strong></p>
+        <p>위에 영수증 항목을 붙여넣고 '사용내역 다듬기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 가인지컨설팅그룹 개인경비정산(공명환/5BU)
+      실무 규율 — 사용내역은 일반 표현 대신 <b>대상 + 목적 + 이동내역</b>으로
+      구체화하고, 동일 거래(같은 승인번호 또는 일시·금액·가맹점)는 1건으로 합산하며,
+      밭㈜·로긴 현장, 가인지경영세미나, 야근 식대, 현장 이동 주유·주차 같은
+      반복 항목의 엔티티 맵을 사용해 계정을 분류합니다. 정산기간은 전월 27일 ~ 당월 26일.
+    </p>
+    <p>
+      이 도구는 사용내역 초안을 빠르게 만들어 주는 보조 도구이며, 실제 계정
+      확정과 목적·참석자 검증은 담당자가 하셔야 합니다. 규칙으로 정하기 어려운
+      항목은 '확인 필요'로 남겨 두었습니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ------------------------------------------------------------------ *
+   * 도메인 규칙: 가인지 개인경비정산 엔티티 맵 (expense-settlement-builder)
+   * 각 규칙은 키워드로 매칭되어 계정(cat)과 1차 구체화 사용내역(detail),
+   * 대상(target), 확인 필요 항목(confirm)을 만든다. 위에서부터 우선순위.
+   * ------------------------------------------------------------------ */
+
+  var CAT_CLASS = {
+    "주차비": "c-park",
+    "유류비": "c-fuel",
+    "회의비": "c-meet",
+    "식대": "c-meal",
+    "행사·판촉비": "c-event",
+    "여비교통비": "c-trans",
+    "기타": "c-etc"
+  };
+  var CAT_ORDER = ["주차비", "유류비", "회의비", "식대", "행사·판촉비", "여비교통비", "기타"];
+
+  function parkingName(v) {
+    if (/아마노|성수드림빌드/.test(v)) return "아마노 성수드림빌드 주차장";
+    if (/파킨|parkin|스탈릿/i.test(v)) return "PARKIN 스탈릿 성수 주차장";
+    return null;
+  }
+
+  function classify(vendor, raw) {
+    var t = (vendor + " " + raw).toLowerCase();
+    function has() {
+      for (var i = 0; i < arguments.length; i++) {
+        if (t.indexOf(arguments[i]) > -1) return true;
+      }
+      return false;
+    }
+    var isCU = /(^|[^a-z])cu([^a-z]|$)/.test(t);
+
+    // 1) 주유 (유류비)
+    if (has("주유", "칼텍스", "에너지", "오일뱅크", "에스오일", "s-oil", "현대오일", "알뜰", "주유소")) {
+      return {
+        cat: "유류비",
+        detail: "현장 이동 주유비 (밭·로긴 현장 왕복 이동)",
+        target: "컨설팅 현장 이동",
+        confirm: ["어느 현장·왕복 횟수 (예: 밭 2회, 로긴 1회)"]
+      };
+    }
+    // 2) 주차 (주차비)
+    if (has("아마노", "파킨", "parkin", "스탈릿", "성수드림빌드", "주차")) {
+      var pn = parkingName(vendor);
+      return {
+        cat: "주차비",
+        detail: "컨설팅 현장 주차비" + (pn ? " (" + pn + ")" : ""),
+        target: "밭㈜ 성수 컨설팅 현장",
+        confirm: pn ? [] : ["정확한 주차장명"]
+      };
+    }
+    // 3) 멜팅스톤 = 밭 인근 카페 (회의비)
+    if (has("멜팅스톤", "melting")) {
+      return {
+        cat: "회의비",
+        detail: "밭 경영지원팀 미팅 다과/음료 구입비",
+        target: "밭㈜ 경영지원팀",
+        attendee: "테니",
+        confirm: ["참석자 확정 (기본: 테니)"]
+      };
+    }
+    // 4) 올리브영 = 세미나 추첨 선물 (행사·판촉비)
+    if (has("올리브영", "oliveyoung", "올영")) {
+      return {
+        cat: "행사·판촉비",
+        detail: "가인지경영세미나 추첨 선물 구매",
+        target: "가인지경영세미나 (매월 셋째 수요일)",
+        confirm: ["세미나 추첨용이 맞는지"]
+      };
+    }
+    // 5) 편의점 = 세미나 음료 사전구매 (행사·판촉비)
+    if (isCU || has("씨유", "gs25", "지에스25", "세븐일레븐", "세븐", "이마트24", "미니스톱", "편의점")) {
+      return {
+        cat: "행사·판촉비",
+        detail: "가인지경영세미나 음료 구입비",
+        target: "가인지경영세미나",
+        confirm: ["세미나용/개인용 구분 (추첨 선물이면 항목 변경)"]
+      };
+    }
+    // 6) 식사 / 휴게소 (식대)
+    if (has("휴게소", "식당", "국밥", "백반", "분식", "김밥", "한식", "기사식당", "우동", "칼국수", "식대", "뚝배기", "설렁탕", "고기", "밥")) {
+      return {
+        cat: "식대",
+        detail: "야근으로 인한 저녁 식대",
+        target: "야근",
+        confirm: ["식사 시간대·목적 (야근 / 현장 동행)"]
+      };
+    }
+    // 7) 카페 일반 (회의비)
+    if (has("카페", "스타벅스", "투썸", "이디야", "메가커피", "컴포즈", "빽다방", "커피", "coffee", "cafe")) {
+      return {
+        cat: "회의비",
+        detail: "컨설팅 현장 미팅 다과/음료 구입비",
+        target: "(고객사·참석자 확인 필요)",
+        confirm: ["고객사·참석자"]
+      };
+    }
+    // 8) 통행료·택시 등 (여비교통비)
+    if (has("통행료", "하이패스", "톨게이트", "고속도로", "택시", "ktx", "srt", "대리운전", "주차대행")) {
+      return {
+        cat: "여비교통비",
+        detail: "현장 이동 교통비",
+        target: "컨설팅 현장 이동",
+        confirm: ["이동 구간·현장"]
+      };
+    }
+    // fallback (기타)
+    return {
+      cat: "기타",
+      detail: vendor && vendor !== "(사용처 미상)" ? vendor + " 관련 사용" : "사용내역",
+      target: "",
+      confirm: ["대상(고객사/팀/참석자) · 목적 · 이동내역"]
+    };
+  }
+
+  // 현장 힌트 반영: 로긴/밭 명시가 있으면 사용내역·확인문구에 덧붙임
+  function enrich(cls, raw) {
+    var t = raw.toLowerCase();
+    var client = null;
+    if (t.indexOf("로긴") > -1) client = "로긴";
+    else if (t.indexOf("밭") > -1) client = "밭㈜";
+    if (client && cls.cat === "유류비") {
+      cls.detail = "현장 이동 주유비 (" + client + " 현장 왕복 이동)";
+      cls.confirm = ["왕복 횟수 (예: " + client + " 1회)"];
+    } else if (client && cls.target && cls.target.indexOf(client) === -1 && cls.cat !== "기타") {
+      cls.target = client + " · " + cls.target;
+    }
+    return cls;
+  }
+
+  /* ---------- 파싱 ---------- */
+
+  function parseLine(line) {
+    var raw = line.trim();
+    if (!raw) return null;
+    var work = raw;
+    var m;
+
+    // 날짜
+    var date = "", dv = 9999;
+    if ((m = work.match(/(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})/))) {
+      date = +m[2] + "/" + +m[3];
+      dv = +m[2] * 100 + +m[3];
+      work = work.replace(m[0], " ");
+    } else if ((m = work.match(/(\d{1,2})\s*월\s*(\d{1,2})\s*일?/))) {
+      date = +m[1] + "/" + +m[2];
+      dv = +m[1] * 100 + +m[2];
+      work = work.replace(m[0], " ");
+    } else if ((m = work.match(/(\d{1,2})[.\/\-](\d{1,2})/)) && +m[1] >= 1 && +m[1] <= 12 && +m[2] >= 1 && +m[2] <= 31) {
+      date = +m[1] + "/" + +m[2];
+      dv = +m[1] * 100 + +m[2];
+      work = work.replace(m[0], " ");
+    }
+
+    // 승인번호 (중복 판정용) — 8자리 이상 숫자 또는 '승인' 뒤 숫자
+    var appr = "";
+    if ((m = raw.match(/승인\s*번?호?\s*[:\-]?\s*(\d{4,})/))) appr = m[1];
+    else if ((m = work.match(/\b(\d{7,})\b/))) appr = m[1];
+    if (appr) work = work.replace(appr, " ");
+
+    // 금액
+    var amount = 0, amtStr = "";
+    if ((m = work.match(/([\d,]{2,})\s*원/))) {
+      amount = parseInt(m[1].replace(/,/g, ""), 10);
+      work = work.replace(m[0], " ");
+    } else if ((m = work.match(/₩\s*([\d,]{2,})/))) {
+      amount = parseInt(m[1].replace(/,/g, ""), 10);
+      work = work.replace(m[0], " ");
+    } else {
+      var nums = work.match(/\d[\d,]*/g) || [];
+      var best = 0;
+      nums.forEach(function (x) {
+        var digits = x.replace(/,/g, "");
+        if (digits.length >= 7) return; // 카드/승인번호로 추정 → 제외
+        var val = parseInt(digits, 10);
+        if (!isNaN(val) && val > best) {
+          best = val;
+          amtStr = x;
+        }
+      });
+      amount = best;
+      if (amtStr) work = work.replace(amtStr, " ");
+    }
+
+    // 결제수단
+    var pay = "";
+    if (/신한\s*sol|sol\s*앱/i.test(raw)) pay = "신한 SOL 앱";
+    else if (/삼성페이/i.test(raw)) pay = "신한카드(삼성페이)";
+    else if (/신한/i.test(raw)) pay = "신한카드";
+
+    // 사용처(vendor)
+    var vendor = work
+      .replace(/신한\s*sol|신한카드|신한은행|삼성페이|국민카드|현대카드|일시불|할부|승인번호|승인|영수증|앱결제|앱|카드/gi, " ")
+      .replace(/신한/g, " ")
+      .replace(/[()（）\[\]{}·:_※*#♥♡\-–—]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!vendor) vendor = "(사용처 미상)";
+
+    var cls = enrich(classify(vendor, raw), raw);
+
+    return {
+      raw: raw,
+      date: date || "미상",
+      dv: dv,
+      vendor: vendor,
+      amount: amount,
+      appr: appr,
+      pay: pay,
+      cls: cls,
+      dupCount: 0,
+      dupRaws: []
+    };
+  }
+
+  /* ---------- 중복 합산 ---------- */
+
+  function vkey(v) {
+    return v.replace(/\s|[()（）]/g, "").toLowerCase();
+  }
+
+  function dedupe(items) {
+    var out = [];
+    items.forEach(function (it) {
+      var canon = null;
+      for (var j = 0; j < out.length; j++) {
+        var o = out[j];
+        var sameAppr = it.appr && o.appr && it.appr === o.appr;
+        var a = vkey(it.vendor), b = vkey(o.vendor);
+        var vmatch =
+          a && b &&
+          (a.indexOf(b) > -1 || b.indexOf(a) > -1 ||
+            (a.length >= 2 && b.length >= 2 && a.slice(0, 2) === b.slice(0, 2)));
+        var sameTx = it.date === o.date && it.amount === o.amount && it.amount > 0 && vmatch;
+        if (sameAppr || sameTx) {
+          canon = o;
+          break;
+        }
+      }
+      if (canon) {
+        canon.dupCount += 1;
+        canon.dupRaws.push(it.raw);
+        // 승인번호는 있는 쪽으로 보존, 사용처는 더 긴 쪽(품목 보이는 매장영수증) 유지
+        if (!canon.appr && it.appr) canon.appr = it.appr;
+        if (it.vendor.length > canon.vendor.length && it.vendor !== "(사용처 미상)") {
+          canon.vendor = it.vendor;
+        }
+      } else {
+        out.push(it);
+      }
+    });
+    return out;
+  }
+
+  /* ---------- 유틸 ---------- */
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function won(n) {
+    return (n || 0).toLocaleString("ko-KR");
+  }
+
+  /* ---------- AI 프롬프트 ---------- */
+
+  function buildPrompt(items, total) {
+    var L = [];
+    L.push("당신은 가인지컨설팅그룹 개인경비정산서(공명환/5BU)의 '사용내역(상세)'을 다듬는 경비정산 코치입니다.");
+    L.push("아래 항목을 대상(고객사·팀·참석자) + 목적 + 이동내역을 갖춘 구체적 사용내역과 계정 분류로 최종 정리해 주세요.");
+    L.push("");
+    L.push("【사용내역 작성 규율】");
+    L.push("- 일반 표현 금지: '음료 구입비'가 아니라 '가인지경영세미나 음료 구입비'처럼 구체적으로.");
+    L.push("- 각 건에 대상 + 목적 + (해당 시) 이동 내역을 명시.");
+    L.push("- 영수증만으로 목적이 불명확하면 지어내지 말고 저에게 되물어 주세요.");
+    L.push("- 동일 거래(같은 승인번호 또는 일시·금액·가맹점)는 1건으로 합산.");
+    L.push("- 정산기간: 전월 27일 ~ 당월 26일. 기간 밖 항목은 포함 여부를 확인.");
+    L.push("");
+    L.push("【참고 엔티티 맵】");
+    L.push("- 밭㈜(성수 현장): 주차=아마노 성수드림빌드 / PARKIN 스탈릿 성수 → '컨설팅 현장 주차비 (주차장명)'. 인근 카페 멜팅스톤 → '밭 경영지원팀 미팅 다과/음료 구입비'(참석자 테니).");
+    L.push("- 로긴: 또 다른 컨설팅 현장(이동 대상).");
+    L.push("- 가인지경영세미나(매월 셋째 수): 전날 CU·올리브영 사전구매 → '가인지경영세미나 음료 구입비' / '추첨 선물 구매'.");
+    L.push("- 저녁 시간대 식사(휴게소 등) → '야근으로 인한 저녁 식대'.");
+    L.push("- 주유 → '현장 이동 주유비 (밭 N회, 로긴 N회 왕복 이동)'.");
+    L.push("");
+    L.push("【입력 항목 · 자동 1차 구체화 결과】 (합계 " + won(total) + "원, " + items.length + "건)");
+    items.forEach(function (it, i) {
+      var line =
+        (i + 1) + ". " + it.date + " | " + it.vendor + " | " + won(it.amount) + "원 | [" +
+        it.cls.cat + "] " + it.cls.detail;
+      if (it.dupCount > 0) line += " (중복 " + it.dupCount + "건 합산)";
+      L.push(line);
+      if (it.cls.confirm && it.cls.confirm.length) {
+        L.push("   └ 확인 필요: " + it.cls.confirm.join(", "));
+      }
+    });
+    L.push("");
+    L.push("【요청】");
+    L.push("1. 각 항목의 최종 사용내역 한 줄과 계정 분류를 표로 만들어 주세요.");
+    L.push("2. '확인 필요'로 표시된 항목은 결론을 지어내지 말고 먼저 저에게 질문해 주세요.");
+    L.push("3. 마지막에 계정별 합계를 정리해 주세요.");
+    return L.join("\n");
+  }
+
+  /* ---------- 렌더 ---------- */
+
+  var rawEl = document.getElementById("raw");
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  rawEl.addEventListener("input", function () {
+    grow(rawEl);
+  });
+
+  function emptyState() {
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+      "<p><strong>아직 다듬기 전입니다.</strong></p>" +
+      "<p>위에 영수증 항목을 붙여넣고 '사용내역 다듬기'를 누르세요.</p></div>";
+  }
+
+  function render() {
+    var lines = rawEl.value.split(/\r?\n/);
+    var parsed = [];
+    lines.forEach(function (ln) {
+      var it = parseLine(ln);
+      if (it) parsed.push(it);
+    });
+
+    if (parsed.length === 0) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">✎</div>' +
+        "<p><strong>인식된 항목이 없습니다.</strong></p>" +
+        "<p>한 줄에 한 건씩, 일자·사용처·금액을 붙여넣어 주세요.</p></div>";
+      return;
+    }
+
+    var items = dedupe(parsed);
+    items.sort(function (a, b) {
+      return a.dv - b.dv;
+    });
+
+    var total = 0;
+    var byCat = {};
+    var dupTotal = 0;
+    items.forEach(function (it) {
+      total += it.amount;
+      dupTotal += it.dupCount;
+      if (!byCat[it.cls.cat]) byCat[it.cls.cat] = { count: 0, sum: 0 };
+      byCat[it.cls.cat].count += 1;
+      byCat[it.cls.cat].sum += it.amount;
+    });
+
+    var html = "";
+
+    // summary
+    html += '<div class="summary">';
+    html += '<p class="summary-total">합계 ' + won(total) + "원</p>";
+    html += '<p class="summary-meta">총 ' + items.length + "건" +
+      (dupTotal > 0 ? " · 중복 " + dupTotal + "건을 합산 제외" : "") + "</p>";
+    html += '<div class="cat-chips">';
+    CAT_ORDER.forEach(function (c) {
+      if (byCat[c]) {
+        html += '<span class="chip">' + esc(c) + " <b>" + byCat[c].count + "건 · " +
+          won(byCat[c].sum) + "원</b></span>";
+      }
+    });
+    html += "</div></div>";
+
+    // items
+    html += '<div class="result-block-title">구체화된 사용내역</div>';
+    html += '<ul class="items">';
+    items.forEach(function (it) {
+      var meta = it.cls;
+      var badgeCls = CAT_CLASS[meta.cat] || "c-etc";
+      html += '<li class="item">';
+      html += '<div class="item-top">';
+      html += '<span class="item-date">' + esc(it.date) + "</span>";
+      html += '<span class="item-amount">' + won(it.amount) + "원</span>";
+      html += "</div>";
+      html += '<p class="item-detail">' + esc(meta.detail) + "</p>";
+      html += '<div class="item-meta">';
+      html += '<span class="item-vendor">사용처 <b>' + esc(it.vendor) + "</b>" +
+        (meta.attendee ? " (" + esc(meta.attendee) + ")" : "") + "</span>";
+      html += '<span class="badge ' + badgeCls + '">' + esc(meta.cat) + "</span>";
+      html += "</div>";
+      if (it.pay) {
+        html += '<p class="note-pay">결제수단: ' + esc(it.pay) + "</p>";
+      }
+      if (meta.confirm && meta.confirm.length) {
+        html += '<p class="item-note note-confirm"><b>확인 필요</b> · ' +
+          esc(meta.confirm.join(" / ")) + "</p>";
+      }
+      if (it.dupCount > 0) {
+        html += '<p class="item-note note-merge">동일 거래 ' + (it.dupCount + 1) +
+          "장을 1건으로 합산했습니다 (카드앱 + 매장영수증 등).</p>";
+      }
+      html += "</li>";
+    });
+    html += "</ul>";
+
+    // prompt
+    lastPrompt = buildPrompt(items, total);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 1차 구체화 결과를 바탕으로 최종 사용내역 표를 완성해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("run").addEventListener("click", render);
+
+  document.getElementById("reset").addEventListener("click", function () {
+    rawEl.value = "";
+    grow(rawEl);
+    lastPrompt = "";
+    emptyState();
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+    rawEl.focus();
+  });
+
+  document.getElementById("sample").addEventListener("click", function () {
+    rawEl.value =
+      "5/2 아마노 성수드림빌드 주차 3,000 (신한SOL 승인 30021456)\n" +
+      "5/2 아마노 성수드림빌드 3,000\n" +
+      "5/8 GS칼텍스 성수주유소 70,000 삼성페이\n" +
+      "5/13 CU 성수역점 12,500\n" +
+      "5/13 올리브영 명동점 32,000\n" +
+      "5/15 멜팅스톤 5,500\n" +
+      "5/20 서울만남의광장휴게소 9,000\n" +
+      "5/22 스타벅스 성수역점 11,300";
+    grow(rawEl);
+    render();
+  });
+
+  /* ---------- 복사 (3단 폴백) + 인쇄 ---------- */
+
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- 수동 복사 모달 ---------- */
+
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

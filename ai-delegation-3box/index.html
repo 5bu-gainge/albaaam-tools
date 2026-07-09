@@ -1,0 +1,1250 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI 위임 3칸 업무 분류기</title>
+<meta name="description" content="내 업무 목록을 없앨 일·AI에 맡길 일·사람이 지켜야 할 일 세 칸으로 갈라, 이번 주에 AI로 위임할 대상을 뽑아 줍니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #4a57a5;
+    --accent-strong: #38427f;
+    --accent-tint: #edeefa;
+    --accent-tint-2: #dde0f3;
+    --drop: #b0473f;
+    --drop-strong: #8f3a33;
+    --drop-tint: #f9ece9;
+    --drop-line: #eed6d1;
+    --keep: #2f6f52;
+    --keep-strong: #245a43;
+    --keep-tint: #e8f2ec;
+    --keep-line: #cfe4d8;
+    --warn: #a35a12;
+    --warn-tint: #fdf1df;
+    --warn-line: #f0dcbb;
+    --ink: #23262e;
+    --ink-soft: #464b56;
+    --ink-mute: #6b7280;
+    --paper: #f7f8fb;
+    --card: #ffffff;
+    --line: #e6e8ef;
+    --line-strong: #d4d8e3;
+    --shadow: 0 1px 2px rgba(30, 33, 45, 0.05), 0 6px 20px rgba(30, 33, 45, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 132px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: var(--ink);
+    background: #fcfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a3a8b4;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- legend ---------- */
+  .legend {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 18px 0 2px;
+  }
+  .legend-item {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 13px;
+    background: #fcfcfe;
+  }
+  .legend-item.li-drop {
+    border-top: 3px solid var(--drop);
+  }
+  .legend-item.li-ai {
+    border-top: 3px solid var(--accent);
+  }
+  .legend-item.li-keep {
+    border-top: 3px solid var(--keep);
+  }
+  .legend-name {
+    font-weight: 800;
+    font-size: 0.95rem;
+    margin: 0 0 4px;
+  }
+  .li-drop .legend-name {
+    color: var(--drop-strong);
+  }
+  .li-ai .legend-name {
+    color: var(--accent-strong);
+  }
+  .li-keep .legend-name {
+    color: var(--keep-strong);
+  }
+  .legend-desc {
+    margin: 0;
+    font-size: 0.83rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 24px 12px;
+  }
+  .empty-state svg {
+    width: 66px;
+    height: 44px;
+    margin-bottom: 10px;
+    color: var(--line-strong);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* distribution bar */
+  .dist {
+    display: flex;
+    height: 12px;
+    border-radius: 7px;
+    overflow: hidden;
+    background: #eceef4;
+    margin: 2px 0 10px;
+  }
+  .dist-seg {
+    height: 100%;
+    transition: width 0.3s;
+  }
+  .dist-seg.s-drop {
+    background: var(--drop);
+  }
+  .dist-seg.s-ai {
+    background: var(--accent);
+  }
+  .dist-seg.s-keep {
+    background: var(--keep);
+  }
+  .dist-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .dist-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex: none;
+  }
+  .dot.d-drop {
+    background: var(--drop);
+  }
+  .dot.d-ai {
+    background: var(--accent);
+  }
+  .dot.d-keep {
+    background: var(--keep);
+  }
+
+  /* three boxes */
+  .boxes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .box {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fcfcfe;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .box.b-drop {
+    border-top: 3px solid var(--drop);
+  }
+  .box.b-ai {
+    border-top: 3px solid var(--accent);
+  }
+  .box.b-keep {
+    border-top: 3px solid var(--keep);
+  }
+  .box-head {
+    padding: 12px 13px 6px;
+  }
+  .box-name {
+    font-weight: 800;
+    font-size: 0.96rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .b-drop .box-name {
+    color: var(--drop-strong);
+  }
+  .b-ai .box-name {
+    color: var(--accent-strong);
+  }
+  .b-keep .box-name {
+    color: var(--keep-strong);
+  }
+  .box-count {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #fff;
+    border-radius: 999px;
+    padding: 1px 8px;
+    min-width: 22px;
+    text-align: center;
+  }
+  .b-drop .box-count {
+    background: var(--drop);
+  }
+  .b-ai .box-count {
+    background: var(--accent);
+  }
+  .b-keep .box-count {
+    background: var(--keep);
+  }
+  .box-sub {
+    font-size: 0.79rem;
+    color: var(--ink-mute);
+    margin: 3px 0 0;
+  }
+  .box-list {
+    padding: 8px 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    flex: 1 1 auto;
+  }
+  .box-empty {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    text-align: center;
+    padding: 14px 6px;
+    line-height: 1.5;
+  }
+  .chip {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    padding: 10px 11px;
+  }
+  .chip-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.45;
+  }
+  .chip-why {
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+    margin: 5px 0 0;
+    line-height: 1.4;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    padding: 1px 7px;
+    border-radius: 6px;
+    margin-left: 6px;
+    vertical-align: 1px;
+  }
+  .chip-move {
+    margin-top: 9px;
+  }
+  .chip-move label {
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 4px;
+  }
+  select.move-select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: #fcfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    padding: 10px 9px;
+    min-height: 44px;
+    cursor: pointer;
+  }
+  select.move-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  /* weekly pick */
+  .pick {
+    margin-top: 8px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 14px;
+    padding: 16px 15px;
+  }
+  .pick-title {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin: 0 0 3px;
+  }
+  .pick-lead {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin: 0 0 13px;
+  }
+  .pick-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pick-item {
+    display: flex;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 11px;
+    padding: 12px 13px;
+    align-items: flex-start;
+  }
+  .pick-num {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.9rem;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+  }
+  .pick-body {
+    min-width: 0;
+  }
+  .pick-task {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 0 0 3px;
+    color: var(--ink);
+  }
+  .pick-reason {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+  .pick-none {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #22242c;
+    color: #eef0f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #12141a;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--keep-strong);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(23, 26, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 720px) {
+    .legend {
+      grid-template-columns: 1fr;
+    }
+    .boxes {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    .chip-move,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    .boxes {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">업무 재설계 · 덜어내기 · 위임 · 지키기</span>
+    <h1>AI 위임 3칸 업무 분류기</h1>
+    <p class="lede">
+      머릿속에 쌓인 업무 목록을 <strong>없앨 일 · AI에 맡길 일 · 사람이 지켜야 할
+      일</strong> 세 칸으로 갈라 드립니다. 그리고 그중 이번 주에 AI로 먼저 위임할
+      대상을 뽑아, 바로 붙여넣을 프롬프트까지 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>내 업무 목록</h2>
+    </div>
+    <p class="panel-sub">
+      요즘 실제로 시간을 쓰는 일을 한 줄에 하나씩 적으세요. 짧아도 됩니다. 많을수록
+      분류가 정확해집니다.
+    </p>
+    <label class="field-label" for="tasks">업무 (한 줄에 하나)</label>
+    <textarea
+      id="tasks"
+      placeholder="예)&#10;매주 주간 보고서 작성&#10;팀원 1:1 면담&#10;경쟁사 가격 조사·정리&#10;거래처 컴플레인 응대&#10;회의록 정리해서 공유&#10;신규 채용 최종 결정&#10;월간 정산 자료 취합&#10;그냥 참석만 하는 주간 회의"
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 안에서만 처리되며, 밖으로 전송되지 않습니다.
+    </p>
+
+    <div class="legend" aria-hidden="false">
+      <div class="legend-item li-drop">
+        <p class="legend-name">없앨 일</p>
+        <p class="legend-desc">
+          성과에 기여하지 않는 일. 위임하기 전에 먼저 덜어냅니다.
+        </p>
+      </div>
+      <div class="legend-item li-ai">
+        <p class="legend-name">AI에 맡길 일</p>
+        <p class="legend-desc">
+          반복적·규칙적·정보처리 중심. AI가 초안을 만들고, 내가 검토합니다.
+        </p>
+      </div>
+      <div class="legend-item li-keep">
+        <p class="legend-name">사람이 지켜야 할 일</p>
+        <p class="legend-desc">
+          최종 책임·관계·맥락 판단·현장. 내가 직접 지켜야 합니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="classifyBtn">3칸으로 분류하기</button>
+      <button class="btn-ghost" id="resetBtn">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>분류 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <svg viewBox="0 0 66 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="1" y="1" width="18" height="42" rx="4" stroke="currentColor" stroke-width="2"/>
+          <rect x="24" y="1" width="18" height="42" rx="4" stroke="currentColor" stroke-width="2"/>
+          <rect x="47" y="1" width="18" height="42" rx="4" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <p><strong>아직 분류 전입니다.</strong></p>
+        <p>업무 목록을 적고 '3칸으로 분류하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 업무를 먼저 <em>덜어내고(Eliminate) ·
+      자동화·위임하고(Automate/Delegate) · 사람이 지킨다</em>는 시간관리의 고전적
+      업무 재설계 사고에 기반합니다. AI 적합도는 널리 통용되는 기준, 즉 반복적이고
+      규칙·양식이 정해져 있으며 텍스트·데이터 정보처리 중심이고 사람이 검토·수정할
+      수 있는 일은 AI가 잘하고, 최종 책임·의사결정·신뢰 관계·맥락과 윤리 판단·대면
+      현장은 사람의 몫이라는 원칙(human-in-the-loop)으로 각 업무의 신호를 읽어
+      제안합니다.
+    </p>
+    <p>
+      이 도구는 입력한 문구의 신호로 <strong>초안 분류를 제안</strong>할 뿐,
+      최종 분류는 당신의 몫입니다. 특히 '없앨 일'은 맥락을 아는 당신만 판단할 수
+      있으니, 제안이 어긋나면 각 항목을 직접 옮기세요. 사고를 돕는 보조 도구입니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ------------------------------------------------------------------
+   * Signal dictionaries — read the words in each task to infer whether
+   * it is AI-delegable (repetitive / rule-based / information-processing),
+   * human-only (judgment / accountability / relationship / presence),
+   * or eliminable busywork. Strong signals weigh +2, normal +1.
+   * ---------------------------------------------------------------- */
+  var AI_STRONG = ["초안", "요약", "정리", "취합", "집계", "회의록", "보고서",
+    "번역", "정산", "리서치", "자료조사", "시장조사", "경쟁사", "데이터 입력",
+    "데이터입력"];
+  var AI_NORMAL = ["작성", "입력", "분류", "교정", "검색", "조사", "자료",
+    "엑셀", "시트", "스프레드시트", "통계", "리포트", "목록", "리스트", "대장",
+    "공지", "게시", "등록", "업로드", "포맷", "변환", "라벨링", "라벨", "스크립트",
+    "매크로", "메일", "이메일", "문서화", "개요", "초벌", "벤치마킹", "가격 조사",
+    "가격조사", "뉴스", "트렌드", "모니터링", "스크랩", "일정 정리", "일정정리",
+    "스케줄 정리", "견적서", "계산", "포스팅", "캡션", "해시태그", "faq", "정돈"];
+  var RECUR = ["매일", "매주", "매월", "매분기", "매년", "정기", "정례", "반복",
+    "주간", "월간", "일간", "분기별", "주기적", "루틴"];
+  var HUMAN_STRONG = ["결정", "의사결정", "승인", "최종", "책임", "협상", "면담",
+    "1:1", "코칭", "멘토링", "평가", "채용", "면접", "해고", "징계", "계약",
+    "컴플레인", "클레임", "갈등", "사과", "위로", "상담", "윤리"];
+  var HUMAN_NORMAL = ["설득", "관계", "신뢰", "케어", "조율", "비전", "전략 방향",
+    "전략방향", "판단", "대면", "방문", "현장", "미팅", "발표", "프레젠테이션",
+    "피드백", "동기부여", "리더십", "문화", "라포", "네트워킹", "접대", "원온원",
+    "데모", "고객 미팅", "고객미팅", "이해관계자", "인터뷰", "브리핑",
+    "우선순위 결정", "방향 설정"];
+  var ELIM = ["참석만", "단순 참석", "확인만", "전달만", "단순 전달", "참조만",
+    "형식적", "관행", "중복", "불필요", "그냥", "습관적", "보여주기", "눈치",
+    "시간 때우기", "때우기", "형식 보고", "의미 없"];
+
+  function countHits(text, list) {
+    var hits = [];
+    for (var i = 0; i < list.length; i++) {
+      if (text.indexOf(list[i]) >= 0) hits.push(list[i]);
+    }
+    return hits;
+  }
+
+  /* classify a single task line into a box + confidence + reasons */
+  function classify(raw) {
+    var t = raw.toLowerCase();
+    var aiS = countHits(t, AI_STRONG);
+    var aiN = countHits(t, AI_NORMAL);
+    var rec = countHits(t, RECUR);
+    var huS = countHits(t, HUMAN_STRONG);
+    var huN = countHits(t, HUMAN_NORMAL);
+    var el = countHits(t, ELIM);
+
+    var aiScore = aiS.length * 2 + aiN.length + rec.length; // recurring -> more automatable
+    var humanScore = huS.length * 2 + huN.length;
+    var elimScore = el.length;
+
+    var box, conf, reasons;
+    // Eliminate wins when it is the only signal, or when a strong busywork
+    // signal dominates (so an incidental cadence word like "주간" in "그냥
+    // 참석만 하는 주간 회의" does not misroute obvious busywork to AI).
+    if (
+      (elimScore > 0 && aiScore === 0 && humanScore === 0) ||
+      (elimScore >= 2 && elimScore >= aiScore && elimScore >= humanScore)
+    ) {
+      box = "eliminate";
+      conf = elimScore >= 2 ? "high" : "med";
+      reasons = el.slice(0, 3);
+    } else if (aiScore === 0 && humanScore === 0 && elimScore === 0) {
+      box = "human"; // safe default when no signal: keep with a human until reviewed
+      conf = "low";
+      reasons = [];
+    } else if (humanScore > aiScore) {
+      box = "human";
+      conf = humanScore - aiScore >= 3 ? "high" : humanScore - aiScore === 1 ? "med" : "med";
+      reasons = huS.concat(huN).slice(0, 3);
+    } else if (aiScore > humanScore) {
+      box = "ai";
+      conf = aiScore - humanScore >= 3 ? "high" : "med";
+      reasons = aiS.concat(aiN).concat(rec).slice(0, 3);
+    } else {
+      // tie with signals on both sides -> genuinely ambiguous
+      box = "human";
+      conf = "low";
+      reasons = huS.concat(aiS).slice(0, 3);
+    }
+
+    return {
+      text: raw,
+      box: box,
+      conf: conf,
+      reasons: reasons,
+      aiScore: aiScore,
+      humanScore: humanScore,
+      elimScore: elimScore,
+      recur: rec,
+      aiHits: aiS.concat(aiN),
+    };
+  }
+
+  var items = [];
+  var lastPrompt = "";
+
+  var BOX_META = {
+    eliminate: { name: "없앨 일", sub: "먼저 덜어낼 일", cls: "b-drop" },
+    ai: { name: "AI에 맡길 일", sub: "초안은 AI, 검토는 나", cls: "b-ai" },
+    human: { name: "사람이 지켜야 할 일", sub: "내가 지켜야 할 일", cls: "b-keep" },
+  };
+  var BOX_ORDER = ["eliminate", "ai", "human"];
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* ---- weekly AI-delegation pick (ranked) ---- */
+  function pickScore(it) {
+    return it.aiScore + it.recur.length * 2;
+  }
+  function pickReason(it) {
+    if (it.recur.length > 0)
+      return "매주·매일 반복되는 일이라, 위임하면 아낀 시간이 계속 쌓입니다.";
+    var strong = countHits(it.text.toLowerCase(), AI_STRONG);
+    if (strong.length > 0)
+      return "초안·정리 성격이라 AI가 바로 1차 결과물을 만들어 줍니다.";
+    return "규칙이 정해진 정보처리 업무라 위임이 쉽고 실패 위험이 낮습니다.";
+  }
+  function weeklyPicks() {
+    var aiItems = items.filter(function (it) {
+      return it.box === "ai";
+    });
+    aiItems.sort(function (a, b) {
+      var d = pickScore(b) - pickScore(a);
+      if (d !== 0) return d;
+      return a.idx - b.idx;
+    });
+    return aiItems.slice(0, 3);
+  }
+
+  /* ---- build paste-ready delegation prompt ---- */
+  function buildPrompt(picks) {
+    var lines = [];
+    lines.push("당신은 내 업무를 돕는 유능한 실무 어시스턴트입니다.");
+    lines.push(
+      "아래는 내가 이번 주에 AI에게 맡기기로 한 일입니다. 각 업무마다 (1) 바로 손볼 수 있는 초안 또는 실행 결과와, (2) 내가 사람으로서 반드시 검토·판단해야 할 체크리스트를 함께 만들어 주세요."
+    );
+    lines.push("");
+    lines.push("【이번 주 위임 업무】");
+    picks.forEach(function (it, i) {
+      lines.push(i + 1 + ". " + it.text);
+    });
+    lines.push("");
+    lines.push("【진행 방식】");
+    lines.push(
+      "- 각 업무마다 먼저 초안을 만드는 데 꼭 필요한 정보 1~2가지만 나에게 질문하고, 그다음 초안을 만들어 주세요."
+    );
+    lines.push(
+      "- 사실·수치·이름은 지어내지 마세요. 모르면 나에게 물어보고, 확인되지 않은 부분은 [확인 필요]로 표시하세요."
+    );
+    lines.push(
+      "- 결과물은 내가 손보기 쉽게 구조화된 형태(제목 · 불릿 · 표)로 주세요."
+    );
+    lines.push(
+      "- 각 업무 끝에 \"사람이 최종 확인할 것\" 2~3가지를 짚어 주세요. (책임·판단·관계가 걸린 부분)"
+    );
+    lines.push("");
+    lines.push(
+      "먼저 1번 업무부터 시작하겠습니다. 필요한 질문을 해 주세요."
+    );
+    return lines.join("\n");
+  }
+
+  /* ---- render full result from `items` ---- */
+  var resultEl = document.getElementById("result");
+
+  function renderResult() {
+    var counts = { eliminate: 0, ai: 0, human: 0 };
+    items.forEach(function (it) {
+      counts[it.box]++;
+    });
+    var total = items.length || 1;
+
+    var html = "";
+
+    /* distribution summary */
+    html += '<div class="dist-legend">';
+    html +=
+      '<span><span class="dot d-drop"></span>없앨 일 ' + counts.eliminate + "</span>";
+    html += '<span><span class="dot d-ai"></span>AI에 맡길 일 ' + counts.ai + "</span>";
+    html +=
+      '<span><span class="dot d-keep"></span>사람이 지킬 일 ' + counts.human + "</span>";
+    html += "</div>";
+    html +=
+      '<div class="dist" role="img" aria-label="없앨 일 ' + counts.eliminate +
+      "개, AI에 맡길 일 " + counts.ai + "개, 사람이 지킬 일 " + counts.human + "개">";
+    html += '<span class="dist-seg s-drop" style="width:' + (counts.eliminate / total) * 100 + '%"></span>';
+    html += '<span class="dist-seg s-ai" style="width:' + (counts.ai / total) * 100 + '%"></span>';
+    html += '<span class="dist-seg s-keep" style="width:' + (counts.human / total) * 100 + '%"></span>';
+    html += "</div>";
+
+    /* three boxes */
+    html += '<div class="boxes">';
+    BOX_ORDER.forEach(function (key) {
+      var meta = BOX_META[key];
+      html += '<div class="box ' + meta.cls + '">';
+      html += '<div class="box-head">';
+      html +=
+        '<p class="box-name">' + esc(meta.name) +
+        ' <span class="box-count">' + counts[key] + "</span></p>";
+      html += '<p class="box-sub">' + esc(meta.sub) + "</p>";
+      html += "</div>";
+      html += '<div class="box-list">';
+      var boxItems = items.filter(function (it) {
+        return it.box === key;
+      });
+      if (boxItems.length === 0) {
+        html += '<p class="box-empty">이 칸에 분류된 업무가 없습니다.</p>';
+      } else {
+        boxItems.forEach(function (it) {
+          html += '<div class="chip">';
+          html += '<p class="chip-text">' + esc(it.text);
+          if (it.conf === "low")
+            html += '<span class="badge">직접 확인</span>';
+          html += "</p>";
+          var why =
+            it.reasons.length > 0
+              ? "감지된 신호: " + it.reasons.map(esc).join(", ")
+              : "신호가 약해요. 맥락을 아는 당신이 직접 옮겨 주세요.";
+          html += '<p class="chip-why">' + why + "</p>";
+          html += '<div class="chip-move no-print">';
+          html +=
+            '<label for="mv-' + it.idx + '">칸 옮기기</label>';
+          html +=
+            '<select class="move-select" id="mv-' + it.idx +
+            '" data-idx="' + it.idx +
+            '" aria-label="' + esc(it.text) + ' 를 다른 칸으로 옮기기">';
+          BOX_ORDER.forEach(function (opt) {
+            html +=
+              '<option value="' + opt + '"' + (opt === it.box ? " selected" : "") +
+              ">" + esc(BOX_META[opt].name) + "</option>";
+          });
+          html += "</select></div>";
+          html += "</div>";
+        });
+      }
+      html += "</div></div>";
+    });
+    html += "</div>";
+
+    /* weekly pick */
+    var picks = weeklyPicks();
+    html += '<div class="result-block-title">이번 주 AI 위임 대상</div>';
+    html += '<div class="pick">';
+    if (picks.length === 0) {
+      html += '<p class="pick-title">이번 주 위임 대상이 없습니다</p>';
+      html +=
+        '<p class="pick-none">\'AI에 맡길 일\' 칸이 비어 있어요. 반복적이거나 정리·초안 성격의 업무를 이 칸으로 옮기면, 이번 주 위임 대상과 프롬프트를 만들어 드립니다.</p>';
+    } else {
+      html += '<p class="pick-title">이번 주엔 이 ' + picks.length + '가지부터</p>';
+      html +=
+        '<p class="pick-lead">\'AI에 맡길 일\' 중 시간 절약과 위임 난이도를 따져 우선순위를 매겼습니다. 한 번에 다 말고, 이것부터 넘겨 보세요.</p>';
+      html += '<ul class="pick-list">';
+      picks.forEach(function (it, i) {
+        html += '<li class="pick-item">';
+        html += '<span class="pick-num">' + (i + 1) + "</span>";
+        html += '<div class="pick-body">';
+        html += '<p class="pick-task">' + esc(it.text) + "</p>";
+        html += '<p class="pick-reason">' + esc(pickReason(it)) + "</p>";
+        html += "</div></li>";
+      });
+      html += "</ul>";
+    }
+    html += "</div>";
+
+    /* delegation prompt (only if there are picks) */
+    if (picks.length > 0) {
+      lastPrompt = buildPrompt(picks);
+      html += '<div class="result-block-title">AI에 붙여넣을 위임 프롬프트</div>';
+      html +=
+        '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 위 업무의 초안과 \'사람이 최종 확인할 것\'을 함께 만들어 줍니다.</p>';
+      html += '<div class="prompt-wrap">';
+      html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+      html += "</div>";
+      html += '<div class="copy-row no-print">';
+      html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+      html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+      html +=
+        '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+      html += "</div>";
+    } else {
+      lastPrompt = "";
+    }
+
+    resultEl.innerHTML = html;
+  }
+
+  /* ---- auto-grow textarea ---- */
+  var tasksEl = document.getElementById("tasks");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  tasksEl.addEventListener("input", function () {
+    grow(tasksEl);
+  });
+
+  /* ---- classify button ---- */
+  document.getElementById("classifyBtn").addEventListener("click", function () {
+    var raw = tasksEl.value.split("\n");
+    var lines = [];
+    for (var i = 0; i < raw.length; i++) {
+      var s = raw[i].trim().replace(/^[-*•\d.\)\s]+/, "").trim();
+      if (s) lines.push(s);
+      if (lines.length >= 60) break; // sane cap
+    }
+
+    if (lines.length === 0) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><svg viewBox="0 0 66 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+        '<rect x="1" y="1" width="18" height="42" rx="4" stroke="currentColor" stroke-width="2"/>' +
+        '<rect x="24" y="1" width="18" height="42" rx="4" stroke="currentColor" stroke-width="2"/>' +
+        '<rect x="47" y="1" width="18" height="42" rx="4" stroke="currentColor" stroke-width="2"/></svg>' +
+        "<p><strong>업무를 한 줄 이상 적어 주세요.</strong></p>" +
+        "<p>예: '매주 주간 보고서 작성', '팀원 1:1 면담' 처럼요.</p></div>";
+      return;
+    }
+
+    items = lines.map(function (line, i) {
+      var it = classify(line);
+      it.idx = i;
+      return it;
+    });
+
+    renderResult();
+    document
+      .getElementById("result-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---- reset ---- */
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    items = [];
+    lastPrompt = "";
+    tasksEl.value = "";
+    grow(tasksEl);
+    resultEl.innerHTML =
+      '<div class="empty-state"><svg viewBox="0 0 66 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<rect x="1" y="1" width="18" height="42" rx="4" stroke="currentColor" stroke-width="2"/>' +
+      '<rect x="24" y="1" width="18" height="42" rx="4" stroke="currentColor" stroke-width="2"/>' +
+      '<rect x="47" y="1" width="18" height="42" rx="4" stroke="currentColor" stroke-width="2"/></svg>' +
+      "<p><strong>아직 분류 전입니다.</strong></p>" +
+      "<p>업무 목록을 적고 '3칸으로 분류하기'를 누르세요.</p></div>";
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---- delegated events on result (survive re-render) ---- */
+  resultEl.addEventListener("change", function (e) {
+    var s = e.target;
+    if (s && s.classList && s.classList.contains("move-select")) {
+      var idx = parseInt(s.getAttribute("data-idx"), 10);
+      var it = items.filter(function (x) {
+        return x.idx === idx;
+      })[0];
+      if (it) {
+        it.box = s.value;
+        it.conf = it.conf === "low" ? "med" : it.conf; // user confirmed a placement
+        renderResult();
+      }
+    }
+  });
+
+  resultEl.addEventListener("click", function (e) {
+    if (e.target.closest && e.target.closest("#copyBtn")) {
+      doCopy();
+    } else if (e.target.closest && e.target.closest("#printBtn")) {
+      window.print();
+    }
+  });
+
+  /* ---- copy (3-tier fallback) ---- */
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      var el = document.getElementById("copyStatus");
+      if (el) el.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---- manual modal ---- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

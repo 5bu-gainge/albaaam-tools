@@ -1,0 +1,2071 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>표준 근로계약서 빌더</title>
+<meta
+  name="description"
+  content="항목을 채우면 근로기준법 필수기재사항이 다 들어간 근로계약서를 만들고, 빠진 항목을 경고합니다. 기간제·단시간 분기 지원."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #37568a;
+    --accent-strong: #2a4470;
+    --accent-tint: #eef1f8;
+    --accent-tint-2: #dbe2f0;
+    --ink: #1f2229;
+    --ink-soft: #45495340;
+    --ink-soft: #454953;
+    --ink-mute: #6a6f7a;
+    --paper: #f7f8fb;
+    --card: #ffffff;
+    --line: #e4e7ee;
+    --line-strong: #d3d8e2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #9a6212;
+    --warn-tint: #fbf1e0;
+    --warn-line: #efdcبc;
+    --warn-line: #eddcbd;
+    --danger: #b03636;
+    --danger-tint: #fbeaea;
+    --danger-line: #f0d2d2;
+    --shadow: 0 1px 2px rgba(31, 34, 41, 0.05), 0 6px 20px rgba(31, 34, 41, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- form ---------- */
+  fieldset {
+    border: none;
+    margin: 0 0 18px;
+    padding: 0;
+  }
+  fieldset:last-of-type {
+    margin-bottom: 0;
+  }
+  legend {
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    padding: 0;
+    margin-bottom: 11px;
+    letter-spacing: 0.01em;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px 14px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .field.col-full {
+    grid-column: 1 / -1;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  label.field-label .req {
+    color: var(--danger);
+    font-weight: 800;
+    margin-left: 3px;
+  }
+  input[type="text"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="time"],
+  input[type="number"],
+  select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--ink);
+    background: #fcfdfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 12px;
+    min-height: 44px;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea {
+    width: 100%;
+    min-height: 68px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfdfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 12px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #a2a8b3;
+  }
+  .field-hint {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 7px 0 0;
+  }
+
+  /* segmented radio */
+  .seg {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .seg label {
+    flex: 1 1 auto;
+    min-width: 120px;
+    position: relative;
+    cursor: pointer;
+  }
+  .seg input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .seg .seg-face {
+    display: block;
+    text-align: center;
+    padding: 12px 12px;
+    min-height: 44px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 11px;
+    background: #fcfdfe;
+    font-weight: 700;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+    transition: all 0.14s;
+  }
+  .seg .seg-sub {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+  .seg input:checked + .seg-face {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .seg input:focus-visible + .seg-face {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  /* chip checkboxes (요일, 보험) */
+  .chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    position: relative;
+    cursor: pointer;
+  }
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .chip .chip-face {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 46px;
+    min-height: 44px;
+    padding: 6px 14px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 10px;
+    background: #fcfdfe;
+    font-weight: 700;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    transition: all 0.14s;
+  }
+  .chip input:checked + .chip-face {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .chip input:focus-visible + .chip-face {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  .cond-row {
+    display: none;
+  }
+  .cond-row.show {
+    display: grid;
+  }
+  .cond-block {
+    display: none;
+  }
+  .cond-block.show {
+    display: block;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 44px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+
+  .disclaimer {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: #fbf6ec;
+    border: 1px solid var(--warn-line);
+    border-radius: 12px;
+    padding: 13px 15px;
+    margin-bottom: 16px;
+  }
+  .disclaimer svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    color: var(--warn);
+  }
+  .disclaimer p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: #6f5a2e;
+  }
+  .disclaimer strong {
+    color: #5a4720;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 24px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    color: var(--line-strong);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 18px 17px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-complete {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict.tone-partial {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-incomplete {
+    background: var(--danger-tint);
+    border-color: var(--danger-line);
+  }
+  .verdict-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    line-height: 1.3;
+  }
+  .verdict.tone-complete .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-partial .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-incomplete .verdict-title {
+    color: var(--danger);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+  .meter {
+    display: flex;
+    gap: 5px;
+    margin: 14px 0 4px;
+    flex-wrap: wrap;
+  }
+  .pip {
+    flex: 1 1 14px;
+    height: 9px;
+    border-radius: 5px;
+    background: #e2e6ee;
+    min-width: 14px;
+  }
+  .verdict.tone-complete .pip.lit {
+    background: var(--good);
+  }
+  .verdict.tone-partial .pip.lit {
+    background: var(--warn);
+  }
+  .verdict.tone-incomplete .pip.lit {
+    background: var(--danger);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  .blank-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .blank-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--danger);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fdfbfb;
+  }
+  .blank-item.sev-cond {
+    border-left-color: var(--warn);
+    background: #fdfaf4;
+  }
+  .blank-item .bi-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 4px;
+  }
+  .blank-item .bi-fix {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .blank-item .bi-law {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* met checklist */
+  .met-list {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 7px 14px;
+  }
+  .met-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+  .met-list li .mk {
+    flex: none;
+    font-weight: 800;
+    margin-top: 1px;
+  }
+  .met-list li.ok .mk {
+    color: var(--good);
+  }
+  .met-list li.no .mk {
+    color: var(--danger);
+  }
+  .met-list li.na {
+    color: var(--ink-mute);
+  }
+  .met-list li.na .mk {
+    color: var(--ink-mute);
+  }
+
+  /* calc card */
+  .calc {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 4px 2px;
+    overflow: hidden;
+  }
+  .calc-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 11px 15px;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.92rem;
+  }
+  .calc-row:last-child {
+    border-bottom: none;
+  }
+  .calc-row .k {
+    color: var(--ink-mute);
+    flex: none;
+  }
+  .calc-row .v {
+    font-weight: 700;
+    text-align: right;
+    color: var(--ink);
+  }
+  .calc-note {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 9px 2px 0;
+  }
+  .flag-note {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    border-radius: 10px;
+    padding: 11px 14px;
+    margin: 10px 0 0;
+  }
+  .flag-note.warn {
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    color: #6f5a2e;
+  }
+
+  /* risk note */
+  .risk-note {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    background: var(--danger-tint);
+    border: 1px solid var(--danger-line);
+    border-radius: 10px;
+    padding: 12px 15px;
+    color: #7d3030;
+    margin: 0;
+  }
+  .risk-note .ts {
+    color: #9a6b6b;
+    font-weight: 600;
+  }
+
+  /* contract + prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.doc {
+    margin: 0;
+    background: #fbfaf7;
+    color: #2a2d34;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 420px;
+    overflow-y: auto;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #262a33;
+    color: #eef1f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.85rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 34, 41, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 200px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  footer.foot p {
+    margin: 0 0 8px;
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.44rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-form,
+    #config-panel,
+    .actions,
+    .copy-row,
+    footer.foot,
+    .met-list,
+    .calc {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border: none;
+      padding: 0;
+    }
+    pre.doc {
+      background: #fff;
+      border: 1px solid #bbb;
+      max-height: none;
+      font-size: 0.9rem;
+    }
+    pre.prompt {
+      display: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">근로기준법 제17조 · HR 실무 도구</span>
+    <h1>표준 근로계약서 빌더</h1>
+    <p class="lede">
+      항목을 채우면 근로기준법 필수기재사항이 다 들어간 근로계약서를 만들어
+      드립니다. 빠진 항목은 법적 근거와 함께 경고하고, 기간제·단시간은
+      추가 필수기재까지 점검합니다.
+    </p>
+  </header>
+
+  <!-- STEP 1 : 계약 형태 -->
+  <section class="panel" id="config-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>계약 형태</h2>
+    </div>
+    <p class="panel-sub">
+      고용형태에 따라 필수기재 항목과 자동 생성되는 조항이 달라집니다.
+    </p>
+
+    <fieldset>
+      <legend>고용형태</legend>
+      <div class="seg" id="seg-emp" role="radiogroup" aria-label="고용형태">
+        <label>
+          <input type="radio" name="empType" value="regular" checked />
+          <span class="seg-face"
+            >정규직<span class="seg-sub">기간의 정함 없음</span></span
+          >
+        </label>
+        <label>
+          <input type="radio" name="empType" value="fixed" />
+          <span class="seg-face"
+            >기간제<span class="seg-sub">기간의 정함 있음</span></span
+          >
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>추가 형태</legend>
+      <div class="chips">
+        <label class="chip">
+          <input type="checkbox" id="isPartTime" />
+          <span class="chip-face">단시간근로자</span>
+        </label>
+      </div>
+      <p class="field-hint">
+        소정근로시간이 통상근로자보다 짧으면 단시간근로자입니다. 체크하면
+        '근로일별 근로시간' 명시(기간제법 제17조 제6호) 점검이 켜집니다.
+      </p>
+    </fieldset>
+
+    <fieldset style="margin-bottom: 0">
+      <legend>상시 근로자 수</legend>
+      <div class="field" style="max-width: 320px">
+        <label class="field-label" for="headcount"
+          >사업장 상시 근로자</label
+        >
+        <select id="headcount">
+          <option value="5plus" selected>5인 이상</option>
+          <option value="under5">5인 미만</option>
+        </select>
+        <p class="field-hint">
+          연차유급휴가(근기법 제60조)와 연장·야간·휴일 가산수당은 5인 이상
+          사업장에 적용됩니다.
+        </p>
+      </div>
+    </fieldset>
+  </section>
+
+  <!-- STEP 2 : 입력 -->
+  <section class="panel" id="input-form">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>당사자와 근로조건</h2>
+    </div>
+    <p class="panel-sub">
+      <span style="color: var(--danger); font-weight: 700">*</span> 표시는
+      근로기준법 필수기재 항목입니다. 비워도 계약서는 생성되며, 빈칸은 결과에서
+      경고합니다.
+    </p>
+
+    <fieldset>
+      <legend>사업주 (갑)</legend>
+      <div class="grid">
+        <div class="field">
+          <label class="field-label" for="empName"
+            >상호(사업체명)<span class="req">*</span></label
+          >
+          <input type="text" id="empName" placeholder="예) 가인지상회" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="empCeo"
+            >대표자<span class="req">*</span></label
+          >
+          <input type="text" id="empCeo" placeholder="예) 홍길동" />
+        </div>
+        <div class="field col-full">
+          <label class="field-label" for="empAddr">사업장 주소</label>
+          <input
+            type="text"
+            id="empAddr"
+            placeholder="예) 서울 마포구 양화로 000"
+          />
+        </div>
+        <div class="field">
+          <label class="field-label" for="empTel">연락처</label>
+          <input type="tel" id="empTel" placeholder="예) 02-000-0000" />
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>근로자 (을)</legend>
+      <div class="grid">
+        <div class="field">
+          <label class="field-label" for="wkName"
+            >성명<span class="req">*</span></label
+          >
+          <input type="text" id="wkName" placeholder="예) 김근로" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="wkBirth">생년월일</label>
+          <input type="text" id="wkBirth" placeholder="예) 1998-03-15" />
+          <p class="field-hint">주민등록번호 대신 생년월일 기재를 권장합니다.</p>
+        </div>
+        <div class="field col-full">
+          <label class="field-label" for="wkAddr">주소</label>
+          <input type="text" id="wkAddr" placeholder="예) 서울 은평구 000" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="wkTel">연락처</label>
+          <input type="tel" id="wkTel" placeholder="예) 010-0000-0000" />
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>근로계약기간</legend>
+      <div class="grid">
+        <div class="field">
+          <label class="field-label" for="startDate"
+            >근로 개시일<span class="req">*</span></label
+          >
+          <input type="date" id="startDate" />
+        </div>
+        <div class="field cond-row" id="endDateField">
+          <label class="field-label" for="endDate"
+            >근로 종료일<span class="req">*</span></label
+          >
+          <input type="date" id="endDate" />
+          <p class="field-hint">기간제는 종료일 명시가 필수입니다.</p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>근무장소 · 업무</legend>
+      <div class="grid">
+        <div class="field">
+          <label class="field-label" for="place"
+            >근무장소<span class="req">*</span></label
+          >
+          <input type="text" id="place" placeholder="예) 본사 영업팀" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="duty"
+            >담당업무<span class="req">*</span></label
+          >
+          <input type="text" id="duty" placeholder="예) 매장 판매 및 고객응대" />
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>근로시간 · 휴일</legend>
+      <div class="grid">
+        <div class="field">
+          <label class="field-label" for="startT"
+            >시업 시각<span class="req">*</span></label
+          >
+          <input type="time" id="startT" value="09:00" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="endT"
+            >종업 시각<span class="req">*</span></label
+          >
+          <input type="time" id="endT" value="18:00" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="breakMin">휴게시간(분)</label>
+          <input type="number" id="breakMin" value="60" min="0" step="10" />
+        </div>
+      </div>
+      <div class="field col-full" style="margin-top: 12px">
+        <label class="field-label">근무요일<span class="req">*</span></label>
+        <div class="chips" id="workDays" role="group" aria-label="근무요일">
+          <label class="chip"
+            ><input type="checkbox" value="월" checked /><span class="chip-face"
+              >월</span
+            ></label
+          >
+          <label class="chip"
+            ><input type="checkbox" value="화" checked /><span class="chip-face"
+              >화</span
+            ></label
+          >
+          <label class="chip"
+            ><input type="checkbox" value="수" checked /><span class="chip-face"
+              >수</span
+            ></label
+          >
+          <label class="chip"
+            ><input type="checkbox" value="목" checked /><span class="chip-face"
+              >목</span
+            ></label
+          >
+          <label class="chip"
+            ><input type="checkbox" value="금" checked /><span class="chip-face"
+              >금</span
+            ></label
+          >
+          <label class="chip"
+            ><input type="checkbox" value="토" /><span class="chip-face"
+              >토</span
+            ></label
+          >
+          <label class="chip"
+            ><input type="checkbox" value="일" /><span class="chip-face"
+              >일</span
+            ></label
+          >
+        </div>
+      </div>
+      <div class="field" style="margin-top: 12px; max-width: 320px">
+        <label class="field-label" for="weeklyHoliday"
+          >주휴일<span class="req">*</span></label
+        >
+        <select id="weeklyHoliday">
+          <option value="월">월요일</option>
+          <option value="화">화요일</option>
+          <option value="수">수요일</option>
+          <option value="목">목요일</option>
+          <option value="금">금요일</option>
+          <option value="토">토요일</option>
+          <option value="일" selected>일요일</option>
+        </select>
+      </div>
+
+      <div class="field col-full cond-block" id="ptScheduleField" style="margin-top: 12px">
+        <label class="field-label" for="ptSchedule"
+          >근로일별 근로시간<span class="req">*</span></label
+        >
+        <textarea
+          id="ptSchedule"
+          placeholder="예) 월·수·금 10:00~15:00 (휴게 30분), 화·목 13:00~18:00 (휴게 30분)"
+        ></textarea>
+        <p class="field-hint">
+          단시간근로자는 근로일과 근로일별 근로시간을 서면 명시해야 합니다
+          (기간제법 제17조 제6호).
+        </p>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>임금</legend>
+      <div class="grid">
+        <div class="field">
+          <label class="field-label" for="wageType"
+            >임금 형태<span class="req">*</span></label
+          >
+          <select id="wageType">
+            <option value="월급" selected>월급</option>
+            <option value="시급">시급</option>
+            <option value="일급">일급</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="baseWage"
+            >기본급(원)<span class="req">*</span></label
+          >
+          <input
+            type="text"
+            id="baseWage"
+            inputmode="numeric"
+            placeholder="예) 2,300,000"
+          />
+        </div>
+        <div class="field">
+          <label class="field-label" for="payDay"
+            >임금 지급일<span class="req">*</span></label
+          >
+          <input type="text" id="payDay" placeholder="예) 매월 25일" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="payMethod"
+            >지급 방법<span class="req">*</span></label
+          >
+          <select id="payMethod">
+            <option value="근로자 명의 예금계좌 입금" selected>
+              계좌이체
+            </option>
+            <option value="통화(현금) 직접 지급">현금 직접 지급</option>
+          </select>
+        </div>
+        <div class="field col-full">
+          <label class="field-label" for="allowance"
+            >상여금 · 기타 수당 (임금 구성항목)</label
+          >
+          <textarea
+            id="allowance"
+            placeholder="예) 식대 200,000원(비과세), 직책수당 100,000원 / 없으면 비워 두세요"
+          ></textarea>
+          <p class="field-hint">
+            기본급 외 지급 항목이 있으면 항목명과 금액을 적으세요. 임금의
+            구성항목·계산방법 명시(근기법 제17조)에 해당합니다.
+          </p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset style="margin-bottom: 0">
+      <legend>사회보험 적용</legend>
+      <div class="chips" id="insurance" role="group" aria-label="사회보험">
+        <label class="chip"
+          ><input type="checkbox" value="국민연금" checked /><span
+            class="chip-face"
+            >국민연금</span
+          ></label
+        >
+        <label class="chip"
+          ><input type="checkbox" value="건강보험" checked /><span
+            class="chip-face"
+            >건강보험</span
+          ></label
+        >
+        <label class="chip"
+          ><input type="checkbox" value="고용보험" checked /><span
+            class="chip-face"
+            >고용보험</span
+          ></label
+        >
+        <label class="chip"
+          ><input type="checkbox" value="산재보험" checked /><span
+            class="chip-face"
+            >산재보험</span
+          ></label
+        >
+      </div>
+      <p class="field-hint">
+        요율은 매년 변동되며 이 도구는 요율을 계산하지 않습니다. 적용 여부만
+        계약서에 기재합니다.
+      </p>
+    </fieldset>
+
+    <div class="actions">
+      <button class="btn-primary" id="build">계약서 생성 · 점검</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <!-- STEP 3 : 결과 -->
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>생성 결과 · 필수기재 점검</h2>
+    </div>
+
+    <div class="disclaimer" role="note">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M12 8.5V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="16.5" r="1.15" fill="currentColor"/>
+        <path d="M12 3.2L21 19.5H3L12 3.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+      </svg>
+      <p>
+        <strong>법적 효력이 있는 의견이 아닙니다.</strong> 본 도구는 일반 정보
+        제공용 참고 자료이며, 개별 사안의 최종 판단은 공인노무사·세무사·변호사 등
+        전문가 상담이 필요합니다. 인용 법조항과 기준은 2026년 7월 기준이며,
+        최신 개정·금액은 법제처·고용노동부에서 확인하세요.
+      </p>
+    </div>
+
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◷</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>항목을 채우고 '계약서 생성 · 점검'을 누르세요.</p>
+        <p style="font-size: 0.84rem; margin-top: 10px">
+          입력값은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+          없습니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 고용노동부 표준근로계약서 서식 및
+      근로기준법 제17조(근로조건의 명시·서면교부), 제55조(휴일),
+      제60조(연차유급휴가), 같은 법 시행령 제8조(근무장소·종사업무), 그리고
+      기간제 및 단시간근로자 보호 등에 관한 법률 제17조(근로조건의 서면명시).
+      필수기재 여부 점검과 기간제·단시간 분기 로직은 이 조항들을 기준으로
+      합니다. 최저임금·4대보험 요율 등 매년 바뀌는 수치는 내장하지 않습니다.
+    </p>
+    <p>
+      이 도구는 계약서 작성과 누락 점검을 돕는 보조 도구이며, 완성된 문서의
+      법적 유효성을 보증하지 않습니다. 최종본은 전문가 검토를 거치세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------- helpers ----------
+  function $(id) {
+    return document.getElementById(id);
+  }
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function digits(s) {
+    var n = String(s || "").replace(/[^\d]/g, "");
+    return n === "" ? null : parseInt(n, 10);
+  }
+  function won(n) {
+    if (n == null || isNaN(n)) return "";
+    return Number(n).toLocaleString("ko-KR");
+  }
+  function timeToMin(t) {
+    if (!t || t.indexOf(":") < 0) return null;
+    var p = t.split(":");
+    var h = parseInt(p[0], 10);
+    var m = parseInt(p[1], 10);
+    if (isNaN(h) || isNaN(m)) return null;
+    return h * 60 + m;
+  }
+  function round1(x) {
+    return Math.round(x * 10) / 10;
+  }
+
+  // live currency separators on baseWage
+  var baseWageEl = $("baseWage");
+  baseWageEl.addEventListener("input", function () {
+    var n = digits(baseWageEl.value);
+    var caretEnd = baseWageEl.selectionStart === baseWageEl.value.length;
+    baseWageEl.value = n == null ? "" : won(n);
+    if (caretEnd) {
+      baseWageEl.selectionStart = baseWageEl.selectionEnd =
+        baseWageEl.value.length;
+    }
+  });
+
+  // ---------- conditional fields ----------
+  var empRadios = document.getElementsByName("empType");
+  function syncCond() {
+    var emp = getEmp();
+    $("endDateField").classList.toggle("show", emp === "fixed");
+    $("ptScheduleField").classList.toggle("show", $("isPartTime").checked);
+  }
+  function getEmp() {
+    for (var i = 0; i < empRadios.length; i++)
+      if (empRadios[i].checked) return empRadios[i].value;
+    return "regular";
+  }
+  Array.prototype.forEach.call(empRadios, function (r) {
+    r.addEventListener("change", syncCond);
+  });
+  $("isPartTime").addEventListener("change", syncCond);
+  syncCond();
+
+  // auto-grow textareas
+  Array.prototype.forEach.call(document.querySelectorAll("textarea"), function (
+    ta
+  ) {
+    function grow() {
+      ta.style.height = "auto";
+      ta.style.height = ta.scrollHeight + "px";
+    }
+    ta.addEventListener("input", grow);
+  });
+
+  // ---------- collect ----------
+  function checkedValues(containerId) {
+    var out = [];
+    Array.prototype.forEach.call(
+      $(containerId).querySelectorAll("input[type=checkbox]:checked"),
+      function (b) {
+        out.push(b.value);
+      }
+    );
+    return out;
+  }
+
+  function collect() {
+    return {
+      emp: getEmp(),
+      partTime: $("isPartTime").checked,
+      headcount: $("headcount").value,
+      empName: $("empName").value.trim(),
+      empCeo: $("empCeo").value.trim(),
+      empAddr: $("empAddr").value.trim(),
+      empTel: $("empTel").value.trim(),
+      wkName: $("wkName").value.trim(),
+      wkBirth: $("wkBirth").value.trim(),
+      wkAddr: $("wkAddr").value.trim(),
+      wkTel: $("wkTel").value.trim(),
+      startDate: $("startDate").value,
+      endDate: $("endDate").value,
+      place: $("place").value.trim(),
+      duty: $("duty").value.trim(),
+      startT: $("startT").value,
+      endT: $("endT").value,
+      breakMin: digits($("breakMin").value) || 0,
+      workDays: checkedValues("workDays"),
+      weeklyHoliday: $("weeklyHoliday").value,
+      ptSchedule: $("ptSchedule").value.trim(),
+      wageType: $("wageType").value,
+      baseWage: digits($("baseWage").value),
+      payDay: $("payDay").value.trim(),
+      payMethod: $("payMethod").value,
+      allowance: $("allowance").value.trim(),
+      insurance: checkedValues("insurance"),
+    };
+  }
+
+  // ---------- time / wage computation ----------
+  function computeTime(s) {
+    var sm = timeToMin(s.startT);
+    var em = timeToMin(s.endT);
+    var out = {
+      valid: false,
+      invalidOrder: false,
+      dailyHours: null,
+      weeklyHours: null,
+      days: s.workDays.length,
+      shortTimeLegal: false, // 주 15h 미만 (초단시간)
+      overLegal: false, // 주 40h 초과
+    };
+    if (sm == null || em == null) return out;
+    if (em <= sm) {
+      out.invalidOrder = true;
+      return out;
+    }
+    var daily = (em - sm - s.breakMin) / 60;
+    if (daily <= 0) {
+      out.invalidOrder = true;
+      return out;
+    }
+    out.valid = true;
+    out.dailyHours = round1(daily);
+    var weekly = daily * s.workDays.length;
+    out.weeklyHours = round1(weekly);
+    out.shortTimeLegal = weekly > 0 && weekly < 15;
+    out.overLegal = weekly > 40;
+    return out;
+  }
+
+  function computeWage(s, t) {
+    var out = {
+      hourly: null,
+      monthlyEst: null,
+      equivHours: null,
+      hasJuhyu: false,
+    };
+    if (!t.valid || !t.weeklyHours) return out;
+    var weekly = t.weeklyHours;
+    var juhyu = 0;
+    if (weekly >= 15) {
+      out.hasJuhyu = true;
+      juhyu = (Math.min(weekly, 40) / 40) * 8; // 주휴시간(비례)
+    }
+    var monthlyHours = (weekly + juhyu) * (365 / 7 / 12); // ~4.345주
+    out.equivHours = Math.round(monthlyHours);
+    if (out.equivHours <= 0) return out;
+
+    if (s.wageType === "월급" && s.baseWage) {
+      out.hourly = Math.round(s.baseWage / out.equivHours);
+    } else if (s.wageType === "시급" && s.baseWage) {
+      out.hourly = s.baseWage;
+      out.monthlyEst = Math.round(s.baseWage * out.equivHours);
+    } else if (s.wageType === "일급" && s.baseWage && t.dailyHours) {
+      out.hourly = Math.round(s.baseWage / t.dailyHours);
+      out.monthlyEst = Math.round(s.baseWage * s.workDays.length * (365 / 7 / 12));
+    }
+    return out;
+  }
+
+  // ---------- required-item validation (근기법 제17조 등) ----------
+  function validate(s, t) {
+    var items = [];
+    function add(o) {
+      items.push(o);
+    }
+
+    // 당사자 특정 (계약 유효성)
+    add({
+      key: "party",
+      label: "당사자 특정 (상호·대표자·근로자 성명)",
+      applicable: true,
+      met: !!(s.empName && s.empCeo && s.wkName),
+      sev: "req",
+      law: "계약 유효성",
+      fix: "사업주 상호·대표자와 근로자 성명이 있어야 계약 당사자가 특정됩니다.",
+    });
+
+    // 임금: 구성항목·계산방법
+    add({
+      key: "wageAmount",
+      label: "임금의 구성항목·계산방법 (임금형태·기본급)",
+      applicable: true,
+      met: !!(s.wageType && s.baseWage),
+      sev: "req",
+      law: "근기법 제17조 제1항·제2항",
+      fix: "임금 형태(월급/시급/일급)와 기본급 금액을 입력하세요. 수당이 있으면 구성항목도 명시합니다.",
+    });
+
+    // 임금: 지급방법
+    add({
+      key: "wagePay",
+      label: "임금의 지급방법 (지급일·지급수단)",
+      applicable: true,
+      met: !!(s.payDay && s.payMethod),
+      sev: "req",
+      law: "근기법 제17조 제1항·제2항",
+      fix: "임금 지급일(예: 매월 25일)과 지급 방법(계좌이체 등)을 입력하세요.",
+    });
+
+    // 소정근로시간
+    add({
+      key: "workHours",
+      label: "소정근로시간 (시업·종업 시각)",
+      applicable: true,
+      met: t.valid,
+      sev: "req",
+      law: "근기법 제17조 제1항 제2호",
+      fix: t.invalidOrder
+        ? "종업 시각이 시업 시각(및 휴게시간)보다 늦어야 합니다. 시각을 다시 확인하세요."
+        : "시업·종업 시각을 입력하세요.",
+    });
+
+    // 휴일(주휴일) — 초단시간(주15h 미만)은 주휴 미발생
+    add({
+      key: "holiday",
+      label: "휴일 (근무요일·주휴일)",
+      applicable: !t.shortTimeLegal,
+      met: s.workDays.length > 0 && !!s.weeklyHoliday,
+      sev: "req",
+      law: "근기법 제17조 제1항 제3호, 제55조",
+      fix: "근무요일을 선택하고 주휴일을 지정하세요.",
+      naNote:
+        "주 소정근로 15시간 미만(초단시간)은 주휴일·주휴수당이 발생하지 않습니다(근기법 제18조 제3항).",
+    });
+
+    // 연차유급휴가 — 5인 이상 & 15시간 이상에서 적용
+    var annualApplicable = s.headcount === "5plus" && !t.shortTimeLegal;
+    add({
+      key: "annual",
+      label: "연차유급휴가",
+      applicable: annualApplicable,
+      met: true, // 자동 조항으로 항상 기재됨
+      sev: "req",
+      law: "근기법 제17조 제1항 제4호, 제60조",
+      fix: "",
+      metNote: "계약서에 '근로기준법에 따라 부여' 조항이 자동 기재됩니다.",
+      naNote:
+        s.headcount === "under5"
+          ? "5인 미만 사업장은 연차유급휴가가 법정 의무가 아닙니다. 부여 시 계약서에 별도 명시하세요."
+          : "초단시간(주 15시간 미만)은 연차유급휴가가 발생하지 않습니다(근기법 제18조 제3항).",
+    });
+
+    // 근무장소
+    add({
+      key: "place",
+      label: "근무장소",
+      applicable: true,
+      met: !!s.place,
+      sev: "req",
+      law: "근기법 시행령 제8조",
+      fix: "근무장소를 입력하세요.",
+    });
+
+    // 종사업무
+    add({
+      key: "duty",
+      label: "종사할 업무",
+      applicable: true,
+      met: !!s.duty,
+      sev: "req",
+      law: "근기법 시행령 제8조",
+      fix: "담당(종사할) 업무를 입력하세요.",
+    });
+
+    // [기간제] 근로계약 종료일
+    add({
+      key: "endDate",
+      label: "근로계약기간 (종료일)",
+      applicable: s.emp === "fixed",
+      met: !!s.endDate,
+      sev: "req",
+      law: "기간제법 제17조 제1호",
+      fix: "기간제 근로자는 근로계약 종료일을 명시해야 합니다.",
+    });
+
+    // [단시간] 근로일별 근로시간
+    add({
+      key: "ptSchedule",
+      label: "근로일별 근로시간 (단시간)",
+      applicable: s.partTime,
+      met: !!s.ptSchedule,
+      sev: "req",
+      law: "기간제법 제17조 제6호",
+      fix: "단시간근로자는 근로일과 근로일별 근로시간을 서면 명시해야 합니다.",
+    });
+
+    return items;
+  }
+
+  // ---------- contract text ----------
+  function blank(v) {
+    return v && String(v).trim() ? String(v) : "________";
+  }
+  function fmtDate(d) {
+    if (!d) return "________";
+    var p = d.split("-");
+    if (p.length !== 3) return d;
+    return p[0] + "년 " + Number(p[1]) + "월 " + Number(p[2]) + "일";
+  }
+
+  function generateContract(s, t, w) {
+    var L = [];
+    var isFixed = s.emp === "fixed";
+    var title = "표준 근로계약서";
+    if (isFixed) title += " (기간제)";
+    if (s.partTime) title += (isFixed ? "" : " (단시간)");
+    L.push(title);
+    L.push("");
+    L.push(
+      blank(s.empName) +
+        "(이하 '사업주')와 " +
+        blank(s.wkName) +
+        "(이하 '근로자')는 다음과 같이 근로계약을 체결한다."
+    );
+    L.push("");
+
+    // 1. 근로계약기간
+    if (isFixed) {
+      L.push(
+        "제1조 (근로계약기간)  " +
+          fmtDate(s.startDate) +
+          "부터 " +
+          fmtDate(s.endDate) +
+          "까지로 한다."
+      );
+    } else {
+      L.push(
+        "제1조 (근로계약기간)  " +
+          fmtDate(s.startDate) +
+          "부터 (기간의 정함 없음)."
+      );
+    }
+
+    // 2. 근무장소
+    L.push("제2조 (근무장소)  " + blank(s.place));
+
+    // 3. 업무
+    L.push("제3조 (업무의 내용)  " + blank(s.duty));
+
+    // 4. 소정근로시간
+    var htxt = "";
+    if (t.valid) {
+      htxt =
+        blank(s.startT) +
+        "부터 " +
+        blank(s.endT) +
+        "까지 (휴게시간 " +
+        s.breakMin +
+        "분 포함), 1일 소정근로 " +
+        t.dailyHours +
+        "시간";
+    } else {
+      htxt = blank(s.startT) + "부터 " + blank(s.endT) + "까지 (휴게시간 " + s.breakMin + "분)";
+    }
+    L.push("제4조 (소정근로시간)  " + htxt);
+    if (s.partTime && s.ptSchedule) {
+      L.push("  · 근로일별 근로시간: " + s.ptSchedule);
+    } else if (s.partTime) {
+      L.push("  · 근로일별 근로시간: ________ (단시간 필수 기재)");
+    }
+
+    // 5. 근무일/휴일
+    var dayTxt =
+      s.workDays.length > 0 ? s.workDays.join("·") + "요일" : "________";
+    L.push(
+      "제5조 (근무일 / 휴일)  매주 " +
+        dayTxt +
+        " 근무" +
+        (t.valid ? " (주 " + s.workDays.length + "일, 주 소정근로 " + t.weeklyHours + "시간)" : "") +
+        ", 주휴일 매주 " +
+        blank(s.weeklyHoliday) +
+        "요일"
+    );
+
+    // 6. 임금
+    L.push("제6조 (임금)");
+    var wageLabel =
+      s.wageType === "시급"
+        ? "시간급"
+        : s.wageType === "일급"
+        ? "일급"
+        : "월급";
+    L.push(
+      "  1. " +
+        wageLabel +
+        ": " +
+        (s.baseWage ? won(s.baseWage) + "원" : "________원")
+    );
+    if (s.allowance) {
+      L.push("  2. 상여금 · 기타 수당: " + s.allowance);
+    } else {
+      L.push("  2. 상여금 · 기타 수당: 없음");
+    }
+    L.push("  3. 임금 지급일: " + blank(s.payDay));
+    L.push("  4. 지급 방법: " + blank(s.payMethod));
+
+    // 7. 연차유급휴가
+    if (s.headcount === "5plus") {
+      L.push(
+        "제7조 (연차유급휴가)  연차유급휴가는 근로기준법 제60조에서 정하는 바에 따라 부여한다."
+      );
+    } else {
+      L.push(
+        "제7조 (연차유급휴가)  상시 근로자 5인 미만 사업장으로 근로기준법상 연차유급휴가 의무 대상이 아니다. (부여 시 별도 정함)"
+      );
+    }
+
+    // 8. 사회보험
+    var ins = s.insurance.length > 0 ? s.insurance.join(", ") : "________";
+    L.push("제8조 (사회보험 적용)  " + ins);
+
+    // 9. 계약서 교부
+    L.push(
+      "제9조 (근로계약서 교부)  사업주는 근로계약을 체결함과 동시에 본 계약서를 사본하여 근로자에게 교부한다. (근로기준법 제17조 이행)"
+    );
+
+    // 10. 기타
+    L.push(
+      "제10조 (기타)  이 계약에 정함이 없는 사항은 근로기준법령 및 취업규칙에 따른다."
+    );
+    L.push("");
+    L.push("작성일: __________________");
+    L.push("");
+    L.push("(사업주)  상호: " + blank(s.empName));
+    L.push("          주소: " + blank(s.empAddr));
+    L.push("          대표자: " + blank(s.empCeo) + "  (서명 또는 인)");
+    L.push("");
+    L.push("(근로자)  성명: " + blank(s.wkName) + "  (서명 또는 인)");
+    L.push("          주소: " + blank(s.wkAddr));
+    L.push("          연락처: " + blank(s.wkTel));
+    return L.join("\n");
+  }
+
+  // ---------- AI review prompt ----------
+  function buildPrompt(s, contract, missing) {
+    var L = [];
+    L.push(
+      "당신은 대한민국 공인노무사입니다. 아래 근로계약서를 검토해 주세요."
+    );
+    L.push("");
+    L.push("【계약 형태】");
+    L.push(
+      "- 고용형태: " +
+        (s.emp === "fixed" ? "기간제(기간의 정함 있음)" : "정규직(기간의 정함 없음)") +
+        (s.partTime ? " · 단시간근로자" : "") +
+        " / 상시 근로자 " +
+        (s.headcount === "5plus" ? "5인 이상" : "5인 미만")
+    );
+    L.push("");
+    L.push("【자가 점검: 미충족 필수기재 항목】");
+    if (missing.length === 0) {
+      L.push("- 자가 점검상 필수기재 누락은 없습니다. 그래도 재검토해 주세요.");
+    } else {
+      missing.forEach(function (m, i) {
+        L.push(i + 1 + ". " + m.label + " (" + m.law + ")");
+      });
+    }
+    L.push("");
+    L.push("【계약서 본문】");
+    L.push(contract);
+    L.push("");
+    L.push("【검토 요청】");
+    L.push(
+      "1. 근로기준법 제17조 필수기재사항(임금 구성·계산·지급, 소정근로시간, 휴일, 연차유급휴가, 근무장소·업무)이 빠짐없이 담겼는지 점검해 주세요."
+    );
+    if (s.emp === "fixed" || s.partTime) {
+      L.push(
+        "2. 기간제·단시간근로자 서면명시 의무(기간제법 제17조: 계약기간, 근로시간·휴게, 임금, 휴일·휴가, 근무장소·업무" +
+          (s.partTime ? ", 근로일별 근로시간" : "") +
+          ")를 함께 점검해 주세요."
+      );
+    } else {
+      L.push("2. 정규직 기준으로 누락·불명확 조항을 점검해 주세요.");
+    }
+    L.push(
+      "3. 위법하거나 근로자에게 불리해 무효가 될 수 있는 조항이 있으면 근거 조항과 함께 지적하고, 보완 문구를 제안해 주세요."
+    );
+    L.push(
+      "4. 결론을 단정하지 말고, 확인이 필요한 사실은 저에게 먼저 질문해 주세요. 최저임금 등 매년 바뀌는 수치는 올해 기준 최신값 확인을 전제로 안내해 주세요."
+    );
+    L.push(
+      "5. 사안이 복잡하거나 분쟁·금전 규모가 크면 공인노무사 대면 상담 권고를 덧붙여 주세요."
+    );
+    return L.join("\n");
+  }
+
+  // ---------- render ----------
+  var resultEl = $("result");
+  var lastContract = "";
+  var lastPrompt = "";
+
+  function render() {
+    var s = collect();
+    var t = computeTime(s);
+    var w = computeWage(s, t);
+    var items = validate(s, t);
+
+    var applicable = items.filter(function (it) {
+      return it.applicable;
+    });
+    var missing = applicable.filter(function (it) {
+      return !it.met;
+    });
+    var metCount = applicable.length - missing.length;
+
+    lastContract = generateContract(s, t, w);
+    lastPrompt = buildPrompt(s, lastContract, missing);
+
+    // verdict band
+    var tone, vlabel, vtitle, vdesc;
+    if (missing.length === 0) {
+      tone = "complete";
+      vlabel = "필수기재 " + metCount + "/" + applicable.length + " 충족";
+      vtitle = "필수기재 항목을 모두 갖췄습니다";
+      vdesc =
+        "근로기준법 제17조" +
+        (s.emp === "fixed" || s.partTime ? " 및 기간제법 제17조" : "") +
+        " 기준 필수기재가 채워졌습니다. 아래 계약서를 복사해 검토·서명 절차로 넘어가세요.";
+    } else if (missing.length <= 2) {
+      tone = "partial";
+      vlabel = "필수기재 " + metCount + "/" + applicable.length + " 충족";
+      vtitle = "필수기재 일부가 비어 있습니다";
+      vdesc =
+        "아래 " +
+        missing.length +
+        "개 항목을 채우면 필수기재 요건에 가까워집니다. 빈칸은 계약서에 ________ 로 표시됩니다.";
+    } else {
+      tone = "incomplete";
+      vlabel = "필수기재 " + metCount + "/" + applicable.length + " 충족";
+      vtitle = "필수기재 상당수가 누락되었습니다";
+      vdesc =
+        "이대로 교부하면 근로기준법 제17조 서면명시·교부 요건을 충족하지 못할 소지가 있습니다. 아래 누락 항목부터 채우세요.";
+    }
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + tone + '">';
+    html += '<p class="verdict-label">' + esc(vlabel) + "</p>";
+    html += '<p class="verdict-title">' + esc(vtitle) + "</p>";
+    html += '<p class="verdict-desc">' + esc(vdesc) + "</p>";
+    html +=
+      '<div class="meter" role="img" aria-label="필수기재 ' +
+      applicable.length +
+      "개 중 " +
+      metCount +
+      '개 충족">';
+    for (var p = 0; p < applicable.length; p++) {
+      html += '<span class="pip' + (p < metCount ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html +=
+      '<p class="meter-caption">' +
+      metCount +
+      " / " +
+      applicable.length +
+      " 필수기재 충족</p>";
+    html += "</div>";
+
+    // missing warnings
+    if (missing.length > 0) {
+      html += '<div class="result-block-title">경고 · 채워야 할 필수기재</div>';
+      html += '<ul class="blank-list">';
+      missing.forEach(function (m) {
+        html +=
+          '<li class="blank-item sev-' + (m.sev === "cond" ? "cond" : "req") + '">';
+        html += '<p class="bi-title">' + esc(m.label) + "</p>";
+        if (m.fix) html += '<p class="bi-fix">' + esc(m.fix) + "</p>";
+        html += '<span class="bi-law">' + esc(m.law) + "</span>";
+        html += "</li>";
+      });
+      html += "</ul>";
+
+      // risk note
+      html +=
+        '<p class="risk-note" style="margin-top:14px">근로기준법 제17조는 임금(구성·계산·지급방법)·소정근로시간·휴일·연차유급휴가를 <strong>서면으로 명시해 교부</strong>하도록 정합니다. 기간제·단시간은 기간제법 제17조가 추가 서면명시를 요구합니다. 미이행 시 벌칙·과태료 등 제재 대상이 될 수 있습니다. <span class="ts">(2026년 7월 기준, 정확한 조문·제재 수준은 법제처·고용노동부에서 확인하세요.)</span></p>';
+    } else {
+      html +=
+        '<p class="clean-note">자가 점검상 누락된 필수기재 항목이 없습니다. 다만 이 도구는 형식 점검이며 내용의 적법성(예: 최저임금 미달, 불리한 특약)까지 보증하지 않습니다. 아래 AI 프롬프트로 한 번 더 교차 검토해 보세요.</p>';
+    }
+
+    // full checklist
+    html += '<div class="result-block-title">필수기재 항목 점검표</div>';
+    html += '<ul class="met-list">';
+    items.forEach(function (it) {
+      var cls, mark, txt;
+      if (!it.applicable) {
+        cls = "na";
+        mark = "–";
+        txt = it.label + " (해당 없음)";
+      } else if (it.met) {
+        cls = "ok";
+        mark = "✓";
+        txt = it.label;
+      } else {
+        cls = "no";
+        mark = "✕";
+        txt = it.label;
+      }
+      html +=
+        '<li class="' +
+        cls +
+        '"><span class="mk" aria-hidden="true">' +
+        mark +
+        "</span><span>" +
+        esc(txt) +
+        "</span></li>";
+    });
+    html += "</ul>";
+
+    // reference calc
+    html += '<div class="result-block-title">참고 계산 (법적 기준 아님)</div>';
+    html += '<div class="calc">';
+    if (t.invalidOrder) {
+      html +=
+        '<div class="calc-row"><span class="k">근로시간</span><span class="v" style="color:var(--danger)">시각 오류</span></div>';
+    } else if (t.valid) {
+      html +=
+        '<div class="calc-row"><span class="k">1일 소정근로시간</span><span class="v">' +
+        t.dailyHours +
+        "시간</span></div>";
+      html +=
+        '<div class="calc-row"><span class="k">주 소정근로시간</span><span class="v">' +
+        t.weeklyHours +
+        "시간 (주 " +
+        s.workDays.length +
+        "일)</span></div>";
+      if (w.equivHours) {
+        html +=
+          '<div class="calc-row"><span class="k">월 환산 근로시간' +
+          (w.hasJuhyu ? " (주휴 포함)" : "") +
+          '</span><span class="v">약 ' +
+          w.equivHours +
+          "시간</span></div>";
+      }
+      if (w.hourly) {
+        html +=
+          '<div class="calc-row"><span class="k">환산 시급</span><span class="v">약 ' +
+          won(w.hourly) +
+          "원</span></div>";
+      }
+      if (w.monthlyEst) {
+        html +=
+          '<div class="calc-row"><span class="k">월 환산 임금(추정)</span><span class="v">약 ' +
+          won(w.monthlyEst) +
+          "원</span></div>";
+      }
+    } else {
+      html +=
+        '<div class="calc-row"><span class="k">근로시간</span><span class="v" style="color:var(--ink-mute)">시업·종업 시각 입력 필요</span></div>';
+    }
+    html += "</div>";
+
+    // time flags
+    if (t.overLegal) {
+      html +=
+        '<p class="flag-note warn">주 소정근로시간이 40시간을 초과합니다. 초과분은 연장근로에 해당하며, 5인 이상 사업장은 가산수당(통상임금의 50% 이상)과 당사자 합의가 필요합니다(근기법 제53조·제56조). 주 52시간 한도도 확인하세요.</p>';
+    }
+    if (t.shortTimeLegal) {
+      html +=
+        '<p class="flag-note warn">주 소정근로시간이 15시간 미만(초단시간)입니다. 주휴일·주휴수당과 연차유급휴가가 발생하지 않습니다(근기법 제18조 제3항). 점검표에서 해당 항목이 \'해당 없음\'으로 처리되었습니다.</p>';
+    }
+    if (w.hourly) {
+      html +=
+        '<p class="calc-note">환산 시급은 월 환산시간을 기준으로 한 개략치입니다. 이 도구는 연도별 최저임금액을 내장하지 않으므로, 2026년 최저임금과의 미달 여부는 고용노동부 고시 최신값으로 별도 확인하세요.</p>';
+    }
+
+    // contract output
+    html += '<div class="result-block-title">생성된 근로계약서</div>';
+    html += '<div class="prompt-wrap"><pre class="doc" id="doc-text">' + esc(lastContract) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" data-target="doc">계약서 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus-doc" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // AI prompt
+    html += '<div class="result-block-title">심화: AI 검토 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 계약서를 노무 관점에서 교차 검토해 줍니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" data-target="prompt">프롬프트 복사</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus-prompt" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  $("build").addEventListener("click", render);
+
+  // ---------- reset ----------
+  $("reset").addEventListener("click", function () {
+    var form = $("input-form");
+    Array.prototype.forEach.call(
+      form.querySelectorAll("input[type=text], input[type=tel], textarea"),
+      function (el) {
+        el.value = "";
+        el.style.height = "";
+      }
+    );
+    $("startDate").value = "";
+    $("endDate").value = "";
+    $("startT").value = "09:00";
+    $("endT").value = "18:00";
+    $("breakMin").value = "60";
+    $("weeklyHoliday").value = "일";
+    $("wageType").value = "월급";
+    $("payMethod").value = "근로자 명의 예금계좌 입금";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◷</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>항목을 채우고 '계약서 생성 · 점검'을 누르세요.</p>" +
+      '<p style="font-size:0.84rem;margin-top:10px">입력값은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이 없습니다.</p></div>';
+    $("config-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- copy (3-tier) + print ----------
+  function wireResultButtons() {
+    Array.prototype.forEach.call(
+      resultEl.querySelectorAll(".btn-copy"),
+      function (btn) {
+        btn.addEventListener("click", function () {
+          var tgt = btn.getAttribute("data-target");
+          doCopy(tgt === "doc" ? lastContract : lastPrompt, tgt);
+        });
+      }
+    );
+    var pb = $("printBtn");
+    if (pb) pb.addEventListener("click", function () {
+      window.print();
+    });
+  }
+
+  function flashStatus(target, msg) {
+    var s = $("copyStatus-" + target);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy(text, target) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(target, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, target);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, target);
+  }
+
+  function legacyCopy(text, target) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      ta.setSelectionRange(0, text.length);
+    } catch (e) {}
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(target, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = $("modal");
+  var modalText = $("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  $("modal-close").addEventListener("click", closeModal);
+  $("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    try {
+      modalText.setSelectionRange(0, modalText.value.length);
+    } catch (e) {}
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

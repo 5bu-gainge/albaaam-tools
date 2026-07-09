@@ -1,0 +1,1300 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>인게이지먼트 베이트 린터 &amp; 진짜질문 CTA 코치</title>
+<meta name="description" content="'댓글 YES'·'3명 태그' 같은 참여 유도 베이트를 잡아내고 진짜 열린 질문 CTA로 다시 쓰게 돕는다" />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3d5a99;
+    --accent-strong: #2f477a;
+    --accent-tint: #eef1f9;
+    --accent-tint-2: #dde3f4;
+    --ink: #1f232b;
+    --ink-soft: #454b57;
+    --ink-mute: #6a707c;
+    --paper: #f6f7fb;
+    --card: #ffffff;
+    --line: #e4e6ee;
+    --line-strong: #d3d7e2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #9a6412;
+    --warn-tint: #fdefdc;
+    --warn-line: #f2ddc4;
+    --bad: #a5352c;
+    --bad-tint: #fbe6e3;
+    --bad-line: #f1cdc8;
+    --shadow: 0 1px 2px rgba(31, 35, 43, 0.05),
+      0 6px 20px rgba(31, 35, 43, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.68rem;
+    line-height: 1.3;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 130px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: var(--ink);
+    background: #fcfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa0ad;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 46px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s,
+      color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-clean {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict.tone-light {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-mixed {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-heavy {
+    background: var(--bad-tint);
+    border-color: var(--bad-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.34rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.32;
+  }
+  .verdict.tone-clean .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-light .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-heavy .verdict-title {
+    color: var(--bad);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: rgba(31, 35, 43, 0.12);
+  }
+  .tone-clean .pip.lit {
+    background: var(--good);
+  }
+  .tone-light .pip.lit {
+    background: var(--accent);
+  }
+  .tone-mixed .pip.lit {
+    background: #c07f1c;
+  }
+  .tone-heavy .pip.lit {
+    background: var(--bad);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* highlighted original */
+  .highlight-box {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 15px 16px;
+    font-size: 0.96rem;
+    line-height: 1.75;
+    color: var(--ink-soft);
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  mark.bait {
+    background: #ffe0da;
+    color: #7f2820;
+    border-radius: 4px;
+    padding: 0 3px;
+    font-weight: 600;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  /* findings */
+  .find-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .find {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fff;
+  }
+  .find.sev-high {
+    border-left-color: var(--bad);
+  }
+  .find.sev-medium {
+    border-left-color: #c07f1c;
+  }
+  .find.sev-low {
+    border-left-color: var(--accent);
+  }
+  .find-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 7px;
+  }
+  .find-cat {
+    font-weight: 800;
+    font-size: 0.98rem;
+    color: var(--ink);
+  }
+  .sev {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .sev.sev-high {
+    background: var(--bad-tint);
+    color: var(--bad);
+  }
+  .sev.sev-medium {
+    background: var(--warn-tint);
+    color: var(--warn);
+  }
+  .sev.sev-low {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .find-samples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 8px;
+  }
+  .chip {
+    font-size: 0.82rem;
+    font-weight: 600;
+    background: #f1f0ee;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+  .find-why {
+    margin: 0 0 6px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .find-fix {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+  .find-fix b {
+    color: var(--accent-strong);
+  }
+
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* CTA bank */
+  .cta-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .cta-item {
+    border: 1px solid var(--accent-tint-2);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: var(--accent-tint);
+  }
+  .cta-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin-bottom: 4px;
+  }
+  .cta-q {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+  .cta-q .ph {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232733;
+    color: #eef0f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 35, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+    mark.bait {
+      background: #f0f0f0;
+      color: #000;
+      text-decoration: underline;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">SNS 카피 린트 · 진짜질문 CTA</span>
+    <h1>인게이지먼트 베이트 린터 &amp; 진짜질문 CTA 코치</h1>
+    <p class="lede">
+      '댓글 YES', '3명 태그' 같은 참여 유도 베이트를 잡아내고, 독자가 스스로
+      답하고 싶어지는 진짜 열린 질문 CTA로 다시 쓰게 돕습니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>검사할 게시글 붙여넣기</h2>
+    </div>
+    <p class="panel-sub">
+      SNS에 올릴 캡션이나 글을 그대로 붙여넣으세요. 참여를 강요하는 표현을 찾아
+      표시하고, 왜 베이트인지와 어떻게 고칠지 알려 드립니다.
+    </p>
+    <label class="field-label" for="post">게시글 본문</label>
+    <textarea
+      id="post"
+      placeholder="예) 새 글 발행했습니다. 언더백 조직에서 KPI를 실제로 돌아가게 만든 3가지 방법을 정리했어요. ..."
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+      전혀 없습니다.
+    </p>
+
+    <div class="actions">
+      <button class="btn-primary" id="lint">린트 검사</button>
+      <button class="btn-ghost" id="example">예시 채우기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>린트 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◔</div>
+        <p><strong>아직 검사 전입니다.</strong></p>
+        <p>게시글을 붙여넣고 '린트 검사'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> Marcus 소트리더십 social-content 스위트의
+      보이스 규율(<em>references/voice.md</em>)과 message-kernel 스펙 — "CTA는
+      진짜 열린 질문이며, '댓글 YES'·'N명 태그' 같은 베이트는 린트로 차단하고
+      다시 쓴다". 분배는 좋아요가 아니라 공유·저장·체류시간 같은 인게이지먼트
+      품질에서 나온다는 플랫폼 관측(Instagram, Mosseri 2025)을 함께 반영했습니다.
+    </p>
+    <p>
+      이 도구는 규칙 기반 패턴 감지로 사고를 돕는 보조 도구입니다. 맥락상 정당한
+      표현을 베이트로 잡거나 새로운 변형을 놓칠 수 있으니, 최종 판단과 문장은
+      스스로 다듬어 주세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------------------------------------------------------------
+   * 베이트 감지 규칙
+   * 근거: social-content voice.md (인게이지먼트 섹션) + message-kernel 스펙
+   *   "CTA는 진짜 열린 질문. '댓글 YES', '3명 태그' 같은 베이트는 차단·재작성."
+   * 각 규칙 = 카테고리 + 심각도 + 왜 문제인지 + 고치는 방향 + 정규식 패턴들.
+   * ------------------------------------------------------------------- */
+  var RULES = [
+    {
+      id: "react",
+      cat: "반응 강요",
+      sev: "high",
+      why: "좋아요·하트·댓글 반응 자체를 목적으로 요구하는 신호입니다. 읽는 사람에게 빚을 지우고, 플랫폼도 저품질 참여로 취급하기 쉽습니다.",
+      fix: "반응 요구 문구를 지우고, 글의 진짜 주장에 대한 <b>열린 질문 하나</b>로 바꾸세요. 반응은 강요가 아니라 궁금함에서 나옵니다.",
+      patterns: [
+        /좋아요\s*(꾹|눌러|눌러\s*주세요|부탁|필수|고고|ㄱㄱ)/g,
+        /하트\s*(꾹|눌러|주세요|부탁)/g,
+        /(공감|동의)\s*(하시)?(면|시면)[^.?!\n]{0,10}(좋아요|하트|댓글|눌러)/g,
+        /댓글\s*(로)?\s*(YES|예스|네요?|✓|반응\s*필수|남겨\s*주세요|남겨요|필수|고고|ㄱㄱ)/gi,
+        /like\s+(this\s+)?if\s+you/gi,
+        /double\s*tap/gi,
+        /comment\s+(yes|below)\b/gi
+      ]
+    },
+    {
+      id: "tag",
+      cat: "태그 소환",
+      sev: "high",
+      why: "친구를 강제로 끌어들여 도달을 늘리려는 전형적 베이트입니다. 초대받은 사람에게는 스팸으로 읽힙니다.",
+      fix: "'N명 태그' 대신, 이 주제를 실제로 겪는 사람이 스스로 떠오르는 <b>구체적인 상황 질문</b>을 던지세요. 공유는 강요가 아니라 공감에서 자발적으로 일어납니다.",
+      patterns: [
+        /\d+\s*명\s*(이상)?\s*(의)?\s*(친구)?\s*(를)?\s*태그/g,
+        /친구\s*(를)?\s*(소환|태그|불러|호출|데려)/g,
+        /태그\s*(해\s*주세요|하세요|필수|고고|ㄱㄱ|해\s*보세요)/g,
+        /소환\s*(해\s*주세요|하세요|필수|이벤트)/g,
+        /tag\s+\d+/gi,
+        /tag\s+(a\s+)?(friend|someone|people)/gi
+      ]
+    },
+    {
+      id: "share",
+      cat: "공유·저장 구걸",
+      sev: "medium",
+      why: "공유·저장·리트윗을 직접 구걸하는 신호입니다. 저장·공유는 콘텐츠가 정말 유용할 때 따라오는 결과지 요청할 대상이 아닙니다.",
+      fix: "'저장 필수' 대신 <b>저장하고 싶게</b> 만드세요. 나중에 다시 꺼내 쓸 체크리스트·요약을 본문에 담고, 구걸 문구는 지웁니다.",
+      patterns: [
+        /공유\s*(해\s*주세요|하세요|필수|부탁|고고|ㄱㄱ)/g,
+        /저장\s*(필수|각|해\s*두|해\s*두세요|해\s*놓|하세요)/g,
+        /(리트윗|알티|RT)\s*(부탁|필수|플리즈|해\s*주|please)/gi,
+        /퍼가(세요|기\s*필수|요)/g,
+        /share\s+this\s+(post|if)/gi,
+        /save\s+(this|it)\s+(post|for\s+later)/gi,
+        /retweet\s+if/gi
+      ]
+    },
+    {
+      id: "follow",
+      cat: "팔로우·구독 구걸",
+      sev: "medium",
+      why: "맞팔·선팔·구독을 조건으로 내거는 신호입니다. 숫자는 늘어도 관심 없는 팔로워라 도달과 신뢰는 오히려 떨어집니다.",
+      fix: "팔로우를 요청하지 말고, <b>다음 글이 궁금해지는 이유</b>(연재 예고·한 줄 가치)를 남기세요. 구독은 기대에서 나옵니다.",
+      patterns: [
+        /맞팔|선팔|언팔\s*금지/g,
+        /팔로우\s*(필수|부탁|하고|해\s*주|눌러|고고)/g,
+        /구독\s*(과|좋아요|알림|필수|부탁|눌러)/g,
+        /follow\s*(for\s*follow|back|me|us)\b/gi,
+        /\bf4f\b|\bl4l\b/gi
+      ]
+    },
+    {
+      id: "choice",
+      cat: "강제 선택형 질문",
+      sev: "medium",
+      why: "'1번? 2번? 댓글로!' 같은 질문은 열린 질문처럼 보이지만, 실은 클릭 한 번을 뽑아내려는 닫힌 베이트입니다.",
+      fix: "선택지를 묻더라도 <b>'왜 그렇게 고르셨나요'</b>까지 열어 주세요. 이유를 묻는 순간 진짜 대화가 됩니다.",
+      patterns: [
+        /(1\s*번|2\s*번|하나)[^.?!\n]{0,10}(골라|선택)[^.?!\n]{0,10}(댓글|주세요|해|보세요)/g,
+        /(댓글|투표)\s*(로|으로)\s*(골라|선택|알려|투표)/g,
+        /1\s*이?면[^.?!\n]{0,14}2\s*이?면/g,
+        /(둘|셋)\s*중[^.?!\n]{0,10}(하나|뭐|무엇)[^.?!\n]{0,10}(골라|선택|댓글)/g,
+        /comment\s+1\s+or\s+2/gi,
+        /\bA\s+or\s+B\b/gi
+      ]
+    },
+    {
+      id: "urgency",
+      cat: "긴급·낚시 유도",
+      sev: "medium",
+      why: "마감·손해·'끝까지 보면' 같은 조바심 유발은 조회수를 짜내는 낚시입니다. 반복되면 신뢰가 깎입니다.",
+      fix: "조바심 대신 <b>진짜 이유</b>를 주세요. 왜 지금 이 이야기가 중요한지 한 문장으로 설명하면, 낚시 없이도 끝까지 읽힙니다.",
+      patterns: [
+        /마감\s*임박|단\s*하루|오늘\s*마감|선착순|지금\s*아니면/g,
+        /놓치면\s*(후회|손해|안\s*돼|안됨)/g,
+        /(안|못)\s*보면\s*손해/g,
+        /끝까지\s*(보면|읽으면|봐야)/g,
+        /(스압|충격|경악)\s*(주의)?[!.]/g,
+        /(don'?t\s+miss|you\s+won'?t\s+believe|wait\s+for\s+it)/gi
+      ]
+    },
+    {
+      id: "dm",
+      cat: "DM·링크 강요",
+      sev: "low",
+      why: "'DM 주세요', '링크는 프로필에' 같은 유도는 참여를 인위적으로 끌어올리려는 약한 베이트입니다.",
+      fix: "다음 단계를 안내하되 강요하지 마세요. <b>'궁금한 분은 편하게 물어보세요'</b>처럼 문을 열어 두는 표현이 더 자연스럽습니다.",
+      patterns: [
+        /(DM|디엠)\s*(주세요|보내|남겨|필수|고고|주시면)/gi,
+        /(링크|link)\s*(는)?\s*(프로필|바이오|클릭|눌러|아래|첫\s*댓)/gi,
+        /link\s+in\s+bio/gi,
+        /프로필\s*링크\s*(클릭|확인|고고)/g
+      ]
+    }
+  ];
+
+  var SEV_WEIGHT = { high: 3, medium: 2, low: 1 };
+  var SEV_LABEL = { high: "강한 신호", medium: "중간 신호", low: "약한 신호" };
+
+  /* 진짜 열린 질문 CTA 뱅크 (강요 없이 자발적 참여를 부르는 형태) */
+  var CTA_BANK = [
+    {
+      tag: "경험 초대",
+      q: "여러분은 [상황]에서 어떻게 하셨나요? 실제로 통했던 방법이 궁금합니다."
+    },
+    {
+      tag: "관점 대비",
+      q: "저는 [주장]이라고 봅니다. 여러분의 현장에서는 다르게 보이나요?"
+    },
+    {
+      tag: "사례 요청",
+      q: "비슷한 [문제]를 겪어 보신 분의 이야기를 듣고 싶습니다. 무엇이 결정적이었나요?"
+    },
+    {
+      tag: "반론 초대",
+      q: "이 생각에서 가장 약한 고리는 무엇일까요? 반대 의견을 듣고 배우고 싶습니다."
+    },
+    {
+      tag: "우선순위",
+      q: "셋 중 하나만 먼저 손대야 한다면, 여러분은 무엇을 고르시겠어요? 그 이유도 함께요."
+    }
+  ];
+
+  var EXAMPLE_TEXT =
+    "이번 신제품 드디어 출시했습니다! 🎉🎉🔥🔥❤️ 좋아요 꾹 눌러주시고 친구 3명 태그 필수! " +
+    "관심 있으면 댓글 YES 남겨주세요. 저장 각이니까 저장 필수! 궁금한 분은 DM 주세요. " +
+    "놓치면 후회합니다. 선착순 마감 임박이에요!";
+
+  /* ---------- utils ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function withGlobal(re) {
+    var flags = re.flags.indexOf("g") < 0 ? re.flags + "g" : re.flags;
+    return new RegExp(re.source, flags);
+  }
+
+  function countEmoji(text) {
+    try {
+      var re = /\p{Extended_Pictographic}/gu;
+      var ranges = [];
+      var m;
+      while ((m = re.exec(text)) !== null) {
+        ranges.push({ start: m.index, end: m.index + m[0].length });
+      }
+      return ranges;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /* ---------- core scan ---------- */
+  function scan(text) {
+    var ranges = [];
+    var byRule = {};
+
+    RULES.forEach(function (rule) {
+      rule.patterns.forEach(function (pat) {
+        var rx = withGlobal(pat);
+        var m;
+        var guard = 0;
+        while ((m = rx.exec(text)) !== null && guard < 5000) {
+          guard++;
+          if (m[0].length === 0) {
+            rx.lastIndex++;
+            continue;
+          }
+          ranges.push({ start: m.index, end: m.index + m[0].length });
+          if (!byRule[rule.id]) byRule[rule.id] = [];
+          byRule[rule.id].push(m[0].trim());
+        }
+      });
+    });
+
+    // findings from rules (preserve RULES order = high -> low)
+    var findings = [];
+    RULES.forEach(function (rule) {
+      var hits = byRule[rule.id];
+      if (!hits || !hits.length) return;
+      var uniq = [];
+      hits.forEach(function (h) {
+        if (uniq.indexOf(h) < 0) uniq.push(h);
+      });
+      findings.push({
+        cat: rule.cat,
+        sev: rule.sev,
+        why: rule.why,
+        fix: rule.fix,
+        samples: uniq
+      });
+    });
+
+    // emoji signal (voice: 이모지 기본 off) — flag only when heavy (>=4)
+    var emo = countEmoji(text);
+    if (emo.length >= 4) {
+      emo.forEach(function (r) {
+        ranges.push({ start: r.start, end: r.end });
+      });
+      findings.push({
+        cat: "이모지 과다",
+        sev: "low",
+        why:
+          "이모지 " +
+          emo.length +
+          "개가 쓰였습니다. 이모지 도배는 시선을 끌지만 전문성과 신뢰를 갉아먹고, 소트리더십 보이스에서는 기본이 off입니다.",
+        fix:
+          "장식용 이모지를 걷어내고, <b>꼭 필요한 기능적 1개까지만</b> 남기세요. 강조는 이모지가 아니라 문장으로 하는 편이 오래갑니다.",
+        samples: [emo.length + "개 사용"]
+      });
+    }
+
+    var score = 0;
+    findings.forEach(function (f) {
+      score += SEV_WEIGHT[f.sev] || 1;
+    });
+
+    return { ranges: ranges, findings: findings, score: score };
+  }
+
+  function highlight(text, ranges) {
+    if (!ranges.length) return esc(text).replace(/\n/g, "<br>");
+    var sorted = ranges.slice().sort(function (a, b) {
+      return a.start - b.start || b.end - a.end;
+    });
+    var merged = [];
+    sorted.forEach(function (r) {
+      var last = merged[merged.length - 1];
+      if (last && r.start <= last.end) {
+        last.end = Math.max(last.end, r.end);
+      } else {
+        merged.push({ start: r.start, end: r.end });
+      }
+    });
+    var out = "";
+    var pos = 0;
+    merged.forEach(function (r) {
+      out += esc(text.slice(pos, r.start));
+      out += '<mark class="bait">' + esc(text.slice(r.start, r.end)) + "</mark>";
+      pos = r.end;
+    });
+    out += esc(text.slice(pos));
+    return out.replace(/\n/g, "<br>");
+  }
+
+  function bandFor(score, findingCount) {
+    if (findingCount === 0)
+      return {
+        tone: "clean",
+        level: 0,
+        label: "베이트 신호 0개",
+        title: "깨끗합니다. 진짜 CTA만 남았어요",
+        desc:
+          "참여를 강요하는 표현이 잡히지 않았습니다. 이제 마지막 문장이 정말 '열린 질문'인지, 아래 CTA 뱅크로 한 번 더 다듬어 보세요."
+      };
+    if (score <= 3)
+      return {
+        tone: "light",
+        level: 1,
+        label: "감지 신호 " + findingCount + "종",
+        title: "가벼운 베이트가 섞여 있습니다",
+        desc:
+          "대체로 괜찮지만 몇 군데 강요하는 표현이 남아 있습니다. 아래 지적된 부분만 열린 질문으로 바꾸면 훨씬 자연스러워집니다."
+      };
+    if (score <= 7)
+      return {
+        tone: "mixed",
+        level: 3,
+        label: "감지 신호 " + findingCount + "종",
+        title: "베이트가 눈에 띕니다",
+        desc:
+          "참여를 인위적으로 끌어올리려는 표현이 여러 군데 있습니다. 반응·태그·공유를 요구하는 문장을 걷어내고, 진짜 궁금한 질문으로 다시 쓰세요."
+      };
+    return {
+      tone: "heavy",
+      level: 5,
+      label: "감지 신호 " + findingCount + "종",
+      title: "인게이지먼트 베이트가 글을 지배합니다",
+      desc:
+        "지금은 참여 구걸이 메시지를 덮고 있습니다. 베이트를 모두 지우고, 글의 핵심 주장에서 곧바로 이어지는 열린 질문 CTA 하나로 마무리하세요."
+    };
+  }
+
+  function buildPrompt(text, findings) {
+    var lines = [];
+    lines.push(
+      "당신은 SNS 카피의 인게이지먼트 베이트를 잡아내고, CTA를 진짜 열린 질문으로 다시 쓰는 카피 코치입니다."
+    );
+    lines.push(
+      "아래 게시글에서 참여 유도 베이트를 제거하고, 독자가 스스로 답하고 싶어지는 열린 질문 CTA로 고쳐 주세요."
+    );
+    lines.push("");
+    lines.push("【원문】");
+    lines.push(
+      text.trim() ||
+        "(사용자가 별도로 붙여넣을 예정입니다. 먼저 원문을 요청하세요.)"
+    );
+    lines.push("");
+    lines.push("【자동 린트 결과】");
+    if (findings.length === 0) {
+      lines.push(
+        "- 뚜렷한 베이트 신호 없음. 다만 마지막 CTA가 진짜 열린 질문인지 한 번 더 점검해 주세요."
+      );
+    } else {
+      findings.forEach(function (f, i) {
+        var s = f.samples.slice(0, 4).join(", ");
+        lines.push(i + 1 + ". [" + f.cat + " · " + SEV_LABEL[f.sev] + "] " + s);
+      });
+    }
+    lines.push("");
+    lines.push("【요청 사항】");
+    lines.push(
+      "1. 감지된 베이트 표현을 모두 제거하거나, 강요가 아닌 자연스러운 표현으로 바꿔 주세요."
+    );
+    lines.push(
+      "2. 글의 핵심 주장을 한 문장으로 요약하고, 그 주장에 직접 연결되는 '진짜 열린 질문' CTA를 3개 제안해 주세요. (예/아니오로 닫히는 질문, 좋아요·태그·공유·팔로우 요구 금지)"
+    );
+    lines.push("3. 각 CTA가 왜 열린 질문인지 한 줄로 설명해 주세요.");
+    lines.push(
+      "4. 이모지는 기본적으로 빼고, 꼭 필요할 때만 기능적으로 1개까지만 쓰세요."
+    );
+    lines.push(
+      "5. 한국어는 어절 중간에서 끊지 말고, 없는 수치·사례·고객명은 절대 지어내지 마세요."
+    );
+    return lines.join("\n");
+  }
+
+  /* ---------- render ---------- */
+  var post = document.getElementById("post");
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  post.addEventListener("input", function () {
+    grow(post);
+  });
+
+  function ctaBankHtml() {
+    var h = '<div class="result-block-title">진짜 열린 질문 CTA 뱅크</div>';
+    h +=
+      '<p class="panel-sub" style="margin-bottom:11px">대괄호 자리에 이 글의 실제 주제를 넣으세요. 강요 대신 궁금함으로 참여를 부르는 형태입니다.</p>';
+    h += '<ul class="cta-list">';
+    CTA_BANK.forEach(function (c) {
+      var q = esc(c.q).replace(/\[([^\]]+)\]/g, '<span class="ph">[$1]</span>');
+      h +=
+        '<li class="cta-item"><span class="cta-tag">' +
+        esc(c.tag) +
+        '</span><p class="cta-q">' +
+        q +
+        "</p></li>";
+    });
+    h += "</ul>";
+    return h;
+  }
+
+  function promptHtml() {
+    var h = '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    h +=
+      '<p class="panel-sub" style="margin-bottom:11px">이 린트 결과를 그대로 담았습니다. ChatGPT·Claude 등에 붙여넣으면 원문을 베이트 없이 다시 쓰고, 이 글에 맞는 열린 질문 CTA 3개를 만들어 줍니다.</p>';
+    h += '<div class="prompt-wrap">';
+    h += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    h += "</div>";
+    h += '<div class="copy-row no-print">';
+    h += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    h += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    h +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    h += "</div>";
+    return h;
+  }
+
+  document.getElementById("lint").addEventListener("click", function () {
+    var text = post.value;
+
+    // empty input path — still useful: guidance + CTA bank + prompt
+    if (!text.trim()) {
+      lastPrompt = buildPrompt("", []);
+      var eh = "";
+      eh += '<div class="verdict tone-light">';
+      eh += '<p class="verdict-label">입력 없음</p>';
+      eh +=
+        '<p class="verdict-title">검사할 글을 먼저 붙여넣어 주세요</p>';
+      eh +=
+        '<p class="verdict-desc">STEP 1에 캡션을 붙여넣으면 베이트를 표시해 드립니다. 그동안 아래 CTA 뱅크를 참고하세요.</p>';
+      eh += "</div>";
+      eh += ctaBankHtml();
+      eh += promptHtml();
+      resultEl.innerHTML = eh;
+      wireResultButtons();
+      post.focus();
+      return;
+    }
+
+    var res = scan(text);
+    var band = bandFor(res.score, res.findings.length);
+    lastPrompt = buildPrompt(text, res.findings);
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html +=
+      '<div class="meter" role="img" aria-label="베이트 위험도 ' +
+      band.level +
+      ' / 5">';
+    for (var p = 0; p < 5; p++) {
+      html += '<span class="pip' + (p < band.level ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html +=
+      '<p class="meter-caption">베이트 위험도 ' +
+      band.level +
+      " / 5 · 감지 신호 " +
+      res.findings.length +
+      "종</p>";
+    html += "</div>";
+
+    // highlighted original
+    html += '<div class="result-block-title">원문에서 감지된 표현</div>';
+    if (res.ranges.length) {
+      html +=
+        '<div class="highlight-box">' + highlight(text, res.ranges) + "</div>";
+    } else {
+      html +=
+        '<p class="clean-note">본문에서 베이트 패턴이 감지되지 않았습니다. 강요 없이 잘 쓰셨습니다.</p>';
+    }
+
+    // findings
+    if (res.findings.length) {
+      html += '<div class="result-block-title">무엇이 왜 걸렸나</div>';
+      html += '<ul class="find-list">';
+      res.findings.forEach(function (f) {
+        html += '<li class="find sev-' + f.sev + '">';
+        html += '<div class="find-head">';
+        html += '<span class="find-cat">' + esc(f.cat) + "</span>";
+        html +=
+          '<span class="sev sev-' +
+          f.sev +
+          '">' +
+          esc(SEV_LABEL[f.sev]) +
+          "</span>";
+        html += "</div>";
+        html += '<div class="find-samples">';
+        f.samples.slice(0, 6).forEach(function (s) {
+          html += '<span class="chip">' + esc(s) + "</span>";
+        });
+        html += "</div>";
+        html += '<p class="find-why">' + esc(f.why) + "</p>";
+        // f.fix contains safe, author-controlled <b> tags only
+        html += '<p class="find-fix">' + f.fix + "</p>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // CTA bank + prompt
+    html += ctaBankHtml();
+    html += promptHtml();
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- example ----
+  document.getElementById("example").addEventListener("click", function () {
+    post.value = EXAMPLE_TEXT;
+    grow(post);
+    post.focus();
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    post.value = "";
+    grow(post);
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+      "<p><strong>아직 검사 전입니다.</strong></p>" +
+      "<p>게시글을 붙여넣고 '린트 검사'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+    post.focus();
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      // tier 3: manual modal
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

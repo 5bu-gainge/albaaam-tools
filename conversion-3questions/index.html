@@ -1,0 +1,1360 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>수습·정규직 전환 기준 3질문 도구</title>
+<meta name="description" content="핵심가치별 관찰가능 행동, 직군별 '일 잘함' 정의, 전환불가 행동 목록을 3질문으로 세워 전환 판단 기준서를 만듭니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #445a8e;
+    --accent-strong: #364a78;
+    --accent-tint: #eaeef7;
+    --accent-tint-2: #d7e0f1;
+    --ink: #22252c;
+    --ink-soft: #444a55;
+    --ink-mute: #666d78;
+    --paper: #f5f6f9;
+    --card: #ffffff;
+    --line: #e4e7ee;
+    --line-strong: #d0d5df;
+    --good: #2f6f4f;
+    --good-tint: #e9f3ee;
+    --good-line: #cfe4d8;
+    --danger: #ab3d3b;
+    --danger-tint: #f9ecea;
+    --danger-line: #ecccc9;
+    --shadow: 0 1px 2px rgba(34, 37, 44, 0.05), 0 6px 20px rgba(34, 37, 44, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- entries (dynamic value / role blocks) ---------- */
+  .entry-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .entry {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfcfe;
+    padding: 14px 14px 15px;
+  }
+  .entry-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .entry-tag {
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .entry-del {
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--ink-mute);
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 9px;
+    padding: 8px 12px;
+    min-height: 40px;
+    cursor: pointer;
+  }
+  .entry-del:hover {
+    color: var(--danger);
+    border-color: var(--danger-line);
+    background: var(--danger-tint);
+  }
+  .mini-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin: 10px 0 7px;
+  }
+  input.entry-name,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    color: var(--ink);
+    background: #ffffff;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input.entry-name {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  textarea {
+    display: block;
+    min-height: 72px;
+    resize: none;
+    overflow: hidden;
+    font-size: 0.97rem;
+    line-height: 1.6;
+  }
+  input.entry-name:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder,
+  input.entry-name::placeholder {
+    color: #a3a9b4;
+  }
+
+  .add-btn {
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px dashed var(--accent-tint-2);
+    border-radius: 11px;
+    padding: 12px 16px;
+    min-height: 44px;
+    width: 100%;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .add-btn:hover {
+    background: #dfe6f4;
+    border-color: var(--accent);
+  }
+
+  .redline-note {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    margin: 10px 0 0;
+  }
+  .redline-note b {
+    color: var(--danger);
+    font-weight: 700;
+  }
+
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 12px 0 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button.btn {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 44px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  button.btn:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-good {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict.tone-mixed {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-thin {
+    background: var(--danger-tint);
+    border-color: var(--danger-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.38rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-good .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-thin .verdict-title {
+    color: var(--danger);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #dce0e8;
+  }
+  .verdict.tone-good .pip.lit {
+    background: var(--good);
+  }
+  .verdict.tone-mixed .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-thin .pip.lit {
+    background: var(--danger);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+  .tally {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 0;
+  }
+  .tally span {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 4px 10px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 11px;
+  }
+
+  /* criteria cards */
+  .crit-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .crit-card {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 11px;
+    padding: 13px 15px;
+    background: #fbfcfe;
+  }
+  .crit-name {
+    font-weight: 800;
+    font-size: 1.02rem;
+    margin: 0 0 8px;
+    color: var(--ink);
+  }
+  .crit-behaviors {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .crit-behaviors li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+  .crit-behaviors li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 9px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .weak-tag {
+    display: inline-block;
+    margin-left: 7px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #8a5a12;
+    background: #fbeecf;
+    border: 1px solid #f0dca6;
+    border-radius: 6px;
+    padding: 1px 7px;
+    vertical-align: middle;
+  }
+  .crit-empty {
+    font-size: 0.9rem;
+    color: var(--danger);
+    margin: 0;
+  }
+
+  /* redline list */
+  .redline-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .redline-item {
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+    border: 1px solid var(--danger-line);
+    border-radius: 11px;
+    padding: 12px 14px;
+    background: var(--danger-tint);
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+  .redline-item .rl-mark {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--danger);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+    margin-top: 1px;
+  }
+  .redline-gate {
+    font-size: 0.86rem;
+    color: var(--danger);
+    font-weight: 700;
+    margin: 0 0 10px;
+  }
+
+  /* warnings */
+  .warn-box {
+    border: 1px solid #f0dca6;
+    background: #fdf6e6;
+    border-radius: 11px;
+    padding: 13px 15px;
+    margin-top: 6px;
+  }
+  .warn-box .wb-title {
+    font-weight: 800;
+    font-size: 0.92rem;
+    color: #8a5a12;
+    margin: 0 0 7px;
+  }
+  .warn-box ul {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .warn-box li {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23262d;
+    color: #eef0f4;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(34, 37, 44, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .entry-head {
+      flex-wrap: wrap;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #q1-panel,
+    #q2-panel,
+    #q3-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">수습 전환 · 3질문 기준서</span>
+    <h1>수습·정규직 전환 기준 3질문 도구</h1>
+    <p class="lede">
+      "느낌으로" 전환을 결정하지 않으려면, 판단하기 전에 기준부터 있어야 합니다.
+      세 가지 질문에 답하면, 핵심가치별 관찰 기준·직군별 '일 잘함' 정의·전환 불가
+      레드라인을 하나의 <strong>전환 판단 기준서</strong>로 정리해 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="q1-panel">
+    <div class="panel-head">
+      <span class="step">질문 1</span>
+      <h2>핵심가치가 지켜질 때, 무엇이 '보이나요'?</h2>
+    </div>
+    <p class="panel-sub">
+      핵심가치는 마음속 태도가 아니라 눈으로 확인할 수 있어야 판단 기준이 됩니다.
+      가치마다 '이 사람이 그 가치를 지키면 실제로 하는 행동'을 적으세요.
+    </p>
+    <div class="entry-list" id="values"></div>
+    <button class="add-btn" id="add-value" type="button">+ 핵심가치 추가</button>
+  </section>
+
+  <section class="panel" id="q2-panel">
+    <div class="panel-head">
+      <span class="step">질문 2</span>
+      <h2>이 직군에서 '일 잘한다'는 건 무엇인가요?</h2>
+    </div>
+    <p class="panel-sub">
+      '일 잘함'의 기준은 직군마다 다릅니다. 영업의 '잘함'과 지원부서의 '잘함'을
+      같은 잣대로 재면 판단이 어긋납니다. 직군별로 나눠 정의하세요.
+    </p>
+    <div class="entry-list" id="roles"></div>
+    <button class="add-btn" id="add-role" type="button">+ 직군 추가</button>
+  </section>
+
+  <section class="panel" id="q3-panel">
+    <div class="panel-head">
+      <span class="step">질문 3</span>
+      <h2>이것 하나면 전환할 수 없는 행동은?</h2>
+    </div>
+    <p class="panel-sub">
+      점수가 아무리 높아도 전환할 수 없는 '결격 행동'을 미리 정해 두면, 판단할 때
+      흔들리지 않습니다. 한 줄에 하나씩 적으세요.
+    </p>
+    <label class="mini-label" for="redlines">전환 불가 레드라인 (한 줄에 하나)</label>
+    <textarea
+      id="redlines"
+      placeholder="예) 보고 내용을 사실과 다르게 꾸민 적이 있다&#10;예) 동료·고객에게 반복적으로 무례하게 대한다&#10;예) 안전·규정 위반을 알고도 은폐한다"
+    ></textarea>
+    <p class="redline-note">
+      <b>하드 게이트</b
+      ><span
+        >레드라인은 다른 항목과 합산하지 않습니다. 하나라도 해당하면 전환 보류가
+        기본값입니다.</span
+      >
+    </p>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="build" type="button">기준서 만들기</button>
+      <button class="btn btn-ghost" id="example" type="button">예시 불러오기</button>
+      <button class="btn btn-ghost" id="reset" type="button">초기화</button>
+    </div>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 저장·서버 전송·외부 API
+      호출이 전혀 없습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">결과</span>
+      <h2>전환 판단 기준서</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◔</div>
+        <p><strong>아직 기준서가 없습니다.</strong></p>
+        <p>세 질문에 답하고 '기준서 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 이 도구는 (1) 핵심가치를 '관찰 가능한
+      행동'으로 정의하는 행동기준 평가(behaviorally anchored) 방식, (2) 직군마다
+      '일 잘함'의 기준이 다르다는 역할 기반 평가 원칙, (3) 점수와 무관하게 작동하는
+      결격(하드 게이트) 기준 분리 원칙에 기반합니다. 특정 회사 규정이나 법 조항을
+      대체하지 않으며, 수습·정규직 전환의 법적 요건(수습 기간·해고 예고 등)은
+      취업규칙과 근로기준법을 별도로 확인하세요.
+    </p>
+    <p>
+      이 도구는 전환 판단의 <em>기준</em>을 세우도록 돕는 보조 도구이며, 특정
+      직원의 전환 여부를 대신 결정하지 않습니다. 최종 판단과 그 책임은 사람에게
+      있습니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn btn-primary" id="modal-select" type="button">전체 선택</button>
+      <button class="btn btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function splitLines(text) {
+    return String(text || "")
+      .split(/\r?\n/)
+      .map(function (l) {
+        return l.trim();
+      })
+      .filter(function (l) {
+        return l.length > 0;
+      });
+  }
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  /* observability heuristic: is a behavior line hard to observe?
+     A line is flagged when it is either too short to describe an action,
+     or it leans on an abstract trait word without any concrete action cue. */
+  var ABSTRACT = [
+    "열정", "성실", "책임감", "적극", "긍정", "태도", "마인드", "열심",
+    "최선", "노력", "자세", "진정성", "주인의식", "헌신", "열의", "근성",
+    "예의", "친절", "열린", "소통능력", "역량있", "능력있", "센스", "감각",
+  ];
+  var CONCRETE = /(한다|합니다|처리|공유|기록|응답|제출|보고|완료|정리|확인|전달|작성|측정|개선|달성|마감|지킨|지킴|지킨다|따른|따름|문서화|피드백|질문|제안|검토|수정|반영|대응|해결|테스트|배포|리뷰|먼저|매일|매주|매월|건|회|명|%|퍼센트|시간|이내|기한|안에|숫자|수치|명확)/;
+  function isWeak(line) {
+    var compact = line.replace(/\s/g, "");
+    if (compact.length < 6) return true;
+    var hasAbstract = ABSTRACT.some(function (w) {
+      return line.indexOf(w) >= 0;
+    });
+    if (!hasAbstract) return false;
+    return !CONCRETE.test(line);
+  }
+
+  /* ---------- dynamic entry blocks ---------- */
+  var valuesEl = document.getElementById("values");
+  var rolesEl = document.getElementById("roles");
+  var redlinesEl = document.getElementById("redlines");
+
+  function makeEntry(kind, name, body) {
+    var wrap = document.createElement("div");
+    wrap.className = "entry";
+    wrap.dataset.kind = kind;
+    var isValue = kind === "value";
+    var tag = isValue ? "핵심가치" : "직군 / 역할";
+    var namePh = isValue ? "예) 고객 집착" : "예) 영업 · 세일즈";
+    var bodyLabel = isValue
+      ? "이 가치가 지켜질 때 '보이는' 행동 (한 줄에 하나)"
+      : "이 직군에서 '일 잘한다'는 것 (한 줄에 하나)";
+    var bodyPh = isValue
+      ? "예) 고객 문의에 하루 안에 1차 응답한다&#10;예) 클레임을 혼자 덮지 않고 그날 공유·기록한다"
+      : "예) 신규 미팅을 주 3건 이상 만든다&#10;예) 진행 상황을 그날 CRM에 기록한다";
+    wrap.innerHTML =
+      '<div class="entry-head">' +
+      '<span class="entry-tag">' + tag + "</span>" +
+      '<button class="entry-del" type="button" aria-label="이 항목 삭제">삭제</button>' +
+      "</div>" +
+      '<input class="entry-name" type="text" placeholder="' + namePh + '" />' +
+      '<label class="mini-label">' + bodyLabel + "</label>" +
+      '<textarea class="entry-body" placeholder="' + bodyPh + '"></textarea>';
+    if (name != null) wrap.querySelector(".entry-name").value = name;
+    if (body != null) wrap.querySelector(".entry-body").value = body;
+    (isValue ? valuesEl : rolesEl).appendChild(wrap);
+    var ta = wrap.querySelector(".entry-body");
+    grow(ta);
+    return wrap;
+  }
+
+  document.getElementById("add-value").addEventListener("click", function () {
+    var e = makeEntry("value");
+    e.querySelector(".entry-name").focus();
+  });
+  document.getElementById("add-role").addEventListener("click", function () {
+    var e = makeEntry("role");
+    e.querySelector(".entry-name").focus();
+  });
+
+  function wireContainer(container) {
+    container.addEventListener("click", function (e) {
+      var del = e.target.closest(".entry-del");
+      if (del) {
+        var entry = del.closest(".entry");
+        if (entry) entry.remove();
+      }
+    });
+    container.addEventListener("input", function (e) {
+      if (e.target.classList.contains("entry-body")) grow(e.target);
+    });
+  }
+  wireContainer(valuesEl);
+  wireContainer(rolesEl);
+  redlinesEl.addEventListener("input", function () {
+    grow(redlinesEl);
+  });
+
+  /* seed with one empty block each so the structure is visible */
+  makeEntry("value");
+  makeEntry("role");
+
+  /* ---------- collect input ---------- */
+  function collect(container) {
+    var out = [];
+    Array.prototype.forEach.call(
+      container.querySelectorAll(".entry"),
+      function (el) {
+        out.push({
+          name: el.querySelector(".entry-name").value.trim(),
+          lines: splitLines(el.querySelector(".entry-body").value),
+        });
+      }
+    );
+    return out;
+  }
+
+  /* ---------- prompt builder ---------- */
+  function buildPrompt(values, roles, redlines) {
+    var L = [];
+    L.push(
+      "당신은 수습사원의 정규직 전환 판단을 돕는 HR 평가 코치입니다."
+    );
+    L.push(
+      "아래는 우리 조직이 판단 전에 미리 합의한 '전환 판단 기준서'입니다. 이 기준서에 따라, 특정 수습사원 한 명의 전환 여부를 제가 판단하도록 도와주세요."
+    );
+    L.push("");
+    L.push("【핵심가치별 관찰 기준】");
+    if (values.length) {
+      values.forEach(function (v) {
+        L.push("- 가치: " + v.name);
+        if (v.lines.length) {
+          v.lines.forEach(function (b) {
+            L.push("    · 관찰가능 행동: " + b);
+          });
+        } else {
+          L.push("    · (관찰가능 행동이 아직 정의되지 않음)");
+        }
+      });
+    } else {
+      L.push("- (입력되지 않음)");
+    }
+    L.push("");
+    L.push("【직군별 '일 잘함' 정의】");
+    if (roles.length) {
+      roles.forEach(function (r) {
+        L.push("- 직군: " + r.name);
+        if (r.lines.length) {
+          r.lines.forEach(function (b) {
+            L.push("    · 잘함의 기준: " + b);
+          });
+        } else {
+          L.push("    · (정의가 아직 비어 있음)");
+        }
+      });
+    } else {
+      L.push("- (입력되지 않음)");
+    }
+    L.push("");
+    L.push("【전환 불가 레드라인 (하드 게이트)】");
+    if (redlines.length) {
+      redlines.forEach(function (r) {
+        L.push("- " + r);
+      });
+    } else {
+      L.push("- (입력되지 않음)");
+    }
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 먼저 저에게 이 수습사원에 대해 위 관찰 기준별로 '실제로 관찰한 사실(구체적 사례·빈도·시점)'을 물어봐 주세요. 인상이나 느낌이 아니라 관찰된 행동으로 답하도록 유도하세요."
+    );
+    L.push(
+      "2. 레드라인은 점수와 무관한 하드 게이트입니다. 하나라도 해당하면 다른 항목이 아무리 좋아도 '전환 보류'로 처리하고, 그 사실의 근거를 먼저 확인하세요."
+    );
+    L.push(
+      "3. 핵심가치별로 관찰된 증거가 기준을 (a) 충족 (b) 부족 (c) 증거 없음 중 무엇인지 3단계로 정리해 주세요. 직군 정의도 같은 방식으로 점검하세요."
+    );
+    L.push(
+      "4. 결론(전환 / 보류 / 불가)을 대신 내리지 말고, 증거 요약과 아직 남은 질문을 먼저 제시한 뒤, 당신의 잠정 해석을 비교용으로 덧붙여 주세요. 최종 판단은 제가 합니다."
+    );
+    L.push(
+      "5. 근거가 없는 칸은 '증거 없음'으로 남겨 두세요. 좋게 보이려 미화하거나, 관찰되지 않은 태도를 추측으로 채우지 마세요."
+    );
+    return L.join("\n");
+  }
+
+  /* ---------- build result ---------- */
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function bandFor(n) {
+    if (n >= 3)
+      return {
+        tone: "good",
+        label: "3요소 모두 작성",
+        title: "전환 판단 기준서가 갖춰졌습니다",
+        desc: "핵심가치 관찰 기준, 직군별 '일 잘함' 정의, 전환 불가 레드라인이 모두 채워졌습니다. 아래 기준서와 프롬프트로 개별 수습사원을 일관되게 판단하세요.",
+      };
+    if (n === 2)
+      return {
+        tone: "mixed",
+        label: "2요소 작성",
+        title: "핵심은 갖춰졌고, 한 요소가 비었습니다",
+        desc: "기준서의 뼈대는 섰습니다. 비어 있는 요소를 채우면 판단이 더 흔들리지 않습니다. 아래 보완 포인트를 확인하세요.",
+      };
+    return {
+      tone: "thin",
+      label: n + "요소 작성",
+      title: "아직 기준서로 쓰기엔 이릅니다",
+      desc: "판단의 근거가 될 요소가 부족합니다. 세 질문 중 최소 두 가지는 채워야 '느낌'이 아닌 '기준'으로 전환을 판단할 수 있습니다.",
+    };
+  }
+
+  function render(values, roles, redlines) {
+    /* named-only entries are usable */
+    var namedValues = values.filter(function (v) {
+      return v.name;
+    });
+    var namedRoles = roles.filter(function (r) {
+      return r.name;
+    });
+
+    var q1done = namedValues.some(function (v) {
+      return v.lines.length > 0;
+    });
+    var q2done = namedRoles.some(function (r) {
+      return r.lines.length > 0;
+    });
+    var q3done = redlines.length > 0;
+    var n = (q1done ? 1 : 0) + (q2done ? 1 : 0) + (q3done ? 1 : 0);
+
+    var behaviorTotal = 0;
+    namedValues.forEach(function (v) {
+      behaviorTotal += v.lines.length;
+    });
+
+    var band = bandFor(n);
+
+    /* warnings */
+    var warns = [];
+    namedValues.forEach(function (v) {
+      if (v.lines.length === 0)
+        warns.push(
+          "핵심가치 '" +
+            v.name +
+            "' 에 관찰가능 행동이 없습니다. 지켜질 때 보이는 행동을 1개 이상 적으세요."
+        );
+      v.lines.forEach(function (b) {
+        if (isWeak(b))
+          warns.push(
+            "'" +
+              v.name +
+              "' 의 “" +
+              b +
+              "” 은(는) 눈으로 확인하기 어렵습니다. '무엇을 하는지'로 바꿔 보세요."
+          );
+      });
+    });
+    values.forEach(function (v) {
+      if (!v.name && v.lines.length)
+        warns.push("가치명 없이 행동만 적힌 항목이 있습니다. 어떤 가치인지 이름을 붙이세요.");
+    });
+    namedRoles.forEach(function (r) {
+      if (r.lines.length === 0)
+        warns.push(
+          "직군 '" + r.name + "' 의 '일 잘함' 정의가 비어 있습니다."
+        );
+    });
+    if (!q3done)
+      warns.push(
+        "전환 불가 레드라인이 없습니다. 점수와 무관한 하드 게이트를 최소 1개 정해 두세요."
+      );
+
+    /* ---- HTML ---- */
+    var h = "";
+
+    h += '<div class="verdict tone-' + band.tone + '">';
+    h += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    h += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    h += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    h += '<div class="meter" role="img" aria-label="3요소 중 ' + n + '개 작성">';
+    for (var p = 0; p < 3; p++) {
+      h += '<span class="pip' + (p < n ? " lit" : "") + '"></span>';
+    }
+    h += "</div>";
+    h += '<p class="meter-caption">' + n + " / 3 요소 작성됨</p>";
+    h += '<div class="tally">';
+    h += "<span>핵심가치 " + namedValues.length + "개</span>";
+    h += "<span>관찰행동 " + behaviorTotal + "개</span>";
+    h += "<span>직군 정의 " + namedRoles.length + "개</span>";
+    h += "<span>레드라인 " + redlines.length + "개</span>";
+    h += "</div>";
+    h += "</div>";
+
+    /* Part A */
+    h += '<div class="result-block-title">A. 핵심가치별 관찰 기준</div>';
+    if (namedValues.length) {
+      h += '<ul class="crit-list">';
+      namedValues.forEach(function (v) {
+        h += '<li class="crit-card">';
+        h += '<p class="crit-name">' + esc(v.name) + "</p>";
+        if (v.lines.length) {
+          h += '<ul class="crit-behaviors">';
+          v.lines.forEach(function (b) {
+            h +=
+              "<li>" +
+              esc(b) +
+              (isWeak(b)
+                ? '<span class="weak-tag">관찰 어려움</span>'
+                : "") +
+              "</li>";
+          });
+          h += "</ul>";
+        } else {
+          h +=
+            '<p class="crit-empty">관찰가능 행동이 아직 없습니다 — 판단 기준이 되지 못합니다.</p>';
+        }
+        h += "</li>";
+      });
+      h += "</ul>";
+    } else {
+      h += '<p class="crit-empty">입력된 핵심가치가 없습니다.</p>';
+    }
+
+    /* Part B */
+    h += '<div class="result-block-title">B. 직군별 ‘일 잘함’ 정의</div>';
+    if (namedRoles.length) {
+      h += '<ul class="crit-list">';
+      namedRoles.forEach(function (r) {
+        h += '<li class="crit-card">';
+        h += '<p class="crit-name">' + esc(r.name) + "</p>";
+        if (r.lines.length) {
+          h += '<ul class="crit-behaviors">';
+          r.lines.forEach(function (b) {
+            h += "<li>" + esc(b) + "</li>";
+          });
+          h += "</ul>";
+        } else {
+          h += '<p class="crit-empty">이 직군의 정의가 비어 있습니다.</p>';
+        }
+        h += "</li>";
+      });
+      h += "</ul>";
+    } else {
+      h += '<p class="crit-empty">입력된 직군이 없습니다.</p>';
+    }
+
+    /* Part C */
+    h += '<div class="result-block-title">C. 전환 불가 레드라인</div>';
+    if (redlines.length) {
+      h +=
+        '<p class="redline-gate">아래는 점수와 합산하지 않는 하드 게이트입니다. 하나라도 해당하면 전환 보류가 기본값.</p>';
+      h += '<ul class="redline-list">';
+      redlines.forEach(function (r) {
+        h +=
+          '<li class="redline-item"><span class="rl-mark" aria-hidden="true">!</span><span>' +
+          esc(r) +
+          "</span></li>";
+      });
+      h += "</ul>";
+    } else {
+      h +=
+        '<p class="crit-empty">설정된 레드라인이 없습니다. 결격 기준이 없으면 곤란한 행동도 점수에 묻힐 수 있습니다.</p>';
+    }
+
+    /* warnings */
+    if (warns.length) {
+      h += '<div class="result-block-title">보완 포인트</div>';
+      h += '<div class="warn-box"><p class="wb-title">기준서를 더 단단하게 만들려면</p><ul>';
+      warns.forEach(function (w) {
+        h += "<li>" + esc(w) + "</li>";
+      });
+      h += "</ul></div>";
+    } else if (n === 3) {
+      h +=
+        '<p class="clean-note" style="margin-top:16px">보완할 빈칸이 없습니다. 다만 기준서는 한 번 만들고 끝이 아니라, 실제 판단에 써 보며 애매했던 부분을 다듬어 가는 문서입니다.</p>';
+    }
+
+    /* prompt */
+    lastPrompt = buildPrompt(namedValues, namedRoles, redlines);
+    h += '<div class="result-block-title">AI에 붙여넣을 프롬프트</div>';
+    h +=
+      '<p class="panel-sub" style="margin-bottom:11px">이 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 위 기준서를 채점표 삼아 특정 수습사원의 전환 판단을 구조적으로 도와줍니다. 결론은 대신 내리지 않도록 설계돼 있습니다.</p>';
+    h += '<div class="prompt-wrap">';
+    h += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    h += "</div>";
+    h += '<div class="copy-row no-print">';
+    h += '<button class="btn btn-copy" id="copyBtn" type="button">프롬프트 복사</button>';
+    h += '<button class="btn btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+    h +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    h += "</div>";
+
+    resultEl.innerHTML = h;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("build").addEventListener("click", function () {
+    var values = collect(valuesEl);
+    var roles = collect(rolesEl);
+    var redlines = splitLines(redlinesEl.value);
+
+    var anything =
+      values.some(function (v) {
+        return v.name || v.lines.length;
+      }) ||
+      roles.some(function (r) {
+        return r.name || r.lines.length;
+      }) ||
+      redlines.length > 0;
+
+    if (!anything) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">✎</div>' +
+        "<p><strong>아직 입력이 없습니다.</strong></p>" +
+        "<p>세 질문 중 최소 한 가지라도 채운 뒤 다시 눌러 주세요.</p></div>";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    render(values, roles, redlines);
+  });
+
+  /* ---------- example ---------- */
+  document.getElementById("example").addEventListener("click", function () {
+    valuesEl.innerHTML = "";
+    rolesEl.innerHTML = "";
+    makeEntry(
+      "value",
+      "고객 집착",
+      "고객 문의에 하루 안에 1차 응답한다\n클레임을 혼자 덮지 않고 그날 팀에 공유·기록한다"
+    );
+    makeEntry(
+      "value",
+      "정직",
+      "나쁜 소식을 늦추지 않고 먼저 보고한다\n모르면 모른다고 말하고 확인한 뒤 답한다"
+    );
+    makeEntry(
+      "role",
+      "영업 · 세일즈",
+      "신규 미팅을 주 3건 이상 만든다\n진행 상황을 그날 CRM에 기록한다"
+    );
+    makeEntry(
+      "role",
+      "백오피스 · 지원",
+      "요청을 약속한 마감 기한 안에 처리한다\n반복 실수를 문서화해 재발을 줄인다"
+    );
+    redlinesEl.value =
+      "보고 내용을 사실과 다르게 꾸민 적이 있다\n동료·고객에게 반복적으로 무례하게 대한다\n안전·규정 위반을 알고도 은폐한다";
+    grow(redlinesEl);
+    document
+      .getElementById("q1-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    valuesEl.innerHTML = "";
+    rolesEl.innerHTML = "";
+    makeEntry("value");
+    makeEntry("role");
+    redlinesEl.value = "";
+    grow(redlinesEl);
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+      "<p><strong>아직 기준서가 없습니다.</strong></p>" +
+      "<p>세 질문에 답하고 '기준서 만들기'를 누르세요.</p></div>";
+    document
+      .getElementById("q1-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

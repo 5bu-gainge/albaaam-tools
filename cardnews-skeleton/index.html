@@ -1,0 +1,1409 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>카드뉴스 골격 빌더</title>
+<meta
+  name="description"
+  content="제품이나 인사이트를 hero·공감·해법·기능·차별화·사용법·후기·가격·FAQ·CTA 카드로 쪼개 한 화면 한 메시지로 배열합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #445c8c;
+    --accent-strong: #354a73;
+    --accent-tint: #eef1f8;
+    --accent-tint-2: #dbe2f0;
+    --ink: #211f26;
+    --ink-soft: #47444d;
+    --ink-mute: #6a6670;
+    --paper: #f7f6fa;
+    --card: #ffffff;
+    --line: #e5e2ec;
+    --line-strong: #d5d1de;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #a35a12;
+    --warn-tint: #fff5ea;
+    --warn-line: #f2ddc4;
+    --shadow: 0 1px 2px rgba(33, 31, 38, 0.05), 0 6px 20px rgba(33, 31, 38, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- segmented type toggle ---------- */
+  .seg-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 0 0 8px;
+  }
+  .seg {
+    display: inline-flex;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    overflow: hidden;
+    background: #fdfcff;
+    margin-bottom: 20px;
+  }
+  .seg button {
+    border: 0;
+    background: transparent;
+    padding: 11px 18px;
+    font-family: inherit;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .seg button + button {
+    border-left: 1px solid var(--line-strong);
+  }
+  .seg button[aria-pressed="true"] {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ---------- fields ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .grid .full {
+    grid-column: 1 / -1;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  label.field-label .opt {
+    font-weight: 600;
+    color: var(--ink-mute);
+    font-size: 0.82rem;
+  }
+  input[type="text"],
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: var(--ink);
+    background: #fdfcff;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input[type="text"] {
+    min-height: 46px;
+  }
+  textarea {
+    min-height: 64px;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.6;
+  }
+  input[type="text"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #a49fac;
+  }
+  .field-hint {
+    font-size: 0.83rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .form-note {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 16px 0 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button.btn {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    min-height: 46px;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button.btn:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  .inline-warn {
+    display: none;
+    margin: 14px 0 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 10px;
+    padding: 11px 13px;
+  }
+  .inline-warn.show {
+    display: block;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-strong {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-mixed {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-weak {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-strong .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-weak .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .meter {
+    display: flex;
+    gap: 5px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #e2ddea;
+  }
+  .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-strong .pip.lit {
+    background: var(--good);
+  }
+  .verdict.tone-mixed .pip.lit {
+    background: var(--warn);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* warnings */
+  .warn-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .warn-item {
+    border: 1px solid var(--warn-line);
+    border-left: 3px solid var(--warn);
+    border-radius: 10px;
+    padding: 11px 14px;
+    background: var(--warn-tint);
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+
+  /* card skeleton */
+  ul.cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  li.card-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 13px;
+    background: #fff;
+    padding: 15px 16px;
+  }
+  li.card-item.incomplete {
+    border-left-color: var(--warn);
+    background: #fffdfa;
+  }
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 9px;
+    flex-wrap: wrap;
+  }
+  .card-no {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 7px;
+    padding: 3px 8px;
+    flex: none;
+  }
+  .card-sec {
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+  .card-flag {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 999px;
+    padding: 3px 9px;
+  }
+  .card-head {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    color: var(--ink);
+    line-height: 1.35;
+  }
+  .card-body {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+    white-space: pre-line;
+  }
+  .card-guide {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    border-top: 1px dashed var(--line);
+    padding-top: 9px;
+    margin: 0;
+  }
+  .card-guide b {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+
+  /* prompt / export box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #26242c;
+    color: #f1eef6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(33, 31, 38, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 560px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .seg {
+      display: flex;
+      width: 100%;
+    }
+    .seg button {
+      flex: 1 1 0;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">카드뉴스 설계 · Message Architecture</span>
+    <h1>카드뉴스 골격 빌더</h1>
+    <p class="lede">
+      제품이나 인사이트의 재료를 넣으면, hero·공감·해법·기능·차별화·사용법·후기·가격·FAQ·CTA
+      카드로 쪼개 '한 화면 한 메시지'로 배열합니다. 각 카드의 메시지·본문 초안과, AI로
+      완성 카피를 뽑을 프롬프트까지 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>재료 입력</h2>
+    </div>
+    <p class="panel-sub">
+      아는 만큼만 채우세요. 비운 섹션은 카드로 만들지 않습니다. 여러 개는 줄바꿈으로 나눠 적으면
+      한 줄이 한 카드가 됩니다.
+    </p>
+
+    <span class="seg-label">콘텐츠 유형</span>
+    <div class="seg" id="typeSeg" role="group" aria-label="콘텐츠 유형 선택">
+      <button type="button" data-type="product" aria-pressed="true">
+        제품 상세
+      </button>
+      <button type="button" data-type="insight" aria-pressed="false">
+        인사이트 · 콘텐츠
+      </button>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label class="field-label" for="f-name">제품 · 콘텐츠 이름</label>
+        <input type="text" id="f-name" placeholder="예) 오브제 무선 가습기" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-target">대상 고객 · 상황</label>
+        <input type="text" id="f-target" placeholder="예) 건조한 원룸에 사는 자취생" />
+      </div>
+
+      <div class="field full">
+        <label class="field-label" for="f-core"
+          >핵심 한 줄 메시지 <span class="opt">· 딱 하나만 기억한다면</span></label
+        >
+        <textarea
+          id="f-core"
+          class="grow"
+          placeholder="예) 물 한 번 채우면 12시간, 소리 없이 습도를 지킨다"
+        ></textarea>
+      </div>
+
+      <div class="field full">
+        <label class="field-label" for="f-problem"
+          >고객의 문제 · 불편 <span class="opt">· 공감 카드</span></label
+        >
+        <textarea
+          id="f-problem"
+          class="grow"
+          placeholder="예) 아침마다 목이 칼칼하고 피부가 당기는데, 큰 가습기는 시끄럽고 자리를 많이 차지한다"
+        ></textarea>
+      </div>
+
+      <div class="field full">
+        <label class="field-label" for="f-solution"
+          >핵심 해법 <span class="opt">· 해법 카드</span></label
+        >
+        <textarea
+          id="f-solution"
+          class="grow"
+          placeholder="예) 손바닥만 한 크기에 초음파 무소음 분사로 자는 동안 습도를 유지한다"
+        ></textarea>
+      </div>
+
+      <div class="field full">
+        <label class="field-label" for="f-features"
+          >주요 기능 · 혜택 <span class="opt">· 한 줄에 하나 (3~5개 권장)</span></label
+        >
+        <textarea
+          id="f-features"
+          class="grow"
+          placeholder="예)&#10;12시간 연속 분사&#10;25dB 무소음 설계&#10;LED 무드등 내장&#10;세척 쉬운 통짜 물통"
+        ></textarea>
+      </div>
+
+      <div class="field full">
+        <label class="field-label" for="f-diff"
+          >차별점 <span class="opt">· 경쟁 · 기존 대비</span></label
+        >
+        <textarea
+          id="f-diff"
+          class="grow"
+          placeholder="예) 대부분의 저가 가습기와 달리 물때가 끼지 않는 항균 물통을 쓴다"
+        ></textarea>
+      </div>
+
+      <div class="field full">
+        <label class="field-label" for="f-howto"
+          >사용법 · 순서 <span class="opt">· 한 줄에 한 단계</span></label
+        >
+        <textarea
+          id="f-howto"
+          class="grow"
+          placeholder="예)&#10;물통에 물을 채운다&#10;버튼 한 번으로 켠다&#10;주 1회 물통을 헹군다"
+        ></textarea>
+      </div>
+
+      <div class="field full">
+        <label class="field-label" for="f-proof"
+          >후기 · 증거 · 숫자 <span class="opt">· 신뢰 근거</span></label
+        >
+        <textarea
+          id="f-proof"
+          class="grow"
+          placeholder="예) 구매자 1,200명 평점 4.8 / '자는 동안 소리가 안 나서 놀랐어요'"
+        ></textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-price"
+          >가격 · 오퍼 <span class="opt">· 선택</span></label
+        >
+        <input type="text" id="f-price" placeholder="예) 39,000원 (첫 구매 20% 할인)" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-action"
+          >CTA 행동 <span class="opt">· 클릭 유도</span></label
+        >
+        <input type="text" id="f-action" placeholder="예) 지금 구매하기" />
+      </div>
+    </div>
+
+    <p class="form-note">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이 없습니다.</p>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="build">골격 만들기</button>
+      <button class="btn btn-ghost" id="reset">초기화</button>
+    </div>
+    <p class="inline-warn" id="inlineWarn" role="alert">
+      이름 · 핵심 메시지 · 기능 중 최소 하나는 입력해 주세요.
+    </p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>카드 골격</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▤</div>
+        <p><strong>아직 골격이 없습니다.</strong></p>
+        <p>재료를 채우고 '골격 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> marketing-message-architecture의
+      모바일 카드뉴스(Mode B) 스켈레톤 — hero → 공감/문제 → 해법 → 기능(장당 하나, 3~5개)
+      → 차별화 → 사용법 → 후기/증거 → 가격 → FAQ → CTA, '한 카드 한 메시지', '이미지 핵심 문구를
+      본문에 문자로 반복(검색·AI가 읽게)', '카드 하나만 떼어도 말이 되게', 표준 8~15장 원칙을 따릅니다.
+    </p>
+    <p>
+      이 도구는 카피를 대신 확정하지 않고, 메시지를 카드 단위로 나눠 배열하는 사고를 돕는 보조
+      도구입니다. 생성된 초안은 스스로 다듬을 재료로 쓰세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- state ---------- */
+  var state = { type: "product" };
+
+  /* ---------- type toggle ---------- */
+  var typeSeg = document.getElementById("typeSeg");
+  typeSeg.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-type]");
+    if (!btn) return;
+    state.type = btn.dataset.type;
+    Array.prototype.forEach.call(typeSeg.querySelectorAll("button"), function (b) {
+      b.setAttribute("aria-pressed", String(b === btn));
+    });
+  });
+
+  /* ---------- auto-grow textareas ---------- */
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("textarea.grow"), function (t) {
+    t.addEventListener("input", function () {
+      grow(t);
+    });
+  });
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function val(id) {
+    return document.getElementById(id).value.trim();
+  }
+  function clean(s) {
+    return String(s).replace(/\s+/g, " ").replace(/\s+([,.])/g, "$1").trim();
+  }
+  function splitLines(s) {
+    return String(s)
+      .split(/\r?\n/)
+      .map(function (x) {
+        return x.replace(/^[\s·*\-–—0-9.)\]]+/, "").trim();
+      })
+      .filter(Boolean);
+  }
+  function t(s, n) {
+    s = String(s).trim();
+    return s.length > n ? s.slice(0, n).trim() + "…" : s;
+  }
+  // Korean particle picker (batchim-aware)
+  function hasBatchim(w) {
+    if (!w) return false;
+    var c = w.charCodeAt(w.length - 1);
+    if (c < 0xac00 || c > 0xd7a3) return false; // non-Hangul tail: use vowel-form default
+    return (c - 0xac00) % 28 !== 0;
+  }
+  function josa(w, withB, withoutB) {
+    return w + (hasBatchim(w) ? withB : withoutB);
+  }
+
+  /* ---------- card generators (input-derived) ---------- */
+  function heroHead(name, core) {
+    if (core) return t(core, 34);
+    if (name) return name + ", 한 장으로 이해되는 이유";
+    return "핵심 한 줄 메시지를 정하세요";
+  }
+  function heroBody(name, core, solution, target) {
+    var lead = core || solution || "가장 강한 가치를 한 줄로 압축하세요";
+    var s1 = name ? josa(name, "은", "는") + " " + lead : lead;
+    var s2 = target
+      ? josa(target, "을", "를") + " 위한 한 장 요약입니다."
+      : "첫 카드에서 가장 강한 가치를 맨 앞에 두세요.";
+    return clean(s1.replace(/[.]$/, "") + ". " + s2);
+  }
+
+  function build() {
+    var type = state.type;
+    var name = val("f-name");
+    var target = val("f-target");
+    var core = val("f-core");
+    var problem = val("f-problem");
+    var solution = val("f-solution");
+    var diff = val("f-diff");
+    var proof = val("f-proof");
+    var price = val("f-price");
+    var action = val("f-action");
+    var features = splitLines(val("f-features"));
+    var steps = splitLines(val("f-howto"));
+
+    // minimal validity
+    if (!name && !core && features.length === 0) {
+      document.getElementById("inlineWarn").classList.add("show");
+      return null;
+    }
+    document.getElementById("inlineWarn").classList.remove("show");
+
+    var featLabel = type === "insight" ? "핵심 포인트" : "기능";
+    var howLabel = type === "insight" ? "실천법" : "사용법";
+    var thing = name || (type === "insight" ? "이 콘텐츠" : "이 제품");
+
+    // cap features to 5 (skill: 3~5 feature cards)
+    var CAP = 5;
+    var overflow = [];
+    if (features.length > CAP) {
+      overflow = features.slice(CAP);
+      features = features.slice(0, CAP);
+    }
+
+    var cards = [];
+
+    // 1. HERO (always)
+    cards.push({
+      sec: "히어로",
+      exp: "HERO",
+      head: heroHead(name, core),
+      body: heroBody(name, core, solution, target),
+      guide: "<b>3초 안에</b> 무엇을·누구에게가 읽혀야 합니다. 가장 강한 가치를 맨 앞에.",
+      incomplete: !name && !core,
+    });
+
+    // 2. 공감 / 문제
+    if (problem) {
+      cards.push({
+        sec: "공감 · 문제",
+        exp: "공감",
+        head: problem.length <= 24 ? '"' + problem + '"' : "이런 불편, 겪고 계신가요?",
+        body: clean(
+          problem.replace(/[.]$/, "") +
+            ". " +
+            (target ? josa(target, "이", "가") + " " : "많은 고객이 ") +
+            "자주 겪는 상황입니다."
+        ),
+        guide: "고객의 상황을 그대로 비춰 몰입시키세요. <b>한 카드엔 한 문제만.</b>",
+      });
+    }
+
+    // 3. 해법
+    if (solution) {
+      cards.push({
+        sec: "해법",
+        exp: "해법",
+        head: solution.length <= 24 ? t(solution, 24) : name ? name + ", 이렇게 해결합니다" : "그래서, 이렇게 해결합니다",
+        body: clean(
+          solution.replace(/[.]$/, "") +
+            ". " +
+            (name ? josa(name, "이", "가") + " 그 해법입니다." : "이것이 해법입니다.")
+        ),
+        guide: "문제 바로 다음에 해법을 놓아 <b>안도감</b>을 주세요.",
+      });
+    }
+
+    // 4. 기능 / 핵심 포인트 (one card each)
+    features.forEach(function (f, i) {
+      cards.push({
+        sec: featLabel + " " + (i + 1),
+        exp: featLabel + " " + (i + 1),
+        head: t(f, 26),
+        body: clean(
+          f.replace(/[.]$/, "") +
+            ". " +
+            thing +
+            "의 이 강점이 " +
+            (target || "고객") +
+            "의 불편을 실제로 줄여 줍니다."
+        ),
+        guide:
+          "한 카드에 " + featLabel + " 하나. <b>이미지 핵심 문구를 본문에도 문자로 반복</b>(검색·AI가 읽게).",
+      });
+    });
+
+    // 5. 차별화
+    if (diff) {
+      cards.push({
+        sec: "차별화",
+        exp: "차별화",
+        head: diff.length <= 24 ? t(diff, 24) : "무엇이 다른가",
+        body: clean(
+          "기존 방식·경쟁 제품과 비교하면, " +
+            diff.replace(/[.]$/, "") +
+            ". 이 차이가 " +
+            josa(target || "고객", "이", "가") +
+            " 우리를 선택할 이유가 됩니다."
+        ),
+        guide: "경쟁·기존 대비 우위를 <b>공정하게</b>. 과장 대신 사실 하나.",
+      });
+    }
+
+    // 6. 사용법 / 실천법
+    if (steps.length) {
+      var stepText = steps
+        .map(function (s, i) {
+          return i + 1 + ") " + s.replace(/[.]$/, "");
+        })
+        .join("\n");
+      cards.push({
+        sec: howLabel,
+        exp: howLabel,
+        head: howLabel + ", 이렇게 간단합니다",
+        body: stepText + "\n세 단계 안팎으로 쉬워 보이게 하세요.",
+        guide: "<b>3단계 안팎.</b> 쉬워 보일수록 전환이 오릅니다.",
+      });
+    }
+
+    // 7. 후기 / 증거
+    if (proof) {
+      cards.push({
+        sec: "후기 · 증거",
+        exp: "후기",
+        head: proof.length <= 24 ? t(proof, 24) : "고객이 증명합니다",
+        body: clean(
+          proof.replace(/[.]$/, "") + ". 이 증거를 가장 강한 가치 주장 바로 옆에 배치하세요."
+        ),
+        guide: "증거는 장식이 아니라 <b>의심 옆에</b>. 숫자·실명·사례가 신뢰를 만듭니다.",
+      });
+    }
+
+    // 8. 가격 / 오퍼
+    if (price) {
+      cards.push({
+        sec: "가격 · 오퍼",
+        exp: "가격",
+        head: price.length <= 22 ? price : "가격과 혜택",
+        body: clean(
+          price.replace(/[.]$/, "") +
+            ". 가격은 비용이 아니라 얻는 가치로 제시하고, 보장·환불로 위험을 낮추세요."
+        ),
+        guide: "가격 저항이 나오는 지점. <b>혜택·보장·환불</b>로 위험을 낮추세요.",
+      });
+    }
+
+    // 9. FAQ (question stems derived from present fields / objection categories)
+    var qs = [];
+    if (price) qs.push("이 가격이 합리적인가요? 다른 곳과 무엇이 다른가요?");
+    if (!proof) qs.push("정말 효과가 있나요? 믿을 만한 근거가 있나요?");
+    if (steps.length) qs.push(howLabel + "이 어렵지는 않나요?");
+    if (diff && qs.length < 3) qs.push("기존 방식과 무엇이 가장 다른가요?");
+    if (solution && qs.length < 3) qs.push("제 상황에도 맞을까요?");
+    var pool = ["제 상황에도 맞을까요?", "시작하려면 무엇부터 하면 되나요?", "환불·교환은 되나요?"];
+    for (var pi = 0; pi < pool.length && qs.length < 3; pi++) {
+      if (qs.indexOf(pool[pi]) === -1) qs.push(pool[pi]);
+    }
+    qs = qs.slice(0, 6);
+    var faqTriggered = !!(price || proof || steps.length || solution || diff || name);
+    if (faqTriggered) {
+      var faqBody =
+        qs
+          .map(function (q, i) {
+            return "Q" + (i + 1) + ". " + q;
+          })
+          .join("\n") + "\n각 질문은 굵은 한 문장으로 답하세요.";
+      cards.push({
+        sec: "FAQ",
+        exp: "FAQ",
+        head: "자주 묻는 질문",
+        body: faqBody,
+        guide: "고객이 <b>실제로 검색하는 말투</b>로 3~6개. 본문에서 이미 다룬 건 빼세요.",
+      });
+    }
+
+    // 10. CTA (always)
+    cards.push({
+      sec: "CTA",
+      exp: "CTA",
+      head: action ? action : "지금 시작하세요",
+      body: clean(
+        "다음 행동은 하나여야 합니다: " +
+          (action ? "「" + action + "」. " : "(행동을 지정하세요). ") +
+          "무엇을 누르면 어떤 일이 생기는지 명확히 적으세요."
+      ),
+      guide: "<b>행동은 하나.</b> 구체적 동사 + 다음에 생길 일 + 낮은 장벽.",
+      incomplete: !action,
+    });
+
+    // ---- coverage of the 10 canonical sections (honest, content-based) ----
+    var covered = 0;
+    covered += name || core || solution ? 1 : 0; // HERO
+    covered += problem ? 1 : 0;
+    covered += solution ? 1 : 0;
+    covered += features.length ? 1 : 0;
+    covered += diff ? 1 : 0;
+    covered += steps.length ? 1 : 0;
+    covered += proof ? 1 : 0;
+    covered += price ? 1 : 0;
+    covered += faqTriggered ? 1 : 0;
+    covered += action ? 1 : 0;
+
+    var total = cards.length;
+    var tier;
+    if (total < 8) tier = "간결형 미만";
+    else if (total <= 10) tier = "간결형";
+    else if (total <= 13) tier = "표준형";
+    else if (total <= 15) tier = "정보충실형";
+    else tier = "과다";
+
+    var warnings = [];
+    if (overflow.length)
+      warnings.push(
+        featLabel +
+          "이 많습니다. 상위 " +
+          CAP +
+          "개만 카드로 만들었습니다. 핵심 3~5개로 압축하세요. (제외: " +
+          overflow.join(", ") +
+          ")"
+      );
+    if (features.length === 0)
+      warnings.push(featLabel + " 카드가 없습니다. 최소 1개는 넣어야 설득이 시작됩니다.");
+    if (!problem) warnings.push("공감(문제) 카드가 없습니다. 고객의 문제를 넣으면 몰입이 커집니다.");
+    if (!proof) warnings.push("후기·증거 카드가 없습니다. 신뢰 근거가 없으면 전환이 약해집니다.");
+    if (!action) warnings.push("CTA 행동이 비어 있습니다. 클릭을 유도할 행동 하나를 지정하세요.");
+    if (total > 15) warnings.push("카드가 15장을 넘습니다. '한 카드 한 메시지'로 더 압축하세요.");
+    if (total < 8 && (name || core))
+      warnings.push("카드가 8장 미만입니다. 기능·증거·차별점을 더 채우면 설득력이 올라갑니다.");
+
+    return {
+      cards: cards,
+      covered: covered,
+      total: total,
+      tier: tier,
+      warnings: warnings,
+      meta: { name: name, target: target, core: core, type: type },
+    };
+  }
+
+  /* ---------- exports ---------- */
+  function toMarkdown(res) {
+    var out = [];
+    res.cards.forEach(function (c, i) {
+      var no = i + 1 < 10 ? "0" + (i + 1) : String(i + 1);
+      out.push("### CARD " + no + " · " + c.exp);
+      out.push(c.head);
+      out.push("");
+      out.push(c.body);
+      out.push("");
+      if (i < res.cards.length - 1) {
+        out.push("---");
+        out.push("");
+      }
+    });
+    return out.join("\n").trim();
+  }
+
+  function toPrompt(res) {
+    var m = res.meta;
+    var L = [];
+    L.push("당신은 모바일 카드뉴스 상세페이지 카피라이터입니다.");
+    L.push("아래 '카드 골격'을 바탕으로 각 카드의 완성 카피를 써 주세요.");
+    L.push("");
+    L.push("[제품·콘텐츠] " + (m.name || "(미입력)"));
+    L.push("[대상 고객] " + (m.target || "(미입력)"));
+    L.push("[핵심 메시지] " + (m.core || "(미입력)"));
+    L.push("[유형] " + (m.type === "insight" ? "인사이트·콘텐츠 카드뉴스" : "제품 상세 카드뉴스"));
+    L.push("");
+    L.push("[카드 골격 — " + res.total + "장]");
+    res.cards.forEach(function (c, i) {
+      var no = i + 1 < 10 ? "0" + (i + 1) : String(i + 1);
+      L.push("CARD " + no + " · " + c.exp + " : " + c.head);
+      L.push("   초안: " + c.body.replace(/\n/g, " / "));
+    });
+    L.push("");
+    L.push("[작성 규칙]");
+    L.push("1. 카드 1장에 메시지 1개. 두 메시지를 한 카드에 넣지 마세요.");
+    L.push("2. 이미지에 넣을 핵심 문구는 본문에도 문자로 다시 적어, 검색·AI 답변엔진이 읽고 인용하게 하세요.");
+    L.push("3. 카드 하나만 떼어 인스타그램에 올려도 말이 되게(한 소스 다용도).");
+    L.push("4. FAQ는 고객이 실제로 검색하는 말투로 3~6개, 각 답은 굵은 한 문장.");
+    L.push("5. CTA는 구체적 동사 하나 + 다음에 생길 일.");
+    L.push("6. 근거 없는 과장·미사여구로 빈칸을 덮지 말고, 모르면 저에게 사실을 물어보세요.");
+    L.push("7. 전체 8~15장을 넘지 않게 유지하세요.");
+    return L.join("\n");
+  }
+
+  /* ---------- render ---------- */
+  var resultEl = document.getElementById("result");
+  var lastMarkdown = "";
+  var lastPrompt = "";
+
+  function verdictFor(covered) {
+    if (covered >= 8)
+      return {
+        tone: "strong",
+        title: "골격이 탄탄합니다",
+        desc:
+          "카드뉴스의 핵심 섹션이 대부분 채워졌습니다. 이제 각 카드의 카피를 다듬고, 이미지 핵심 문구를 본문에도 문자로 반복해 검색·AI가 읽게 하세요.",
+      };
+    if (covered >= 5)
+      return {
+        tone: "mixed",
+        title: "골격 절반, 보강이 필요합니다",
+        desc:
+          "설득의 뼈대는 섰지만 빈 섹션이 있습니다. 아래 경고에서 지적한 칸(특히 공감·증거·CTA)을 채우면 전환력이 올라갑니다.",
+      };
+    return {
+      tone: "weak",
+      title: "골격이 성깁니다",
+      desc:
+        "아직 재료가 부족합니다. 문제·해법·기능·증거를 더 넣어야 '한 화면 한 메시지'가 흐름을 만듭니다.",
+    };
+  }
+
+  function renderResult(res) {
+    var v = verdictFor(res.covered);
+    var html = "";
+
+    html += '<div class="verdict tone-' + v.tone + '">';
+    html += '<p class="verdict-label">골격 완성도</p>';
+    html += '<p class="verdict-title">' + esc(v.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(v.desc) + "</p>";
+    html +=
+      '<div class="meter" role="img" aria-label="10개 섹션 중 ' +
+      res.covered +
+      '개 채움">';
+    for (var p = 0; p < 10; p++) {
+      html += '<span class="pip' + (p < res.covered ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html +=
+      '<p class="meter-caption">' +
+      res.covered +
+      " / 10 섹션 채움 · 총 " +
+      res.total +
+      "장 · " +
+      esc(res.tier) +
+      "</p>";
+    html += "</div>";
+
+    // warnings
+    if (res.warnings.length) {
+      html += '<div class="result-block-title">점검할 점</div>';
+      html += '<ul class="warn-list">';
+      res.warnings.forEach(function (w) {
+        html += '<li class="warn-item">' + esc(w) + "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // cards
+    html += '<div class="result-block-title">카드 골격 (' + res.total + "장)</div>";
+    html += '<ul class="cards">';
+    res.cards.forEach(function (c, i) {
+      var no = i + 1 < 10 ? "0" + (i + 1) : String(i + 1);
+      html += '<li class="card-item' + (c.incomplete ? " incomplete" : "") + '">';
+      html += '<div class="card-top">';
+      html += '<span class="card-no">CARD ' + no + "</span>";
+      html += '<span class="card-sec">' + esc(c.sec) + "</span>";
+      if (c.incomplete) html += '<span class="card-flag">보완 필요</span>';
+      html += "</div>";
+      html += '<p class="card-head">' + esc(c.head) + "</p>";
+      html += '<p class="card-body">' + esc(c.body) + "</p>";
+      html += '<p class="card-guide">가이드 · ' + c.guide + "</p>";
+      html += "</li>";
+    });
+    html += "</ul>";
+
+    // exports
+    lastMarkdown = toMarkdown(res);
+    lastPrompt = toPrompt(res);
+
+    html += '<div class="result-block-title">골격 마크다운 (노션·문서에 붙여넣기)</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 골격을 그대로 노션에 Import(Markdown)하면 카드별 섹션이 됩니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt" id="md-text">' + esc(lastMarkdown) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn btn-copy" id="copyMd">골격 복사</button>';
+    html += '<span class="copy-status" id="statusMd" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    html += '<div class="result-block-title">AI에 붙여넣을 프롬프트 (완성 카피 뽑기)</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">ChatGPT·Claude 등에 붙여넣으면 이 골격을 바탕으로 카드별 카피를 완성해 줍니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt" id="pr-text">' + esc(lastPrompt) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn btn-copy" id="copyPr">프롬프트 복사</button>';
+    html += '<button class="btn btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="statusPr" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ---------- buttons ---------- */
+  document.getElementById("build").addEventListener("click", function () {
+    var res = build();
+    if (res) renderResult(res);
+  });
+
+  document.getElementById("reset").addEventListener("click", function () {
+    ["f-name", "f-target", "f-core", "f-problem", "f-solution", "f-features", "f-diff", "f-howto", "f-proof", "f-price", "f-action"].forEach(
+      function (id) {
+        var el = document.getElementById(id);
+        el.value = "";
+        if (el.classList.contains("grow")) grow(el);
+      }
+    );
+    document.getElementById("inlineWarn").classList.remove("show");
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+      "<p><strong>아직 골격이 없습니다.</strong></p>" +
+      "<p>재료를 채우고 '골격 만들기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function wireResultButtons() {
+    var copyMd = document.getElementById("copyMd");
+    var copyPr = document.getElementById("copyPr");
+    var printBtn = document.getElementById("printBtn");
+    if (copyMd)
+      copyMd.addEventListener("click", function () {
+        doCopy(lastMarkdown, "statusMd");
+      });
+    if (copyPr)
+      copyPr.addEventListener("click", function () {
+        doCopy(lastPrompt, "statusPr");
+      });
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(id, msg) {
+    var s = document.getElementById(id);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  /* ---------- copy: 3-tier fallback ---------- */
+  function doCopy(text, statusId) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(statusId, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusId);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusId);
+  }
+
+  function legacyCopy(text, statusId) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(statusId, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

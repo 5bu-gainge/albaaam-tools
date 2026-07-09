@@ -1,0 +1,1541 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>비주얼 방향 번역기</title>
+<meta
+  name="description"
+  content="'모던하고 깔끔' 같은 약한 형용사를 긴장이 든 강한 방향으로 바꿔 컬러 온도·자간·이미지 스타일을 유도합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #5f5296;
+    --accent-strong: #4a3f77;
+    --accent-tint: #f1eff8;
+    --accent-tint-2: #e3def1;
+    --ink: #20222b;
+    --ink-soft: #474a57;
+    --ink-mute: #6a6d7a;
+    --paper: #f8f8fb;
+    --card: #ffffff;
+    --line: #e6e5ee;
+    --line-strong: #d6d4e2;
+    --good: #2f7a55;
+    --good-tint: #e7f2ec;
+    --warn: #a23b3b;
+    --shadow: 0 1px 2px rgba(32, 34, 43, 0.05),
+      0 6px 20px rgba(32, 34, 43, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 96px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a4a2b0;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- quick-pick chips ---------- */
+  .chips-label {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 18px 0 9px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 6px 15px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+  }
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+  }
+  .chip:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 22px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 46px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s,
+      color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 19px 18px;
+    margin-bottom: 18px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.28rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.32;
+    color: var(--accent-strong);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- translation card ---------- */
+  article.tcard {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+    padding: 16px 16px 8px;
+    margin-bottom: 14px;
+  }
+  .tcard-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .weak-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink-mute);
+    text-decoration: line-through;
+    text-decoration-color: var(--line-strong);
+  }
+  .arrow {
+    color: var(--accent);
+    font-weight: 800;
+  }
+  .strong-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  .strong-line {
+    margin: 0 0 12px;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .tension-chip {
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border-radius: 8px;
+    padding: 6px 11px;
+    margin-bottom: 14px;
+  }
+  .tension-chip .tk {
+    color: var(--ink-mute);
+    font-weight: 800;
+    margin-right: 5px;
+  }
+
+  .spec {
+    border-top: 1px solid var(--line);
+  }
+  .spec-row {
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .spec-row:last-child {
+    border-bottom: none;
+  }
+  .spec-k {
+    flex: 0 0 74px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--ink-mute);
+    padding-top: 3px;
+    letter-spacing: 0.01em;
+  }
+  .spec-v {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .spec-note {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .spec-note strong {
+    color: var(--ink);
+  }
+  .avoid {
+    color: var(--warn);
+    font-weight: 700;
+  }
+
+  /* color swatches */
+  .swatches {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 9px;
+    flex-wrap: wrap;
+  }
+  .sw {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .sw-color {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+  }
+  .sw-hex {
+    font-size: 0.66rem;
+    color: var(--ink-mute);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  /* type demo */
+  .type-demo {
+    display: inline-block;
+    font-size: 1.4rem;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .type-caption {
+    display: block;
+    margin-top: 7px;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+  }
+  .type-caption strong {
+    color: var(--ink);
+  }
+
+  /* synthesis */
+  .synth {
+    border: 1px solid var(--accent-tint-2);
+    background: var(--accent-tint);
+    border-radius: 12px;
+    padding: 15px 16px;
+    margin: 4px 0 8px;
+  }
+  .synth-title {
+    margin: 0 0 6px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--accent-strong);
+    text-transform: uppercase;
+  }
+  .synth-text {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  /* note card (no match) */
+  .note-card {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    background: #fcfbff;
+    padding: 15px 16px;
+    margin-bottom: 16px;
+  }
+  .note-card p {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+  .note-card .nc-title {
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 5px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #26232f;
+    color: #f1edf7;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 34, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .spec-row {
+      flex-direction: column;
+      gap: 6px;
+    }
+    .spec-k {
+      flex-basis: auto;
+      padding-top: 0;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">비주얼 브랜드 정렬 · Visual Direction</span>
+    <h1>비주얼 방향 번역기</h1>
+    <p class="lede">
+      "모던하고 깔끔하게" 같은 약한 형용사는 방향이 아닙니다. 긴장이 든 강한
+      방향("무엇하되 무엇하지 않게")으로 바꿔, 컬러 온도·자간·이미지 스타일까지
+      곧바로 유도해 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>주고 싶은 인상 (형용사)</h2>
+    </div>
+    <p class="panel-sub">
+      브리핑에서 쓰는 형용사를 그대로 적으세요. 여러 개여도 됩니다. 아래 칩을
+      눌러 넣을 수도 있습니다.
+    </p>
+    <label class="field-label" for="brief">브랜드 인상 브리프</label>
+    <textarea
+      id="brief"
+      placeholder="예) 모던하고 깔끔한데, 너무 차갑지는 않고 프리미엄한 느낌으로 가고 싶어요"
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+      전혀 없습니다.
+    </p>
+
+    <p class="chips-label">자주 쓰는 약한 형용사 (눌러서 추가)</p>
+    <div class="chips" id="chips"></div>
+
+    <div class="actions">
+      <button class="btn-primary" id="translate">방향으로 번역하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>번역 결과</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◑</div>
+        <p><strong>아직 번역 전입니다.</strong></p>
+        <p>형용사를 적고 '방향으로 번역하기'를 누르세요.</p>
+      </div>
+    </div>
+    <p class="sr-only" id="live" aria-live="polite"></p>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 이 도구는 비주얼 브랜드 정렬
+      (visual-brand-alignment) 방법론의 'Visual Direction Discovery'를 그대로
+      씁니다. 약한 방향은 형용사이고, 강한 방향은 긴장이 든 결정('X하되 Y하지
+      않게')입니다. 강한 방향은 그 자체로 컬러 온도, 타입 굵기, 이미지 스타일,
+      레이아웃 리듬을 알려줍니다.
+    </p>
+    <p>
+      이 도구는 방향을 잡아 주는 사고 보조 도구이며, 최종 비주얼을 대신 확정해
+      주지 않습니다. 제시된 컬러·자간·이미지 값은 출발점이니, 실제 브랜드·고객·
+      매체에 맞게 조정하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ------------------------------------------------------------------
+   * Lexicon: weak brand adjective -> tension-loaded strong direction.
+   * Each entry derives concrete visual parameters (color temperature,
+   * letter-spacing / weight, image style) exactly as visual-brand-alignment
+   * SKILL.md "Visual Direction Discovery" prescribes:
+   *   "A weak visual direction is an adjective. A strong one is a decision
+   *    with tension in it ... The strong version already tells you the color
+   *    temperature, the type weight, the image style, and the layout rhythm."
+   * `keys` are Korean stems (substring match) plus English aliases.
+   * ------------------------------------------------------------------ */
+  var LEX = [
+    {
+      id: "modern",
+      label: "모던",
+      keys: ["모던", "modern", "현대적"],
+      strong:
+        "지금의 표준 감각을 아는 절제된 세련됨. 유행을 좇다 반년 뒤 낡아 보이는 ‘유행 모던’이 아니라, 구조와 여백으로 오래 버티는 모던.",
+      tension: "시의성 있게, 그러나 유행 타지 않게",
+      temp: {
+        name: "쿨 뉴트럴 — 차가운 회색조에 채도는 한 점만",
+        swatches: ["#14171C", "#3B424B", "#E9ECF1", "#2E6BFF"],
+      },
+      type: {
+        sp: "자간 -2% ~ -1% (타이트)",
+        w: "본문은 얇게, 헤드라인은 굵게 — 굵기 대비를 크게",
+        ls: -0.02,
+        fw: 800,
+      },
+      image: {
+        style: "평면적인 스튜디오 컷 또는 기하 추상",
+        light: "균일한 확산광, 그림자 최소",
+        avoid: "복고 필터·클립아트·과장된 렌즈 플레어",
+      },
+    },
+    {
+      id: "clean",
+      label: "깔끔·심플",
+      keys: ["깔끔", "심플", "simple", "미니멀", "minimal", "정갈", "간결"],
+      strong:
+        "덜어냈지만 비어 보이지 않는 정돈. 요소를 없애는 게 아니라 각 요소에 ‘할 일’을 주는 절제. 앙상한 ‘텅 빈 깔끔’과는 다르다.",
+      tension: "덜어내되, 빈약해 보이지 않게",
+      temp: {
+        name: "뉴트럴 하이키 — 밝은 무채색 베이스 + 단색 악센트",
+        swatches: ["#FFFFFF", "#F4F5F7", "#20242B", "#0A84FF"],
+      },
+      type: {
+        sp: "자간 0 ~ -1%",
+        w: "중간 굵기 하나로 통일, 크기 대비로만 위계",
+        ls: -0.005,
+        fw: 600,
+      },
+      image: {
+        style: "여백 넓은 단일 피사체",
+        light: "부드러운 자연광",
+        avoid: "배경 잡동사니·다중 서체·과한 그래픽",
+      },
+    },
+    {
+      id: "premium",
+      label: "프리미엄·고급",
+      keys: ["프리미엄", "premium", "고급", "럭셔리", "luxury", "럭셔"],
+      strong:
+        "값을 납득시키는 밀도 있는 정제. 번쩍이는 금테 럭셔리가 아니라, 소재감과 여백으로 ‘함부로 못 대할’ 긴장을 만드는 고급.",
+      tension: "귀하게, 그러나 사치스럽거나 차갑지 않게",
+      temp: {
+        name: "딥 뉴트럴 웜 — 짙은 잉크 + 웜 그레이 + 절제된 골드",
+        swatches: ["#1A1712", "#2E2A24", "#C8A96A", "#F5F1EA"],
+      },
+      type: {
+        sp: "자간 +1% ~ +3% (여유), 대문자 트래킹 넓게",
+        w: "가는 세리프 또는 얇은 산세리프",
+        ls: 0.02,
+        fw: 400,
+      },
+      image: {
+        style: "소재 클로즈업·질감 강조",
+        light: "방향성 있는 저조도 스포트",
+        avoid: "저해상 스톡·형광색·복잡한 배경",
+      },
+    },
+    {
+      id: "friendly",
+      label: "친근·따뜻",
+      keys: ["친근", "편안", "따뜻", "다정", "friendly", "포근", "정겨"],
+      strong:
+        "곁에 있는 사람 같은 온기. 마냥 무르고 가벼운 ‘착한 브랜드’가 아니라, 믿음을 줄 만큼의 단정함을 갖춘 따뜻함.",
+      tension: "따뜻하게, 그러나 미덥지 않게 물러지지 않게",
+      temp: {
+        name: "웜 소프트 — 크림·복숭아·연한 테라코타",
+        swatches: ["#FFF7EE", "#F4D9BE", "#E38B5B", "#5B4636"],
+      },
+      type: {
+        sp: "자간 0",
+        w: "둥근 산세리프 중간 굵기, 곡률 있는 자면",
+        ls: 0,
+        fw: 700,
+      },
+      image: {
+        style: "사람·손·일상의 순간",
+        light: "노을빛 따뜻한 자연광",
+        avoid: "차가운 형광·경직된 스톡 미소·과한 채도",
+      },
+    },
+    {
+      id: "trendy",
+      label: "트렌디·세련",
+      keys: ["트렌디", "trendy", "힙", "세련", "감각적", "스타일리시"],
+      strong:
+        "먼저 알아챈 사람의 감각. 아무 유행이나 얹은 ‘따라하기 힙’이 아니라, 한 가지 확실한 편집 관점으로 미는 세련됨.",
+      tension: "앞서가되, 남 따라 하지 않게",
+      temp: {
+        name: "콘트라스트 — 무채색 베이스에 튀는 원 포인트",
+        swatches: ["#0E0E0E", "#F5F5F0", "#D6FF3D", "#FF4D6D"],
+      },
+      type: {
+        sp: "자간 -3% ~ -1% (밀착)",
+        w: "극단적 굵기 대비, 조밀한 헤드라인",
+        ls: -0.03,
+        fw: 800,
+      },
+      image: {
+        style: "편집 매거진 컷·대담한 크롭",
+        light: "하드한 직광·강한 그림자",
+        avoid: "안전한 중앙 정렬·평범한 스톡",
+      },
+    },
+    {
+      id: "professional",
+      label: "전문·신뢰",
+      keys: ["전문", "프로페셔널", "professional", "신뢰", "믿음직", "정확", "탄탄"],
+      strong:
+        "실력을 증명하는 정돈된 신뢰감. 딱딱하고 관료적인 ‘정장 브랜드’가 아니라, 사람 냄새 나면서도 빈틈없어 보이는 전문성.",
+      tension: "믿음직하게, 그러나 차갑고 관료적이지 않게",
+      temp: {
+        name: "쿨 뉴트럴 딥 — 네이비·슬레이트 + 맑은 화이트",
+        swatches: ["#0F1E33", "#24425F", "#F4F6F8", "#1F6FEB"],
+      },
+      type: {
+        sp: "자간 -1% ~ 0",
+        w: "정확한 산세리프 중간, 숫자·표 정렬 강조",
+        ls: -0.005,
+        fw: 600,
+      },
+      image: {
+        style: "실제 인물·현장·데이터",
+        light: "균일한 밝은 조명",
+        avoid: "추상 이미지 남발·연출 티 나는 악수 스톡",
+      },
+    },
+    {
+      id: "emotional",
+      label: "감성·무드",
+      keys: ["감성", "무드", "서정", "몽환", "아련"],
+      strong:
+        "말보다 먼저 닿는 분위기. 흐릿하기만 한 ‘무드 사진 모음’이 아니라, 하나의 정서를 일관되게 미는 감성.",
+      tension: "정서를 남기되, 흐릿해지지 않게",
+      temp: {
+        name: "데스크한 토널 — 낮은 채도의 어스톤",
+        swatches: ["#2B2622", "#7A6A5A", "#C8B8A6", "#E9E2D8"],
+      },
+      type: {
+        sp: "자간 +2% ~ +5% (숨 쉬는)",
+        w: "가는 세리프 또는 라이트 산세리프",
+        ls: 0.04,
+        fw: 400,
+      },
+      image: {
+        style: "필름 그레인·역광·여백 큰 정물",
+        light: "자연광 역광·황금시간",
+        avoid: "쨍한 HDR·형광·정보 과잉 레이아웃",
+      },
+    },
+    {
+      id: "energetic",
+      label: "젊은·활기",
+      keys: ["젊", "발랄", "활기", "다이나믹", "dynamic", "에너지", "역동", "생기"],
+      strong:
+        "움직임이 느껴지는 생기. 산만하게 다 튀는 ‘요란함’이 아니라, 한 방향으로 밀어붙이는 에너지.",
+      tension: "활기차게, 그러나 산만하지 않게",
+      temp: {
+        name: "웜 비비드 — 밝고 채도 높은 원색 2~3개",
+        swatches: ["#FF5A2C", "#FFC400", "#12B886", "#17181A"],
+      },
+      type: {
+        sp: "자간 -2% ~ 0",
+        w: "굵은 헤드라인·속도감, 큰 크기 대비",
+        ls: -0.01,
+        fw: 800,
+      },
+      image: {
+        style: "동작 순간·모션 블러·대각 구도",
+        light: "밝은 직광",
+        avoid: "정적인 정면 증명사진·탁한 색",
+      },
+    },
+    {
+      id: "natural",
+      label: "자연·내추럴",
+      keys: ["자연", "내추럴", "natural", "오가닉", "organic", "친환경", "담백", "소박"],
+      strong:
+        "꾸미지 않은 듯한 정성. 무늬만 친환경인 ‘그린워싱’이 아니라, 소재와 색에서 진짜 자연이 배어나는 담백함.",
+      tension: "자연스럽게, 그러나 성의 없어 보이지 않게",
+      temp: {
+        name: "어스 웜/그린 — 세이지·오트밀·클레이",
+        swatches: ["#EFE9DB", "#B7C4A8", "#8A7A5E", "#3E4A3A"],
+      },
+      type: {
+        sp: "자간 0 ~ +1%",
+        w: "인간적인 휴머니스트 산세리프",
+        ls: 0.005,
+        fw: 500,
+      },
+      image: {
+        style: "소재 질감·손길·자연광 정물",
+        light: "그늘 있는 부드러운 자연광",
+        avoid: "인공 형광색·매끈한 3D 렌더·플라스틱 광택",
+      },
+    },
+    {
+      id: "cute",
+      label: "귀여운",
+      keys: ["귀여", "아기자기", "cute", "사랑스", "깜찍"],
+      strong:
+        "손이 가는 다정한 매력. 유치해지는 ‘캐릭터 범벅’이 아니라, 절제된 한 끗으로 균형 잡힌 귀여움.",
+      tension: "사랑스럽게, 그러나 유치하지 않게",
+      temp: {
+        name: "파스텔 웜 — 부드러운 파스텔 2~3색 + 중성 앵커",
+        swatches: ["#FFE1E6", "#FFD8A8", "#B2E0D4", "#4A4550"],
+      },
+      type: {
+        sp: "자간 0",
+        w: "둥근 굵은 산세리프, 곡률 큰 자면",
+        ls: 0,
+        fw: 800,
+      },
+      image: {
+        style: "아기자기한 소품·정면 클로즈업",
+        light: "밝고 균일한 소프트 라이트",
+        avoid: "과한 채도·너무 많은 캐릭터·유치한 폰트 남용",
+      },
+    },
+    {
+      id: "bold",
+      label: "강렬·임팩트",
+      keys: ["강렬", "임팩트", "impact", "대담", "bold", "파워", "강력"],
+      strong:
+        "한 번에 각인되는 힘. 아무거나 키우고 붉히는 ‘고성 브랜드’가 아니라, 하나에 집중해 크게 지르는 대담함.",
+      tension: "강하게, 그러나 시끄럽지 않게",
+      temp: {
+        name: "하이 콘트라스트 — 검정/흰색 + 강한 단일 원색",
+        swatches: ["#0A0A0A", "#FFFFFF", "#FF2E2E", "#FFD400"],
+      },
+      type: {
+        sp: "자간 -3% ~ -1% (밀착)",
+        w: "초굵은 헤드라인, 화면을 꽉 채운 타이포",
+        ls: -0.03,
+        fw: 900,
+      },
+      image: {
+        style: "극단적 클로즈업·꽉 찬 프레임",
+        light: "강한 명암 대비",
+        avoid: "소심한 여백·중간톤 남발·요소 과다",
+      },
+    },
+    {
+      id: "classic",
+      label: "클래식·정통",
+      keys: ["클래식", "classic", "정통", "전통", "헤리티지", "클래시", "고전"],
+      strong:
+        "시간이 증명한 품격. 낡아 보이는 ‘올드’가 아니라, 오래됐기에 믿음직한 정통.",
+      tension: "오래된 격을 살리되, 낡아 보이지 않게",
+      temp: {
+        name: "딥 클래식 — 버건디·포레스트·크림·골드",
+        swatches: ["#3A1F2B", "#234034", "#C9A24B", "#F1E9D8"],
+      },
+      type: {
+        sp: "자간 +1% ~ +3%, 대문자 트래킹 넓게",
+        w: "세리프 중심, 우아한 위계",
+        ls: 0.02,
+        fw: 500,
+      },
+      image: {
+        style: "정제된 정물·건축·소재 디테일",
+        light: "차분한 방향광",
+        avoid: "최신 유행 그래픽·형광·경박한 이모지",
+      },
+    },
+    {
+      id: "calm",
+      label: "차분·고요",
+      keys: ["차분", "고요", "잔잔", "절제", "calm", "정적", "은은"],
+      strong:
+        "소리 낮춘 안정감. 존재감 없이 밋밋한 ‘무색무취’가 아니라, 낮은 톤으로 오래 머무는 차분함.",
+      tension: "조용하게, 그러나 밋밋해지지 않게",
+      temp: {
+        name: "로우 채도 쿨/뉴트럴 — 스모키 블루·그레이",
+        swatches: ["#E8ECEF", "#B9C4CC", "#5C6B75", "#2A333A"],
+      },
+      type: {
+        sp: "자간 +1% ~ +2%, 넉넉한 행간",
+        w: "라이트 ~ 레귤러",
+        ls: 0.015,
+        fw: 400,
+      },
+      image: {
+        style: "여백 큰 정적 구도·미니멀 정물",
+        light: "흐린 날 확산광",
+        avoid: "쨍한 채도·빠른 모션·요소 과밀",
+      },
+    },
+    {
+      id: "bright",
+      label: "밝은·화사",
+      keys: ["밝", "화사", "경쾌", "상큼", "산뜻", "명랑"],
+      strong:
+        "기분이 환해지는 명랑함. 눈 아픈 ‘형광 범벅’이 아니라, 맑은 하이키로 산뜻한 밝음.",
+      tension: "환하게, 그러나 눈부시게 요란하지 않게",
+      temp: {
+        name: "하이키 웜 — 밝은 화이트 베이스 + 상큼한 원색 악센트",
+        swatches: ["#FFFDF7", "#FFE066", "#4DD4AC", "#2B2B2B"],
+      },
+      type: {
+        sp: "자간 0",
+        w: "중간 ~ 굵은 라운드 산세리프",
+        ls: 0,
+        fw: 700,
+      },
+      image: {
+        style: "밝은 자연광 라이프스타일",
+        light: "밝은 하이키",
+        avoid: "어두운 무드·탁한 색·무거운 그림자",
+      },
+    },
+  ];
+
+  /* Known tension pairs: when two directions collide, name the resolution. */
+  var PAIRS = [
+    {
+      a: "premium",
+      b: "friendly",
+      title: "프리미엄 × 친근",
+      text: "얼굴 있는 고급. 짙은 잉크와 웜 그레이로 격은 지키되, 실제 사람의 손길과 문턱 낮은 카피로 벽을 낮추세요. 창업자가 보이는 프리미엄.",
+    },
+    {
+      a: "premium",
+      b: "energetic",
+      title: "프리미엄 × 활기",
+      text: "절제된 무대 위의 폭발. 딥 뉴트럴 베이스를 유지하고, 에너지는 원 포인트(악센트 컬러·모션)에서만 터뜨리세요.",
+    },
+    {
+      a: "modern",
+      b: "friendly",
+      title: "모던 × 친근",
+      text: "차갑지 않은 모던. 쿨 뉴트럴 구조에 웜 악센트 한 점과 사람 이미지로 체온을 넣으세요.",
+    },
+    {
+      a: "professional",
+      b: "friendly",
+      title: "전문 × 친근",
+      text: "빈틈없되 사람 냄새. 슬레이트·네이비 구조에 웜 화이트와 실제 인물로 신뢰와 온기를 동시에.",
+    },
+    {
+      a: "clean",
+      b: "emotional",
+      title: "깔끔 × 감성",
+      text: "여백은 넓히되 한 장의 사진으로 정서를 남기세요. 비움이 곧 무드가 되게.",
+    },
+    {
+      a: "bold",
+      b: "calm",
+      title: "강렬 × 차분 (상충)",
+      text: "정면으로 부딪치는 방향입니다. 리드를 하나만 고르고 나머지는 ‘대비용’으로만 쓰세요. 예: 차분한 바탕 + 단 하나의 강렬한 포인트.",
+    },
+    {
+      a: "classic",
+      b: "trendy",
+      title: "클래식 × 트렌디 (상충)",
+      text: "뼈대는 정통으로, 한 끗만 동시대 감각으로. 둘을 5:5로 섞으면 어느 쪽도 아닌 게 됩니다.",
+    },
+    {
+      a: "premium",
+      b: "cute",
+      title: "프리미엄 × 귀여움 (상충)",
+      text: "고급의 여백·소재감을 뼈대로 두고, 귀여움은 한 요소(마스코트·한 컷)로만 허용하세요. 전면에 깔면 값이 내려갑니다.",
+    },
+  ];
+
+  /* ---------- quick-pick chips ---------- */
+  var CHIP_WORDS = [
+    "모던", "깔끔", "심플", "프리미엄", "고급스러운", "친근한", "따뜻한",
+    "트렌디", "세련된", "전문적인", "신뢰가는", "감성적인", "젊은",
+    "활기찬", "자연스러운", "귀여운", "강렬한", "클래식한", "차분한", "밝은",
+  ];
+
+  var briefEl = document.getElementById("brief");
+  var chipsEl = document.getElementById("chips");
+  var resultEl = document.getElementById("result");
+  var liveEl = document.getElementById("live");
+
+  CHIP_WORDS.forEach(function (w) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip";
+    b.textContent = w;
+    b.addEventListener("click", function () {
+      addWord(w);
+    });
+    chipsEl.appendChild(b);
+  });
+
+  function addWord(w) {
+    var cur = briefEl.value.trim();
+    briefEl.value = cur ? cur + ", " + w : w;
+    grow(briefEl);
+    briefEl.focus();
+  }
+
+  /* ---------- auto-grow ---------- */
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  briefEl.addEventListener("input", function () {
+    grow(briefEl);
+  });
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function detect(raw) {
+    var hay = raw.toLowerCase();
+    var out = [];
+    LEX.forEach(function (e) {
+      var hit = e.keys.some(function (k) {
+        return hay.indexOf(k.toLowerCase()) !== -1;
+      });
+      if (hit) out.push(e);
+    });
+    return out;
+  }
+
+  function findSynth(ids) {
+    var set = {};
+    ids.forEach(function (id) {
+      set[id] = true;
+    });
+    for (var i = 0; i < PAIRS.length; i++) {
+      var p = PAIRS[i];
+      if (set[p.a] && set[p.b]) return p;
+    }
+    if (ids.length >= 2) {
+      return {
+        title: "겹치는 방향 조율",
+        text:
+          "방향이 여럿 겹칩니다. 리드 형용사를 하나만 정하고 나머지는 그것을 보조하도록 종속시키세요. 모두를 5:5로 담으면 인상이 흐려집니다.",
+      };
+    }
+    return null;
+  }
+
+  function swatchStrip(hexes) {
+    var h = '<div class="swatches" role="img" aria-label="컬러 온도 예시 팔레트">';
+    hexes.forEach(function (c) {
+      h +=
+        '<span class="sw"><span class="sw-color" style="background:' +
+        c +
+        '"></span><span class="sw-hex">' +
+        c +
+        "</span></span>";
+    });
+    return h + "</div>";
+  }
+
+  function cardHtml(e) {
+    var h = '<article class="tcard">';
+    h += '<div class="tcard-head">';
+    h += '<span class="weak-label">' + esc(e.label) + "</span>";
+    h += '<span class="arrow" aria-hidden="true">→</span>';
+    h += '<span class="strong-badge">강한 방향</span>';
+    h += "</div>";
+    h += '<p class="strong-line">' + esc(e.strong) + "</p>";
+    h +=
+      '<div class="tension-chip"><span class="tk">긴장축</span>' +
+      esc(e.tension) +
+      "</div>";
+
+    h += '<div class="spec">';
+
+    // color temperature
+    h += '<div class="spec-row"><span class="spec-k">컬러 온도</span><div class="spec-v">';
+    h += swatchStrip(e.temp.swatches);
+    h += '<p class="spec-note">' + esc(e.temp.name) + "</p>";
+    h += "</div></div>";
+
+    // typography
+    h += '<div class="spec-row"><span class="spec-k">자간·굵기</span><div class="spec-v">';
+    h +=
+      '<span class="type-demo" style="letter-spacing:' +
+      e.type.ls +
+      "em;font-weight:" +
+      e.type.fw +
+      '">' +
+      esc(e.label) +
+      "</span>";
+    h +=
+      '<span class="type-caption"><strong>' +
+      esc(e.type.sp) +
+      "</strong> · " +
+      esc(e.type.w) +
+      "</span>";
+    h += "</div></div>";
+
+    // imagery
+    h += '<div class="spec-row"><span class="spec-k">이미지</span><div class="spec-v">';
+    h +=
+      '<p class="spec-note"><strong>' +
+      esc(e.image.style) +
+      "</strong><br>조명 · " +
+      esc(e.image.light) +
+      '<br><span class="avoid">피할 것 · ' +
+      esc(e.image.avoid) +
+      "</span></p>";
+    h += "</div></div>";
+
+    h += "</div></article>";
+    return h;
+  }
+
+  function buildPrompt(matched, raw, synth) {
+    var L = [];
+    L.push(
+      "당신은 브랜드 비주얼 디렉터입니다. 아래 ‘약한 형용사 브리프’를 긴장이 든 강한 비주얼 방향으로 번역하고, 실제로 쓸 수 있는 비주얼 시스템으로 확정해 주세요."
+    );
+    L.push("");
+    L.push("【원본 브리프】");
+    L.push(raw && raw.trim() ? raw.trim() : "(형용사만 주어짐)");
+    L.push("");
+    L.push("【1차 번역: 약한 형용사 → 긴장 방향】");
+    matched.forEach(function (e, i) {
+      L.push(i + 1 + '. "' + e.label + '" → ' + e.strong);
+      L.push("   · 긴장축: " + e.tension);
+      L.push(
+        "   · 컬러 온도: " + e.temp.name + " (" + e.temp.swatches.join(" ") + ")"
+      );
+      L.push("   · 자간·굵기: " + e.type.sp + " / " + e.type.w);
+      L.push(
+        "   · 이미지: " +
+          e.image.style +
+          " / 조명 " +
+          e.image.light +
+          " / 피할 것 " +
+          e.image.avoid
+      );
+    });
+    L.push("");
+    if (synth) {
+      L.push("【겹치는 방향 조율】");
+      L.push(synth.title + " — " + synth.text);
+      L.push("");
+    }
+    L.push("【요청 사항】");
+    L.push(
+      "1. 위 긴장을 유지한 채, 컬러 시스템을 hex로 확정해 주세요(주조·보조·악센트·중립·배경·텍스트, 각 색의 역할과 사용 비율 포함)."
+    );
+    L.push(
+      "2. 헤드라인·본문 서체 페어링과 자간·굵기·위계 규칙을 정해 주세요(한글은 Pretendard 계열 우선, 폴백 명시)."
+    );
+    L.push(
+      "3. 이미지 디렉션(피사체·조명·구도·질감)과 ‘피할 것’ 목록을 정리해 주세요."
+    );
+    L.push(
+      "4. 재사용 그래픽 요소(도형·라인·카드·아이콘·패턴)를 최소한으로 정의해 주세요."
+    );
+    L.push(
+      "5. 이 시스템을 히어로·랜딩·카드뉴스·제안서 표지 중 하나에 적용한 예시 레이아웃을 말로 묘사해 주세요."
+    );
+    L.push(
+      "6. ‘모던·프리미엄’ 같은 막연한 형용사로 되돌아가지 말고, 매 결정에 그 결정의 ‘할 일’을 한 줄로 붙여 주세요. 근거가 필요하면 저에게 물어보세요."
+    );
+    L.push("");
+    L.push(
+      "요약 원칙: 알아볼 만큼 분명하게, 반복할 만큼 단순하게, 기억될 만큼 독특하게."
+    );
+    return L.join("\n");
+  }
+
+  function buildGenericPrompt(raw) {
+    var L = [];
+    L.push(
+      "당신은 브랜드 비주얼 디렉터입니다. 아래 브리프에는 약한 형용사(방향이 아닌 형용사)가 들어 있을 수 있습니다."
+    );
+    L.push("");
+    L.push("【원본 브리프】");
+    L.push(raw && raw.trim() ? raw.trim() : "(비어 있음)");
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 먼저 브리프 속 약한 형용사를 하나씩 뽑아, 각각을 긴장이 든 강한 방향(‘X하되 Y하지 않게’)으로 번역해 주세요."
+    );
+    L.push(
+      "2. 각 강한 방향에서 컬러 온도(웜/쿨/뉴트럴 + hex), 자간·굵기, 이미지 스타일, 피할 것을 도출해 주세요."
+    );
+    L.push(
+      "3. 그다음 전체를 하나의 컬러 시스템(hex·역할·비율), 서체 페어링, 이미지 디렉션, 재사용 요소로 통합해 주세요."
+    );
+    L.push(
+      "4. 막연한 형용사로 되돌아가지 말고, 매 결정에 그 결정의 ‘할 일’을 한 줄로 붙여 주세요."
+    );
+    L.push("");
+    L.push(
+      "요약 원칙: 알아볼 만큼 분명하게, 반복할 만큼 단순하게, 기억될 만큼 독특하게."
+    );
+    return L.join("\n");
+  }
+
+  var lastPrompt = "";
+
+  /* ---------- translate ---------- */
+  document.getElementById("translate").addEventListener("click", function () {
+    var raw = briefEl.value;
+    if (!raw.trim()) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">✳</div>' +
+        "<p><strong>먼저 형용사를 적어 주세요.</strong></p>" +
+        "<p>위 칩을 눌러 넣어도 됩니다.</p></div>";
+      liveEl.textContent = "입력이 비어 있습니다.";
+      briefEl.focus();
+      return;
+    }
+
+    var matched = detect(raw);
+    var html = "";
+
+    if (matched.length === 0) {
+      // no catalogued adjective found: method-only fallback (still real output)
+      html +=
+        '<div class="note-card"><p class="nc-title">카탈로그에 있는 약한 형용사를 찾지 못했습니다.</p>' +
+        "<p>입력한 표현이 이미 구체적이거나, 아직 등록되지 않은 형용사일 수 있습니다. 위 칩의 형용사를 섞어 다시 시도하거나, 아래 프롬프트로 AI에게 직접 번역을 맡기세요.</p></div>";
+      lastPrompt = buildGenericPrompt(raw);
+      html += promptBlock(
+        "이 브리프의 약한 형용사를 AI가 강한 방향으로 번역하도록 만든 프롬프트입니다."
+      );
+      resultEl.innerHTML = html;
+      wireResultButtons();
+      liveEl.textContent = "매칭된 형용사 없음. 일반 번역 프롬프트를 제공했습니다.";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var synth = findSynth(
+      matched.map(function (e) {
+        return e.id;
+      })
+    );
+
+    // verdict
+    html += '<div class="verdict">';
+    html += '<p class="verdict-label">번역 완료</p>';
+    html +=
+      '<p class="verdict-title">약한 형용사 ' +
+      matched.length +
+      "개를 긴장이 든 방향으로 번역했습니다</p>";
+    html +=
+      '<p class="verdict-desc">형용사는 방향이 아닙니다. 긴장(‘X하되 Y하지 않게’)이 들어가야 컬러 온도·자간·이미지가 정해집니다. 각 카드의 값을 출발점으로 쓰세요.</p>';
+    html += "</div>";
+
+    // cards
+    matched.forEach(function (e) {
+      html += cardHtml(e);
+    });
+
+    // synthesis
+    if (synth) {
+      html += '<div class="synth">';
+      html += '<p class="synth-title">' + esc(synth.title) + "</p>";
+      html += '<p class="synth-text">' + esc(synth.text) + "</p>";
+      html += "</div>";
+    }
+
+    // prompt
+    lastPrompt = buildPrompt(matched, raw, synth);
+    html += promptBlock(
+      "아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 번역을 바탕으로 컬러·서체·이미지 시스템을 함께 확정해 줍니다."
+    );
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    liveEl.textContent =
+      "번역 완료. 강한 방향 " + matched.length + "개를 만들었습니다.";
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function promptBlock(sub) {
+    var h = "";
+    h += '<div class="result-block-title">AI에 붙여넣을 프롬프트</div>';
+    h += '<p class="panel-sub" style="margin-bottom:11px">' + esc(sub) + "</p>";
+    h += '<div class="prompt-wrap">';
+    h += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    h += "</div>";
+    h += '<div class="copy-row no-print">';
+    h += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    h += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    h +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    h += "</div>";
+    return h;
+  }
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    briefEl.value = "";
+    grow(briefEl);
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◑</div>' +
+      "<p><strong>아직 번역 전입니다.</strong></p>" +
+      "<p>형용사를 적고 '방향으로 번역하기'를 누르세요.</p></div>";
+    liveEl.textContent = "";
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

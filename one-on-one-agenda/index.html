@@ -1,0 +1,1588 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>1on1 아젠다 빌더</title>
+<meta
+  name="description"
+  content="팀원의 현재 상황과 지난 1on1 액션만 넣으면 체크인·성과·성장·피드백 흐름의 1on1 아젠다와 좋은 코칭 질문 세트를 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2a7568;
+    --accent-strong: #1f584e;
+    --accent-tint: #e7f3f0;
+    --accent-tint-2: #d0e6e0;
+    --ink: #1f2422;
+    --ink-soft: #414b47;
+    --ink-mute: #66716c;
+    --paper: #f7faf8;
+    --card: #ffffff;
+    --line: #e2eae6;
+    --line-strong: #cddbd5;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --shadow: 0 1px 2px rgba(24, 40, 35, 0.05),
+      0 6px 20px rgba(24, 40, 35, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .field-block {
+    margin-bottom: 18px;
+  }
+  .field-block:last-child {
+    margin-bottom: 0;
+  }
+  input.text {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    min-height: 46px;
+  }
+  input.text:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input.text::placeholder {
+    color: #a1b0aa;
+  }
+  textarea {
+    width: 100%;
+    min-height: 88px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a1b0aa;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- chips (radio groups) ---------- */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+  .chip {
+    position: relative;
+    cursor: pointer;
+    display: inline-flex;
+  }
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .chip-txt {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 15px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .chip input:checked + .chip-txt {
+    background: var(--accent-tint);
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+  .chip input:focus-visible + .chip-txt {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- checklist (signals) ---------- */
+  ul.flags {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  li.flag {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfdfc;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  li.flag.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .flag-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 14px 15px;
+    cursor: pointer;
+  }
+  .flag-check {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    margin-top: 1px;
+    border: 2px solid var(--line-strong);
+    border-radius: 7px;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    transition: all 0.15s;
+  }
+  li.flag.on .flag-check {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .flag-check svg {
+    width: 15px;
+    height: 15px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  li.flag.on .flag-check svg {
+    opacity: 1;
+  }
+  .flag-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .flag-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0 0 3px;
+    color: var(--ink);
+  }
+  .flag-probe {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .flag-row input.native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  li.flag:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 16px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-steady {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-support {
+    background: #eaf1f9;
+    border-color: #d4e2f1;
+  }
+  .verdict.tone-exec {
+    background: #fdf3e7;
+    border-color: #f0dcc0;
+  }
+  .verdict.tone-growth {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-steady .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-support .verdict-title {
+    color: #2c5a8f;
+  }
+  .verdict.tone-exec .verdict-title {
+    color: #97590f;
+  }
+  .verdict.tone-growth .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .stance {
+    margin-top: 14px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .stance b {
+    color: var(--accent-strong);
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 2px;
+  }
+  .meta-pill {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 11px;
+  }
+  .meta-pill b {
+    color: var(--accent-strong);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* ---------- agenda ---------- */
+  ul.agenda {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+  li.ag-item {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fbfdfc;
+    overflow: hidden;
+  }
+  .ag-head {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 12px 14px;
+    background: var(--accent-tint);
+    border-bottom: 1px solid var(--line);
+  }
+  .ag-min {
+    flex: none;
+    font-weight: 800;
+    color: var(--accent-strong);
+    font-size: 0.86rem;
+    background: #fff;
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 999px;
+    padding: 3px 11px;
+    white-space: nowrap;
+  }
+  .ag-title {
+    font-weight: 800;
+    font-size: 1.02rem;
+    margin: 0;
+    color: var(--ink);
+  }
+  .ag-body {
+    padding: 13px 15px 15px;
+  }
+  .ag-purpose {
+    margin: 0 0 11px;
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+  }
+  ul.ag-q {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  ul.ag-q li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+  ul.ag-q li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 9px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .ag-ref {
+    margin: 12px 0 0;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1px dashed var(--line-strong);
+    border-radius: 9px;
+    padding: 10px 12px;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  .ag-ref .ref-k {
+    display: block;
+    font-weight: 700;
+    color: var(--ink-mute);
+    font-size: 0.78rem;
+    margin-bottom: 4px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #21302c;
+    color: #eef4f1;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 40, 35, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #ctx-panel,
+    #signal-panel,
+    .actions,
+    .copy-row,
+    .result-block-title.prompt-head,
+    .prompt-wrap,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">1on1 준비 · 코칭 대화 설계</span>
+    <h1>1on1 아젠다 빌더</h1>
+    <p class="lede">
+      팀원의 지금 상황과 지난 1on1 액션만 넣으면, 체크인 · 성과 · 성장 · 피드백
+      흐름으로 시간이 배분된 아젠다와 상황에 맞는 코칭 질문을 만들어 드립니다.
+      팀리더와 처음 관리자가 된 분을 위한 준비 도구입니다.
+    </p>
+  </header>
+
+  <section class="panel" id="ctx-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>대화의 맥락</h2>
+    </div>
+    <p class="panel-sub">
+      팀원과 이번 미팅의 조건을 알려주세요. 재직 단계에 따라 리더십 스탠스가,
+      미팅 길이에 따라 시간 배분이 달라집니다.
+    </p>
+
+    <div class="field-block">
+      <label class="field-label" for="member">팀원 이름 또는 호칭 (선택)</label>
+      <input
+        class="text"
+        id="member"
+        type="text"
+        maxlength="40"
+        placeholder="예) 지현, 김대리, A팀원"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="field-block">
+      <label class="field-label">재직 · 관계 단계</label>
+      <div class="chips" id="tenure" role="radiogroup" aria-label="재직 단계">
+        <label class="chip"
+          ><input type="radio" name="tenure" value="onboarding" /><span
+            class="chip-txt"
+            >온보딩 (3개월 내)</span
+          ></label
+        >
+        <label class="chip"
+          ><input
+            type="radio"
+            name="tenure"
+            value="settling"
+            checked
+          /><span class="chip-txt">자리 잡는 중 (1년 미만)</span></label
+        >
+        <label class="chip"
+          ><input type="radio" name="tenure" value="skilled" /><span
+            class="chip-txt"
+            >숙련 (1년 이상)</span
+          ></label
+        >
+        <label class="chip"
+          ><input type="radio" name="tenure" value="senior" /><span
+            class="chip-txt"
+            >시니어 · 리드</span
+          ></label
+        >
+      </div>
+    </div>
+
+    <div class="field-block">
+      <label class="field-label">이번 미팅 길이</label>
+      <div class="chips" id="length" role="radiogroup" aria-label="미팅 길이">
+        <label class="chip"
+          ><input type="radio" name="length" value="30" checked /><span
+            class="chip-txt"
+            >30분</span
+          ></label
+        >
+        <label class="chip"
+          ><input type="radio" name="length" value="45" /><span
+            class="chip-txt"
+            >45분</span
+          ></label
+        >
+        <label class="chip"
+          ><input type="radio" name="length" value="60" /><span
+            class="chip-txt"
+            >60분</span
+          ></label
+        >
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>팀원의 현재 상황</h2>
+    </div>
+    <p class="panel-sub">
+      요즘 이 팀원에게 무슨 일이 있나요? 맡은 일, 분위기, 신경 쓰이는 점을 편하게
+      적으세요. 비워 두어도 기본 아젠다는 생성됩니다.
+    </p>
+    <div class="field-block">
+      <label class="field-label" for="situation">지금 상황</label>
+      <textarea
+        id="situation"
+        placeholder="예) 신규 프로젝트 리드를 처음 맡아 부담을 느끼는 듯. 최근 야근이 잦고 표정이 어두움. 새 기능 출시가 2주 밀려 스트레스를 받는 중 ..."
+      ></textarea>
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="last">지난 1on1 액션 아이템 (선택)</label>
+      <textarea
+        id="last"
+        placeholder="예) 1. QA 프로세스 문서화 하기  2. 디자인팀과 협업 룰 정하기  3. 다음 스프린트 범위 줄이기"
+      ></textarea>
+      <p class="field-hint">
+        입력하면 아젠다 맨 앞에 '지난 액션 팔로업' 블록이 추가됩니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="panel" id="signal-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>이번에 감지되는 신호</h2>
+    </div>
+    <p class="panel-sub">
+      해당하는 신호를 모두 선택하세요. 선택에 따라 시간 배분과 코칭 질문이
+      달라집니다. 몰라도 괜찮습니다. 비워 두면 균형 잡힌 정기 점검으로 만듭니다.
+    </p>
+    <ul class="flags" id="flags"></ul>
+
+    <div class="actions">
+      <button class="btn-primary" id="build">아젠다 생성</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 4</span>
+      <h2>생성된 1on1 아젠다</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">1 : 1</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>맥락과 신호를 입력하고 '아젠다 생성'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 존 휘트모어(John Whitmore)의 GROW 코칭
+      모델(목표 · 현실 · 대안 · 실행의지), 킴 스콧(Kim Scott)의 Radical
+      Candor(개인적 관심 + 직접적 도전), 폴 허시 &amp; 켄 블랜차드의 상황대응
+      리더십(지시 · 코칭 · 지원 · 위임), 그리고 널리 쓰이는 1on1 기본 구조(체크인
+      → 성과 → 성장 → 피드백 → 다음 액션)를 종합했습니다. 블록별 시간은 입력한
+      상황 신호와 재직 단계에 가중치를 적용해 계산합니다.
+    </p>
+    <p>
+      이 도구는 대화를 준비하도록 돕는 보조 도구이며, 실제 1on1은 팀원의 맥락과
+      당신의 판단으로 완성됩니다. 아젠다는 대본이 아니라 출발점으로 쓰세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------- data ---------------- */
+
+  // signals shown as checklist. Each maps to agenda weight deltas + conditional questions.
+  var SIGNALS = [
+    {
+      id: "blocker",
+      title: "진행이 막혀 있다",
+      probe: "지금 붙잡은 일에 블로커·병목이 있음",
+    },
+    {
+      id: "overload",
+      title: "과부하 · 번아웃 신호",
+      probe: "업무량이 벅차거나 지쳐 보임",
+    },
+    {
+      id: "growth_hunger",
+      title: "성장 · 배움에 목마름",
+      probe: "더 배우고 성장하고 싶어 함",
+    },
+    {
+      id: "perf_gap",
+      title: "성과 기대와 격차",
+      probe: "기대 수준과 현재 결과 사이 간극이 있음",
+    },
+    {
+      id: "low_motivation",
+      title: "동기 · 몰입 저하",
+      probe: "의욕이 떨어지거나 겉도는 느낌",
+    },
+    {
+      id: "friction",
+      title: "관계 · 협업 마찰",
+      probe: "팀 내 협업이나 관계에 긴장이 있음",
+    },
+    {
+      id: "new_challenge",
+      title: "새 도전을 원함",
+      probe: "새로운 역할·책임을 맡고 싶어 함",
+    },
+    {
+      id: "steady",
+      title: "큰 이슈 없이 순항 중",
+      probe: "특별한 문제 없이 안정적으로 잘하고 있음",
+    },
+  ];
+
+  var TENURE = {
+    onboarding: {
+      label: "온보딩 (3개월 내)",
+      stanceTitle: "지시 · 구조화 (Directing)",
+      stance:
+        "기대치와 우선순위를 명확히 하고, 필요한 맥락과 자원을 충분히 제공하세요. 아직은 스스로 길을 찾기보다 안전한 궤도에 올려주는 시기입니다.",
+      w: { performance: 0.5, checkin: 0.4 },
+    },
+    settling: {
+      label: "자리 잡는 중 (1년 미만)",
+      stanceTitle: "코칭 (Coaching)",
+      stance:
+        "방향은 제시하되 질문으로 스스로 답을 찾게 하고, 작은 성공을 짚어 자신감을 키워주세요.",
+      w: { growth: 0.3 },
+    },
+    skilled: {
+      label: "숙련 (1년 이상)",
+      stanceTitle: "지원 (Supporting)",
+      stance:
+        "판단을 신뢰하고 의사결정을 위임하세요. 답을 주기보다 등을 받쳐주고, 필요할 때 곁에 있어 주세요.",
+      w: { feedback: 0.3 },
+    },
+    senior: {
+      label: "시니어 · 리드",
+      stanceTitle: "위임 (Delegating)",
+      stance:
+        "큰 그림과 경계만 맞추고 실행은 맡기세요. 당신의 몫은 장애물 제거와 다음 성장 무대를 여는 것입니다.",
+      w: { growth: 0.6 },
+    },
+  };
+
+  // agenda blocks: base weight + purpose + questions (base + signal-conditional)
+  var BLOCKS = [
+    {
+      key: "followup",
+      label: "지난 액션 팔로업",
+      purpose: "지난 약속을 먼저 매듭지어 신뢰를 쌓습니다.",
+      base: 1.0,
+      q: {
+        base: [
+          "지난번에 정한 액션은 어떻게 진행됐나요? 잘 된 것과 막힌 것을 각각 들려주세요.",
+          "그때 이야기한 것 중 다시 짚어보고 싶은 게 있나요?",
+        ],
+        cond: {},
+      },
+    },
+    {
+      key: "checkin",
+      label: "체크인",
+      purpose: "사람을 먼저 살핍니다. 업무 이전에 상태와 에너지를 확인합니다.",
+      base: 1.6,
+      w: {},
+      q: {
+        base: [
+          "요즘 컨디션과 에너지는 어떤가요? 10점 만점이면 몇 점, 그 이유는요?",
+          "지난 한 주 중 가장 좋았던 순간과 가장 힘들었던 순간은 무엇이었나요?",
+        ],
+        cond: {
+          overload: [
+            "지금 업무량은 감당할 수 있는 수준인가요? 덜어내거나 미뤄도 되는 일이 있다면 무엇일까요?",
+          ],
+          low_motivation: [
+            "요즘 일에서 의미나 재미를 느끼는 지점이 있나요? 반대로 김이 새는 지점은 어디인가요?",
+          ],
+        },
+      },
+    },
+    {
+      key: "performance",
+      label: "성과 · 현안",
+      purpose: "지금 하는 일의 진행과 장애물을 함께 봅니다.",
+      base: 2.4,
+      q: {
+        base: [
+          "지금 가장 집중하는 일은 무엇이고, 스스로 보기에 진행 상황은 어떤가요?",
+          "진행을 막는 장애물이 있나요? 제가 대신 치워줄 수 있는 건 무엇인가요?",
+        ],
+        cond: {
+          blocker: [
+            "그 막힘을 풀려고 이미 시도해 본 것은 무엇인가요? 무엇이 있으면 풀릴 것 같나요?",
+          ],
+          perf_gap: [
+            "기대와 현재 사이의 간극을 스스로는 어떻게 보고 있나요? 원인이 무엇이라고 생각하세요?",
+          ],
+        },
+      },
+    },
+    {
+      key: "growth",
+      label: "성장 · 커리어",
+      purpose: "이 사람이 다음으로 나아갈 방향을 함께 그립니다.",
+      base: 1.9,
+      q: {
+        base: [
+          "6개월에서 1년 뒤, 어떤 모습으로 성장해 있고 싶은가요?",
+          "그 방향으로 가기 위해 다음에 시도해 볼 만한 한 걸음은 무엇일까요?",
+        ],
+        cond: {
+          growth_hunger: [
+            "지금 역할에서 더 깊이 배우고 싶은 영역은 무엇인가요? 어떤 기회가 있으면 좋을까요?",
+          ],
+          new_challenge: [
+            "맡아보고 싶은 새로운 일이나 책임이 있나요? 이미 준비됐다고 느끼는 부분은 무엇인가요?",
+          ],
+          steady: [
+            "지금은 안정적인데, 이 여유를 활용해 새로 키우고 싶은 역량이 있다면 무엇일까요?",
+          ],
+        },
+      },
+    },
+    {
+      key: "feedback",
+      label: "피드백 (양방향)",
+      purpose: "주고, 또 받습니다. 기대치와 관계를 조율합니다.",
+      base: 1.5,
+      q: {
+        base: [
+          "제가 관찰한 것을 하나 나눠볼게요. (사실 → 그것이 미친 영향 → 제 기대) 어떻게 들리나요?",
+          "제가 리더로서 무엇을 더 하거나 덜 하면 당신이 일하기 더 좋을까요?",
+        ],
+        cond: {
+          friction: [
+            "팀 안에서 협업이 매끄럽지 않은 지점이 있나요? 어떤 도움이 필요한가요?",
+          ],
+          perf_gap: [
+            "우리가 기대치를 같은 그림으로 보고 있는지 맞춰볼까요? 제 피드백이 명확하게 전달되고 있나요?",
+          ],
+        },
+      },
+    },
+    {
+      key: "wrap",
+      label: "마무리 · 다음 액션",
+      purpose: "한 가지 실행과 다음 약속으로 대화를 닫습니다.",
+      base: 1.0,
+      q: {
+        base: [
+          "오늘 이야기 중 다음까지 각자 할 한 가지를 정한다면 무엇일까요?",
+          "다음 1on1 전에 제가 챙기거나 확인해줬으면 하는 게 있나요?",
+        ],
+        cond: {},
+      },
+    },
+  ];
+
+  // signal -> agenda weight deltas
+  var SIGNAL_W = {
+    blocker: { performance: 1.4 },
+    overload: { checkin: 1.2, performance: 0.4 },
+    growth_hunger: { growth: 1.4 },
+    perf_gap: { performance: 1.0, feedback: 0.6 },
+    low_motivation: { checkin: 0.9, growth: 0.5 },
+    friction: { feedback: 1.2 },
+    new_challenge: { growth: 1.0 },
+    steady: { growth: 0.6 },
+  };
+
+  var MODES = {
+    steady: {
+      tone: "steady",
+      title: "정기 점검 모드",
+      desc: "큰 불은 없습니다. 관계를 다지고 작은 신호를 미리 살피며, 성장의 씨앗을 하나 심어두는 대화로 만드세요.",
+    },
+    support: {
+      tone: "support",
+      title: "지지 · 정돈 모드",
+      desc: "이번엔 성과보다 사람이 먼저입니다. 부담을 덜어내고 잘 들어 안전감을 회복하세요. 해결하려 들기 전에 충분히 들어주세요.",
+    },
+    exec: {
+      tone: "exec",
+      title: "실행 · 정렬 모드",
+      desc: "막힘을 풀고 기대치를 맞추는 게 핵심입니다. 장애물을 구체적으로 파악해 대신 치워주고, 무엇을 언제까지 할지 또렷하게 정하세요.",
+    },
+    growth: {
+      tone: "growth",
+      title: "성장 · 도전 모드",
+      desc: "다음 단계를 함께 그릴 좋은 시기입니다. 새로운 기회와 배움에 시간을 배분하고, 팀원이 스스로 방향을 그리도록 질문으로 이끄세요.",
+    },
+  };
+
+  /* ---------------- render checklist ---------------- */
+
+  var flagsEl = document.getElementById("flags");
+  var checkSvg =
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 12.5L10 17.5L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  var checked = {};
+
+  SIGNALS.forEach(function (s) {
+    var li = document.createElement("li");
+    li.className = "flag";
+    li.dataset.id = s.id;
+    li.innerHTML =
+      '<label class="flag-row">' +
+      '<input type="checkbox" class="native" data-id="' +
+      s.id +
+      '" />' +
+      '<span class="flag-check">' +
+      checkSvg +
+      "</span>" +
+      '<span class="flag-body">' +
+      '<p class="flag-title">' +
+      esc(s.title) +
+      "</p>" +
+      '<p class="flag-probe">' +
+      esc(s.probe) +
+      "</p>" +
+      "</span>" +
+      "</label>";
+    flagsEl.appendChild(li);
+  });
+
+  flagsEl.addEventListener("change", function (e) {
+    var box = e.target;
+    if (!box.classList || !box.classList.contains("native")) return;
+    var id = box.dataset.id;
+    checked[id] = box.checked;
+    var li = box.closest("li.flag");
+    if (li) li.classList.toggle("on", box.checked);
+  });
+
+  /* ---------------- auto-grow textareas ---------------- */
+
+  var situationEl = document.getElementById("situation");
+  var lastEl = document.getElementById("last");
+  var memberEl = document.getElementById("member");
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  [situationEl, lastEl].forEach(function (el) {
+    el.addEventListener("input", function () {
+      grow(el);
+    });
+  });
+
+  /* ---------------- helpers ---------------- */
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function getRadio(name, fallback) {
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : fallback;
+  }
+
+  function selectedSignals() {
+    return SIGNALS.filter(function (s) {
+      return checked[s.id];
+    }).map(function (s) {
+      return s.id;
+    });
+  }
+
+  // classify session mode from selected signals
+  function classifyMode(sigIds) {
+    if (sigIds.length === 0) return "steady";
+    var care = 0,
+      exec = 0,
+      grow = 0;
+    sigIds.forEach(function (id) {
+      if (id === "overload" || id === "low_motivation" || id === "friction")
+        care++;
+      else if (id === "blocker" || id === "perf_gap") exec++;
+      else if (id === "growth_hunger" || id === "new_challenge" || id === "steady")
+        grow++;
+    });
+    // tie-break priority: care > exec > growth (people first)
+    var best = "steady";
+    var bestN = -1;
+    [
+      ["support", care],
+      ["exec", exec],
+      ["growth", grow],
+    ].forEach(function (pair) {
+      if (pair[1] > bestN) {
+        bestN = pair[1];
+        best = pair[0];
+      }
+    });
+    return bestN === 0 ? "steady" : best;
+  }
+
+  // compute weights per block from base + tenure + signals
+  function computeWeights(tenureId, sigIds) {
+    var w = {};
+    BLOCKS.forEach(function (b) {
+      w[b.key] = b.base;
+    });
+    var tw = TENURE[tenureId] && TENURE[tenureId].w;
+    if (tw) {
+      Object.keys(tw).forEach(function (k) {
+        if (w[k] != null) w[k] += tw[k];
+      });
+    }
+    sigIds.forEach(function (id) {
+      var delta = SIGNAL_W[id];
+      if (!delta) return;
+      Object.keys(delta).forEach(function (k) {
+        if (w[k] != null) w[k] += delta[k];
+      });
+    });
+    return w;
+  }
+
+  // allocate minutes across active blocks in 5-min units, exact sum, min 5 each
+  // (largest-remainder method on the surplus units after reserving 1 each)
+  function allocate(activeKeys, weights, minutes) {
+    var totalUnits = Math.round(minutes / 5);
+    var n = activeKeys.length;
+    var units = {};
+    activeKeys.forEach(function (k) {
+      units[k] = 1;
+    });
+    var extra = totalUnits - n;
+    if (extra < 0) extra = 0;
+
+    var sumW = 0;
+    activeKeys.forEach(function (k) {
+      sumW += weights[k];
+    });
+
+    // ideal surplus share per block
+    var floors = {};
+    var rema = [];
+    var assigned = 0;
+    activeKeys.forEach(function (k) {
+      var ideal = sumW > 0 ? (extra * weights[k]) / sumW : extra / n;
+      var fl = Math.floor(ideal);
+      floors[k] = fl;
+      assigned += fl;
+      rema.push({ k: k, r: ideal - fl });
+    });
+    var left = extra - assigned;
+    rema.sort(function (a, b) {
+      return b.r - a.r;
+    });
+    for (var i = 0; i < left; i++) {
+      floors[rema[i % rema.length].k] += 1;
+    }
+    var out = {};
+    activeKeys.forEach(function (k) {
+      out[k] = (units[k] + floors[k]) * 5;
+    });
+    return out;
+  }
+
+  function buildQuestions(block, sigIds) {
+    var list = block.q.base.slice();
+    sigIds.forEach(function (id) {
+      var extra = block.q.cond[id];
+      if (extra) {
+        extra.forEach(function (qq) {
+          if (list.indexOf(qq) === -1) list.push(qq);
+        });
+      }
+    });
+    // cap at 4 to keep each block scannable
+    return list.slice(0, 4);
+  }
+
+  /* ---------------- build agenda ---------------- */
+
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  document.getElementById("build").addEventListener("click", function () {
+    var tenureId = getRadio("tenure", "settling");
+    var minutes = parseInt(getRadio("length", "30"), 10) || 30;
+    var sigIds = selectedSignals();
+    var name = memberEl.value.trim();
+    var situation = situationEl.value.trim();
+    var lastActions = lastEl.value.trim();
+    var hasFollowup = lastActions.length > 0;
+
+    var activeBlocks = BLOCKS.filter(function (b) {
+      return b.key !== "followup" || hasFollowup;
+    });
+    var activeKeys = activeBlocks.map(function (b) {
+      return b.key;
+    });
+
+    var weights = computeWeights(tenureId, sigIds);
+    var mins = allocate(activeKeys, weights, minutes);
+
+    var modeKey = classifyMode(sigIds);
+    var mode = MODES[modeKey];
+    var tenure = TENURE[tenureId];
+
+    var agendaForPrompt = [];
+
+    var html = "";
+
+    // mode card
+    var whoLabel = name ? esc(name) + "님과의 1on1" : "이번 1on1";
+    html += '<div class="verdict tone-' + mode.tone + '">';
+    html += '<p class="verdict-label">추천 진행 모드 · ' + esc(whoLabel) + "</p>";
+    html += '<p class="verdict-title">' + esc(mode.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(mode.desc) + "</p>";
+    html += '<div class="stance">';
+    html +=
+      "<b>리더십 스탠스 · " +
+      esc(tenure.stanceTitle) +
+      "</b><br>" +
+      esc(tenure.stance);
+    html += "</div>";
+    html += '<div class="meta-row">';
+    html += '<span class="meta-pill">총 <b>' + minutes + "분</b></span>";
+    html +=
+      '<span class="meta-pill">블록 <b>' + activeKeys.length + "개</b></span>";
+    html +=
+      '<span class="meta-pill">신호 <b>' +
+      (sigIds.length || 0) +
+      "개</b> 반영</span>";
+    html += "</div>";
+    html += "</div>";
+
+    // facilitation tip
+    html +=
+      '<div class="stance" style="margin-top:0;margin-bottom:4px">' +
+      "<b>진행 팁</b> · 1on1은 리더가 아니라 팀원의 시간입니다. 대부분의 시간은 팀원이 말하게 두고, 당신은 질문하고 듣는 데 집중하세요." +
+      "</div>";
+
+    // agenda
+    html += '<div class="result-block-title">시간별 아젠다</div>';
+    html += '<ul class="agenda">';
+    activeBlocks.forEach(function (b) {
+      var qs = buildQuestions(b, sigIds);
+      agendaForPrompt.push({ label: b.label, min: mins[b.key], qs: qs });
+
+      html += '<li class="ag-item">';
+      html += '<div class="ag-head">';
+      html += '<span class="ag-min">' + mins[b.key] + "분</span>";
+      html += '<p class="ag-title">' + esc(b.label) + "</p>";
+      html += "</div>";
+      html += '<div class="ag-body">';
+      html += '<p class="ag-purpose">' + esc(b.purpose) + "</p>";
+      html += '<ul class="ag-q">';
+      qs.forEach(function (q) {
+        html += "<li>" + esc(q) + "</li>";
+      });
+      html += "</ul>";
+      if (b.key === "followup" && lastActions) {
+        html +=
+          '<div class="ag-ref"><span class="ref-k">지난 액션</span>' +
+          esc(lastActions) +
+          "</div>";
+      }
+      html += "</div>";
+      html += "</li>";
+    });
+    html += "</ul>";
+
+    // AI prompt
+    lastPrompt = buildPrompt({
+      name: name,
+      tenureLabel: tenure.label,
+      minutes: minutes,
+      modeTitle: mode.title,
+      situation: situation,
+      lastActions: lastActions,
+      signals: sigIds.map(function (id) {
+        return signalTitle(id);
+      }),
+      agenda: agendaForPrompt,
+    });
+
+    html +=
+      '<div class="result-block-title prompt-head">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 이 아젠다를 이 팀원에 맞게 다듬고 피드백 문장과 경청 포인트까지 함께 준비해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function signalTitle(id) {
+    for (var i = 0; i < SIGNALS.length; i++) {
+      if (SIGNALS[i].id === id) return SIGNALS[i].title;
+    }
+    return id;
+  }
+
+  function buildPrompt(ctx) {
+    var L = [];
+    L.push(
+      "당신은 1on1 미팅과 코칭 대화 설계에 능숙한 시니어 매니저 코치입니다."
+    );
+    L.push(
+      "아래 맥락을 바탕으로, 팀리더인 제가 이번 1on1을 잘 이끌도록 도와주세요."
+    );
+    L.push("");
+    L.push("【대상】 " + (ctx.name ? ctx.name + "님, " : "") + ctx.tenureLabel);
+    L.push("【미팅 길이】 " + ctx.minutes + "분");
+    L.push("【추천 진행 모드】 " + ctx.modeTitle);
+    L.push("");
+    L.push("【팀원의 현재 상황】");
+    L.push(
+      ctx.situation
+        ? ctx.situation
+        : "(아직 안 적음 — 먼저 저에게 상황을 물어봐 주세요.)"
+    );
+    L.push("");
+    if (ctx.lastActions) {
+      L.push("【지난 1on1 액션】");
+      L.push(ctx.lastActions);
+      L.push("");
+    }
+    L.push(
+      "【감지된 신호】 " +
+        (ctx.signals.length ? ctx.signals.join(", ") : "특별히 선택된 신호 없음")
+    );
+    L.push("");
+    L.push("【이번 아젠다 초안】");
+    ctx.agenda.forEach(function (b) {
+      L.push("- [" + b.min + "분] " + b.label);
+    });
+    L.push("");
+    L.push("【요청】");
+    L.push(
+      "1. 위 아젠다를 이 팀원의 상황에 맞게 다듬고, 각 블록에서 던질 열린 코칭 질문을 2~3개씩 제안해 주세요. (GROW: 목표·현실·대안·실행의지 흐름)"
+    );
+    L.push(
+      "2. 제가 전할 피드백이 있다면, 사실 → 영향 → 기대(SBI) 구조로 부드럽지만 명확하게 말하는 예시 문장을 만들어 주세요."
+    );
+    L.push(
+      "3. 팀원의 답에서 무엇을 유심히 들어야 하는지(경청 포인트)를 짚어 주세요."
+    );
+    L.push(
+      "4. 결론을 대신 내리지 말고, 제가 스스로 판단하도록 질문과 관찰 포인트를 먼저 주세요. 이건 대본이 아니라 저를 위한 준비 노트입니다."
+    );
+    L.push("5. 사실이 부족하면 지어내지 말고 저에게 되물어 주세요.");
+    return L.join("\n");
+  }
+
+  /* ---------------- reset ---------------- */
+
+  document.getElementById("reset").addEventListener("click", function () {
+    checked = {};
+    memberEl.value = "";
+    situationEl.value = "";
+    lastEl.value = "";
+    grow(situationEl);
+    grow(lastEl);
+    Array.prototype.forEach.call(
+      flagsEl.querySelectorAll("input.native"),
+      function (b) {
+        b.checked = false;
+        var li = b.closest("li.flag");
+        if (li) li.classList.remove("on");
+      }
+    );
+    // restore defaults for radio groups
+    var t = document.querySelector('input[name="tenure"][value="settling"]');
+    if (t) t.checked = true;
+    var l = document.querySelector('input[name="length"][value="30"]');
+    if (l) l.checked = true;
+
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">1 : 1</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>맥락과 신호를 입력하고 '아젠다 생성'을 누르세요.</p></div>";
+    document.getElementById("ctx-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ---------------- copy (3-tier fallback) + print ---------------- */
+
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------------- manual modal ---------------- */
+
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

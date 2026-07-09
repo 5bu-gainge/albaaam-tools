@@ -1,0 +1,1556 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>입사자 온보딩 서류 체크리스트 생성기</title>
+<meta
+  name="description"
+  content="고용형태를 고르면 근로계약·4대보험 취득·급여계좌 등 준비 서류를 담당과 기한과 함께 정리합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #35507a;
+    --accent-strong: #294061;
+    --accent-tint: #eaeef6;
+    --accent-tint-2: #dbe3f0;
+    --ink: #1f2530;
+    --ink-soft: #444c59;
+    --ink-mute: #6a7180;
+    --paper: #f6f7fa;
+    --card: #ffffff;
+    --line: #e3e6ee;
+    --line-strong: #d0d5e1;
+    --good: #276149;
+    --good-tint: #e6f2ea;
+    --warn: #8a5a12;
+    --warn-tint: #f6efdb;
+    --violet: #4b3b7a;
+    --violet-tint: #ece8f6;
+    --shadow: 0 1px 2px rgba(31, 37, 48, 0.05), 0 6px 20px rgba(31, 37, 48, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.66rem;
+    line-height: 1.3;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- employment type cards ---------- */
+  .field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 4px 0 10px;
+  }
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .type-card {
+    position: relative;
+    display: block;
+    border: 1px solid var(--line-strong);
+    border-radius: 13px;
+    background: #fcfdff;
+    padding: 14px 15px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+  .type-card:hover {
+    border-color: var(--accent);
+  }
+  .type-card input.native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .type-card.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .type-card:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint), 0 0 0 1px var(--accent);
+    border-color: var(--accent);
+  }
+  .tc-name {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0 0 3px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .tc-dot {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 2px solid var(--line-strong);
+    flex: none;
+    display: grid;
+    place-items: center;
+  }
+  .type-card.on .tc-dot {
+    border-color: var(--accent);
+  }
+  .type-card.on .tc-dot::after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .tc-desc {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    padding-left: 22px;
+  }
+
+  /* ---------- condition chips ---------- */
+  .cond-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 4px;
+  }
+  .cond-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: #fcfdff;
+    padding: 9px 15px 9px 13px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: all 0.15s;
+    min-height: 44px;
+  }
+  .cond-chip input.native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .cond-chip .cc-box {
+    width: 19px;
+    height: 19px;
+    border-radius: 5px;
+    border: 2px solid var(--line-strong);
+    display: grid;
+    place-items: center;
+    flex: none;
+    transition: all 0.15s;
+  }
+  .cond-chip .cc-box svg {
+    width: 12px;
+    height: 12px;
+    opacity: 0;
+  }
+  .cond-chip.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .cond-chip.on .cc-box {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .cond-chip.on .cc-box svg {
+    opacity: 1;
+  }
+  .cond-chip:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- date + memo ---------- */
+  .subfield {
+    margin-top: 18px;
+  }
+  input[type="date"] {
+    width: 100%;
+    max-width: 260px;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: #fcfdff;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    min-height: 46px;
+  }
+  input[type="date"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea {
+    width: 100%;
+    min-height: 62px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfdff;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder,
+  input::placeholder {
+    color: #a2a8b6;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+    min-height: 46px;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 170px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .inline-error {
+    color: #a3352b;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 12px 0 0;
+    min-height: 1.2em;
+  }
+
+  /* ---------- disclaimer banner ---------- */
+  .disclaimer {
+    border: 1px solid var(--warn-tint);
+    background: #fbf6ea;
+    border-radius: 12px;
+    padding: 13px 15px;
+    margin-bottom: 16px;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    color: #5f4a1e;
+  }
+  .disclaimer strong {
+    color: #7a5a12;
+  }
+  .disclaimer .asof {
+    display: block;
+    margin-top: 6px;
+    color: #857249;
+    font-size: 0.82rem;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 22px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .summary {
+    border: 1px solid var(--accent-tint-2);
+    background: var(--accent-tint);
+    border-radius: 14px;
+    padding: 18px 17px;
+    margin-bottom: 18px;
+  }
+  .summary-title {
+    font-size: 1.24rem;
+    font-weight: 800;
+    margin: 0 0 4px;
+    color: var(--accent-strong);
+  }
+  .summary-sub {
+    margin: 0 0 14px;
+    font-size: 0.93rem;
+    color: var(--ink-soft);
+  }
+  .owner-counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .oc {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+  }
+
+  /* progress */
+  .progress-wrap {
+    margin: 16px 0 2px;
+  }
+  .progress-bar {
+    height: 10px;
+    border-radius: 6px;
+    background: #d7ddea;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: 6px;
+    transition: width 0.25s ease;
+  }
+  .progress-cap {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 7px 0 0;
+    font-weight: 600;
+  }
+
+  /* group */
+  .group {
+    margin-top: 22px;
+  }
+  .group-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 0 0 11px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid var(--line);
+  }
+  ul.docs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  li.doc {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fcfdff;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  li.doc.done {
+    border-color: #cfe0d3;
+    background: var(--good-tint);
+  }
+  .doc-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 14px;
+    cursor: pointer;
+  }
+  .doc-row input.native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .doc-check {
+    flex: none;
+    width: 23px;
+    height: 23px;
+    margin-top: 2px;
+    border: 2px solid var(--line-strong);
+    border-radius: 7px;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    transition: all 0.15s;
+  }
+  li.doc.done .doc-check {
+    border-color: var(--good);
+    background: var(--good);
+  }
+  .doc-check svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  li.doc.done .doc-check svg {
+    opacity: 1;
+  }
+  li.doc:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+  .doc-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .doc-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .doc-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  li.doc.done .doc-name {
+    text-decoration: line-through;
+    text-decoration-color: #9cb6a5;
+    color: var(--ink-soft);
+  }
+  .badge {
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+  .own-company {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .own-employee {
+    background: var(--good-tint);
+    color: var(--good);
+  }
+  .own-insurance {
+    background: var(--violet-tint);
+    color: var(--violet);
+  }
+  .own-tax {
+    background: var(--warn-tint);
+    color: var(--warn);
+  }
+  .doc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .due-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: #eef0f5;
+    border-radius: 7px;
+    padding: 3px 10px;
+  }
+  .due-badge .cal {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  .basis-chip {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink-mute);
+    border: 1px solid var(--line-strong);
+    border-radius: 7px;
+    padding: 2px 9px;
+  }
+  .basis-chip b {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  .doc-note {
+    margin: 4px 0 0;
+    font-size: 0.87rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 26px 0 10px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232936;
+    color: #eef1f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.85rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 37, 48, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.4rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .type-grid {
+      grid-template-columns: 1fr;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">입사자 온보딩 · 인사/총무 실무</span>
+    <h1>입사자 온보딩 서류 체크리스트 생성기</h1>
+    <p class="lede">
+      고용형태를 고르면 근로계약·4대보험 취득·급여계좌 등 준비 서류를 담당과
+      기한과 함께 정리합니다. 입사일을 넣으면 신고 기한을 실제 날짜로 계산해
+      드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>입사자 정보 입력</h2>
+    </div>
+    <p class="panel-sub">
+      고용형태를 선택하고, 해당하는 조건과 입사(예정)일을 넣으세요. 조합에 맞는
+      서류 목록이 자동으로 구성됩니다.
+    </p>
+
+    <span class="field-label">고용형태 (필수)</span>
+    <div class="type-grid" id="types"></div>
+
+    <div class="subfield">
+      <span class="field-label">추가 조건 (해당 시 선택)</span>
+      <div class="cond-chips" id="conds"></div>
+    </div>
+
+    <div class="subfield">
+      <label class="field-label" for="startDate">입사(예정)일 (선택)</label>
+      <input type="date" id="startDate" />
+      <p class="field-hint">
+        입력하면 "다음 달 15일까지", "입사일 +14일" 같은 기한을 실제 날짜로
+        환산합니다.
+      </p>
+    </div>
+
+    <div class="subfield">
+      <label class="field-label" for="memo">추가 메모 (선택 · 직무·부서·특이사항)</label>
+      <textarea
+        id="memo"
+        placeholder="예) 개발팀, 재택 겸업, 전 직장 경력증명 필요 등"
+      ></textarea>
+      <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="generate">체크리스트 생성</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+    <p class="inline-error" id="err" role="alert" aria-live="assertive"></p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>온보딩 서류 체크리스트</h2>
+    </div>
+
+    <div class="disclaimer">
+      <strong>참고 안내</strong> · 본 도구는 일반 정보 제공용 참고 자료이며 법적
+      효력이 있는 의견이 아닙니다. 개별 사안의 최종 판단은 공인노무사·세무사·변호사
+      등 전문가 상담이 필요합니다.
+      <span class="asof"
+        >표시되는 기한·법조항은 2026년 7월 기준 일반 정보입니다. 최저임금·요율 등
+        금액/비율과 최신 개정은 법제처·고용노동부·4대사회보험 정보연계센터에서
+        확인하세요.</span
+      >
+    </div>
+
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">🗂️</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>고용형태를 고르고 '체크리스트 생성'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 대한민국 노동·사회보험 법령 —
+      근로기준법(제17조 근로조건 명시, 제35조 수습 해고예고 예외), 기간제 및
+      단시간근로자 보호 등에 관한 법률, 근로자퇴직급여보장법, 최저임금법,
+      국민연금법·국민건강보험법·고용보험법·산업재해보상보험법(4대보험),
+      채용절차법 및 인사·총무 실무 관행. 수습 해고 관련 대법원 2006다54266 참조.
+    </p>
+    <p>
+      이 도구는 담당자의 준비를 돕는 보조 도구이며, 서류의 법적 충분성을 확정해
+      주지 않습니다. 고용형태·근로시간·연령에 따라 4대보험 가입 대상과 기한이
+      달라질 수 있으므로, 경계가 애매한 사안은 전문가 확인을 권장합니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- employment types ---------- */
+  var TYPES = [
+    { id: "permanent", name: "정규직", desc: "기간의 정함이 없는 근로자" },
+    { id: "fixed", name: "기간제(계약직)", desc: "근로기간이 정해진 근로자" },
+    { id: "parttime", name: "단시간(파트타임)", desc: "주 15시간 이상, 소정근로 짧음" },
+    { id: "ultrashort", name: "초단시간·일용", desc: "주 15시간 미만 또는 일용직" },
+  ];
+
+  /* ---------- extra conditions ---------- */
+  var CONDS = [
+    { id: "probation", label: "수습기간 운영" },
+    { id: "minor", label: "만 18세 미만(연소근로자)" },
+    { id: "foreign", label: "외국인 근로자" },
+  ];
+
+  /* ---------- owners ---------- */
+  var OWNERS = {
+    company: { label: "회사(총무·인사)", short: "회사", cls: "own-company" },
+    employee: { label: "입사자 본인", short: "입사자", cls: "own-employee" },
+    insurance: { label: "4대보험 신고", short: "4대보험", cls: "own-insurance" },
+    tax: { label: "세무·급여", short: "세무", cls: "own-tax" },
+  };
+
+  function isAll() {
+    return true;
+  }
+  function inTypes(list) {
+    return function (t) {
+      return list.indexOf(t) !== -1;
+    };
+  }
+
+  /* ---------- checklist master data (grounded in labor-law-advisor SKILL.md) ---------- */
+  var GROUPS = [
+    {
+      id: "contract",
+      title: "1. 근로계약 · 법정 필수",
+      items: [
+        {
+          name: "근로계약서 (2부 작성 · 1부 교부)",
+          owner: "company",
+          due: { kind: "onday" },
+          basis: function (t) {
+            return t === "permanent"
+              ? "근로기준법 제17조(근로조건 명시)"
+              : "근로기준법 제17조 · 기간제법 제17조(근로조건 서면명시)";
+          },
+          note: "임금·소정근로시간·휴일·주휴·연차 등 필수 항목을 서면에 기재하고 1부를 교부합니다.",
+          show: function () { return true; },
+        },
+        {
+          name: "개인정보 수집·이용 동의서",
+          owner: "company",
+          due: { kind: "onday" },
+          basis: null,
+          note: "인사·급여·4대보험 처리에 필요한 최소 항목만 수집·이용 동의(개인정보보호법). 주민등록번호 등 고유식별정보는 별도 동의·근거를 확인하세요.",
+          show: function () { return true; },
+        },
+        {
+          name: "수습 조항 · 평가기준표",
+          owner: "company",
+          due: { kind: "onday" },
+          basis: "근로기준법 제35조(수습 3개월 이내 해고예고 예외)",
+          note: "수습기간과 평가기준을 계약서 또는 별도 서면에 명시합니다. 수습이라도 해고에는 객관적·합리적 사유가 필요합니다(대법원 2006다54266).",
+          show: function (t, c) { return c.probation; },
+        },
+      ],
+    },
+    {
+      id: "submit",
+      title: "2. 입사자 제출 서류",
+      items: [
+        {
+          name: "신분증 사본",
+          owner: "employee",
+          due: { kind: "onday" },
+          basis: null,
+          note: "본인 확인 및 4대보험 자격취득 신고의 기초 자료.",
+          show: function () { return true; },
+        },
+        {
+          name: "급여 이체용 통장 사본 (본인 명의)",
+          owner: "employee",
+          due: { kind: "days", n: 3 },
+          basis: null,
+          note: "급여 지급 계좌 등록용. 본인 명의 계좌 여부를 확인하세요.",
+          show: function () { return true; },
+        },
+        {
+          name: "증명사진",
+          owner: "employee",
+          due: { kind: "days", n: 7 },
+          basis: null,
+          note: "사원증·인사기록카드용(필요 시).",
+          show: function () { return true; },
+        },
+        {
+          name: "부양가족 확인 서류 (주민등록등본 또는 가족관계증명서)",
+          owner: "employee",
+          due: { kind: "days", n: 7 },
+          basis: null,
+          note: "연말정산 인적공제·경조 지원 기준. 목적에 필요한 최소 범위로만 수집합니다.",
+          show: function () { return true; },
+        },
+        {
+          name: "자격·경력 증명서 사본",
+          owner: "employee",
+          due: { kind: "days", n: 7 },
+          basis: null,
+          note: "직무 자격 요건이나 경력 인정이 필요한 경우.",
+          show: function () { return true; },
+        },
+        {
+          name: "가족관계증명서 + 친권자(후견인) 동의서",
+          owner: "employee",
+          due: { kind: "before", label: "입사 전" },
+          basis: null,
+          note: "만 18세 미만 연소근로자는 가족관계 기록 증명서와 친권자(후견인) 동의서를 사업장에 비치해야 합니다(근로기준법 연소자 보호 규정).",
+          show: function (t, c) { return c.minor; },
+        },
+        {
+          name: "외국인등록증 · 체류자격 확인",
+          owner: "company",
+          due: { kind: "before", label: "입사 전" },
+          basis: null,
+          note: "취업 가능한 체류자격(E-9, H-2, F-2/F-5/F-6 등) 여부를 확인합니다. 체류자격별 고용 신고 의무는 별도로 확인하세요.",
+          show: function (t, c) { return c.foreign; },
+        },
+      ],
+    },
+    {
+      id: "insurance",
+      title: "3. 4대보험 자격취득 신고",
+      items: [
+        {
+          name: "국민연금 사업장가입자 자격취득신고",
+          owner: "insurance",
+          due: { kind: "nextmonth15" },
+          basis: "국민연금법(사업장가입자 자격취득)",
+          note: "만 18세 이상 60세 미만 대상. 월 60시간 미만 단시간 근로자는 원칙적으로 제외되며 개별 확인이 필요합니다.",
+          show: inTypes(["permanent", "fixed", "parttime"]),
+        },
+        {
+          name: "건강보험 직장가입자 자격취득신고",
+          owner: "insurance",
+          due: { kind: "days", n: 14 },
+          basis: "국민건강보험법",
+          note: "자격취득일(입사일)부터 14일 이내 신고. 월 60시간 미만은 원칙적으로 제외됩니다.",
+          show: inTypes(["permanent", "fixed", "parttime"]),
+        },
+        {
+          name: "고용보험 피보험자격취득신고",
+          owner: "insurance",
+          due: { kind: "nextmonth15" },
+          basis: "고용보험법",
+          note: "초단시간(주 15시간 미만)은 3개월 이상 계속 근로 등 요건 충족 시 적용됩니다(개별 확인).",
+          show: function () { return true; },
+        },
+        {
+          name: "산재보험 근로자 고용신고",
+          owner: "insurance",
+          due: { kind: "nextmonth15" },
+          basis: "산업재해보상보험법",
+          note: "근로자 전원 당연 적용. 보험료는 전액 사업주가 부담합니다.",
+          show: function () { return true; },
+        },
+        {
+          name: "4대보험 적용 여부 개별 확인 (초단시간·일용)",
+          owner: "company",
+          due: { kind: "before", label: "신고 전" },
+          basis: null,
+          note: "초단시간·일용 근로자는 국민연금·건강보험 적용이 제한적입니다. 4대사회보험 정보연계센터에서 대상 여부를 확인하세요.",
+          show: inTypes(["ultrashort"]),
+        },
+      ],
+    },
+    {
+      id: "payroll",
+      title: "4. 급여 · 세무 세팅",
+      items: [
+        {
+          name: "급여계좌 · 급여일 등록 (급여대장)",
+          owner: "company",
+          due: { kind: "before", label: "첫 급여 지급 전" },
+          basis: null,
+          note: "급여 계좌·지급일·급여 항목을 급여대장에 등록합니다.",
+          show: function () { return true; },
+        },
+        {
+          name: "원천징수 등록 (근로소득 간이세액표)",
+          owner: "tax",
+          due: { kind: "before", label: "첫 급여 지급 전" },
+          basis: null,
+          note: "근로소득 간이세액표 기준으로 소득세·지방소득세를 원천징수합니다.",
+          show: function () { return true; },
+        },
+        {
+          name: "소득·세액공제 신고서 (부양가족)",
+          owner: "employee",
+          due: { kind: "before", label: "첫 급여 · 연말정산 전" },
+          basis: null,
+          note: "연말정산 인적공제의 기초 자료.",
+          show: function () { return true; },
+        },
+        {
+          name: "최저임금 이상 여부 점검",
+          owner: "company",
+          due: { kind: "before", label: "근로계약 체결 전" },
+          basis: "최저임금법",
+          note: "시급 환산액이 해당 연도 최저임금 이상인지 확인합니다. 최저임금액은 매년 변경되므로 기준 연도 고시액을 확인하세요.",
+          show: function () { return true; },
+        },
+        {
+          name: "퇴직급여 제도 적용 확인",
+          owner: "company",
+          due: { kind: "before", label: "제도 운영 기준" },
+          basis: "근로자퇴직급여보장법",
+          note: "1년 이상 계속근로 & 주 15시간 이상 근로자가 대상입니다. 초단시간(주 15시간 미만)은 제외됩니다.",
+          show: inTypes(["permanent", "fixed", "parttime"]),
+        },
+      ],
+    },
+    {
+      id: "special",
+      title: "5. 고용형태별 관리 포인트",
+      items: [
+        {
+          name: "계약기간 명시 · 2년 초과 관리",
+          owner: "company",
+          due: { kind: "onday" },
+          basis: "기간제법(2년 초과 시 무기계약 간주)",
+          note: "갱신 이력과 총 사용기간(2년)을 관리합니다. 2년을 초과하면 기간의 정함이 없는 근로자로 간주됩니다.",
+          show: inTypes(["fixed"]),
+        },
+        {
+          name: "소정근로시간 · 초과근로 한도 서면 명시",
+          owner: "company",
+          due: { kind: "onday" },
+          basis: "기간제법(단시간 근로조건 서면명시)",
+          note: "단시간 근로자의 초과근로에는 법정 한도·가산이 적용됩니다. 주휴·연차는 소정근로시간에 비례해 부여합니다.",
+          show: inTypes(["parttime", "ultrashort"]),
+        },
+      ],
+    },
+  ];
+
+  var WD = ["일", "월", "화", "수", "목", "금", "토"];
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  /* ---------- state ---------- */
+  var selType = null;
+  var condState = { probation: false, minor: false, foreign: false };
+  var doneSet = {};
+  var visibleCount = 0;
+  var lastPrompt = "";
+
+  /* ---------- render inputs ---------- */
+  var typesEl = document.getElementById("types");
+  var condsEl = document.getElementById("conds");
+  var checkSvg =
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 12.5L10 17.5L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  TYPES.forEach(function (t) {
+    var lbl = document.createElement("label");
+    lbl.className = "type-card";
+    lbl.dataset.id = t.id;
+    lbl.innerHTML =
+      '<input type="radio" name="etype" class="native" value="' + t.id + '" />' +
+      '<p class="tc-name"><span class="tc-dot" aria-hidden="true"></span>' +
+      esc(t.name) + "</p>" +
+      '<p class="tc-desc">' + esc(t.desc) + "</p>";
+    typesEl.appendChild(lbl);
+  });
+
+  typesEl.addEventListener("change", function (e) {
+    if (!e.target.classList.contains("native")) return;
+    selType = e.target.value;
+    Array.prototype.forEach.call(
+      typesEl.querySelectorAll(".type-card"),
+      function (c) {
+        c.classList.toggle("on", c.dataset.id === selType);
+      }
+    );
+    clearErr();
+  });
+
+  CONDS.forEach(function (c) {
+    var lbl = document.createElement("label");
+    lbl.className = "cond-chip";
+    lbl.dataset.id = c.id;
+    lbl.innerHTML =
+      '<input type="checkbox" class="native" data-id="' + c.id + '" />' +
+      '<span class="cc-box" aria-hidden="true">' + checkSvg + "</span>" +
+      "<span>" + esc(c.label) + "</span>";
+    condsEl.appendChild(lbl);
+  });
+
+  condsEl.addEventListener("change", function (e) {
+    var box = e.target;
+    if (!box.classList.contains("native")) return;
+    var id = box.dataset.id;
+    condState[id] = box.checked;
+    box.closest(".cond-chip").classList.toggle("on", box.checked);
+  });
+
+  /* ---------- auto-grow memo ---------- */
+  var memo = document.getElementById("memo");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  memo.addEventListener("input", function () {
+    grow(memo);
+  });
+
+  /* ---------- error helpers ---------- */
+  var errEl = document.getElementById("err");
+  function clearErr() {
+    errEl.textContent = "";
+  }
+
+  /* ---------- date math ---------- */
+  function parseStart(v) {
+    if (!v) return null;
+    var p = v.split("-");
+    if (p.length !== 3) return null;
+    var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    if (isNaN(d.getTime())) return null;
+    return d;
+  }
+  function fmtDate(d) {
+    return (
+      d.getFullYear() + ". " + (d.getMonth() + 1) + ". " + d.getDate() +
+      ".(" + WD[d.getDay()] + ")"
+    );
+  }
+  function computeDue(due, start) {
+    if (!start) return null;
+    if (due.kind === "onday")
+      return new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    if (due.kind === "days")
+      return new Date(start.getFullYear(), start.getMonth(), start.getDate() + due.n);
+    if (due.kind === "nextmonth15")
+      return new Date(start.getFullYear(), start.getMonth() + 1, 15);
+    return null; // 'before' has no fixed date anchor
+  }
+  function dueRel(due) {
+    if (due.kind === "onday") return "입사 당일(첫 근로 전)";
+    if (due.kind === "days") return "입사일로부터 " + due.n + "일 이내";
+    if (due.kind === "nextmonth15") return "다음 달 15일까지";
+    if (due.kind === "before") return due.label;
+    return "";
+  }
+
+  /* ---------- generate ---------- */
+  var resultEl = document.getElementById("result");
+
+  function collectItems(type, conds) {
+    var out = [];
+    GROUPS.forEach(function (g) {
+      var items = g.items.filter(function (it) {
+        return it.show(type, conds);
+      });
+      if (items.length) out.push({ id: g.id, title: g.title, items: items });
+    });
+    return out;
+  }
+
+  function typeLabel(id) {
+    for (var i = 0; i < TYPES.length; i++) if (TYPES[i].id === id) return TYPES[i].name;
+    return id;
+  }
+  function condLabels(conds) {
+    return CONDS.filter(function (c) {
+      return conds[c.id];
+    }).map(function (c) {
+      return c.label;
+    });
+  }
+
+  document.getElementById("generate").addEventListener("click", function () {
+    if (!selType) {
+      errEl.textContent = "고용형태를 먼저 선택하세요.";
+      document.getElementById("input-panel").scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      return;
+    }
+    clearErr();
+
+    var start = parseStart(document.getElementById("startDate").value);
+    var groups = collectItems(selType, condState);
+    var memoVal = memo.value.trim();
+
+    doneSet = {};
+    visibleCount = 0;
+
+    var counts = { company: 0, employee: 0, insurance: 0, tax: 0 };
+    var flat = [];
+    groups.forEach(function (g) {
+      g.items.forEach(function (it) {
+        counts[it.owner]++;
+        flat.push(it);
+        visibleCount++;
+      });
+    });
+
+    var html = "";
+
+    /* summary */
+    html += '<div class="summary">';
+    html += '<p class="summary-title">' + esc(typeLabel(selType)) + " 온보딩 서류</p>";
+    var cl = condLabels(condState);
+    var subParts = ["총 " + visibleCount + "개 항목"];
+    if (cl.length) subParts.push("조건: " + cl.join(" · "));
+    if (start) subParts.push("입사일: " + fmtDate(start));
+    html += '<p class="summary-sub">' + esc(subParts.join("  |  ")) + "</p>";
+    html += '<div class="owner-counts">';
+    ["company", "employee", "insurance", "tax"].forEach(function (o) {
+      if (counts[o] > 0) {
+        html +=
+          '<span class="oc ' + OWNERS[o].cls + '">' +
+          esc(OWNERS[o].label) + " " + counts[o] + "</span>";
+      }
+    });
+    html += "</div>";
+    /* progress */
+    html += '<div class="progress-wrap">';
+    html +=
+      '<div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>';
+    html +=
+      '<p class="progress-cap" id="pcap" role="status" aria-live="polite">0 / ' +
+      visibleCount + " 완료</p>";
+    html += "</div>";
+    html += "</div>";
+
+    /* groups */
+    var idx = 0;
+    groups.forEach(function (g) {
+      html += '<div class="group">';
+      html += '<p class="group-title">' + esc(g.title) + "</p>";
+      html += '<ul class="docs">';
+      g.items.forEach(function (it) {
+        var did = "d" + idx++;
+        var ownerObj = OWNERS[it.owner];
+        var basisTxt =
+          typeof it.basis === "function" ? it.basis(selType) : it.basis;
+        var cd = computeDue(it.due, start);
+        var dueHtml = esc(dueRel(it.due));
+        if (cd) dueHtml += ' · <span class="cal">' + esc(fmtDate(cd)) + "</span>";
+
+        html += '<li class="doc" data-did="' + did + '">';
+        html += '<label class="doc-row">';
+        html += '<input type="checkbox" class="native docbox" data-did="' + did + '" />';
+        html += '<span class="doc-check" aria-hidden="true">' + checkSvg + "</span>";
+        html += '<span class="doc-body">';
+        html += '<span class="doc-top">';
+        html += '<span class="doc-name">' + esc(it.name) + "</span>";
+        html +=
+          '<span class="badge ' + ownerObj.cls + '">' + esc(ownerObj.label) + "</span>";
+        html += "</span>";
+        html += '<span class="doc-meta">';
+        html += '<span class="due-badge">기한: ' + dueHtml + "</span>";
+        if (basisTxt)
+          html += '<span class="basis-chip"><b>근거</b> ' + esc(basisTxt) + "</span>";
+        html += "</span>";
+        if (it.note)
+          html += '<span class="doc-note">' + esc(it.note) + "</span>";
+        html += "</span>";
+        html += "</label>";
+        html += "</li>";
+      });
+      html += "</ul>";
+      html += "</div>";
+    });
+
+    /* prompt */
+    lastPrompt = buildPrompt(selType, condState, start, memoVal, flat);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 검토 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 고용형태에서 누락되기 쉬운 서류와 노무 리스크를 함께 점검해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- checkbox progress ---------- */
+  function updateProgress() {
+    var done = 0;
+    for (var k in doneSet) if (doneSet[k]) done++;
+    var fill = document.getElementById("pfill");
+    var cap = document.getElementById("pcap");
+    if (fill)
+      fill.style.width =
+        visibleCount ? Math.round((done / visibleCount) * 100) + "%" : "0%";
+    if (cap) cap.textContent = done + " / " + visibleCount + " 완료";
+  }
+
+  resultEl.addEventListener("change", function (e) {
+    var box = e.target;
+    if (!box.classList.contains("docbox")) return;
+    var did = box.dataset.did;
+    doneSet[did] = box.checked;
+    var li = box.closest("li.doc");
+    if (li) li.classList.toggle("done", box.checked);
+    updateProgress();
+  });
+
+  /* ---------- prompt builder ---------- */
+  function buildPrompt(type, conds, start, memoVal, flat) {
+    var L = [];
+    L.push("당신은 대한민국 인사·노무 실무에 밝은 온보딩 어드바이저입니다.");
+    L.push("아래 신규 입사자의 서류 준비 상황을 점검하고, 누락과 리스크를 짚어 주세요.");
+    L.push("");
+    L.push("[입사자 정보]");
+    L.push("- 고용형태: " + typeLabel(type));
+    var cl = condLabels(conds);
+    L.push("- 추가 조건: " + (cl.length ? cl.join(", ") : "없음"));
+    L.push("- 입사(예정)일: " + (start ? fmtDate(start) : "미정"));
+    if (memoVal) L.push("- 특이사항: " + memoVal);
+    L.push("");
+    L.push("[현재 준비 예정 서류·항목]");
+    flat.forEach(function (it) {
+      var cd = computeDue(it.due, start);
+      var line = "- (" + OWNERS[it.owner].short + ") " + it.name + " — " + dueRel(it.due);
+      if (cd) line += " (" + fmtDate(cd) + ")";
+      L.push(line);
+    });
+    L.push("");
+    L.push("[요청]");
+    L.push("1. 이 고용형태·조건에서 누락되기 쉬운 법정 필수 서류나 신고가 있으면 알려 주세요.");
+    L.push("2. 각 항목의 담당과 기한이 실무상 적절한지 점검해 주세요.");
+    L.push("3. 이 고용형태 특유의 노무 리스크(기간제 2년 초과, 단시간 4대보험 적용, 수습 해고, 연소·외국인 고용 요건 등)를 짚어 주세요.");
+    L.push("4. 확실하지 않은 부분은 추측하지 말고 '공인노무사·세무사 확인 필요' 항목으로 표시해 주세요.");
+    L.push("");
+    L.push("※ 위 법조항·기한은 2026년 7월 기준 일반 정보이며, 최신 여부는 법제처·고용노동부·4대사회보험 정보연계센터 기준으로 확인이 필요합니다.");
+    return L.join("\n");
+  }
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    selType = null;
+    condState = { probation: false, minor: false, foreign: false };
+    doneSet = {};
+    visibleCount = 0;
+    memo.value = "";
+    grow(memo);
+    document.getElementById("startDate").value = "";
+    Array.prototype.forEach.call(
+      typesEl.querySelectorAll("input.native"),
+      function (b) {
+        b.checked = false;
+      }
+    );
+    Array.prototype.forEach.call(
+      typesEl.querySelectorAll(".type-card"),
+      function (c) {
+        c.classList.remove("on");
+      }
+    );
+    Array.prototype.forEach.call(
+      condsEl.querySelectorAll("input.native"),
+      function (b) {
+        b.checked = false;
+        b.closest(".cond-chip").classList.remove("on");
+      }
+    );
+    clearErr();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">🗂️</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>고용형태를 고르고 '체크리스트 생성'을 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) flashStatus("복사되었습니다");
+    else openModal(text);
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

@@ -1,0 +1,1389 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>인건비 시뮬레이터 (4대보험 사용자부담 포함)</title>
+<meta
+  name="description"
+  content="인원과 급여를 넣으면 4대보험 사용자부담분과 퇴직충당금까지 더한 실제 인건비 총액을 계산합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2c6e72;
+    --accent-strong: #1f5458;
+    --accent-tint: #e9f2f2;
+    --accent-tint-2: #d5e6e6;
+    --ink: #1e2422;
+    --ink-soft: #45504e;
+    --ink-mute: #6a7472;
+    --paper: #f5f7f7;
+    --card: #ffffff;
+    --line: #e2e8e7;
+    --line-strong: #cdd6d5;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn-bg: #fbf3e3;
+    --warn-line: #eeddb8;
+    --warn-ink: #5c4a1f;
+    --shadow: 0 1px 2px rgba(30, 36, 34, 0.05), 0 6px 20px rgba(30, 36, 34, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  input[type="text"],
+  input[type="number"],
+  select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: #fbfdfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 12px;
+    line-height: 1.4;
+  }
+  input:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input::placeholder {
+    color: #9aa5a3;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 10px 0 0;
+  }
+
+  /* ---------- cost rows ---------- */
+  ul.rows {
+    list-style: none;
+    margin: 0 0 14px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  li.cost-row {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfdfd;
+    padding: 13px 13px 14px;
+  }
+  .row-grid {
+    display: grid;
+    grid-template-columns: 1fr 84px 150px auto;
+    gap: 10px;
+    align-items: end;
+  }
+  .row-del {
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 9px;
+    color: var(--ink-mute);
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    flex: none;
+    display: grid;
+    place-items: center;
+    padding: 0;
+  }
+  .row-del:hover {
+    border-color: #c0504a;
+    color: #b0433d;
+  }
+  .row-add {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border: 1px dashed var(--accent-tint-2);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-weight: 700;
+    font-size: 0.94rem;
+    cursor: pointer;
+    width: 100%;
+  }
+  .row-add:hover {
+    background: var(--accent-tint-2);
+  }
+
+  /* ---------- rate settings (details) ---------- */
+  details.rates {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fbfdfd;
+    padding: 0;
+    overflow: hidden;
+  }
+  details.rates > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 15px 16px;
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  details.rates > summary::-webkit-details-marker {
+    display: none;
+  }
+  .sum-caret {
+    transition: transform 0.15s;
+    color: var(--accent);
+    font-size: 0.8rem;
+  }
+  details.rates[open] .sum-caret {
+    transform: rotate(90deg);
+  }
+  .sum-tag {
+    margin-left: auto;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+  .rates-body {
+    padding: 4px 16px 18px;
+    border-top: 1px solid var(--line);
+  }
+  .rate-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px 14px;
+    margin-top: 14px;
+  }
+  .rate-grid .full {
+    grid-column: 1 / -1;
+  }
+  .toggle-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0 0;
+  }
+  .toggle-line input {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--accent);
+    flex: none;
+  }
+  .toggle-line .tl-body {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .toggle-line .tl-body b {
+    color: var(--ink);
+  }
+  .rate-note {
+    font-size: 0.83rem;
+    color: var(--ink-mute);
+    margin: 16px 0 0;
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-line);
+    border-radius: 9px;
+    padding: 11px 13px;
+    line-height: 1.6;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- disclaimer banner ---------- */
+  .disclaimer {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-line);
+    border-radius: 12px;
+    padding: 13px 15px;
+    margin-bottom: 16px;
+    font-size: 0.86rem;
+    color: var(--warn-ink);
+    line-height: 1.6;
+  }
+  .disclaimer .dz-ico {
+    flex: none;
+    font-size: 1.05rem;
+    line-height: 1.4;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .err-note {
+    background: #fdeceb;
+    border: 1px solid #f4cfcc;
+    color: #9c332c;
+    border-radius: 10px;
+    padding: 13px 15px;
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  /* headline */
+  .headline {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 16px;
+  }
+  .headline .hl-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    margin: 0 0 4px;
+  }
+  .headline .hl-num {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin: 0;
+  }
+  .headline .hl-sub {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    margin: 6px 0 0;
+  }
+  .hl-badge {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 999px;
+    padding: 5px 13px;
+  }
+
+  /* stat cards */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 11px;
+    margin-bottom: 18px;
+  }
+  .stat {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 14px;
+    background: #fbfdfd;
+  }
+  .stat .s-label {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin: 0 0 5px;
+  }
+  .stat .s-num {
+    font-size: 1.12rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .stat .s-year {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    margin: 3px 0 0;
+  }
+
+  /* composition bar */
+  .comp-wrap {
+    margin-bottom: 20px;
+  }
+  .comp-bar {
+    display: flex;
+    height: 26px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .comp-seg {
+    height: 100%;
+  }
+  .comp-seg.c-salary {
+    background: var(--accent);
+  }
+  .comp-seg.c-ins {
+    background: #7fb0b2;
+  }
+  .comp-seg.c-retire {
+    background: #c3a34e;
+  }
+  .comp-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+  .comp-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 3px;
+    flex: none;
+  }
+  .dot.c-salary {
+    background: var(--accent);
+  }
+  .dot.c-ins {
+    background: #7fb0b2;
+  }
+  .dot.c-retire {
+    background: #c3a34e;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* item breakdown list */
+  ul.item-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  ul.item-list li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--line);
+  }
+  ul.item-list li:last-child {
+    border-bottom: none;
+  }
+  ul.item-list li.total-row {
+    background: var(--accent-tint);
+    font-weight: 800;
+  }
+  .il-name {
+    font-weight: 700;
+    font-size: 0.94rem;
+    color: var(--ink);
+  }
+  .il-sub {
+    display: block;
+    font-weight: 500;
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+  .il-vals {
+    text-align: right;
+    flex: none;
+  }
+  .il-month {
+    font-weight: 700;
+    font-size: 0.96rem;
+    color: var(--ink);
+  }
+  .il-year {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+
+  /* detail table */
+  .table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+  table.detail {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 620px;
+    font-size: 0.86rem;
+  }
+  table.detail th,
+  table.detail td {
+    padding: 10px 11px;
+    text-align: right;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--line);
+  }
+  table.detail th {
+    background: #f0f4f4;
+    color: var(--ink-soft);
+    font-weight: 700;
+    font-size: 0.8rem;
+    position: sticky;
+    top: 0;
+  }
+  table.detail th.tl,
+  table.detail td.tl {
+    text-align: left;
+    white-space: normal;
+  }
+  table.detail tbody tr:last-child td {
+    border-bottom: none;
+  }
+  table.detail tr.sum-tr td {
+    background: var(--accent-tint);
+    font-weight: 800;
+    color: var(--accent-strong);
+  }
+  .td-strong {
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .rates-applied {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    background: #f0f4f4;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    line-height: 1.7;
+  }
+  .rates-applied .ra-cap {
+    display: block;
+    margin-top: 8px;
+    color: var(--ink-mute);
+    font-size: 0.8rem;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232a29;
+    color: #eef3f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.85rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 36, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 12px;
+    resize: vertical;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .row-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .row-grid .rg-label {
+      grid-column: 1 / -1;
+    }
+    .row-grid .row-del {
+      justify-self: end;
+    }
+    .rate-grid {
+      grid-template-columns: 1fr;
+    }
+    .stat-grid {
+      grid-template-columns: 1fr;
+    }
+    .headline .hl-num {
+      font-size: 1.55rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #rate-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+    .table-scroll {
+      overflow: visible;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">인건비 시뮬레이터 · 4대보험 사용자부담</span>
+    <h1>인건비 시뮬레이터</h1>
+    <p class="lede">
+      인원과 급여를 넣으면, 눈에 보이는 월급 너머 <strong>4대보험 사용자부담분과
+      퇴직급여 충당금</strong>까지 더한 실제 인건비 총액을 1인당·전체로 계산합니다.
+      "이 사람을 뽑으면 회사가 실제로 얼마를 쓰는가"를 숫자로 확인하세요.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>인원과 월급여 입력</h2>
+    </div>
+    <p class="panel-sub">
+      직군·직급별로 나눠 넣으면 더 정확합니다. 급여는 <strong>1인 월 급여(세전)</strong>
+      기준입니다. 행을 추가해 여러 구성을 한 번에 시뮬레이션하세요.
+    </p>
+    <ul class="rows" id="rows"></ul>
+    <button class="row-add" id="addRow" type="button">＋ 인원 구성 행 추가</button>
+    <p class="field-hint">입력한 값은 이 브라우저 안에서만 계산되며, 외부 서버로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="rate-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>적용 요율 (기본값 자동 적용)</h2>
+    </div>
+    <p class="panel-sub">
+      기본값이 이미 채워져 있어 그대로 계산해도 됩니다. 업종별 산재요율·회사 규모별
+      고용보험처럼 사업장마다 다른 값은 아래를 열어 조정하세요.
+    </p>
+
+    <details class="rates" id="rateBox">
+      <summary>
+        <span class="sum-caret" aria-hidden="true">▶</span>
+        요율 설정 열기 / 조정
+        <span class="sum-tag">기준: 2026년 7월</span>
+      </summary>
+      <div class="rates-body">
+        <div class="rate-grid">
+          <div>
+            <label class="field-label" for="rate-pension">국민연금 (사용자, %)</label>
+            <input type="text" id="rate-pension" inputmode="decimal" value="4.5" />
+          </div>
+          <div>
+            <label class="field-label" for="pension-cap">국민연금 기준소득 월상한 (원)</label>
+            <input type="text" id="pension-cap" inputmode="numeric" value="6,370,000" />
+          </div>
+          <div>
+            <label class="field-label" for="rate-health">건강보험 (사용자, %)</label>
+            <input type="text" id="rate-health" inputmode="decimal" value="3.545" />
+          </div>
+          <div>
+            <label class="field-label" for="rate-ltc">장기요양 (건강보험료의 %)</label>
+            <input type="text" id="rate-ltc" inputmode="decimal" value="12.95" />
+          </div>
+          <div>
+            <label class="field-label" for="rate-emp">고용보험 실업급여 (사용자, %)</label>
+            <input type="text" id="rate-emp" inputmode="decimal" value="0.9" />
+          </div>
+          <div>
+            <label class="field-label" for="emp-stability">고용안정·직능개발 (회사 규모)</label>
+            <select id="emp-stability">
+              <option value="0.25" selected>150인 미만 (0.25%)</option>
+              <option value="0.45">150인 이상 우선지원대상 (0.45%)</option>
+              <option value="0.65">150~1,000인 미만 (0.65%)</option>
+              <option value="0.85">1,000인 이상·국가 (0.85%)</option>
+            </select>
+          </div>
+          <div class="full">
+            <label class="field-label" for="rate-injury">산재보험 (사용자 전액, %) — 업종별 상이</label>
+            <input type="text" id="rate-injury" inputmode="decimal" value="1.47" />
+          </div>
+        </div>
+
+        <div class="toggle-line">
+          <input type="checkbox" id="ltc-toggle" checked />
+          <span class="tl-body">
+            <b>장기요양보험 포함</b> — 건강보험료에 부가되어 사용자가 함께 부담합니다.
+          </span>
+        </div>
+        <div class="toggle-line">
+          <input type="checkbox" id="retire-toggle" checked />
+          <span class="tl-body">
+            <b>퇴직급여 충당 포함</b> — 월 급여의 1/12(연 1개월분)을 매월 적립분으로 반영합니다.
+          </span>
+        </div>
+
+        <p class="rate-note">
+          표시된 기본값은 <b>2025년 고시 기준</b>으로 미리 채워 둔 참고값입니다. 요율과
+          국민연금 기준소득 상·하한은 매년(특히 국민연금은 매년 7월) 바뀌므로,
+          <b>2026년 7월 기준 최신 값</b>은 국민연금공단·국민건강보험공단·근로복지공단·고용노동부
+          고시로 확인해 위 칸을 수정하세요. 산재요율은 업종에 따라 크게 다릅니다.
+        </p>
+      </div>
+    </details>
+
+    <div class="actions">
+      <button class="btn-primary" id="calc" type="button">인건비 계산하기</button>
+      <button class="btn-ghost" id="reset" type="button">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>실인건비 결과</h2>
+    </div>
+
+    <div class="disclaimer" role="note">
+      <span class="dz-ico" aria-hidden="true">⚠️</span>
+      <span
+        >본 도구는 일반 정보 제공용 참고 자료이며 법적 효력이 있는 의견이 아닙니다.
+        개별 사안의 최종 판단은 공인노무사·세무사·변호사 등 전문가 상담이 필요합니다.
+        표시되는 수치·요율은 2026년 7월 기준이며, 매년 변동되므로 각 공단·고용노동부
+        고시로 확인이 필요합니다.</span
+      >
+    </div>
+
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">₩</div>
+        <p><strong>아직 계산 전입니다.</strong></p>
+        <p>인원과 월급여를 넣고 '인건비 계산하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 4대보험 사용자부담 요율(국민연금·건강보험·고용보험·산재보험)과
+      「근로자퇴직급여보장법」상 퇴직급여(계속근로 1년당 30일분 평균임금 ≈ 월 급여의 1/12)를 적용해
+      1인당·전체 실인건비를 산정합니다. 산재보험은 「산업재해보상보험법」에 따라 전액 사용자가
+      부담하며 업종별 요율이 다릅니다. 요율과 국민연금 기준소득 상·하한은 매년(국민연금은 매년 7월)
+      변동되므로 표시값은 참고용이며 공식 고시로 확인·수정해야 합니다. (근거 자산: labor-law-advisor 스킬)
+    </p>
+    <p>
+      이 도구는 인건비 규모의 감을 잡도록 돕는 계산 보조 도구이며, 개별 사업장의 정확한 부과액을
+      확정하지 않습니다. 요율 적용·감면(두루누리 등)·정산은 반드시 전문가와 확인하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select" type="button">전체 선택</button>
+      <button class="btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- helpers ---------- */
+  function num(v) {
+    var n = parseFloat(String(v == null ? "" : v).replace(/[^0-9.]/g, ""));
+    return isFinite(n) ? n : 0;
+  }
+  function won(n) {
+    return Math.round(n).toLocaleString("ko-KR") + "원";
+  }
+  function manwon(n) {
+    return Math.round(n / 10000).toLocaleString("ko-KR") + "만원";
+  }
+  function comma(n) {
+    return Math.round(n).toLocaleString("ko-KR");
+  }
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* ---------- cost rows ---------- */
+  var rowsEl = document.getElementById("rows");
+  var rowSeq = 0;
+
+  function makeRow(label, count, salary) {
+    rowSeq++;
+    var li = document.createElement("li");
+    li.className = "cost-row";
+    li.innerHTML =
+      '<div class="row-grid">' +
+      '<div class="rg-label">' +
+      '<label class="field-label" for="lbl' + rowSeq + '">구분 (선택)</label>' +
+      '<input type="text" id="lbl' + rowSeq + '" class="r-label" maxlength="24" placeholder="예) 개발팀 / 사원급" value="' + esc(label || "") + '" />' +
+      "</div>" +
+      "<div>" +
+      '<label class="field-label" for="cnt' + rowSeq + '">인원</label>' +
+      '<input type="text" id="cnt' + rowSeq + '" class="r-count" inputmode="numeric" placeholder="1" value="' + esc(count || "") + '" />' +
+      "</div>" +
+      "<div>" +
+      '<label class="field-label" for="sal' + rowSeq + '">1인 월급여(원)</label>' +
+      '<input type="text" id="sal' + rowSeq + '" class="r-salary" inputmode="numeric" placeholder="3,000,000" value="' + esc(salary || "") + '" />' +
+      "</div>" +
+      '<button class="row-del" type="button" title="이 행 삭제" aria-label="이 행 삭제">✕</button>' +
+      "</div>";
+    rowsEl.appendChild(li);
+    return li;
+  }
+
+  rowsEl.addEventListener("click", function (e) {
+    var del = e.target.closest(".row-del");
+    if (!del) return;
+    var rows = rowsEl.querySelectorAll("li.cost-row");
+    if (rows.length <= 1) {
+      // keep at least one row: clear it instead of removing
+      var only = rows[0];
+      only.querySelector(".r-label").value = "";
+      only.querySelector(".r-count").value = "";
+      only.querySelector(".r-salary").value = "";
+      return;
+    }
+    del.closest("li.cost-row").remove();
+  });
+
+  // thousands-format salary/count on blur
+  rowsEl.addEventListener(
+    "blur",
+    function (e) {
+      var t = e.target;
+      if (t.classList && (t.classList.contains("r-salary") || t.classList.contains("r-count"))) {
+        var v = num(t.value);
+        t.value = v > 0 ? comma(v) : "";
+      }
+    },
+    true
+  );
+
+  document.getElementById("addRow").addEventListener("click", function () {
+    makeRow("", "", "");
+  });
+
+  // seed one row
+  makeRow("", "1", "3,000,000");
+
+  /* ---------- rate reader ---------- */
+  function readRates() {
+    var stabSel = document.getElementById("emp-stability");
+    return {
+      pension: num(document.getElementById("rate-pension").value),
+      pensionCap: num(document.getElementById("pension-cap").value),
+      health: num(document.getElementById("rate-health").value),
+      ltc: num(document.getElementById("rate-ltc").value),
+      ltcOn: document.getElementById("ltc-toggle").checked,
+      empUi: num(document.getElementById("rate-emp").value),
+      empStab: num(stabSel.value),
+      empStabLabel: stabSel.options[stabSel.selectedIndex].text,
+      injury: num(document.getElementById("rate-injury").value),
+      retireOn: document.getElementById("retire-toggle").checked,
+    };
+  }
+
+  /* ---------- core computation ---------- */
+  function computePerson(salary, r) {
+    var pensionBase = r.pensionCap > 0 ? Math.min(salary, r.pensionCap) : salary;
+    var pension = (pensionBase * r.pension) / 100;
+    var health = (salary * r.health) / 100;
+    var ltc = r.ltcOn ? (health * r.ltc) / 100 : 0;
+    var emp = (salary * (r.empUi + r.empStab)) / 100;
+    var injury = (salary * r.injury) / 100;
+    var insurance = pension + health + ltc + emp + injury;
+    var retire = r.retireOn ? salary / 12 : 0;
+    var real = salary + insurance + retire;
+    return {
+      salary: salary,
+      pension: pension,
+      health: health,
+      ltc: ltc,
+      emp: emp,
+      injury: injury,
+      insurance: insurance,
+      retire: retire,
+      real: real,
+    };
+  }
+
+  /* ---------- render ---------- */
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function calc() {
+    var r = readRates();
+    var rowNodes = rowsEl.querySelectorAll("li.cost-row");
+    var groups = [];
+    var totalHeads = 0;
+
+    Array.prototype.forEach.call(rowNodes, function (li) {
+      var label = li.querySelector(".r-label").value.trim();
+      var count = Math.round(num(li.querySelector(".r-count").value));
+      var salary = num(li.querySelector(".r-salary").value);
+      if (count <= 0 || salary <= 0) return;
+      var per = computePerson(salary, r);
+      groups.push({ label: label || "구분 " + (groups.length + 1), count: count, per: per });
+      totalHeads += count;
+    });
+
+    if (groups.length === 0) {
+      resultEl.innerHTML =
+        '<div class="err-note">인원(1명 이상)과 1인 월급여(0원 초과)를 최소 한 줄 이상 입력한 뒤 다시 계산해 주세요.</div>';
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    // aggregate
+    var agg = {
+      salary: 0, pension: 0, health: 0, ltc: 0, emp: 0, injury: 0, insurance: 0, retire: 0, real: 0,
+    };
+    groups.forEach(function (g) {
+      for (var k in agg) agg[k] += g.per[k] * g.count;
+    });
+
+    var gross = agg.salary;
+    var insTotal = agg.insurance;
+    var retireTotal = agg.retire;
+    var realTotal = agg.real;
+    var addRate = gross > 0 ? ((insTotal + retireTotal) / gross) * 100 : 0;
+    var multiple = gross > 0 ? realTotal / gross : 0;
+
+    var html = "";
+
+    /* headline */
+    html += '<div class="headline">';
+    html += '<p class="hl-label">월 실인건비 총액 (' + totalHeads + "명 기준)</p>";
+    html += '<p class="hl-num">' + won(realTotal) + "</p>";
+    html += '<p class="hl-sub">약 ' + manwon(realTotal) + " · 연 환산 " + won(realTotal * 12) + " (약 " + manwon(realTotal * 12) + ")</p>";
+    html +=
+      '<span class="hl-badge">급여 100원당 실부담 ' +
+      comma(multiple * 100) +
+      "원 · 부가율 +" +
+      addRate.toFixed(1) +
+      "%</span>";
+    html += "</div>";
+
+    /* stat cards */
+    html += '<div class="stat-grid">';
+    html += statCard("월 급여 총액 (세전)", gross);
+    html += statCard("월 4대보험 사용자부담", insTotal);
+    html += statCard("월 퇴직급여 충당", retireTotal);
+    html += statCard("1인 평균 월 실인건비", totalHeads > 0 ? realTotal / totalHeads : 0);
+    html += "</div>";
+
+    /* composition */
+    var sP = gross / realTotal * 100;
+    var iP = insTotal / realTotal * 100;
+    var rP = retireTotal / realTotal * 100;
+    html += '<div class="comp-wrap">';
+    html += '<div class="result-block-title">실인건비 구성</div>';
+    html += '<div class="comp-bar" role="img" aria-label="급여 ' + sP.toFixed(0) + "%, 4대보험 " + iP.toFixed(0) + "%, 퇴직충당 " + rP.toFixed(0) + '%">';
+    html += '<div class="comp-seg c-salary" style="width:' + sP + '%"></div>';
+    html += '<div class="comp-seg c-ins" style="width:' + iP + '%"></div>';
+    html += '<div class="comp-seg c-retire" style="width:' + rP + '%"></div>';
+    html += "</div>";
+    html += '<div class="comp-legend">';
+    html += '<span><i class="dot c-salary"></i>급여 ' + sP.toFixed(1) + "%</span>";
+    html += '<span><i class="dot c-ins"></i>4대보험 ' + iP.toFixed(1) + "%</span>";
+    if (r.retireOn) html += '<span><i class="dot c-retire"></i>퇴직충당 ' + rP.toFixed(1) + "%</span>";
+    html += "</div></div>";
+
+    /* item breakdown (month / year) */
+    html += '<div class="result-block-title">사용자부담 항목별 (월 / 연)</div>';
+    html += '<ul class="item-list">';
+    html += itemRow("국민연금", "사용자 " + r.pension + "%", agg.pension);
+    html += itemRow("건강보험", "사용자 " + r.health + "%", agg.health);
+    if (r.ltcOn) html += itemRow("장기요양보험", "건강보험료의 " + r.ltc + "%", agg.ltc);
+    html += itemRow("고용보험", "실업 " + r.empUi + "% + 고용안정 " + r.empStab + "%", agg.emp);
+    html += itemRow("산재보험", "사용자 전액 " + r.injury + "%", agg.injury);
+    if (r.retireOn) html += itemRow("퇴직급여 충당", "월 급여의 1/12", agg.retire);
+    html +=
+      '<li class="total-row"><span class="il-name">사용자 추가부담 합계</span>' +
+      '<span class="il-vals"><span class="il-month">' +
+      won(insTotal + retireTotal) +
+      '</span><span class="il-year">연 ' +
+      won((insTotal + retireTotal) * 12) +
+      "</span></span></li>";
+    html += "</ul>";
+
+    /* detail table per group */
+    html += '<div class="result-block-title">구분별 상세 (월, 1인 기준 · 소계)</div>';
+    html += '<div class="table-scroll"><table class="detail">';
+    html +=
+      "<thead><tr>" +
+      '<th class="tl">구분</th><th>인원</th><th>1인 월급여</th><th>국민연금</th><th>건강+장기</th><th>고용</th><th>산재</th><th>퇴직충당</th><th>1인 실인건비</th><th>소계(월)</th>' +
+      "</tr></thead><tbody>";
+    groups.forEach(function (g) {
+      var p = g.per;
+      html +=
+        "<tr>" +
+        '<td class="tl">' + esc(g.label) + "</td>" +
+        "<td>" + g.count + "명</td>" +
+        "<td>" + comma(p.salary) + "</td>" +
+        "<td>" + comma(p.pension) + "</td>" +
+        "<td>" + comma(p.health + p.ltc) + "</td>" +
+        "<td>" + comma(p.emp) + "</td>" +
+        "<td>" + comma(p.injury) + "</td>" +
+        "<td>" + comma(p.retire) + "</td>" +
+        '<td class="td-strong">' + comma(p.real) + "</td>" +
+        '<td class="td-strong">' + comma(p.real * g.count) + "</td>" +
+        "</tr>";
+    });
+    html +=
+      '<tr class="sum-tr">' +
+      '<td class="tl">합계</td>' +
+      "<td>" + totalHeads + "명</td>" +
+      "<td>" + comma(gross) + "</td>" +
+      "<td>" + comma(agg.pension) + "</td>" +
+      "<td>" + comma(agg.health + agg.ltc) + "</td>" +
+      "<td>" + comma(agg.emp) + "</td>" +
+      "<td>" + comma(agg.injury) + "</td>" +
+      "<td>" + comma(agg.retire) + "</td>" +
+      "<td>—</td>" +
+      "<td>" + comma(realTotal) + "</td>" +
+      "</tr>";
+    html += "</tbody></table></div>";
+    html += '<p class="field-hint">표 금액 단위는 원이며, 가로로 스크롤하면 전체 항목을 볼 수 있습니다. 국민연금은 기준소득 월상한(' + comma(r.pensionCap) + "원)을 초과하는 급여에는 상한까지만 적용됩니다.</p>";
+
+    /* applied rates */
+    html += '<div class="result-block-title">적용 요율 (기준: 2026년 7월)</div>';
+    html += '<div class="rates-applied">';
+    html +=
+      "국민연금 " + r.pension + "% (상한 " + comma(r.pensionCap) + "원) · 건강보험 " + r.health + "%" +
+      (r.ltcOn ? " · 장기요양 " + r.ltc + "%" : "") +
+      " · 고용보험 " + r.empUi + "%+" + r.empStab + "% (" + esc(r.empStabLabel) + ") · 산재 " + r.injury + "%" +
+      (r.retireOn ? " · 퇴직충당 1/12" : "");
+    html +=
+      '<span class="ra-cap">위 값은 2025년 고시 기준 기본값입니다. 2026년 7월 기준 최신 요율은 국민연금공단·국민건강보험공단·근로복지공단·고용노동부 고시로 확인 후 STEP 2에서 수정하세요. 산재요율은 업종별로 크게 다릅니다.</span>';
+    html += "</div>";
+
+    /* AI prompt */
+    lastPrompt = buildPrompt(groups, agg, r, totalHeads, addRate, multiple);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 계산을 바탕으로 채용·예산·현금흐름 관점의 조언을 받을 수 있습니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn" type="button">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function statCard(label, value) {
+    return (
+      '<div class="stat"><p class="s-label">' +
+      esc(label) +
+      '</p><p class="s-num">' +
+      won(value) +
+      '</p><p class="s-year">연 ' +
+      won(value * 12) +
+      "</p></div>"
+    );
+  }
+
+  function itemRow(name, sub, monthly) {
+    return (
+      '<li><span class="il-name">' +
+      esc(name) +
+      '<span class="il-sub">' +
+      esc(sub) +
+      '</span></span><span class="il-vals"><span class="il-month">' +
+      won(monthly) +
+      '</span><span class="il-year">연 ' +
+      won(monthly * 12) +
+      "</span></span></li>"
+    );
+  }
+
+  function buildPrompt(groups, agg, r, heads, addRate, multiple) {
+    var L = [];
+    L.push("당신은 대한민국 인건비·노무 실무에 밝은 재무 코치입니다.");
+    L.push("아래는 사용자가 '인건비 시뮬레이터'로 계산한 결과입니다. 이 숫자를 근거로 조언해 주세요.");
+    L.push("");
+    L.push("【인원 구성 (1인 월급여, 세전)】");
+    groups.forEach(function (g) {
+      L.push("- " + g.label + ": " + g.count + "명 × " + comma(g.per.salary) + "원");
+    });
+    L.push("총 " + heads + "명 · 월 급여 총액 " + comma(agg.salary) + "원");
+    L.push("");
+    L.push("【적용 요율 (사용자부담 · 2026년 7월 기준, 확인 필요)】");
+    L.push("- 국민연금 " + r.pension + "% (기준소득 월상한 " + comma(r.pensionCap) + "원)");
+    L.push("- 건강보험 " + r.health + "%" + (r.ltcOn ? " + 장기요양 " + r.ltc + "%(건강보험료 대비)" : ""));
+    L.push("- 고용보험 실업 " + r.empUi + "% + 고용안정 " + r.empStab + "%");
+    L.push("- 산재보험 " + r.injury + "% (전액 사용자, 업종별 상이)");
+    if (r.retireOn) L.push("- 퇴직급여 충당 월 급여의 1/12");
+    L.push("");
+    L.push("【계산 결과 (월 / 연)】");
+    L.push("- 4대보험 사용자부담: " + comma(agg.insurance) + "원 / " + comma(agg.insurance * 12) + "원");
+    if (r.retireOn) L.push("- 퇴직급여 충당: " + comma(agg.retire) + "원 / " + comma(agg.retire * 12) + "원");
+    L.push("- 실인건비 총액: " + comma(agg.real) + "원 / " + comma(agg.real * 12) + "원");
+    L.push("- 급여 대비 부가율: +" + addRate.toFixed(1) + "% (실인건비 배수 ×" + multiple.toFixed(2) + ")");
+    L.push("");
+    L.push("【요청】");
+    L.push("1. 이 인건비 구조에서 '월급 100원당 실제 부담'이 어느 수준인지 해석해 주세요.");
+    L.push("2. 위 구성으로 1명을 추가 채용할 때 연간 실부담 증가액과, 예산에서 고려할 점을 짚어 주세요.");
+    L.push("3. 퇴직급여 충당금을 사외적립(DB/DC/IRP)으로 관리할 때의 현금흐름·회계 관점 조언.");
+    L.push("4. 합법적 범위에서 인건비 구조를 점검할 포인트(요율 재확인, 두루누리 사회보험료 지원 등)를 제안해 주세요.");
+    L.push("");
+    L.push("주의: 위 요율은 매년(국민연금은 매년 7월) 변동됩니다. 오래된 수치로 단정하지 말고, 국민연금공단·국민건강보험공단·근로복지공단·고용노동부의 당해연도 고시로 검증할 것을 전제로 답해 주세요. 확실하지 않은 수치는 지어내지 말고 '확인 필요'로 표시해 주세요. 최종 판단은 공인노무사·세무사 상담이 필요함을 전제로 합니다.");
+    return L.join("\n");
+  }
+
+  /* ---------- buttons ---------- */
+  document.getElementById("calc").addEventListener("click", calc);
+
+  document.getElementById("reset").addEventListener("click", function () {
+    rowsEl.innerHTML = "";
+    rowSeq = 0;
+    makeRow("", "1", "3,000,000");
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">₩</div>' +
+      "<p><strong>아직 계산 전입니다.</strong></p>" +
+      "<p>인원과 월급여를 넣고 '인건비 계산하기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn) printBtn.addEventListener("click", function () { window.print(); });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () { if (s) s.textContent = ""; }, 2600);
+  }
+
+  /* ---------- copy: 3-tier fallback ---------- */
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () { flashStatus("복사되었습니다"); },
+        function () { legacyCopy(text); }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    if (ok) flashStatus("복사되었습니다");
+    else openModal(text);
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () { modalText.focus(); modalText.select(); }, 60);
+  }
+  function closeModal() { modal.classList.remove("open"); }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

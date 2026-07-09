@@ -1,0 +1,1301 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>퇴직금 자동 계산기</title>
+<meta
+  name="description"
+  content="입퇴사일과 최근 3개월 급여·상여·연차수당을 넣으면 평균임금과 법정 퇴직금을 자동 산출합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2d6b62;
+    --accent-strong: #1e5049;
+    --accent-tint: #e8f1ef;
+    --accent-tint-2: #d3e5e0;
+    --ink: #1e2422;
+    --ink-soft: #434b48;
+    --ink-mute: #667069;
+    --paper: #f6f8f7;
+    --card: #ffffff;
+    --line: #e2e8e5;
+    --line-strong: #ccd8d3;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #8a5a10;
+    --warn-tint: #fff6ea;
+    --warn-line: #f0dcbb;
+    --shadow: 0 1px 2px rgba(30, 36, 34, 0.05), 0 6px 20px rgba(30, 36, 34, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 22px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- disclaimer banner ---------- */
+  .disclaimer {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 12px;
+    padding: 13px 15px;
+    margin-bottom: 20px;
+    font-size: 0.86rem;
+    color: #6f4a12;
+    line-height: 1.62;
+  }
+  .disclaimer .ic {
+    flex: none;
+    font-weight: 800;
+    color: var(--warn);
+  }
+  .disclaimer b {
+    color: #5c3d0f;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field {
+    margin-bottom: 15px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  label.field-label .opt {
+    font-weight: 600;
+    color: var(--ink-mute);
+    font-size: 0.84rem;
+  }
+  .field-hint {
+    font-size: 0.83rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    line-height: 1.55;
+  }
+  .grid2 {
+    display: flex;
+    gap: 12px;
+  }
+  .grid2 > .field {
+    flex: 1 1 0;
+    min-width: 0;
+    margin-bottom: 0;
+  }
+
+  input[type="date"],
+  input.money,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    min-height: 48px;
+  }
+  input.money {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+  .money-wrap {
+    position: relative;
+  }
+  .money-wrap .unit {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    color: var(--ink-mute);
+    pointer-events: none;
+  }
+  .money-wrap input.money {
+    padding-left: 30px;
+  }
+  textarea {
+    min-height: 84px;
+    resize: none;
+    overflow: hidden;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input.err {
+    border-color: #c0453a;
+    box-shadow: 0 0 0 3px #f6e2df;
+  }
+  ::placeholder {
+    color: #a3aca8;
+  }
+
+  /* live period readout */
+  .readout {
+    margin: 4px 0 0;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 11px;
+    padding: 11px 14px;
+    font-size: 0.9rem;
+    color: var(--accent-strong);
+    font-weight: 600;
+    display: none;
+  }
+  .readout.show {
+    display: block;
+  }
+  .readout .sub {
+    display: block;
+    font-weight: 500;
+    color: var(--ink-soft);
+    font-size: 0.84rem;
+    margin-top: 3px;
+  }
+
+  .wage-caption {
+    font-size: 0.8rem;
+    color: var(--accent-strong);
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+    min-height: 48px;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  .form-error {
+    color: #b23a2f;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin: 12px 0 0;
+    min-height: 1.2em;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .result-disclaimer {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 11px;
+    padding: 11px 13px;
+    margin-bottom: 16px;
+    font-size: 0.82rem;
+    color: #6f4a12;
+    line-height: 1.6;
+  }
+  .result-disclaimer .ic {
+    flex: none;
+    color: var(--warn);
+    font-weight: 800;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 18px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-due {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-warn {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 6px;
+  }
+  .headline-amount {
+    font-size: 2.15rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .verdict.tone-due .headline-amount {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-warn .headline-amount {
+    color: var(--warn);
+  }
+  .verdict-desc {
+    margin: 8px 0 0;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .verdict-desc b {
+    color: var(--ink);
+  }
+
+  .note-info {
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 11px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    color: #2c5c44;
+    margin: 0 0 18px;
+    line-height: 1.6;
+  }
+  .note-info b {
+    color: #204a34;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* calc table */
+  .calc-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  table.calc {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    background: #fff;
+  }
+  table.calc th,
+  table.calc td {
+    padding: 11px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  table.calc td.val {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+  table.calc th {
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  table.calc tr:last-child td,
+  table.calc tr:last-child th {
+    border-bottom: none;
+  }
+  table.calc tr.sum th,
+  table.calc tr.sum td {
+    background: #f2f6f4;
+    font-weight: 800;
+  }
+  table.calc tr.sum td.val {
+    font-weight: 800;
+    color: var(--accent-strong);
+  }
+  table.calc tr.final th,
+  table.calc tr.final td {
+    background: var(--accent-tint);
+  }
+  table.calc tr.final td.val {
+    color: var(--accent-strong);
+    font-size: 1.02rem;
+  }
+  table.calc .sub {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .applied-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint-2);
+    padding: 1px 7px;
+    border-radius: 5px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  details.method {
+    margin-top: 18px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fbfdfc;
+    padding: 0 14px;
+  }
+  details.method summary {
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    padding: 13px 0;
+    list-style: none;
+  }
+  details.method summary::-webkit-details-marker {
+    display: none;
+  }
+  details.method summary::before {
+    content: "＋ ";
+    color: var(--accent);
+    font-weight: 800;
+  }
+  details.method[open] summary::before {
+    content: "－ ";
+  }
+  details.method .mbody {
+    padding: 0 0 14px;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    line-height: 1.68;
+  }
+  details.method .mbody ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+  }
+  details.method .mbody li {
+    margin-bottom: 5px;
+  }
+  details.method code {
+    background: #eef3f1;
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-size: 0.85em;
+    font-family: inherit;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #22302c;
+    color: #eef4f1;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 36, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot p {
+    margin: 0 0 10px;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 560px) {
+    .grid2 {
+      flex-direction: column;
+      gap: 15px;
+    }
+  }
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .headline-amount {
+      font-size: 1.85rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #dates-panel,
+    #wages-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">노무 계산 · 근로자퇴직급여 보장법</span>
+    <h1>퇴직금 자동 계산기</h1>
+    <p class="lede">
+      입사일·퇴사일과 최근 3개월 급여, 상여금, 연차수당을 넣으면 평균임금과
+      법정 퇴직금을 자동으로 산출하고, 계산 근거를 표로 보여 드립니다.
+    </p>
+  </header>
+
+  <div class="disclaimer" role="note">
+    <span class="ic" aria-hidden="true">⚠</span>
+    <span>
+      <b>본 도구는 일반 정보 제공용 참고 자료이며 법적 효력이 있는 의견이 아닙니다.</b>
+      개별 사안의 최종 판단은 공인노무사·세무사·변호사 등 전문가 상담이
+      필요합니다. (수치·법조항 기준 시점: 2026년 7월)
+    </span>
+  </div>
+
+  <section class="panel" id="dates-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>재직 기간</h2>
+    </div>
+    <p class="panel-sub">
+      입사일과 퇴사일을 입력하세요. 재직일수가 자동 계산됩니다.
+    </p>
+
+    <div class="grid2">
+      <div class="field">
+        <label class="field-label" for="joinDate">입사일</label>
+        <input type="date" id="joinDate" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="leaveDate">퇴사일</label>
+        <input type="date" id="leaveDate" />
+        <p class="field-hint">마지막 근무일의 <b>다음 날</b>을 넣습니다. (예: 6/30까지 근무 → 7/1)</p>
+      </div>
+    </div>
+
+    <div class="readout" id="tenure" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="panel" id="wages-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>최근 3개월 임금</h2>
+    </div>
+    <p class="panel-sub">
+      퇴사 직전 3개월간 <b>세전</b>으로 지급받은 월 임금(기본급 + 고정수당)을
+      각 칸에 넣으세요. 아래 기간 표시는 두 날짜를 입력하면 자동으로 채워집니다.
+    </p>
+
+    <p class="wage-caption" id="wageCap1">최근 1개월</p>
+    <div class="field money-wrap">
+      <label class="field-label" for="w1">1개월 전 급여</label>
+      <span class="unit" aria-hidden="true">₩</span>
+      <input type="text" class="money" id="w1" inputmode="numeric" placeholder="0" />
+    </div>
+
+    <p class="wage-caption" id="wageCap2">2개월 전</p>
+    <div class="field money-wrap">
+      <label class="field-label" for="w2">2개월 전 급여</label>
+      <span class="unit" aria-hidden="true">₩</span>
+      <input type="text" class="money" id="w2" inputmode="numeric" placeholder="0" />
+    </div>
+
+    <p class="wage-caption" id="wageCap3">3개월 전</p>
+    <div class="field money-wrap">
+      <label class="field-label" for="w3">3개월 전 급여</label>
+      <span class="unit" aria-hidden="true">₩</span>
+      <input type="text" class="money" id="w3" inputmode="numeric" placeholder="0" />
+    </div>
+
+    <div class="field money-wrap">
+      <label class="field-label" for="bonus">
+        연간 상여금 총액 <span class="opt">(선택)</span>
+      </label>
+      <span class="unit" aria-hidden="true">₩</span>
+      <input type="text" class="money" id="bonus" inputmode="numeric" placeholder="0" />
+      <p class="field-hint">퇴직 전 1년(12개월)간 받은 상여금 합계. 이 중 <b>3/12</b>가 평균임금에 가산됩니다.</p>
+    </div>
+
+    <div class="field money-wrap">
+      <label class="field-label" for="annual">
+        연차수당 <span class="opt">(선택)</span>
+      </label>
+      <span class="unit" aria-hidden="true">₩</span>
+      <input type="text" class="money" id="annual" inputmode="numeric" placeholder="0" />
+      <p class="field-hint">퇴직 전전년도 발생분에 대한 연차 미사용수당. 이 중 <b>3/12</b>가 평균임금에 가산됩니다.</p>
+    </div>
+
+    <div class="field money-wrap">
+      <label class="field-label" for="ordinary">
+        1일 통상임금 <span class="opt">(선택 · 비교용)</span>
+      </label>
+      <span class="unit" aria-hidden="true">₩</span>
+      <input type="text" class="money" id="ordinary" inputmode="numeric" placeholder="0" />
+      <p class="field-hint">시간급 통상임금 × 1일 소정근로시간(보통 8시간). 평균임금이 이보다 적으면 통상임금으로 대체됩니다. 모르면 비워 두세요.</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="memo">
+        추가 상황 메모 <span class="opt">(선택 · AI 검토 프롬프트에 포함)</span>
+      </label>
+      <textarea
+        id="memo"
+        placeholder="예) 포괄임금제 적용, 중간정산 이력 있음, 육아휴직 3개월 포함 등 특이사항"
+      ></textarea>
+    </div>
+
+    <p class="field-hint" style="margin-top:14px">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출 없이 기기 안에서만 계산합니다.
+    </p>
+
+    <div class="actions">
+      <button class="btn-primary" id="calc">퇴직금 계산하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+    <p class="form-error" id="formError" role="alert" aria-live="assertive"></p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>계산 결과</h2>
+    </div>
+    <div id="result" role="status" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">₩</div>
+        <p><strong>아직 계산 전입니다.</strong></p>
+        <p>재직 기간과 임금을 입력하고 '퇴직금 계산하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 「근로자퇴직급여 보장법」(퇴직금 산정)과
+      「근로기준법」(평균임금·통상임금 산정)에 근거합니다. 퇴직금은 계속근로기간
+      1년에 대해 30일분 이상의 평균임금으로 산정하며(근로자퇴직급여 보장법
+      제8조), 평균임금은 산정사유 발생일 이전 3개월간의 임금총액을 그 기간의
+      총일수로 나눈 값입니다(근로기준법 제2조). 평균임금이 통상임금보다 적으면
+      통상임금을 평균임금으로 봅니다(근로기준법 시행령 제2조). 상여금·연차수당은
+      실무 기준에 따라 각각 3/12를 3개월 임금총액에 가산했습니다. 법조항·기준
+      시점은 2026년 7월이며, 이후 개정될 수 있습니다.
+    </p>
+    <p>
+      이 도구는 판단을 돕는 계산 보조 도구이며, 지급액을 법적으로 확정해 주지
+      않습니다. 산정 방식이 사업장마다 다를 수 있으므로(포괄임금·중간정산·단시간
+      등), 결과는 참고로 삼고 최종 확정은 공인노무사의 확인을 받으시기 바랍니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------- helpers ----------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function won(n) {
+    if (!isFinite(n)) return "-";
+    return "₩" + Math.round(n).toLocaleString("ko-KR");
+  }
+  function parseMoney(el) {
+    return Number(String(el.value).replace(/[^0-9]/g, "")) || 0;
+  }
+  function fmtMoneyInput(el) {
+    var caretEnd = el.selectionStart === el.value.length;
+    var digits = el.value.replace(/[^0-9]/g, "");
+    el.value = digits ? Number(digits).toLocaleString("ko-KR") : "";
+    if (caretEnd) {
+      try {
+        el.setSelectionRange(el.value.length, el.value.length);
+      } catch (e) {}
+    }
+  }
+  function parseDate(v) {
+    if (!v) return null;
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+    if (!m) return null;
+    var d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function daysBetween(a, b) {
+    return Math.round((b.getTime() - a.getTime()) / 86400000);
+  }
+  // subtract n calendar months, clamping to last valid day of target month
+  function subMonths(d, n) {
+    var y = d.getFullYear();
+    var m = d.getMonth() - n;
+    var day = d.getDate();
+    var t = new Date(y, m, 1);
+    var last = new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate();
+    t.setDate(Math.min(day, last));
+    return t;
+  }
+  function fmtDate(d) {
+    var mm = String(d.getMonth() + 1).padStart(2, "0");
+    var dd = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "." + mm + "." + dd;
+  }
+  function fmtMD(d) {
+    return String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0");
+  }
+  function tenureYMD(a, b) {
+    var y = b.getFullYear() - a.getFullYear();
+    var m = b.getMonth() - a.getMonth();
+    var d = b.getDate() - a.getDate();
+    if (d < 0) {
+      m -= 1;
+      d += new Date(b.getFullYear(), b.getMonth(), 0).getDate();
+    }
+    if (m < 0) {
+      y -= 1;
+      m += 12;
+    }
+    return y + "년 " + m + "개월 " + d + "일";
+  }
+
+  // ---------- element refs ----------
+  var joinEl = document.getElementById("joinDate");
+  var leaveEl = document.getElementById("leaveDate");
+  var tenureEl = document.getElementById("tenure");
+  var w1El = document.getElementById("w1");
+  var w2El = document.getElementById("w2");
+  var w3El = document.getElementById("w3");
+  var bonusEl = document.getElementById("bonus");
+  var annualEl = document.getElementById("annual");
+  var ordinaryEl = document.getElementById("ordinary");
+  var memoEl = document.getElementById("memo");
+  var cap1 = document.getElementById("wageCap1");
+  var cap2 = document.getElementById("wageCap2");
+  var cap3 = document.getElementById("wageCap3");
+  var resultEl = document.getElementById("result");
+  var formError = document.getElementById("formError");
+
+  // ---------- live money formatting ----------
+  [w1El, w2El, w3El, bonusEl, annualEl, ordinaryEl].forEach(function (el) {
+    el.addEventListener("input", function () {
+      fmtMoneyInput(el);
+    });
+  });
+
+  // ---------- auto-grow memo textarea ----------
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  memoEl.addEventListener("input", function () {
+    grow(memoEl);
+  });
+
+  // ---------- live tenure + wage-period readout ----------
+  function refreshTenure() {
+    var j = parseDate(joinEl.value);
+    var l = parseDate(leaveEl.value);
+    if (!j || !l || daysBetween(j, l) <= 0) {
+      tenureEl.classList.remove("show");
+      cap1.textContent = "최근 1개월";
+      cap2.textContent = "2개월 전";
+      cap3.textContent = "3개월 전";
+      return;
+    }
+    var days = daysBetween(j, l);
+    var ps = subMonths(l, 3);
+    var totDays = daysBetween(ps, l);
+    tenureEl.innerHTML =
+      "재직일수 <b>" + days.toLocaleString("ko-KR") + "일</b> · " + tenureYMD(j, l) +
+      '<span class="sub">평균임금 산정기간: ' + fmtDate(ps) + " ~ " + fmtDate(l) +
+      " (총 " + totDays + "일)</span>";
+    tenureEl.classList.add("show");
+
+    // wage-input period labels
+    var b1 = subMonths(l, 1);
+    var b2 = subMonths(l, 2);
+    var b3 = ps;
+    var prevDay = new Date(l.getTime() - 86400000);
+    cap1.textContent = "최근 1개월  ·  " + fmtMD(b1) + " ~ " + fmtMD(prevDay);
+    cap2.textContent = "2개월 전  ·  " + fmtMD(b2) + " ~ " + fmtMD(new Date(b1.getTime() - 86400000));
+    cap3.textContent = "3개월 전  ·  " + fmtMD(b3) + " ~ " + fmtMD(new Date(b2.getTime() - 86400000));
+  }
+  joinEl.addEventListener("change", refreshTenure);
+  leaveEl.addEventListener("change", refreshTenure);
+  joinEl.addEventListener("input", refreshTenure);
+  leaveEl.addEventListener("input", refreshTenure);
+
+  // ---------- calculate ----------
+  var lastPrompt = "";
+
+  function clearErr() {
+    formError.textContent = "";
+    [joinEl, leaveEl, w1El, w2El, w3El].forEach(function (el) {
+      el.classList.remove("err");
+    });
+  }
+
+  document.getElementById("calc").addEventListener("click", function () {
+    clearErr();
+    var j = parseDate(joinEl.value);
+    var l = parseDate(leaveEl.value);
+
+    if (!j) {
+      joinEl.classList.add("err");
+      formError.textContent = "입사일을 입력해 주세요.";
+      joinEl.focus();
+      return;
+    }
+    if (!l) {
+      leaveEl.classList.add("err");
+      formError.textContent = "퇴사일을 입력해 주세요.";
+      leaveEl.focus();
+      return;
+    }
+    var days = daysBetween(j, l);
+    if (days <= 0) {
+      leaveEl.classList.add("err");
+      formError.textContent = "퇴사일은 입사일보다 뒤여야 합니다.";
+      leaveEl.focus();
+      return;
+    }
+
+    var w1 = parseMoney(w1El);
+    var w2 = parseMoney(w2El);
+    var w3 = parseMoney(w3El);
+    var wageSum = w1 + w2 + w3;
+    if (wageSum <= 0) {
+      w1El.classList.add("err");
+      formError.textContent = "최근 3개월 급여를 하나 이상 입력해 주세요.";
+      w1El.focus();
+      return;
+    }
+
+    var bonus = parseMoney(bonusEl);
+    var annual = parseMoney(annualEl);
+    var ordinaryDaily = parseMoney(ordinaryEl);
+
+    var ps = subMonths(l, 3);
+    var totDays = daysBetween(ps, l);
+
+    var bonusShare = bonus * 3 / 12;
+    var annualShare = annual * 3 / 12;
+    var avgBase = wageSum + bonusShare + annualShare;
+    var avgDaily = totDays > 0 ? avgBase / totDays : 0;
+
+    // 근로기준법 시행령 제2조: 평균임금 < 통상임금이면 통상임금 적용
+    var usedOrdinary = ordinaryDaily > 0 && ordinaryDaily > avgDaily;
+    var appliedDaily = usedOrdinary ? ordinaryDaily : avgDaily;
+
+    var severance = appliedDaily * 30 * (days / 365);
+    var underOneYear = days < 365;
+
+    render({
+      j: j, l: l, days: days,
+      ps: ps, totDays: totDays,
+      w1: w1, w2: w2, w3: w3, wageSum: wageSum,
+      bonus: bonus, bonusShare: bonusShare,
+      annual: annual, annualShare: annualShare,
+      avgBase: avgBase, avgDaily: avgDaily,
+      ordinaryDaily: ordinaryDaily, usedOrdinary: usedOrdinary,
+      appliedDaily: appliedDaily, severance: severance,
+      underOneYear: underOneYear,
+      memo: memoEl.value.trim(),
+    });
+  });
+
+  function render(r) {
+    var html = "";
+
+    // always-on disclaimer at top of result
+    html +=
+      '<div class="result-disclaimer"><span class="ic" aria-hidden="true">⚠</span>' +
+      '<span>아래 수치는 입력값 기반 <b>추정치</b>입니다(2026년 7월 법령 기준). ' +
+      "법적 효력이 있는 확정액이 아니며, 최종 판단은 공인노무사 등 전문가 상담이 필요합니다.</span></div>";
+
+    // verdict headline
+    var tone = r.underOneYear ? "warn" : "due";
+    var label = r.underOneYear
+      ? "계속근로기간 1년 미만 · 법정 퇴직금 지급의무 없음"
+      : "예상 퇴직금 (세전)";
+    html += '<div class="verdict tone-' + tone + '">';
+    html += '<p class="verdict-label">' + esc(label) + "</p>";
+    html += '<p class="headline-amount">' + won(r.severance) + "</p>";
+    if (r.underOneYear) {
+      html +=
+        '<p class="verdict-desc"><b>계속근로기간이 1년 미만</b>이면 근로자퇴직급여 보장법상 ' +
+        "퇴직금 지급의무가 없습니다(제4조). 위 금액은 1년 이상 근무를 가정한 <b>참고 수치</b>이며, " +
+        "실제 지급의무 여부는 근로형태·근로시간에 따라 달라질 수 있습니다.</p>";
+    } else {
+      html +=
+        '<p class="verdict-desc">1일 ' + (r.usedOrdinary ? "통상임금" : "평균임금") +
+        " <b>" + won(r.appliedDaily) + "</b> × 30일 × (재직일수 " +
+        r.days.toLocaleString("ko-KR") + "일 ÷ 365)로 산정한 값입니다.</p>";
+    }
+    html += "</div>";
+
+    // ordinary-wage note
+    if (r.usedOrdinary) {
+      html +=
+        '<p class="note-info"><b>통상임금이 평균임금보다 큽니다.</b> 산정한 1일 평균임금(' +
+        won(r.avgDaily) + ")보다 입력하신 1일 통상임금(" + won(r.ordinaryDaily) +
+        ")이 커서, 근로기준법 시행령 제2조에 따라 <b>통상임금을 기준</b>으로 계산했습니다.</p>";
+    } else if (r.ordinaryDaily > 0) {
+      html +=
+        '<p class="note-info">입력하신 1일 통상임금(' + won(r.ordinaryDaily) +
+        ")이 1일 평균임금(" + won(r.avgDaily) + ")보다 작아, <b>평균임금을 기준</b>으로 계산했습니다.</p>";
+    }
+
+    // calc table
+    html += '<div class="result-block-title">계산 근거</div>';
+    html += '<div class="calc-scroll"><table class="calc"><tbody>';
+    html += row("재직일수", r.days.toLocaleString("ko-KR") + "일", tenureYMDsub(r.j, r.l));
+    html += row(
+      "평균임금 산정기간",
+      "총 " + r.totDays + "일",
+      fmtDate(r.ps) + " ~ " + fmtDate(r.l)
+    );
+    html += row("① 3개월 임금총액", won(r.wageSum),
+      "월별 " + won(r.w1) + " + " + won(r.w2) + " + " + won(r.w3));
+    html += row("② 상여금 안분 (연간 × 3/12)", won(r.bonusShare),
+      r.bonus > 0 ? "연간 상여 " + won(r.bonus) : "미입력");
+    html += row("③ 연차수당 안분 (× 3/12)", won(r.annualShare),
+      r.annual > 0 ? "연차수당 " + won(r.annual) : "미입력");
+    html += rowSum("평균임금 산정 총액 (①+②+③)", won(r.avgBase));
+    html += row("1일 평균임금 (총액 ÷ " + r.totDays + "일)", won(r.avgDaily), null,
+      r.usedOrdinary ? null : "applied");
+    if (r.ordinaryDaily > 0) {
+      html += row("1일 통상임금 (입력값)", won(r.ordinaryDaily), null,
+        r.usedOrdinary ? "applied" : null);
+    }
+    html += rowFinal(
+      "퇴직금 = 1일 " + (r.usedOrdinary ? "통상임금" : "평균임금") + " × 30 × (재직일수 ÷ 365)",
+      won(r.severance)
+    );
+    html += "</tbody></table></div>";
+
+    // methodology
+    html +=
+      '<details class="method"><summary>계산 방법 자세히 보기</summary>' +
+      '<div class="mbody">' +
+      "<b>퇴직금</b> = 1일 평균임금 × 30 × (재직일수 ÷ 365) — 계속근로기간 1년에 대해 30일분 이상의 " +
+      "평균임금을 지급합니다(근로자퇴직급여 보장법 제8조).<ul>" +
+      "<li><b>평균임금</b> = 산정사유 발생일(퇴사일) 이전 3개월간 임금총액 ÷ 그 기간의 총일수(달력 기준 " +
+      "89~92일)입니다(근로기준법 제2조).</li>" +
+      "<li><b>상여금</b>은 퇴직 전 1년간 받은 총액의 <code>3/12</code>, <b>연차수당</b>은 퇴직 전전년도 " +
+      "발생분의 <code>3/12</code>를 3개월 임금총액에 가산합니다(실무 기준).</li>" +
+      "<li><b>통상임금 비교</b>: 평균임금이 통상임금보다 적으면 통상임금을 평균임금으로 봅니다" +
+      "(근로기준법 시행령 제2조).</li>" +
+      "<li><b>지급기한</b>: 퇴직금은 퇴직일로부터 14일 이내 지급이 원칙이며, 당사자 합의로 기일을 연장할 수 " +
+      "있습니다(근로자퇴직급여 보장법 제9조).</li>" +
+      "<li>4주 평균 1주 소정근로시간이 15시간 미만이거나 계속근로기간이 1년 미만이면 지급의무 대상에서 " +
+      "제외될 수 있습니다(제4조).</li>" +
+      "</ul>기준 시점: 2026년 7월. 세금(퇴직소득세) 공제 전 금액입니다.</div></details>";
+
+    // AI prompt
+    lastPrompt = buildPrompt(r);
+    html += '<div class="result-block-title">심화: 노무사·AI에 붙여넣을 검토 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 계산을 근거로 산정 정확성(상여·연차 안분, 통상임금 비교, 지급 예외)을 함께 점검해 줍니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function tenureYMDsub(a, b) {
+    return tenureYMD(a, b) + " · " + fmtDate(a) + " ~ " + fmtDate(b);
+  }
+  function row(th, val, sub, appliedFlag) {
+    var s = sub ? '<span class="sub">' + esc(sub) + "</span>" : "";
+    var tag = appliedFlag === "applied" ? '<span class="applied-tag">적용</span>' : "";
+    return "<tr><th>" + esc(th) + s + "</th><td class=\"val\">" + esc(val) + tag + "</td></tr>";
+  }
+  function rowSum(th, val) {
+    return '<tr class="sum"><th>' + esc(th) + '</th><td class="val">' + esc(val) + "</td></tr>";
+  }
+  function rowFinal(th, val) {
+    return '<tr class="final"><th>' + esc(th) + '</th><td class="val">' + esc(val) + "</td></tr>";
+  }
+
+  function buildPrompt(r) {
+    var P = [];
+    P.push("당신은 대한민국 노동법(근로기준법·근로자퇴직급여 보장법)에 정통한 공인노무사입니다.");
+    P.push("아래 퇴직금 자동 계산 결과를 검토하고, 오류나 누락이 있으면 바로잡아 주세요. (기준 시점: 2026년 7월)");
+    P.push("");
+    P.push("[입력 정보]");
+    P.push("- 입사일: " + fmtDate(r.j));
+    P.push("- 퇴사일(마지막 근무일 다음 날): " + fmtDate(r.l));
+    P.push("- 재직일수: " + r.days.toLocaleString("ko-KR") + "일 (" + tenureYMD(r.j, r.l) + ")");
+    P.push("- 평균임금 산정기간: " + fmtDate(r.ps) + " ~ " + fmtDate(r.l) + " (총 " + r.totDays + "일)");
+    P.push("- 최근 3개월 임금: " + won(r.w1) + " / " + won(r.w2) + " / " + won(r.w3) + " (합계 " + won(r.wageSum) + ")");
+    P.push("- 연간 상여금 총액: " + (r.bonus > 0 ? won(r.bonus) : "없음/미입력"));
+    P.push("- 연차수당(전전년도 발생분): " + (r.annual > 0 ? won(r.annual) : "없음/미입력"));
+    P.push("- 1일 통상임금: " + (r.ordinaryDaily > 0 ? won(r.ordinaryDaily) : "미입력"));
+    if (r.memo) P.push("- 특이사항: " + r.memo);
+    P.push("");
+    P.push("[산출 결과]");
+    P.push("- 상여금 안분(×3/12): " + won(r.bonusShare) + " / 연차수당 안분(×3/12): " + won(r.annualShare));
+    P.push("- 평균임금 산정 총액: " + won(r.avgBase));
+    P.push("- 1일 평균임금: " + won(r.avgDaily));
+    P.push("- 적용 1일 임금: " + won(r.appliedDaily) + " (" + (r.usedOrdinary ? "통상임금 적용" : "평균임금 적용") + ")");
+    P.push("- 예상 퇴직금(세전): " + won(r.severance));
+    if (r.underOneYear) P.push("- 주의: 재직 1년 미만 → 법정 퇴직금 지급의무 없음(참고 수치)");
+    P.push("");
+    P.push("[검토 요청]");
+    P.push("1. 평균임금 산정이 근로기준법상 정의(사유발생일 이전 3개월 임금총액 ÷ 총일수)에 부합하는지 확인해 주세요.");
+    P.push("2. 상여금(연간 × 3/12)과 연차수당(전전년도분 × 3/12) 안분이 이 사안에 올바른지 확인해 주세요.");
+    P.push("3. 평균임금이 통상임금보다 적을 경우 통상임금을 적용해야 하는지(근로기준법 시행령 제2조) 확인해 주세요.");
+    P.push("4. 계속근로기간 1년 미만, 4주 평균 주 15시간 미만 등 지급 예외에 해당하는지 확인해 주세요.");
+    P.push("5. 지급기한(퇴직일로부터 14일)과 지연 시 유의사항, 퇴직소득세 개요를 알려 주세요.");
+    P.push("6. 불확실한 부분은 추측하지 말고, 정확한 판단에 필요한 추가 정보를 저에게 질문해 주세요.");
+    return P.join("\n");
+  }
+
+  // ---------- reset ----------
+  document.getElementById("reset").addEventListener("click", function () {
+    clearErr();
+    [joinEl, leaveEl].forEach(function (el) { el.value = ""; });
+    [w1El, w2El, w3El, bonusEl, annualEl, ordinaryEl].forEach(function (el) { el.value = ""; });
+    memoEl.value = "";
+    grow(memoEl);
+    refreshTenure();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">₩</div>' +
+      "<p><strong>아직 계산 전입니다.</strong></p>" +
+      "<p>재직 기간과 임금을 입력하고 '퇴직금 계산하기'를 누르세요.</p></div>";
+    document.getElementById("dates-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn) printBtn.addEventListener("click", function () { window.print(); });
+  }
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () { if (s) s.textContent = ""; }, 2600);
+  }
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () { flashStatus("복사되었습니다"); },
+        function () { legacyCopy(text); }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    if (ok) flashStatus("복사되었습니다");
+    else openModal(text);
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () { modalText.focus(); modalText.select(); }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

@@ -1,0 +1,1289 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>발표 준비 지식 깊이 노트 프롬프트</title>
+<meta
+  name="description"
+  content="발표 주제를 넣으면 슬라이드 너머 '수면 아래 90%'를 채우는 심층 배경지식 노트 프롬프트를 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #1d6a72;
+    --accent-strong: #14545a;
+    --accent-tint: #e8f3f3;
+    --accent-tint-2: #d2e7e7;
+    --ink: #1e2422;
+    --ink-soft: #454e4c;
+    --ink-mute: #69726f;
+    --paper: #f5f8f7;
+    --card: #ffffff;
+    --line: #e1e7e5;
+    --line-strong: #ccd6d3;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --shadow: 0 1px 2px rgba(20, 36, 34, 0.05),
+      0 6px 20px rgba(20, 36, 34, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+  .lede strong {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  label.field-label .opt {
+    font-weight: 600;
+    color: var(--ink-mute);
+    font-size: 0.84rem;
+  }
+  input.txt,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input.txt {
+    min-height: 48px;
+  }
+  textarea {
+    min-height: 92px;
+    resize: none;
+    overflow: hidden;
+    display: block;
+  }
+  input.txt:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input.txt::placeholder,
+  textarea::placeholder {
+    color: #9aa4a1;
+  }
+  .field-block {
+    margin-bottom: 18px;
+  }
+  .field-block:last-child {
+    margin-bottom: 0;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-err {
+    font-size: 0.85rem;
+    color: #b5341f;
+    font-weight: 700;
+    margin: 8px 0 0;
+    display: none;
+  }
+  .field-err.show {
+    display: block;
+  }
+  input.txt.invalid,
+  textarea.invalid {
+    border-color: #c0442c;
+    box-shadow: 0 0 0 3px #f6e2dd;
+  }
+
+  /* ---------- context chips ---------- */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    position: relative;
+  }
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .chip label {
+    display: block;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    border: 1px solid var(--line-strong);
+    background: #fbfdfd;
+    border-radius: 999px;
+    padding: 11px 16px;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .chip label:hover {
+    border-color: var(--ink-mute);
+  }
+  .chip input:checked + label {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .chip input:focus-visible + label {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s,
+      color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* topography summary */
+  .topo {
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 18px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .topo-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    margin: 0 0 12px;
+  }
+  .topo-stats {
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  .stat-box {
+    flex: 1 1 0;
+    min-width: 92px;
+    background: var(--card);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 11px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    line-height: 1.1;
+  }
+  .stat-lab {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    margin-top: 4px;
+  }
+  .topo-note {
+    margin: 12px 0 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* element cards */
+  ul.el-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  li.el-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fbfdfd;
+  }
+  .el-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .el-mark {
+    flex: none;
+    font-size: 0.95rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .el-name {
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--ink);
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .el-badge {
+    flex: none;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  ul.el-dims {
+    margin: 0;
+    padding-left: 17px;
+    font-size: 0.87rem;
+    color: var(--ink-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  ul.el-dims li {
+    line-height: 1.5;
+  }
+
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #1c2b2c;
+    color: #eef4f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 36, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .stat-box {
+      min-width: calc(33.333% - 6px);
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #context-panel,
+    #elements-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">발표 깊이 · Knowledge Note</span>
+    <h1>발표 준비 지식 깊이 노트 프롬프트</h1>
+    <p class="lede">
+      슬라이드는 빙산의 일각입니다. 발표 주제를 넣으면, 말하는 내용의
+      <strong>'수면 아래 90%'</strong>를 채우는 심층 배경지식 노트 프롬프트를
+      만들어 드립니다. 그 깊이가 현장의 자신감과 즉흥 응대력이 됩니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>발표 주제</h2>
+    </div>
+    <p class="panel-sub">
+      한 줄로 충분합니다. 주제만 있어도 깊이 노트 프롬프트가 생성됩니다.
+    </p>
+    <div class="field-block">
+      <label class="field-label" for="topic">무엇에 대해 발표하나요?</label>
+      <input
+        class="txt"
+        id="topic"
+        type="text"
+        autocomplete="off"
+        placeholder="예) AI 시대의 리더십, 개인 비전하우스, 습관 형성의 심리학 ..."
+      />
+      <p class="field-err" id="topic-err">발표 주제를 입력해 주세요.</p>
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="audience"
+        >청중 <span class="opt">(선택)</span></label
+      >
+      <input
+        class="txt"
+        id="audience"
+        type="text"
+        autocomplete="off"
+        placeholder="예) 중소기업 대표들, 실무 사례에 관심 많음 / 대학 2학년 비전공자"
+      />
+      <p class="field-hint">
+        청중의 수준과 관심사를 적으면 노트의 깊이가 청중에 맞춰집니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="panel" id="context-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>발표 상황</h2>
+    </div>
+    <p class="panel-sub">
+      상황에 따라 파고들 깊이의 방향이 달라집니다. (면접은 꼬리질문 대비, 보고는
+      숫자 근거 대비 등)
+    </p>
+    <div class="chips" id="chips" role="radiogroup" aria-label="발표 상황"></div>
+  </section>
+
+  <section class="panel" id="elements-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>발표에서 다루는 핵심 요소 <span style="font-weight:600;color:var(--ink-mute);font-size:0.9rem">(선택)</span></h2>
+    </div>
+    <p class="panel-sub">
+      발표에 등장하는 개념·연구·사례·수치·인용문을 한 줄에 하나씩 적으면, 각
+      요소가 어떤 유형인지 자동으로 판별하고 원전 깊이로 파고들 차원을 짜
+      드립니다. 비워 두면 AI가 지식 지도를 직접 그리도록 프롬프트가 지시합니다.
+    </p>
+    <label class="field-label" for="elements">핵심 요소 목록</label>
+    <textarea
+      id="elements"
+      placeholder="예)&#10;쿠제스 &amp; 포스너 리더십 모델&#10;Matthews (2015) 목표 기록 연구&#10;이상화 선수 2연패 사례&#10;목표 달성률 35% vs 70%&#10;&quot;시작이 반이다&quot;"
+    ></textarea>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+
+    <div class="actions">
+      <button class="btn-primary" id="generate">깊이 노트 프롬프트 생성</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 4</span>
+      <h2>결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">≋</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>발표 주제를 넣고 '깊이 노트 프롬프트 생성'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 이 도구의 유형 분류(개념·프레임워크 /
+      인용 연구 / 사례·에피소드 / 수치·통계 / 인용문)와 유형별 심층 탐구 차원,
+      그리고 '수면 아래 90%'라는 지향점은 lecture-knowledge-writer 지식노트
+      방법론(지식 지도 → 심층 탐구 → 개념 간 연결 → 검증 노트)을 따릅니다.
+    </p>
+    <p>
+      이 도구는 발표 준비의 사고를 돕는 보조 도구입니다. 실제 배경지식은 생성된
+      프롬프트로 만든 노트를 스스로 읽고 검증하며 내재화할 때 자기 것이 됩니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------------------------------------------------------------------------
+  // Knowledge-element types + per-type deep-dive dimensions.
+  // Sourced from lecture-knowledge-writer SKILL.md, Phase 1 (추출 대상) and
+  // Phase 2 (심층 탐구: 개념/프레임워크 · 인용 연구 · 사례/에피소드).
+  // ---------------------------------------------------------------------------
+  var TYPE_META = {
+    concept: {
+      label: "개념·프레임워크",
+      mark: "◆", // ◆
+      dims: [
+        "기원: 누가, 언제, 어떤 맥락에서 제안했는가 (원전은 무엇인가)",
+        "핵심 주장의 논리 구조",
+        "이후 어떻게 발전·수정되었는가",
+        "주요 비판과 대안 이론",
+        "현재 학계·실무에서의 위상",
+      ],
+    },
+    research: {
+      label: "인용 연구",
+      mark: "▣", // ▣
+      dims: [
+        "연구 설계: 참가자 수·방법론·변수",
+        "원 논문의 구체적 수치와 결과",
+        "연구의 강점과 한계",
+        "후속 연구의 재현·반박 여부",
+        "발표 인용이 원전에 충실한지 검증",
+      ],
+    },
+    case: {
+      label: "사례·에피소드",
+      mark: "●", // ●
+      dims: [
+        "사실 확인: 실제 일어난 일인지, 시기·수치가 정확한지",
+        "발표에서 생략된 전후 맥락 보충",
+        "그 사례가 주장을 뒷받침하는 논리적 연결",
+      ],
+    },
+    stat: {
+      label: "수치·통계",
+      mark: "▲", // ▲
+      dims: [
+        "출처와 기준일",
+        "측정·집계 방식",
+        "비교 기준 (무엇 대비 이 숫자인가)",
+        "오해·과장의 소지 점검",
+      ],
+    },
+    quote: {
+      label: "인용문",
+      mark: "❝", // ❝
+      dims: [
+        "발화자와 원 발언의 맥락",
+        "정확한 원문 대조",
+        "인용 의도와 오용 여부",
+      ],
+    },
+  };
+
+  // ---------------------------------------------------------------------------
+  // Presentation-context options. Each shifts the prompt's framing + closing
+  // instruction, so the generated note leans toward the right kind of depth.
+  // ---------------------------------------------------------------------------
+  var CONTEXTS = [
+    {
+      id: "talk",
+      label: "발표·강연",
+      note: "청중을 설득하고 각인시키는 자리",
+      closing:
+        "청중이 발표 후 던질 법한 '그게 정말인가요?'에 근거를 대며 답할 수 있는 깊이까지 준비하라.",
+    },
+    {
+      id: "lecture",
+      label: "강의·수업",
+      note: "가르치고 이해시키는 자리",
+      closing:
+        "학습자의 '왜요?'가 세 번 이어져도 무너지지 않도록, 각 개념의 기원과 논리를 끝까지 파고들어라.",
+    },
+    {
+      id: "interview",
+      label: "면접",
+      note: "짧은 시간에 사고의 깊이를 증명하는 자리",
+      closing:
+        "면접관의 꼬리질문·압박 질문에 대비해 반론과 한계를 특히 두껍게 다루고, 각 주장에 즉시 댈 수 있는 근거를 붙여라.",
+    },
+    {
+      id: "report",
+      label: "보고·브리핑",
+      note: "의사결정자에게 판단 근거를 제공하는 자리",
+      closing:
+        "의사결정자가 물을 '그 숫자의 근거는?', '리스크는?'에 즉답할 수 있도록 수치의 출처와 반론을 앞세워라.",
+    },
+    {
+      id: "seminar",
+      label: "세미나·컨퍼런스",
+      note: "동료 전문가 앞에서 검증받는 자리",
+      closing:
+        "해당 분야 전문가의 날카로운 반박과 최신 연구 동향 질문에 대비해, 반론·후속 연구·현재 위상을 깊게 다뤄라.",
+    },
+  ];
+
+  // ---------------------------------------------------------------------------
+  // Heuristic classifier: map a raw element line to one of the 5 types.
+  // Precedence chosen so the most specific signal wins.
+  // ---------------------------------------------------------------------------
+  function classifyElement(raw) {
+    var t = raw.trim();
+
+    // 1) quote — wrapped in quote marks, or explicit speech markers
+    if (
+      /["'“”‘’「『].+["'“”‘’」』]/.test(
+        t
+      ) ||
+      /(라고\s*말|말했다|said|명언|어록)/i.test(t)
+    ) {
+      return "quote";
+    }
+
+    // 2) research — a year in parens / "년", or research vocabulary
+    if (
+      /\((?:19|20)\d{2}\)/.test(t) ||
+      /(?:19|20)\d{2}\s*년(?:도)?/.test(t) ||
+      /(연구|논문|실험|설문|조사|메타분석|study|research|experiment|survey|participants?|et\s*al|피험자|참가자|표본)/i.test(
+        t
+      )
+    ) {
+      return "research";
+    }
+
+    // 3) stat — a number with a unit / ratio, without research framing above
+    if (
+      /\d+(?:\.\d+)?\s*(?:%|퍼센트|배|명|억|만|천|원|건|점|위|개|시간|년차)/.test(
+        t
+      ) ||
+      /\d+\s*(?::|대)\s*\d+/.test(t) ||
+      /(비율|증가율|성장률|점유율|달성률|평균|통계|수치)/.test(t)
+    ) {
+      return "stat";
+    }
+
+    // 4) concept — framework/theory vocabulary
+    if (
+      /(모델|모형|이론|프레임워크|법칙|원칙|원리|매트릭스|패러다임|framework|model|theory|matrix|principle|law)/i.test(
+        t
+      )
+    ) {
+      return "concept";
+    }
+
+    // 5) case — company/brand/episode vocabulary
+    if (
+      /(사례|기업|회사|브랜드|스타트업|사건|일화|에피소드|이야기|case|company|CEO|창업|선수|팀)/i.test(
+        t
+      )
+    ) {
+      return "case";
+    }
+
+    // default: treat as concept (the backbone of most talks)
+    return "concept";
+  }
+
+  function parseElements(raw) {
+    if (!raw) return [];
+    return raw
+      .split(/\r?\n/)
+      .map(function (s) {
+        // strip a leading list marker like "1.", "-", "•"
+        return s.replace(/^\s*(?:\d+[.)]|[-*•·])\s*/, "").trim();
+      })
+      .filter(function (s) {
+        return s.length > 0;
+      })
+      .map(function (s) {
+        return { text: s, type: classifyElement(s) };
+      });
+  }
+
+  // ---------------------------------------------------------------------------
+  // DOM setup
+  // ---------------------------------------------------------------------------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  var selectedContext = CONTEXTS[0].id;
+
+  // render context chips
+  var chipsEl = document.getElementById("chips");
+  CONTEXTS.forEach(function (c, i) {
+    var wrap = document.createElement("span");
+    wrap.className = "chip";
+    wrap.innerHTML =
+      '<input type="radio" name="ctx" id="ctx-' +
+      c.id +
+      '" value="' +
+      c.id +
+      '"' +
+      (i === 0 ? " checked" : "") +
+      ' />' +
+      '<label for="ctx-' +
+      c.id +
+      '">' +
+      esc(c.label) +
+      "</label>";
+    chipsEl.appendChild(wrap);
+  });
+  chipsEl.addEventListener("change", function (e) {
+    if (e.target && e.target.name === "ctx") {
+      selectedContext = e.target.value;
+    }
+  });
+
+  // auto-grow elements textarea
+  var elementsTa = document.getElementById("elements");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  elementsTa.addEventListener("input", function () {
+    grow(elementsTa);
+  });
+
+  var topicEl = document.getElementById("topic");
+  var topicErr = document.getElementById("topic-err");
+  topicEl.addEventListener("input", function () {
+    if (topicEl.value.trim()) {
+      topicEl.classList.remove("invalid");
+      topicErr.classList.remove("show");
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Prompt builder — embeds the knowledge-note methodology, tailored to inputs.
+  // ---------------------------------------------------------------------------
+  function buildPrompt(topic, audience, ctx, elements) {
+    var L = [];
+    var usedTypes = {};
+    elements.forEach(function (e) {
+      usedTypes[e.type] = true;
+    });
+
+    L.push("당신은 발표자를 위한 '심층 지식노트 작가'입니다.");
+    L.push(
+      "발표자가 슬라이드에서 말하는 내용의 '수면 아래 90%' — 스크립트 너머의 배경지식 — 을 채워, 현장에서 자신 있게 말하고 즉흥 질문에도 흔들림 없이 답하게 만드는 것이 목표입니다."
+    );
+    L.push("");
+
+    L.push("【발표 주제】");
+    L.push(topic);
+    L.push("");
+
+    L.push("【발표 상황】");
+    L.push(ctx.label + " — " + ctx.note);
+    L.push("");
+
+    if (audience) {
+      L.push("【청중】");
+      L.push(audience);
+      L.push("");
+    }
+
+    if (elements.length) {
+      L.push("【발표에서 다루는 핵심 요소】");
+      elements.forEach(function (e, i) {
+        L.push(
+          i + 1 + ". " + e.text + "  — 유형: " + TYPE_META[e.type].label
+        );
+      });
+      L.push("");
+    } else {
+      L.push("【발표에서 다루는 핵심 요소】");
+      L.push(
+        "(별도로 제공되지 않았습니다. 먼저 이 주제의 핵심 개념·인용 연구·사례·수치·인용문을 8~12개 추출해 지식 지도를 직접 그린 뒤, 아래 지시를 따르세요.)"
+      );
+      L.push("");
+    }
+
+    L.push("【작성 지시】");
+    L.push(
+      "1. 지식 지도부터 그려라. 위 요소(또는 네가 추출한 요소)를 개념 클러스터로 묶고, 이 발표의 지적 뿌리가 어느 분야에서 오는지 2~3문단으로 조감하라."
+    );
+    L.push(
+      "2. 각 요소를 아래 '유형별 심층 차원'에 따라 원전 수준으로 파고들어라. 발표에서 2분 언급하는 것이라도, 너는 배경·설계·결과·한계·후속까지 하나의 연속된 서사로 풀어야 한다."
+    );
+    L.push(
+      "3. 반론·한계·주의점을 공정하게 담아라. 발표자가 자기 주장의 약점을 알아야 반박에 무너지지 않는다."
+    );
+    L.push(
+      "4. 개념 간 연결을 명시하라. 요소를 나열하지 말고, 왜 이 순서로 맞물리는지, 각 단계가 다음을 어떻게 뒷받침하는지 보여라."
+    );
+    L.push(
+      "5. 검증 노트를 붙여라. 흔히 잘못 인용되는 수치·출처 불명·업데이트가 필요한 내용을 골라내고, 정확한 정보와 발표에서의 처리 방안을 제안하라."
+    );
+    L.push(
+      "6. 추가 학습 자료 3~5개를, 각 자료가 왜 유용한지 한 줄 설명과 함께 제시하라."
+    );
+    L.push("");
+
+    L.push("【유형별 심층 차원】");
+    var order = ["concept", "research", "case", "stat", "quote"];
+    var showAll = elements.length === 0;
+    order.forEach(function (key) {
+      if (showAll || usedTypes[key]) {
+        var m = TYPE_META[key];
+        L.push(m.mark + " " + m.label + ": " + m.dims.join(" / "));
+      }
+    });
+    L.push("");
+
+    L.push("【형식】");
+    L.push(
+      "- 장문 산문체로 써라. 글머리표 나열이 아니라 읽히는 글이어야 한다. 출퇴근길에 읽으며 자연스럽게 내재화하는 문서를 지향하라."
+    );
+    L.push(
+      "- 개념 클러스터 중심으로 섹션을 나누되, 발표 흐름과 대략 대응시켜 '이 대목에서 이런 배경지식이 필요하구나'를 알 수 있게 하라."
+    );
+    L.push("- 연구의 수치·비교 데이터는 인라인 강조로 시인성을 확보하라.");
+    L.push("");
+
+    L.push("【반드시 지킬 것】");
+    L.push(
+      "- 모르는 것을 지어내지 마라. 원전에 접근이 어려우면 2차 출처임을 밝히고 신뢰도를 표기하라. 확실치 않으면 넘겨짚지 말고 나에게 사실을 물어라."
+    );
+    L.push("- 근거 없는 화려한 표현으로 빈칸을 덮지 마라.");
+    L.push("- " + ctx.closing);
+
+    return L.join("\n");
+  }
+
+  // ---------------------------------------------------------------------------
+  // Readiness note based on how many elements were mapped.
+  // ---------------------------------------------------------------------------
+  function readinessNote(n, typeCount) {
+    if (n === 0) {
+      return "주제만으로도 생성됩니다. 프롬프트가 AI에게 지식 지도부터 직접 그리도록 지시합니다. 발표에 등장하는 개념·연구·사례를 STEP 3에 적으면 훨씬 정밀해집니다.";
+    }
+    if (n <= 2) {
+      return "초안 수준의 밀도입니다. 요소를 더 넣을수록, 특히 서로 다른 유형(개념·연구·사례·수치·인용)이 섞일수록 노트가 정밀해집니다.";
+    }
+    if (n <= 5) {
+      return (
+        "좋은 밀도입니다. " +
+        typeCount +
+        "개 유형에 걸쳐 " +
+        n +
+        "개 요소를 각각 원전 깊이로 파고들도록 프롬프트가 설계되었습니다."
+      );
+    }
+    return (
+      "풍부합니다. " +
+      n +
+      "개 요소를 다루므로 노트가 길어집니다. 발표 흐름상 가장 중요한 요소 순으로 정렬해 두면 읽기 편합니다."
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Generate
+  // ---------------------------------------------------------------------------
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  document.getElementById("generate").addEventListener("click", function () {
+    var topic = topicEl.value.trim();
+    if (!topic) {
+      topicEl.classList.add("invalid");
+      topicErr.classList.add("show");
+      topicEl.focus();
+      document
+        .getElementById("input-panel")
+        .scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var audience = document.getElementById("audience").value.trim();
+    var ctx = CONTEXTS.filter(function (c) {
+      return c.id === selectedContext;
+    })[0];
+    var elements = parseElements(elementsTa.value);
+
+    // depth metrics (real computed values)
+    var typeSet = {};
+    var totalProbes = 0;
+    elements.forEach(function (e) {
+      typeSet[e.type] = true;
+      totalProbes += TYPE_META[e.type].dims.length;
+    });
+    var typeCount = Object.keys(typeSet).length;
+    var probesDisplay = elements.length ? totalProbes : "8~12";
+    var elemDisplay = elements.length ? elements.length : "자동 추출";
+
+    lastPrompt = buildPrompt(topic, audience, ctx, elements);
+
+    var html = "";
+
+    // topography summary
+    html += '<div class="topo">';
+    html +=
+      '<p class="topo-title">지식 지형도 &mdash; ' +
+      esc(topic) +
+      " (" +
+      esc(ctx.label) +
+      ")</p>";
+    html += '<div class="topo-stats">';
+    html +=
+      '<div class="stat-box"><div class="stat-num">' +
+      elemDisplay +
+      '</div><div class="stat-lab">핵심 요소</div></div>';
+    html +=
+      '<div class="stat-box"><div class="stat-num">' +
+      (elements.length ? typeCount : "5") +
+      '</div><div class="stat-lab">' +
+      (elements.length ? "감지된 유형" : "탐구 유형") +
+      "</div></div>";
+    html +=
+      '<div class="stat-box"><div class="stat-num">' +
+      probesDisplay +
+      '</div><div class="stat-lab">심층 탐구 차원</div></div>';
+    html += "</div>";
+    html +=
+      '<p class="topo-note">' +
+      esc(readinessNote(elements.length, typeCount)) +
+      "</p>";
+    html += "</div>";
+
+    // element cards
+    if (elements.length) {
+      html += '<div class="result-block-title">요소별 파고들 차원</div>';
+      html += '<ul class="el-list">';
+      elements.forEach(function (e) {
+        var m = TYPE_META[e.type];
+        html += '<li class="el-item">';
+        html += '<div class="el-head">';
+        html +=
+          '<span class="el-mark" aria-hidden="true">' + m.mark + "</span>";
+        html += '<span class="el-name">' + esc(e.text) + "</span>";
+        html += '<span class="el-badge">' + esc(m.label) + "</span>";
+        html += "</div>";
+        html += '<ul class="el-dims">';
+        m.dims.forEach(function (d) {
+          html += "<li>" + esc(d) + "</li>";
+        });
+        html += "</ul>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html +=
+        '<p class="clean-note">핵심 요소를 비워 두셨습니다. 생성된 프롬프트는 AI가 이 주제의 핵심 개념·인용 연구·사례·수치·인용문을 <strong>스스로 8~12개 추출</strong>해 지식 지도를 그린 뒤, 각 요소를 원전 깊이로 파고들도록 지시합니다.</p>';
+    }
+
+    // prompt
+    html += '<div class="result-block-title">AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 발표를 위한 심층 배경지식 노트를 작성해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html +=
+      '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Reset
+  // ---------------------------------------------------------------------------
+  document.getElementById("reset").addEventListener("click", function () {
+    topicEl.value = "";
+    document.getElementById("audience").value = "";
+    elementsTa.value = "";
+    grow(elementsTa);
+    topicEl.classList.remove("invalid");
+    topicErr.classList.remove("show");
+    selectedContext = CONTEXTS[0].id;
+    var first = document.getElementById("ctx-" + CONTEXTS[0].id);
+    if (first) first.checked = true;
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">≋</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>발표 주제를 넣고 '깊이 노트 프롬프트 생성'을 누르세요.</p></div>";
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Copy (3-tier fallback) + print
+  // ---------------------------------------------------------------------------
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      // tier 3: manual modal
+      openModal(text);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Manual copy modal
+  // ---------------------------------------------------------------------------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

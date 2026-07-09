@@ -1,0 +1,1448 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>제1원리 분해 워크시트</title>
+<meta
+  name="description"
+  content="문제를 가정으로 쪼개 사실·제약·관습으로 분류하고 '그냥 관습'을 걸러 백지에서 재설계하도록 이끕니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    /* toned-down petrol/teal accent — clarity, foundation */
+    --accent: #2f6f66;
+    --accent-strong: #22544d;
+    --accent-tint: #e8f2f0;
+    --accent-tint-2: #d3e6e2;
+
+    --ink: #1f2523;
+    --ink-soft: #45504c;
+    --ink-mute: #6a726e;
+    --paper: #f7f5f1;
+    --card: #ffffff;
+    --line: #e4e0d8;
+    --line-strong: #d5d0c5;
+
+    /* semantic class colors: fact / constraint / convention */
+    --fact: #2c6a4a;
+    --fact-tint: #e9f3ed;
+    --fact-line: #cbe1d5;
+    --cstr: #8a5a0c;
+    --cstr-tint: #faf0dc;
+    --cstr-line: #ecd6ac;
+    --conv: #a5473a;
+    --conv-tint: #f8eae6;
+    --conv-line: #ebcabf;
+
+    --shadow: 0 1px 2px rgba(31, 37, 35, 0.05),
+      0 6px 20px rgba(31, 37, 35, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 60px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fdfcfa;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea.big {
+    min-height: 84px;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a9a49a;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- assumption rows ---------- */
+  ul.assum-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  li.assum-row {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fdfcfa;
+    padding: 14px 14px 13px;
+    position: relative;
+  }
+  li.assum-row:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .assum-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .assum-idx {
+    flex: none;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent);
+    width: 22px;
+    text-align: center;
+    padding-top: 12px;
+  }
+  .assum-top textarea {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .assum-remove {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: transparent;
+    color: var(--ink-mute);
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 10px;
+    padding: 0;
+  }
+  .assum-remove:hover {
+    background: #f0ede7;
+    color: var(--conv);
+  }
+
+  /* segmented class selector */
+  .cls-group {
+    display: flex;
+    gap: 8px;
+    margin: 11px 0 0 32px;
+  }
+  .cls-opt {
+    flex: 1 1 0;
+    position: relative;
+  }
+  .cls-opt input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .cls-opt label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 46px;
+    padding: 6px 4px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 10px;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.13s;
+    line-height: 1.25;
+  }
+  .cls-opt .co-name {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--ink-soft);
+  }
+  .cls-opt .co-hint {
+    font-size: 0.68rem;
+    color: var(--ink-mute);
+    margin-top: 1px;
+  }
+  .cls-opt input:focus-visible + label {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  /* checked states, color-coded per class */
+  .cls-opt.fact input:checked + label {
+    border-color: var(--fact);
+    background: var(--fact-tint);
+  }
+  .cls-opt.fact input:checked + label .co-name {
+    color: var(--fact);
+  }
+  .cls-opt.cstr input:checked + label {
+    border-color: var(--cstr);
+    background: var(--cstr-tint);
+  }
+  .cls-opt.cstr input:checked + label .co-name {
+    color: var(--cstr);
+  }
+  .cls-opt.conv input:checked + label {
+    border-color: var(--conv);
+    background: var(--conv-tint);
+  }
+  .cls-opt.conv input:checked + label .co-name {
+    color: var(--conv);
+  }
+
+  /* auto-detect suggestion chip */
+  .suggest {
+    margin: 10px 0 0 32px;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    display: none;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .suggest.show {
+    display: flex;
+  }
+  .suggest .sg-apply {
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: 1px solid var(--accent-tint-2);
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border-radius: 999px;
+    padding: 4px 11px;
+    cursor: pointer;
+    min-height: 30px;
+  }
+  .suggest .sg-apply:hover {
+    background: var(--accent-tint-2);
+  }
+  .add-row {
+    margin-top: 14px;
+    font-family: inherit;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px dashed var(--accent-tint-2);
+    border-radius: 11px;
+    padding: 12px 16px;
+    cursor: pointer;
+    width: 100%;
+    min-height: 46px;
+  }
+  .add-row:hover {
+    background: var(--accent-tint-2);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .nudge {
+    text-align: center;
+    color: var(--ink-soft);
+    background: var(--cstr-tint);
+    border: 1px solid var(--cstr-line);
+    border-radius: 12px;
+    padding: 16px 14px;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-redesign {
+    background: var(--conv-tint);
+    border-color: var(--conv-line);
+  }
+  .verdict.tone-partial {
+    background: var(--cstr-tint);
+    border-color: var(--cstr-line);
+  }
+  .verdict.tone-solid,
+  .verdict.tone-ground {
+    background: var(--fact-tint);
+    border-color: var(--fact-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.34rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-redesign .verdict-title {
+    color: var(--conv);
+  }
+  .verdict.tone-partial .verdict-title {
+    color: var(--cstr);
+  }
+  .verdict.tone-solid .verdict-title,
+  .verdict.tone-ground .verdict-title {
+    color: var(--fact);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  /* stacked breakdown meter */
+  .bar {
+    display: flex;
+    height: 14px;
+    border-radius: 7px;
+    overflow: hidden;
+    margin: 15px 0 8px;
+    background: #ece7dd;
+  }
+  .bar span {
+    display: block;
+    height: 100%;
+  }
+  .bar .seg-fact {
+    background: var(--fact);
+  }
+  .bar .seg-cstr {
+    background: var(--cstr);
+  }
+  .bar .seg-conv {
+    background: var(--conv);
+  }
+  .bar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .bar-legend .lg {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .bar-legend .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .dot.d-fact {
+    background: var(--fact);
+  }
+  .dot.d-cstr {
+    background: var(--cstr);
+  }
+  .dot.d-conv {
+    background: var(--conv);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  .group {
+    margin-bottom: 6px;
+  }
+  .group-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 18px 0 9px;
+  }
+  .group-tag {
+    font-size: 0.9rem;
+    font-weight: 800;
+  }
+  .group-tag.g-conv {
+    color: var(--conv);
+  }
+  .group-tag.g-cstr {
+    color: var(--cstr);
+  }
+  .group-tag.g-fact {
+    color: var(--fact);
+  }
+  .group-note {
+    font-size: 0.83rem;
+    color: var(--ink-mute);
+  }
+  ul.item-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .item {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 13px 15px;
+    background: #fdfcfa;
+  }
+  .item.i-conv {
+    border-left: 3px solid var(--conv);
+  }
+  .item.i-cstr {
+    border-left: 3px solid var(--cstr);
+  }
+  .item.i-fact {
+    border-left: 3px solid var(--fact);
+  }
+  .item .it-text {
+    margin: 0;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .item .it-probe {
+    margin: 7px 0 0;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+  .item .it-tag {
+    display: inline-block;
+    margin-top: 9px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .it-tag.t-conv {
+    color: var(--conv);
+    background: var(--conv-tint);
+  }
+  .it-tag.t-cstr {
+    color: var(--cstr);
+    background: var(--cstr-tint);
+  }
+  .it-tag.t-fact {
+    color: var(--fact);
+    background: var(--fact-tint);
+  }
+
+  .next-steps {
+    margin: 4px 0 0;
+    padding: 15px 16px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 12px;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+  .next-steps strong {
+    color: var(--accent-strong);
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #24302d;
+    color: #eef2f0;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--fact);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 37, 35, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .cls-group {
+      margin-left: 0;
+    }
+    .suggest {
+      margin-left: 0;
+    }
+    .assum-idx {
+      display: none;
+    }
+    .cls-opt .co-hint {
+      display: none;
+    }
+    .cls-opt label {
+      min-height: 44px;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-problem,
+    #input-assum,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">사고 프레임워크 · First Principle</span>
+    <h1>제1원리 분해 워크시트</h1>
+    <p class="lede">
+      "원래 그렇게 하니까"를 걷어낼 차례입니다. 문제를 가정으로 쪼개
+      사실·제약·관습으로 나누고, '그냥 관습'을 걸러내 백지에서 다시 설계하도록
+      이끕니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-problem">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>실제로 답해야 할 질문</h2>
+    </div>
+    <p class="panel-sub">
+      "매출이 안 올라요"는 문제가 아니라 증상입니다. 증상 말고, 진짜로 풀어야 할
+      질문을 한 문장으로 좁혀 적어 보세요.
+    </p>
+    <label class="field-label" for="problem">문제 한 문장</label>
+    <textarea
+      id="problem"
+      class="big"
+      placeholder="예) 배송비를 지금의 절반으로 낮추면서도 다음날 도착을 지킬 방법은 무엇인가?"
+    ></textarea>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="input-assum">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>가정을 꺼내 분류하기</h2>
+    </div>
+    <p class="panel-sub">
+      이 문제에 깔린 전제를 하나씩 적고, 각각이 <strong>사실</strong>(바꿀 수 없는
+      진실)인지 <strong>제약</strong>(지금은 불변인 규칙)인지
+      <strong>관습</strong>('원래 그렇게'로 유지되던 것)인지 지정하세요. 문장을
+      쓰면 신호어로 분류를 추천해 드립니다.
+    </p>
+    <ul class="assum-list" id="assum-list"></ul>
+    <button class="add-row" id="add-row" type="button">+ 가정 추가</button>
+
+    <div class="actions">
+      <button class="btn-primary" id="decompose" type="button">분해하기</button>
+      <button class="btn-ghost" id="reset" type="button">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>분해도 · 걸러낼 관습</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">△</div>
+        <p><strong>아직 분해 전입니다.</strong></p>
+        <p>가정을 적고 분류한 뒤 '분해하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 제1원리 사고(First Principle Thinking)
+      프레임워크. 문제를 구성하는 가정을 드러내
+      <em>사실(Fact) · 제약(Constraint) · 관습(Convention)</em>으로 나누고,
+      검증되지 않은 관습을 전제에서 빼낸 뒤 남은 진실 위에서 해법을 다시
+      조립하는 방식입니다. 아리스토텔레스에서 비롯해 오늘날 근본적 재설계의
+      사고 도구로 쓰입니다.
+    </p>
+    <p>
+      이 도구는 스스로 생각의 층위를 내려가도록 돕는 보조 도구이며, 무엇이
+      사실이고 관습인지 대신 확정해 주지 않습니다. 분류와 판단은 현장을 아는
+      당신의 몫입니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select" type="button">전체 선택</button>
+      <button class="btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- class metadata (from first-principle SKILL: Phase 2) ---------- */
+  var CLASSES = {
+    fact: {
+      key: "fact",
+      name: "사실",
+      hint: "바꿀 수 없음",
+      groupNote: "검증된 진실 · 여기서부터 다시 쌓아올립니다.",
+      itemTag: "토대 · 유지",
+    },
+    cstr: {
+      key: "cstr",
+      name: "제약",
+      hint: "지금은 불변",
+      groupNote: "법·규제·계약처럼 현재는 불변, 맥락이 바뀌면 재검토합니다.",
+      itemTag: "조건부",
+    },
+    conv: {
+      key: "conv",
+      name: "관습",
+      hint: "'원래 그렇게'",
+      groupNote: "근거 없이 유지되던 전제 · 백지 재설계의 지렛대입니다.",
+      itemTag: "빼고 재설계",
+    },
+  };
+  var CLASS_ORDER = ["fact", "cstr", "conv"];
+
+  /* ---------- Korean signal-word classifier (real auto-detect) ---------- */
+  var SIGNALS = {
+    conv: [
+      "원래", "관행", "관례", "관습", "다들", "예전부터", "옛날부터", "늘",
+      "항상", "보통", "당연", "전통적", "업계에서", "다른 곳도", "으레",
+      "통상", "일반적으로", "대개", "습관", "다른 회사", "남들",
+    ],
+    cstr: [
+      "법", "법률", "규제", "규정", "계약", "정책", "컴플라이언스", "인허가",
+      "승인", "규격", "법적", "의무", "금지", "세법", "노동법", "약관",
+      "라이선스", "면허",
+    ],
+    fact: [
+      "물리", "수학", "화학", "법칙", "밀도", "중력", "속도", "원가", "데이터",
+      "측정", "밀리", "에너지", "질량", "거리", "무게", "용량", "실측", "kg",
+      "km", "원가는",
+    ],
+  };
+
+  function classify(text) {
+    var t = String(text || "");
+    if (t.trim().length < 2) return null;
+    var best = null,
+      bestScore = 0,
+      bestWord = "";
+    Object.keys(SIGNALS).forEach(function (cls) {
+      var score = 0,
+        firstHit = "";
+      SIGNALS[cls].forEach(function (w) {
+        if (t.indexOf(w) !== -1) {
+          score++;
+          if (!firstHit) firstHit = w;
+        }
+      });
+      if (score > bestScore) {
+        bestScore = score;
+        best = cls;
+        bestWord = firstHit;
+      }
+    });
+    if (!best) return null;
+    return { cls: best, word: bestWord };
+  }
+
+  /* ---------- assumption rows ---------- */
+  var listEl = document.getElementById("assum-list");
+  var rowSeq = 0;
+
+  var PLACEHOLDERS = [
+    "예) 상품은 창고에 재고로 쌓아 두고 팔아야 한다",
+    "예) 배송은 택배사를 거쳐야 하므로 최소 이틀 걸린다",
+    "예) 이 업무는 반드시 정규직 전문가가 해야 한다",
+    "예) 가격은 경쟁사보다 낮아야 팔린다",
+    "예) 고객은 매장에 직접 와서 확인하고 산다",
+  ];
+
+  function autoGrow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  function addRow(prefillText) {
+    rowSeq++;
+    var id = rowSeq;
+    var idx = listEl.children.length + 1;
+    var ph =
+      PLACEHOLDERS[(idx - 1) % PLACEHOLDERS.length] || "가정을 한 문장으로";
+
+    var li = document.createElement("li");
+    li.className = "assum-row";
+    li.dataset.rid = String(id);
+
+    var optsHtml = CLASS_ORDER.map(function (k) {
+      var c = CLASSES[k];
+      return (
+        '<div class="cls-opt ' + k + '">' +
+        '<input type="radio" name="cls-' + id + '" value="' + k +
+        '" id="cls-' + id + "-" + k + '" />' +
+        '<label for="cls-' + id + "-" + k + '">' +
+        '<span class="co-name">' + c.name + "</span>" +
+        '<span class="co-hint">' + c.hint + "</span>" +
+        "</label>" +
+        "</div>"
+      );
+    }).join("");
+
+    li.innerHTML =
+      '<div class="assum-top">' +
+      '<span class="assum-idx" aria-hidden="true">' + idx + "</span>" +
+      '<textarea rows="1" aria-label="가정 ' + idx +
+      '" placeholder="' + ph + '"></textarea>' +
+      '<button class="assum-remove" type="button" aria-label="이 가정 삭제" title="삭제">&times;</button>' +
+      "</div>" +
+      '<div class="cls-group" role="radiogroup" aria-label="가정 ' + idx +
+      ' 분류">' + optsHtml + "</div>" +
+      '<div class="suggest"><span class="sg-text"></span>' +
+      '<button class="sg-apply" type="button"></button></div>';
+
+    listEl.appendChild(li);
+
+    var ta = li.querySelector("textarea");
+    if (prefillText) {
+      ta.value = prefillText;
+      autoGrow(ta);
+    }
+    var suggest = li.querySelector(".suggest");
+    var sgText = li.querySelector(".sg-text");
+    var sgApply = li.querySelector(".sg-apply");
+    var suggestedCls = null;
+
+    function refreshSuggest() {
+      var chosen = li.querySelector('input[type="radio"]:checked');
+      if (chosen) {
+        suggest.classList.remove("show");
+        return;
+      }
+      var r = classify(ta.value);
+      if (!r) {
+        suggest.classList.remove("show");
+        suggestedCls = null;
+        return;
+      }
+      suggestedCls = r.cls;
+      sgText.textContent =
+        "'" + r.word + "' 신호 → '" + CLASSES[r.cls].name + "'에 가까워 보여요";
+      sgApply.textContent = "'" + CLASSES[r.cls].name + "'으로 지정";
+      suggest.classList.add("show");
+    }
+
+    ta.addEventListener("input", function () {
+      autoGrow(ta);
+      refreshSuggest();
+    });
+    sgApply.addEventListener("click", function () {
+      if (!suggestedCls) return;
+      var radio = li.querySelector(
+        'input[value="' + suggestedCls + '"]'
+      );
+      if (radio) radio.checked = true;
+      suggest.classList.remove("show");
+    });
+    li.addEventListener("change", function (e) {
+      if (e.target && e.target.type === "radio") {
+        suggest.classList.remove("show");
+      }
+    });
+    li.querySelector(".assum-remove").addEventListener("click", function () {
+      if (listEl.children.length <= 1) {
+        ta.value = "";
+        autoGrow(ta);
+        var checked = li.querySelector('input[type="radio"]:checked');
+        if (checked) checked.checked = false;
+        suggest.classList.remove("show");
+        return;
+      }
+      li.remove();
+      renumber();
+    });
+  }
+
+  function renumber() {
+    Array.prototype.forEach.call(listEl.children, function (li, i) {
+      var idxEl = li.querySelector(".assum-idx");
+      if (idxEl) idxEl.textContent = i + 1;
+      var ta = li.querySelector("textarea");
+      if (ta) ta.setAttribute("aria-label", "가정 " + (i + 1));
+    });
+  }
+
+  // seed 3 rows
+  addRow();
+  addRow();
+  addRow();
+
+  document.getElementById("add-row").addEventListener("click", function () {
+    addRow();
+    renumber();
+    var last = listEl.lastElementChild;
+    if (last) {
+      var ta = last.querySelector("textarea");
+      if (ta) ta.focus();
+    }
+  });
+
+  /* ---------- problem textarea auto-grow ---------- */
+  var problemEl = document.getElementById("problem");
+  problemEl.addEventListener("input", function () {
+    autoGrow(problemEl);
+  });
+
+  /* ---------- collect + analyze ---------- */
+  var resultEl = document.getElementById("result");
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  var CHALLENGE = [
+    "이 전제를 빼면 문제가 어떻게 달라지는가?",
+    "누가 처음 이렇게 정했고, 그때의 맥락이 지금도 유효한가?",
+    "이것이 성립하지 않는 반례가 하나라도 있는가?",
+    "이게 없어도 목적을 달성할 다른 방법은 없는가?",
+  ];
+
+  function collect() {
+    var rows = listEl.querySelectorAll(".assum-row");
+    var out = [];
+    Array.prototype.forEach.call(rows, function (r) {
+      var ta = r.querySelector("textarea");
+      var txt = ta ? ta.value.trim() : "";
+      if (!txt) return;
+      var checked = r.querySelector('input[type="radio"]:checked');
+      out.push({ text: txt, cls: checked ? checked.value : null });
+    });
+    return out;
+  }
+
+  function bandFor(nv, total) {
+    var ratio = total ? nv / total : 0;
+    if (nv === 0) {
+      return {
+        tone: "ground",
+        label: "관습 0개 감지",
+        title: "관습이 잡히지 않았습니다",
+        desc:
+          "가정 대부분이 사실·제약입니다. 정말 다시 짤 게 없는 걸까요, 아니면 관습을 아직 덜 파낸 걸까요? 각 가정에 '누가 처음 이렇게 정했나'를 한 번 더 물어보세요.",
+      };
+    }
+    if (ratio >= 0.5) {
+      return {
+        tone: "redesign",
+        label: "관습 비중 " + Math.round(ratio * 100) + "%",
+        title: "백지 재설계 여지가 큽니다",
+        desc:
+          "절반 이상이 '원래 그렇게'로 유지되던 관습입니다. 이 전제들을 걷어내면 기존과 전혀 다른 해법이 열릴 수 있습니다.",
+      };
+    }
+    if (ratio >= 0.25) {
+      return {
+        tone: "partial",
+        label: "관습 비중 " + Math.round(ratio * 100) + "%",
+        title: "부분 재설계가 가능합니다",
+        desc:
+          "사실·제약이라는 토대 위에 몇 개의 관습이 얹혀 있습니다. 그 관습만 걸러내도 해법의 폭이 넓어집니다.",
+      };
+    }
+    return {
+      tone: "solid",
+      label: "관습 비중 " + Math.round(ratio * 100) + "%",
+      title: "대체로 사실·제약에 기반합니다",
+      desc:
+        "토대가 단단합니다. 소수의 관습만 의심하면 됩니다. 다만 '당연하다'고 느낀 것일수록 다시 들여다보세요.",
+    };
+  }
+
+  function buildPrompt(problem, groups) {
+    var L = [];
+    L.push(
+      "당신은 'First Principle Thinking(제1원리 사고)' 코치입니다. 아래 워크시트를 이어받아, 관습을 걷어낸 자리에서 문제를 백지에서 다시 설계하도록 도와주세요."
+    );
+    L.push("");
+    L.push("【실제로 답해야 할 질문】");
+    L.push(
+      problem && problem.trim()
+        ? problem.trim()
+        : "(아직 미정 — 먼저 이 질문부터 증상이 아닌 진짜 문제로, 한 문장으로 좁혀 주세요.)"
+    );
+    L.push("");
+    L.push("【분해된 가정】");
+    L.push("◆ 토대가 되는 사실 (그대로 쌓아올림):");
+    if (groups.fact.length)
+      groups.fact.forEach(function (t) {
+        L.push("- " + t);
+      });
+    else L.push("- (없음)");
+    L.push("◆ 조건부 제약 (지금은 불변, 맥락 바뀌면 재검토):");
+    if (groups.cstr.length)
+      groups.cstr.forEach(function (t) {
+        L.push("- " + t);
+      });
+    else L.push("- (없음)");
+    L.push("◆ 걸러낼 관습 ('원래 그렇게'로 유지되던 것 · 제거 후보):");
+    if (groups.conv.length)
+      groups.conv.forEach(function (t) {
+        L.push("- " + t);
+      });
+    else L.push("- (없음)");
+    L.push("");
+    L.push("【요청】");
+    L.push(
+      "1. 위 '관습'이 정말 사실인지, 아니면 그냥 관행·습관인지 반례와 함께 검증해 주세요. 사실로 확인되면 사실로 인정하고요."
+    );
+    L.push(
+      "2. 관습을 전제에서 제거한 상태에서, 사실과 제약만으로 가능한 해법을 처음부터 다시 조립해 주세요. 기존 방식과 완전히 달라도 좋습니다."
+    );
+    L.push(
+      "3. 익숙한 틀로 슬그머니 돌아가지 마세요. '그래도 현실적으로는…'이 나오면 그게 진짜 제약인지 관습의 귀환인지 먼저 따져 주세요."
+    );
+    L.push(
+      "4. 현실 점검: 실행 자원(돈·시간·기술·인력), 전환 비용, 단계적 도입 가능성, 실패 리스크를 짚고 — 핵심 원리는 지키되 실행 경로를 현실에 맞춰 주세요."
+    );
+    L.push(
+      "5. 결론을 대신 확정하지 말고, 먼저 증거와 질문을 제시한 뒤 당신의 해석을 비교용으로 덧붙여 주세요."
+    );
+    return L.join("\n");
+  }
+
+  var lastPrompt = "";
+
+  function renderGroup(key, items) {
+    if (!items.length) return "";
+    var c = CLASSES[key];
+    var gClass = "g-" + key;
+    var iClass = "i-" + key;
+    var tClass = "t-" + key;
+    var html = '<div class="group">';
+    html +=
+      '<div class="group-head"><span class="group-tag ' + gClass + '">' +
+      esc(c.name) + " " + items.length + "개</span>" +
+      '<span class="group-note">' + esc(c.groupNote) + "</span></div>";
+    html += '<ul class="item-list">';
+    items.forEach(function (t, i) {
+      html += '<li class="item ' + iClass + '">';
+      html += '<p class="it-text">' + esc(t) + "</p>";
+      if (key === "conv") {
+        html +=
+          '<p class="it-probe">' +
+          esc(CHALLENGE[i % CHALLENGE.length]) +
+          "</p>";
+      }
+      html += '<span class="it-tag ' + tClass + '">' + esc(c.itemTag) + "</span>";
+      html += "</li>";
+    });
+    html += "</ul></div>";
+    return html;
+  }
+
+  document.getElementById("decompose").addEventListener("click", function () {
+    var problem = problemEl.value;
+    var items = collect();
+    var classified = items.filter(function (i) {
+      return i.cls;
+    });
+    var unclassified = items.filter(function (i) {
+      return !i.cls;
+    });
+
+    if (items.length === 0) {
+      resultEl.innerHTML =
+        '<div class="nudge">먼저 이 문제에 깔린 가정을 한 개 이상 적어 주세요. ' +
+        "떠오르지 않으면 '반드시 ~해야 한다', '~는 원래 이렇다' 같은 문장부터 시작해 보세요.</div>";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (classified.length === 0) {
+      resultEl.innerHTML =
+        '<div class="nudge">가정은 적었지만 아직 분류가 없습니다. 각 가정을 ' +
+        "<strong>사실 · 제약 · 관습</strong> 중 하나로 지정한 뒤 다시 눌러 주세요. " +
+        "이 분류가 이 워크시트의 핵심입니다.</div>";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var groups = { fact: [], cstr: [], conv: [] };
+    classified.forEach(function (i) {
+      groups[i.cls].push(i.text);
+    });
+    var nf = groups.fact.length,
+      nc = groups.cstr.length,
+      nv = groups.conv.length,
+      total = classified.length;
+
+    var band = bandFor(nv, total);
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">가정 ' + total + "개 분류 완료 · " + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+
+    // stacked bar
+    var pf = total ? (nf / total) * 100 : 0;
+    var pc = total ? (nc / total) * 100 : 0;
+    var pv = total ? (nv / total) * 100 : 0;
+    html +=
+      '<div class="bar" role="img" aria-label="사실 ' + nf + '개, 제약 ' + nc +
+      '개, 관습 ' + nv + '개">';
+    if (nf) html += '<span class="seg-fact" style="width:' + pf + '%"></span>';
+    if (nc) html += '<span class="seg-cstr" style="width:' + pc + '%"></span>';
+    if (nv) html += '<span class="seg-conv" style="width:' + pv + '%"></span>';
+    html += "</div>";
+    html +=
+      '<div class="bar-legend">' +
+      '<span class="lg"><span class="dot d-fact"></span>사실 ' + nf + "</span>" +
+      '<span class="lg"><span class="dot d-cstr"></span>제약 ' + nc + "</span>" +
+      '<span class="lg"><span class="dot d-conv"></span>관습 ' + nv + "</span>" +
+      "</div>";
+    html += "</div>";
+
+    if (unclassified.length) {
+      html +=
+        '<div class="nudge" style="margin-bottom:18px">분류하지 않은 가정 ' +
+        unclassified.length +
+        "개는 결과에서 빠졌습니다. 사실·제약·관습 중 하나로 지정하면 함께 분석됩니다.</div>";
+    }
+
+    // groups — lead with conventions (the leverage), then constraints, then facts
+    html += '<div class="result-block-title">분해도</div>';
+    html += renderGroup("conv", groups.conv);
+    html += renderGroup("cstr", groups.cstr);
+    html += renderGroup("fact", groups.fact);
+
+    // next steps
+    html += '<div class="result-block-title">다음 단계</div>';
+    if (nv > 0) {
+      html +=
+        '<p class="next-steps"><strong>①</strong> 관습 ' + nv +
+        "개를 전제에서 빼고 → <strong>②</strong> 사실 " + nf + "개" +
+        (nc ? " · 제약 " + nc + "개" : "") +
+        " 위에 해법을 처음부터 다시 조립하고 → <strong>③</strong> 현실 점검(자원·전환 비용·실패 리스크)으로 실행 경로를 맞추세요. " +
+        "돌아오려는 관성을 조심하세요 — '그래도 현실적으로는'이 나오면 그게 진짜 제약인지 관습의 귀환인지 확인합니다.</p>";
+    } else {
+      html +=
+        '<p class="next-steps">걸러낼 관습이 없으니, 대신 <strong>가장 확신이 약한 사실</strong>을 하나 골라 "이게 정말 참인가"를 데이터나 반례로 한 번 더 시험해 보세요. 관습은 종종 사실로 위장합니다.</p>';
+    }
+
+    // prompt
+    lastPrompt = buildPrompt(problem, groups);
+    html += '<div class="result-block-title">이어서: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 분해를 바탕으로 관습을 검증하고 해법을 다시 조립해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn" type="button">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    problemEl.value = "";
+    autoGrow(problemEl);
+    listEl.innerHTML = "";
+    addRow();
+    addRow();
+    addRow();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">△</div>' +
+      "<p><strong>아직 분해 전입니다.</strong></p>" +
+      "<p>가정을 적고 분류한 뒤 '분해하기'를 누르세요.</p></div>";
+    document
+      .getElementById("input-problem")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

@@ -1,0 +1,1411 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>되돌릴 수 있나: 결정 속도 판별기</title>
+<meta
+  name="description"
+  content="이 결정이 되돌릴 수 있는 문(양방향 문)인지 6개 축으로 진단해 '빠르게 위임'과 '신중히 검토' 중 무엇이 맞는지 알려줍니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3a5a8c;
+    --accent-strong: #2c4770;
+    --accent-tint: #eaf0f8;
+    --accent-tint-2: #d7e2f1;
+    --ink: #20222a;
+    --ink-soft: #464a55;
+    --ink-mute: #6a6e79;
+    --paper: #f6f7fa;
+    --card: #ffffff;
+    --line: #e3e5ec;
+    --line-strong: #cfd3de;
+    --good: #2f6f4f;
+    --good-tint: #e7f2ec;
+    --amber: #a8620f;
+    --amber-tint: #fbf0e0;
+    --danger: #a1402f;
+    --danger-tint: #f8ebe7;
+    --shadow: 0 1px 2px rgba(32, 34, 42, 0.05), 0 6px 20px rgba(32, 34, 42, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- optional textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 82px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa0ac;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- dimension groups ---------- */
+  .dim {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 15px 15px 6px;
+    margin-bottom: 14px;
+    background: #fcfdfe;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .dim.need {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px var(--amber-tint);
+  }
+  .dim-head {
+    display: flex;
+    gap: 9px;
+    align-items: baseline;
+    margin-bottom: 3px;
+  }
+  .dim-num {
+    flex: none;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .dim-title {
+    font-weight: 800;
+    font-size: 1.02rem;
+    margin: 0;
+  }
+  .dim-q {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+  }
+  fieldset.opts {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  fieldset.opts > legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  label.opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  label.opt:hover {
+    border-color: var(--line-strong);
+  }
+  label.opt.sel {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  label.opt input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .opt-dot {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    border: 2px solid var(--line-strong);
+    border-radius: 50%;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    transition: all 0.15s;
+  }
+  .opt-dot::after {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: scale(0);
+    transition: transform 0.15s;
+  }
+  label.opt.sel .opt-dot {
+    border-color: var(--accent);
+  }
+  label.opt.sel .opt-dot::after {
+    transform: scale(1);
+  }
+  .opt-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .opt-label {
+    font-weight: 700;
+    font-size: 0.96rem;
+    margin: 0;
+    color: var(--ink);
+  }
+  .opt-desc {
+    margin: 2px 0 0;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+  }
+  label.opt:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .notice {
+    border: 1px solid var(--amber);
+    background: var(--amber-tint);
+    color: var(--amber);
+    border-radius: 12px;
+    padding: 14px 15px;
+    font-size: 0.93rem;
+    font-weight: 600;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 16px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-fast {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-mixed {
+    background: var(--amber-tint);
+    border-color: #f0ddbf;
+  }
+  .verdict.tone-caution {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-slow {
+    background: var(--danger-tint);
+    border-color: #ecccc4;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    line-height: 1.3;
+  }
+  .verdict.tone-fast .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: var(--amber);
+  }
+  .verdict.tone-caution .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-slow .verdict-title {
+    color: var(--danger);
+  }
+  .verdict-headline {
+    font-size: 1.02rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+  }
+  .verdict.tone-fast .verdict-headline {
+    color: var(--good);
+  }
+  .verdict.tone-mixed .verdict-headline {
+    color: var(--amber);
+  }
+  .verdict.tone-caution .verdict-headline {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-slow .verdict-headline {
+    color: var(--danger);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  /* reversibility bar */
+  .rev-bar {
+    margin: 15px 0 5px;
+    height: 12px;
+    border-radius: 7px;
+    background: #e6e2da;
+    overflow: hidden;
+  }
+  .rev-bar.on-dark {
+    background: rgba(0, 0, 0, 0.09);
+  }
+  .rev-fill {
+    height: 100%;
+    border-radius: 7px;
+    transition: width 0.5s ease;
+  }
+  .rev-fill.tone-fast {
+    background: var(--good);
+  }
+  .rev-fill.tone-mixed {
+    background: var(--amber);
+  }
+  .rev-fill.tone-caution {
+    background: var(--accent);
+  }
+  .rev-fill.tone-slow {
+    background: var(--danger);
+  }
+  .rev-caption {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .rev-caption strong {
+    color: var(--ink);
+  }
+
+  /* prescription */
+  .rx {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .rx-item {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 13px;
+    background: #fcfdfe;
+  }
+  .rx-key {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+    letter-spacing: 0.02em;
+  }
+  .rx-val {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* axis breakdown */
+  .axis-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .axis-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 13px;
+    background: #fff;
+  }
+  .axis-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+  .axis-pick {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    flex: none;
+    text-align: right;
+    max-width: 42%;
+  }
+  .axis-mini {
+    display: flex;
+    gap: 3px;
+    flex: none;
+  }
+  .axis-mini .seg {
+    width: 14px;
+    height: 8px;
+    border-radius: 3px;
+    background: #e6e2da;
+  }
+  .seg.lit-g {
+    background: var(--good);
+  }
+  .seg.lit-a {
+    background: var(--amber);
+  }
+  .seg.lit-r {
+    background: var(--danger);
+  }
+
+  /* heavy-axis cards */
+  .heavy-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .heavy-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--danger);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fdfbfa;
+  }
+  .heavy-item .hi-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+  .heavy-item .hi-fix {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .heavy-item .hi-tag {
+    display: inline-block;
+    margin-top: 9px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #24272e;
+    color: #eef1f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 26, 32, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .rx {
+      grid-template-columns: 1fr;
+    }
+    .axis-row {
+      flex-wrap: wrap;
+    }
+    .axis-pick {
+      max-width: 100%;
+      text-align: left;
+      flex-basis: 100%;
+      order: 3;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #assess-panel .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">결정 진단 · 양방향 문 / 일방향 문</span>
+    <h1>되돌릴 수 있나: 결정 속도 판별기</h1>
+    <p class="lede">
+      이 결정이 되돌릴 수 있는 문(양방향 문)인지 6개 축으로 진단하고,
+      지금 <strong>빠르게 위임</strong>이 맞는지 <strong>신중히 검토</strong>가
+      맞는지 처방해 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>검토 중인 결정 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      지금 고민 중인 결정을 한두 줄로 적어 두면 아래 AI 심화 프롬프트에 함께
+      담깁니다. 비워 두어도 진단은 됩니다.
+    </p>
+    <label class="field-label" for="decision">어떤 결정인가요</label>
+    <textarea
+      id="decision"
+      placeholder="예) 핵심 업무 툴을 A에서 B로 전면 교체할지 / 신규 채용을 정규직으로 뽑을지 / 이 거래처와 2년 독점 계약을 맺을지 ..."
+    ></textarea>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="assess-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>6개 축으로 가역성 진단</h2>
+    </div>
+    <p class="panel-sub">
+      각 축에서 지금 결정에 가장 가까운 것을 하나씩 고르세요. 모두 고르면
+      되돌릴 수 있는 문인지 계산합니다.
+    </p>
+    <div id="dims"></div>
+
+    <div class="actions">
+      <button class="btn-primary" id="diagnose">판정하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>판정 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">⇄</div>
+        <p><strong>아직 판정 전입니다.</strong></p>
+        <p>6개 축을 모두 고르고 '판정하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 제프 베조스가 아마존 주주서한(2015~2016)에서
+      제시한 <em>Type 1 / Type 2 의사결정</em> 프레임워크. 되돌릴 수 없는 결정(일방향
+      문)은 신중하게, 되돌릴 수 있는 결정(양방향 문)은 대략 70%의 정보에서 빠르게
+      내리고 위임하라는 원칙입니다. 6개 축(되돌리기 비용·영향 범위·외부 구속·대안
+      보존·피드백 속도·전환 난이도)은 이 원칙을 실무에서 가늠하기 위한 구성입니다.
+    </p>
+    <p>
+      이 도구는 사고를 돕는 진단 보조 도구이며, 결정을 대신 확정해 주지 않습니다.
+      결과는 스스로 판단할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* 6 reversibility axes — operationalizing Bezos Type 1 / Type 2 (one-way / two-way door).
+     Each option carries a reversibility value (0 = irreversible, 100 = fully reversible).
+     Weights sum to 1.0; the weighted average is the reversibility score. */
+  var DIMENSIONS = [
+    {
+      id: "cost",
+      title: "되돌리기 비용",
+      q: "이 결정이 틀렸다고 판명됐을 때, 원래 상태로 되돌리는 데 드는 비용은?",
+      weight: 0.26,
+      options: [
+        { v: 100, label: "거의 공짜", desc: "설정만 원복하면 되고 며칠 안에 회복된다" },
+        { v: 66, label: "감당 가능", desc: "약간의 돈·시간이 들지만 흡수할 수 있다" },
+        { v: 33, label: "상당함", desc: "예산·수개월이 드는 큰 손실이 난다" },
+        { v: 0, label: "사실상 불가", desc: "쏟은 자원·시간을 되돌릴 수 없다" }
+      ],
+      heavyTitle: "되돌리기 비용이 크다",
+      heavyFix:
+        "먼저 소규모 파일럿·시범 운영으로 검증하고, 계약에는 해지·환불·재검토 조항을 넣어 실패 시 회수 경로를 확보하세요.",
+      tag: "문 바꾸기: 파일럿 + 해지 조항"
+    },
+    {
+      id: "blast",
+      title: "영향 범위",
+      q: "이 결정이 잘못되면 그 여파는 어디까지 미치나?",
+      weight: 0.2,
+      options: [
+        { v: 100, label: "나 한 사람", desc: "내 업무 안에서 끝난다" },
+        { v: 66, label: "한 팀·한 프로젝트", desc: "국지적으로 번진다" },
+        { v: 33, label: "여러 부서", desc: "핵심 프로세스에까지 번진다" },
+        { v: 0, label: "전사·고객·시장", desc: "회사 전체와 외부에 미친다" }
+      ],
+      heavyTitle: "영향 범위가 넓다",
+      heavyFix:
+        "전면 실행 대신 한 팀·한 지역·일부 고객에 먼저 한정 적용(단계적/캐너리 롤아웃)해 파급을 좁히고 관찰하세요.",
+      tag: "문 바꾸기: 단계적 롤아웃"
+    },
+    {
+      id: "external",
+      title: "외부 구속",
+      q: "이 결정을 되돌리지 못하게 묶는 계약·법·공개 약속이 있나?",
+      weight: 0.17,
+      options: [
+        { v: 100, label: "없음", desc: "언제든 조용히 무를 수 있다" },
+        { v: 66, label: "내부 합의 정도", desc: "구두 약속·내부 공지 수준" },
+        { v: 33, label: "계약이 얽힘", desc: "거래처 약정·위약금이 걸려 있다" },
+        { v: 0, label: "법적·공개적", desc: "선언·계약으로 못 무른다" }
+      ],
+      heavyTitle: "외부 약속에 묶여 있다",
+      heavyFix:
+        "짧은 시범 계약, 갱신형 단기 계약, 명시적 재검토·해지 조항으로 무를 여지를 계약 안에 설계하세요.",
+      tag: "문 바꾸기: 단기·해지 가능 계약"
+    },
+    {
+      id: "option",
+      title: "대안 보존",
+      q: "이 길을 택한 뒤에도 다른 선택지가 열려 있나?",
+      weight: 0.15,
+      options: [
+        { v: 100, label: "대부분 열려 있다", desc: "결정해도 다른 길이 그대로 남는다" },
+        { v: 60, label: "일부가 닫힌다", desc: "몇 가지 선택지를 포기하게 된다" },
+        { v: 25, label: "거의 고정된다", desc: "이 길로 사실상 굳는다" },
+        { v: 0, label: "배수진", desc: "돌아갈 길이 없다" }
+      ],
+      heavyTitle: "선택지가 닫힌다",
+      heavyFix:
+        "최종 확정을 늦추고 병렬 옵션을 얼마간 유지하세요. 되돌아갈 fallback(원래 방식)을 한동안 함께 돌리는 것도 방법입니다.",
+      tag: "문 바꾸기: 병렬 옵션 유지"
+    },
+    {
+      id: "feedback",
+      title: "피드백 속도",
+      q: "이 결정이 옳았는지 그른지 언제쯤 알 수 있나?",
+      weight: 0.12,
+      options: [
+        { v: 100, label: "며칠 안에", desc: "빠르게 신호가 온다" },
+        { v: 66, label: "몇 주", desc: "머지않아 드러난다" },
+        { v: 33, label: "몇 달", desc: "한참 지나야 안다" },
+        { v: 0, label: "몇 년 뒤", desc: "장기간 지나야 드러난다" }
+      ],
+      heavyTitle: "옳고 그름을 늦게 안다",
+      heavyFix:
+        "최종 결과 대신 빨리 움직이는 선행지표·중간 마일스톤을 정의해, 조기에 궤도를 수정할 체크포인트를 만드세요.",
+      tag: "문 바꾸기: 선행지표 체크포인트"
+    },
+    {
+      id: "lockin",
+      title: "전환 난이도",
+      q: "나중에 갈아타려면 사람·기술·조직 전환 비용이 얼마나 드나?",
+      weight: 0.1,
+      options: [
+        { v: 100, label: "쉽게 갈아탄다", desc: "이전 비용이 거의 없다" },
+        { v: 60, label: "어느 정도", desc: "이전에 손이 든다" },
+        { v: 25, label: "깊이 통합됨", desc: "전환 비용이 크다" },
+        { v: 0, label: "완전 종속", desc: "빠져나오기 어렵다(락인)" }
+      ],
+      heavyTitle: "전환·이탈이 어렵다 (락인)",
+      heavyFix:
+        "표준·이식 가능한 방식을 택하고 단일 벤더·단일 방식 종속을 피하세요. 데이터·산출물을 언제든 꺼낼 수 있게 확보하면 문이 다시 열립니다.",
+      tag: "문 바꾸기: 락인 회피 · 이식성 확보"
+    }
+  ];
+
+  var answers = {}; // id -> selected option index
+
+  // ---- render dimensions ----
+  var dimsEl = document.getElementById("dims");
+
+  DIMENSIONS.forEach(function (d, di) {
+    var block = document.createElement("div");
+    block.className = "dim";
+    block.dataset.id = d.id;
+
+    var opts = d.options
+      .map(function (o, oi) {
+        return (
+          '<label class="opt">' +
+          '<input type="radio" name="' +
+          d.id +
+          '" data-di="' +
+          di +
+          '" data-oi="' +
+          oi +
+          '" />' +
+          '<span class="opt-dot" aria-hidden="true"></span>' +
+          '<span class="opt-body">' +
+          '<p class="opt-label">' +
+          o.label +
+          "</p>" +
+          '<p class="opt-desc">' +
+          o.desc +
+          "</p>" +
+          "</span>" +
+          "</label>"
+        );
+      })
+      .join("");
+
+    block.innerHTML =
+      '<div class="dim-head">' +
+      '<span class="dim-num" aria-hidden="true">' +
+      (di + 1) +
+      "</span>" +
+      '<p class="dim-title">' +
+      d.title +
+      "</p>" +
+      "</div>" +
+      '<p class="dim-q">' +
+      d.q +
+      "</p>" +
+      '<fieldset class="opts"><legend>' +
+      d.title +
+      ": " +
+      d.q +
+      "</legend>" +
+      opts +
+      "</fieldset>";
+
+    dimsEl.appendChild(block);
+  });
+
+  dimsEl.addEventListener("change", function (e) {
+    var box = e.target;
+    if (box.type !== "radio") return;
+    var di = +box.dataset.di;
+    var oi = +box.dataset.oi;
+    answers[DIMENSIONS[di].id] = oi;
+    var block = box.closest(".dim");
+    if (block) {
+      block.classList.remove("need");
+      Array.prototype.forEach.call(block.querySelectorAll("label.opt"), function (
+        l
+      ) {
+        l.classList.remove("sel");
+      });
+      var lbl = box.closest("label.opt");
+      if (lbl) lbl.classList.add("sel");
+    }
+  });
+
+  // ---- auto-grow textarea ----
+  var decision = document.getElementById("decision");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  decision.addEventListener("input", function () {
+    grow(decision);
+  });
+
+  // ---- helpers ----
+  var resultEl = document.getElementById("result");
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function valTone(v) {
+    return v >= 67 ? "g" : v >= 34 ? "a" : "r";
+  }
+
+  function bandFor(s) {
+    if (s >= 70)
+      return {
+        tone: "fast",
+        label: "가역성 " + s + " / 100",
+        title: "되돌릴 수 있는 문입니다",
+        headline: "→ 빠르게 결정하고 위임하라",
+        desc:
+          "이 결정은 틀려도 되돌릴 수 있는 양방향 문입니다. 완벽한 정보(대략 70%면 충분)를 기다리며 시간을 끌 필요가 없습니다. 가장 낮은 판단 가능 단위로 위임하고, 빠르게 실행한 뒤 결과를 보고 조정하세요. 과도한 회의·승인 단계가 오히려 비용입니다.",
+        rx: { who: "실무 담당자에게 위임", speed: "즉시 ~ 며칠", info: "약 70% 정보면 실행" }
+      };
+    if (s >= 50)
+      return {
+        tone: "mixed",
+        label: "가역성 " + s + " / 100",
+        title: "대체로 되돌릴 수 있지만, 무거운 축이 있습니다",
+        headline: "→ 가역 부분은 빠르게, 무거운 축만 격리하라",
+        desc:
+          "대부분은 양방향 문이지만 아래 몇 축이 문을 무겁게 만듭니다. 전체를 신중 모드로 끌지 말고, 무거운 축만 떼어내 되돌릴 여지를 설계한 뒤 나머지는 빠르게 진행하세요.",
+        rx: {
+          who: "팀 리더 (무거운 축만 상급 검토)",
+          speed: "대부분 빠르게",
+          info: "핵심 축만 추가 확인"
+        }
+      };
+    if (s >= 30)
+      return {
+        tone: "caution",
+        label: "가역성 " + s + " / 100",
+        title: "일방향 문에 가깝습니다",
+        headline: "→ 신중히 검토하되, 마비되지 말 것",
+        desc:
+          "되돌리기가 쉽지 않은 결정입니다. 정보를 모으고 반대 의견을 구하며, 결정 권한을 함부로 위임하지 마세요. 다만 신중함이 결정 지연(분석 마비)으로 변질되지 않도록, 아래 전환 전술로 문을 조금이라도 가볍게 만드는 편이 낫습니다.",
+        rx: {
+          who: "리더 보유 · 이해관계자 자문",
+          speed: "정보 수집 후 결정",
+          info: "반대 의견까지 확보"
+        }
+      };
+    return {
+      tone: "slow",
+      label: "가역성 " + s + " / 100",
+      title: "되돌릴 수 없는 문입니다",
+      headline: "→ 신중히 검토하라. 위임하지 말 것",
+      desc:
+        "한번 지나면 돌아올 수 없는 일방향 문입니다. 속도가 아니라 정확성이 핵심입니다. 충분한 정보와 다양한 관점을 모으고 최종 책임자가 직접 판단하세요. 동시에, 가능한 축은 아래 전술로 되돌릴 여지를 설계해 리스크를 줄이세요.",
+      rx: {
+        who: "최종 책임자 직접",
+        speed: "서두르지 말 것 (단 무기한 지연 금지)",
+        info: "충분한 정보 + 다관점"
+      }
+    };
+  }
+
+  function buildPrompt(score, band, heavy, decisionText) {
+    var lines = [];
+    lines.push(
+      "당신은 제프 베조스의 '일방향 문 / 양방향 문'(Type 1 / Type 2) 의사결정 프레임워크에 능한 의사결정 코치입니다."
+    );
+    lines.push(
+      "아래 결정의 가역성을 점검하고, 지금 '빠르게 위임'이 맞는지 '신중히 검토'가 맞는지 판단을 도와주세요."
+    );
+    lines.push("");
+    lines.push("【자가 진단 요약】");
+    lines.push("가역성 점수: " + score + " / 100  →  판정: " + band.title);
+    lines.push("권장 방향: " + band.headline.replace("→ ", ""));
+    lines.push("");
+    lines.push("【축별 진단】");
+    DIMENSIONS.forEach(function (d) {
+      var o = d.options[answers[d.id]];
+      lines.push("- " + d.title + ": " + o.label + " (" + o.desc + ")");
+    });
+    lines.push("");
+    if (heavy.length) {
+      lines.push("【문을 무겁게 만드는 축】");
+      heavy.forEach(function (d) {
+        lines.push("- " + d.heavyTitle);
+      });
+      lines.push("");
+    }
+    lines.push("【검토 중인 결정】");
+    if (decisionText && decisionText.trim()) {
+      lines.push(decisionText.trim());
+    } else {
+      lines.push("(사용자가 곧 붙여넣을 예정입니다. 먼저 어떤 결정인지 물어봐 주세요.)");
+    }
+    lines.push("");
+    lines.push("【요청 사항】");
+    lines.push("1. 위 가역성 판정이 타당한지, 과대·과소평가된 축이 있는지 짚어 주세요.");
+    lines.push(
+      "2. 무거운 축마다 '일방향 문'을 '양방향 문'으로 바꾸는 구체적 전술(파일럿·단계적 롤아웃·해지 조항·선행지표·락인 회피 등)을 이 결정 맥락에 맞게 제안해 주세요."
+    );
+    lines.push(
+      "3. 이 결정을 '누가' '얼마나 빨리' 내려야 하는지, 위임 가능 여부와 함께 권고해 주세요."
+    );
+    lines.push(
+      "4. 결론을 대신 확정하지 말고, 제가 스스로 판단하도록 핵심 질문과 근거를 먼저 제시한 뒤 당신의 해석을 비교용으로 덧붙여 주세요."
+    );
+    lines.push(
+      "5. 이 판단에서 가장 위험한 가정(틀리면 가장 크게 되돌릴 수 없는 지점) 하나를 지목하고, 그것을 가장 싸고 빠르게 검증할 방법을 제안해 주세요."
+    );
+    lines.push("6. 없는 수치·사례·출처를 지어내지 말고, 모르면 저에게 사실을 물어 주세요.");
+    return lines.join("\n");
+  }
+
+  var lastPrompt = "";
+
+  // ---- diagnose ----
+  document.getElementById("diagnose").addEventListener("click", function () {
+    var missing = DIMENSIONS.filter(function (d) {
+      return answers[d.id] === undefined;
+    });
+
+    if (missing.length) {
+      // highlight unanswered, message, scroll to first
+      var firstNeed = null;
+      Array.prototype.forEach.call(dimsEl.querySelectorAll(".dim"), function (
+        block
+      ) {
+        var id = block.dataset.id;
+        var need = answers[id] === undefined;
+        block.classList.toggle("need", need);
+        if (need && !firstNeed) firstNeed = block;
+      });
+      resultEl.innerHTML =
+        '<div class="notice">아직 ' +
+        missing.length +
+        "개 축이 선택되지 않았습니다. 6개 축을 모두 고른 뒤 다시 판정하세요.</div>";
+      if (firstNeed)
+        firstNeed.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    var score = 0;
+    DIMENSIONS.forEach(function (d) {
+      score += d.options[answers[d.id]].v * d.weight;
+    });
+    score = Math.round(score);
+
+    var band = bandFor(score);
+    var heavy = DIMENSIONS.filter(function (d) {
+      return d.options[answers[d.id]].v <= 33;
+    });
+    var decisionText = decision.value;
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-headline">' + esc(band.headline) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html +=
+      '<div class="rev-bar on-dark" role="img" aria-label="가역성 점수 ' +
+      score +
+      '점 (100점 만점)"><div class="rev-fill tone-' +
+      band.tone +
+      '" style="width:' +
+      score +
+      '%"></div></div>';
+    html +=
+      '<div class="rev-caption"><span>일방향 문</span><strong>' +
+      score +
+      " / 100</strong><span>양방향 문</span></div>";
+    html += "</div>";
+
+    // prescription
+    html += '<div class="rx">';
+    html +=
+      '<div class="rx-item"><p class="rx-key">결정 주체</p><p class="rx-val">' +
+      esc(band.rx.who) +
+      "</p></div>";
+    html +=
+      '<div class="rx-item"><p class="rx-key">결정 속도</p><p class="rx-val">' +
+      esc(band.rx.speed) +
+      "</p></div>";
+    html +=
+      '<div class="rx-item"><p class="rx-key">필요 정보</p><p class="rx-val">' +
+      esc(band.rx.info) +
+      "</p></div>";
+    html += "</div>";
+
+    // axis breakdown
+    html += '<div class="result-block-title">축별 가역성</div>';
+    html += '<ul class="axis-list">';
+    DIMENSIONS.forEach(function (d) {
+      var o = d.options[answers[d.id]];
+      var lit = Math.round((o.v / 100) * 4);
+      var tone = valTone(o.v);
+      var segs = "";
+      for (var k = 0; k < 4; k++) {
+        segs +=
+          '<span class="seg' + (k < lit ? " lit-" + tone : "") + '"></span>';
+      }
+      html +=
+        '<li class="axis-row">' +
+        '<span class="axis-name">' +
+        esc(d.title) +
+        "</span>" +
+        '<span class="axis-mini" aria-hidden="true">' +
+        segs +
+        "</span>" +
+        '<span class="axis-pick">' +
+        esc(o.label) +
+        "</span>" +
+        "</li>";
+    });
+    html += "</ul>";
+
+    // heavy axes -> door-conversion tactics
+    if (heavy.length) {
+      html +=
+        '<div class="result-block-title">무거운 축: 되돌릴 여지를 설계하라</div>';
+      html += '<ul class="heavy-list">';
+      heavy.forEach(function (d) {
+        html += '<li class="heavy-item">';
+        html += '<p class="hi-title">' + esc(d.heavyTitle) + "</p>";
+        html += '<p class="hi-fix">' + esc(d.heavyFix) + "</p>";
+        html += '<span class="hi-tag">' + esc(d.tag) + "</span>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html +=
+        '<p class="clean-note" style="margin-top:16px">무거운 축이 없습니다. 대부분의 축이 되돌릴 수 있는 쪽이라, 완벽을 기다리지 말고 빠르게 실행한 뒤 관찰하며 조정하세요.</p>';
+    }
+
+    // AI prompt
+    lastPrompt = buildPrompt(score, band, heavy, decisionText);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 진단을 바탕으로 가역성을 재점검하고 문을 가볍게 만드는 전술을 함께 찾아 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    answers = {};
+    decision.value = "";
+    grow(decision);
+    Array.prototype.forEach.call(dimsEl.querySelectorAll("input[type=radio]"), function (
+      b
+    ) {
+      b.checked = false;
+    });
+    Array.prototype.forEach.call(dimsEl.querySelectorAll("label.opt"), function (l) {
+      l.classList.remove("sel");
+    });
+    Array.prototype.forEach.call(dimsEl.querySelectorAll(".dim"), function (d) {
+      d.classList.remove("need");
+    });
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">⇄</div>' +
+      "<p><strong>아직 판정 전입니다.</strong></p>" +
+      "<p>6개 축을 모두 고르고 '판정하기'를 누르세요.</p></div>";
+    document.getElementById("assess-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      // tier 3: manual modal
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

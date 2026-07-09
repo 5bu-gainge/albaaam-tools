@@ -1,0 +1,1349 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>소셜 훅 폴드 테스터 &amp; 글자 카운터</title>
+<meta
+  name="description"
+  content="훅 문장이 링크드인 폴드·X 1행·인스타 첫 캡션존 안에 드는지, 한글 표시폭·링크·이모지를 반영한 글자수를 실시간으로 검증합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2c7a72;
+    --accent-strong: #1f5a53;
+    --accent-tint: #e6f2f0;
+    --accent-tint-2: #cfe6e1;
+    --ink: #1f2320;
+    --ink-soft: #454b47;
+    --ink-mute: #656b67;
+    --paper: #f7f9f8;
+    --card: #ffffff;
+    --line: #e2e8e5;
+    --line-strong: #cfd8d3;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #8a6410;
+    --warn-tint: #fbf1dd;
+    --bad: #ad3838;
+    --bad-tint: #fbe9e9;
+    --shadow: 0 1px 2px rgba(20, 30, 27, 0.05), 0 6px 20px rgba(20, 30, 27, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 96px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 1.02rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa39f;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* preset chips */
+  .presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .chip {
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 999px;
+    padding: 7px 13px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .chip:hover {
+    background: var(--accent-tint-2);
+  }
+
+  /* basis toggle */
+  .basis {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-top: 16px;
+    padding: 12px 13px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fbfdfc;
+    cursor: pointer;
+  }
+  .basis input {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 2px 0 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .basis .bt {
+    font-weight: 700;
+    font-size: 0.94rem;
+    margin: 0 0 2px;
+  }
+  .basis .bd {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 0;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 16px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 12px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+    min-height: 44px;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- stats ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .stat {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fbfdfc;
+    padding: 13px 12px;
+    text-align: center;
+  }
+  .stat .v {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat.hl .v {
+    color: var(--accent-strong);
+  }
+  .stat .k {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-top: 5px;
+  }
+  .stat .s {
+    font-size: 0.74rem;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+  .subcount {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin: 12px 2px 0;
+  }
+  .subcount b {
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* verdict banner */
+  .verdict {
+    border-radius: 14px;
+    padding: 16px 16px;
+    margin: 16px 0 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-pass {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-mixed {
+    background: var(--warn-tint);
+    border-color: #eeddb8;
+  }
+  .verdict.tone-fail {
+    background: var(--bad-tint);
+    border-color: #f0cccc;
+  }
+  .verdict-title {
+    font-size: 1.16rem;
+    font-weight: 800;
+    margin: 0 0 4px;
+    line-height: 1.34;
+  }
+  .verdict.tone-pass .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: #8a5a10;
+  }
+  .verdict.tone-fail .verdict-title {
+    color: var(--bad);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+
+  /* zone cards */
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 11px;
+  }
+  ul.zones {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  li.zone {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfdfc;
+    padding: 14px 15px;
+  }
+  li.zone.st-over {
+    border-color: #eecaca;
+    background: #fdf4f4;
+  }
+  .zone-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .zone-name {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0;
+  }
+  .zone-lim {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin-left: 6px;
+  }
+  .badge {
+    flex: none;
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .badge.st-ok {
+    color: var(--good);
+    background: var(--good-tint);
+  }
+  .badge.st-tight {
+    color: var(--warn);
+    background: var(--warn-tint);
+  }
+  .badge.st-over {
+    color: var(--bad);
+    background: var(--bad-tint);
+  }
+  .zbar {
+    height: 9px;
+    border-radius: 5px;
+    background: #e6ece9;
+    overflow: hidden;
+    margin: 11px 0 8px;
+  }
+  .zfill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.2s ease;
+  }
+  .zfill.st-ok {
+    background: var(--good);
+  }
+  .zfill.st-tight {
+    background: #c79318;
+  }
+  .zfill.st-over {
+    background: var(--bad);
+  }
+  .zone-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 0.84rem;
+  }
+  .zone-rem {
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .zone-rem.st-over {
+    color: var(--bad);
+  }
+  .zone-note {
+    color: var(--ink-mute);
+    font-size: 0.82rem;
+    margin: 6px 0 0;
+  }
+  .conf {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 5px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .conf.official {
+    color: #1f5a53;
+    background: #e6f2f0;
+  }
+  .conf.community {
+    color: #6a706c;
+    background: #eef1ef;
+  }
+  .conf.heuristic {
+    color: #8a5a10;
+    background: #f7ecd7;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #1e2624;
+    color: #eef3f1;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: var(--accent-strong);
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 30, 27, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot p {
+    margin: 0 0 10px;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .stats {
+      grid-template-columns: 1fr 1fr;
+    }
+    .stat.wide {
+      grid-column: 1 / -1;
+    }
+    .stat .v {
+      font-size: 1.35rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .basis,
+    .actions,
+    .copy-row,
+    footer.foot .gate {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">소셜 카피 검증 · message-kernel validate_format()</span>
+    <h1>소셜 훅 폴드 테스터 &amp; 글자 카운터</h1>
+    <p class="lede">
+      첫 문장(훅)이 링크드인 폴드·X 1행·인스타 첫 캡션존 안에서 잘리지 않고
+      다 보이는지 실시간으로 검증합니다. 한글 표시폭, 링크(t.co 23자), 이모지를
+      반영해 플랫폼이 실제로 세는 방식대로 셉니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">INPUT</span>
+      <h2>검증할 훅 문장</h2>
+    </div>
+    <p class="panel-sub">
+      게시물의 첫 줄, 사람들이 "더 보기"를 누르기 전에 보게 될 한 문장을
+      붙여넣으세요. 입력하는 순간 아래에서 바로 판정됩니다.
+    </p>
+    <label class="field-label" for="hook">훅 (첫 문장)</label>
+    <textarea
+      id="hook"
+      aria-describedby="hook-hint"
+      placeholder="예) 30년간 5,000개 기업을 만나며 깨달은 건, 전략이 실패하는 이유는 실행력이 아니라 '선택'의 부재였습니다."
+    ></textarea>
+    <p class="field-hint" id="hook-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+      전혀 없습니다.
+    </p>
+
+    <div class="presets" id="presets" aria-label="예시 훅 채우기">
+      <button class="chip" data-ex="short">짧은 훅 예시</button>
+      <button class="chip" data-ex="mid">중간 길이 예시</button>
+      <button class="chip" data-ex="long">긴 훅 + 링크·이모지 예시</button>
+    </div>
+
+    <label class="basis" for="basis">
+      <input type="checkbox" id="basis" />
+      <span>
+        <span class="bt">표시폭(한글 2칸) 기준으로 더 보수적으로 판정</span>
+        <span class="bd"
+          >켜면 폴드 존을 문자 수 대신 시각적 표시폭으로 잽니다. 한글은 라틴
+          문자의 약 2배 폭이라, 같은 글자 수라도 화면에서 더 빨리 잘립니다.</span
+        >
+      </span>
+    </label>
+
+    <div class="actions">
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel" aria-live="polite">
+    <div class="panel-head">
+      <span class="step">RESULT</span>
+      <h2>실시간 판정</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">⌁</div>
+        <p><strong>훅을 입력하면 여기서 바로 계산됩니다.</strong></p>
+        <p>문자 수 · 표시폭 · X 가중 글자수와 3개 폴드 존 통과 여부를 보여드립니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> social-content 스킬 스위트의
+      <em>message-kernel</em> <code>validate_format()</code> 계약 + 플랫폼 포맷
+      스펙 2026 (2026-07-01 검토). X 단일 280자·링크 23자·한글(CJK) 2자 가중은
+      X 공식 계산(twitter-text) 기준입니다. 링크드인 폴드 약 200자(모바일 ~140,
+      데스크톱 ~210)와 인스타 첫 캡션존 약 125자는 업계 관측치로, 플랫폼·클라이언트·뷰포트에
+      따라 달라집니다. X 첫 줄(1행)은 공식 수치가 없어, 가장 좁은 실측 존(125자)을
+      훅 기준으로 차용한 휴리스틱입니다.
+    </p>
+    <p class="gate">
+      <span class="src">리얼 컴포저 게이트:</span> 카피의 진짜 잘림은 실제 플랫폼
+      컴포저에 붙여 폴드·프리뷰로 확인한 뒤 예약하세요. 이 계산은 근사입니다.
+    </p>
+    <p>
+      이 도구는 작성 판단을 돕는 보조 도구이며, 최종 게시 여부와 표현은 사람이
+      정합니다. 수치를 지어내지 않고, 없는 데이터는 표시하지 않습니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-copy" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------------------------------------------------------
+     Fold zones and hard limits — every number sourced from
+     platform-specs-2026.md (verified 2026-07-01). Confidence tags
+     carried through to the UI. No fabricated numbers.
+     --------------------------------------------------------------- */
+
+  // Fold "hook zones": does the first line survive before truncation?
+  var ZONES = [
+    {
+      key: "ig",
+      name: "인스타 첫 캡션존",
+      limit: 125,
+      conf: "community",
+      confLabel: "관측치",
+      note: '"…더 보기" 앞에 보이는 첫 구간(약 125자).',
+    },
+    {
+      key: "x1",
+      name: "X 첫 줄(1행) 훅",
+      limit: 125,
+      conf: "heuristic",
+      confLabel: "휴리스틱",
+      note:
+        "X는 공식 첫 줄 수치가 없어, 가장 좁은 실측 존(125자)을 훅 기준으로 차용.",
+    },
+    {
+      key: "li",
+      name: "링크드인 폴드",
+      limit: 200,
+      conf: "community",
+      confLabel: "관측치",
+      note: '"더 보기" 앞 약 200자. 모바일 ~140, 데스크톱 ~210으로 편차 있음.',
+    },
+  ];
+
+  // Hard post limits: can it even be published?
+  var LIMITS = [
+    {
+      key: "xmax",
+      name: "X 단일 포스트",
+      limit: 280,
+      conf: "official",
+      confLabel: "공식",
+      metric: "xw",
+      note: "링크=23자, 한글·이모지=2자로 가중해 계산(X 공식).",
+    },
+    {
+      key: "limax",
+      name: "링크드인 포스트",
+      limit: 3000,
+      conf: "official",
+      confLabel: "공식",
+      metric: "char",
+      note: "본문 전체 최대 3,000자.",
+    },
+    {
+      key: "igmax",
+      name: "인스타 캡션",
+      limit: 2200,
+      conf: "official",
+      confLabel: "공식",
+      metric: "char",
+      note: "캡션 전체 최대 2,200자.",
+    },
+  ];
+
+  /* ---------------------------------------------------------------
+     Counting engine
+     --------------------------------------------------------------- */
+
+  // URL detection (http/https/www). Each URL is billed as 23 chars on X.
+  var URL_RE = /(?:https?:\/\/|www\.)[^\s]+/gi;
+
+  // Emoji / pictographic detection via Unicode property escape (with guard).
+  var EMOJI_RE = null;
+  try {
+    EMOJI_RE = /\p{Extended_Pictographic}/u;
+  } catch (e) {
+    EMOJI_RE = null;
+  }
+  function isEmoji(ch) {
+    return EMOJI_RE ? EMOJI_RE.test(ch) : false;
+  }
+
+  // Split into visible grapheme clusters so an emoji counts as one char.
+  function graphemes(text) {
+    if (typeof Intl !== "undefined" && Intl.Segmenter) {
+      try {
+        var seg = new Intl.Segmenter("ko", { granularity: "grapheme" });
+        var out = [];
+        var iter = seg.segment(text);
+        var step = iter[Symbol.iterator]();
+        var r = step.next();
+        while (!r.done) {
+          out.push(r.value.segment);
+          r = step.next();
+        }
+        return out;
+      } catch (e) {
+        /* fall through */
+      }
+    }
+    return Array.prototype.slice.call(text); // code-point split fallback
+  }
+
+  // Full-width / CJK code point → occupies 2 display columns (and weighs 2 on X).
+  function isWide(cp) {
+    return (
+      (cp >= 0x1100 && cp <= 0x115f) || // Hangul Jamo
+      (cp >= 0x2e80 && cp <= 0x303e) || // CJK radicals .. symbols
+      (cp >= 0x3041 && cp <= 0x33ff) || // Kana .. CJK compat
+      (cp >= 0x3400 && cp <= 0x4dbf) || // CJK Ext A
+      (cp >= 0x4e00 && cp <= 0x9fff) || // CJK Unified
+      (cp >= 0xa000 && cp <= 0xa4cf) || // Yi
+      (cp >= 0xac00 && cp <= 0xd7a3) || // Hangul Syllables
+      (cp >= 0xf900 && cp <= 0xfaff) || // CJK Compat Ideographs
+      (cp >= 0xfe30 && cp <= 0xfe4f) || // CJK Compat Forms
+      (cp >= 0xff00 && cp <= 0xff60) || // Fullwidth Forms
+      (cp >= 0xffe0 && cp <= 0xffe6) ||
+      (cp >= 0x20000 && cp <= 0x3fffd) // CJK Ext B+
+    );
+  }
+
+  function analyze(text) {
+    var g = graphemes(text);
+    var charCount = g.length; // visible characters (emoji = 1)
+    var displayWidth = 0;
+    var emojiCount = 0;
+
+    g.forEach(function (ch) {
+      if (isEmoji(ch)) {
+        emojiCount++;
+        displayWidth += 2; // emoji render roughly full-width
+        return;
+      }
+      var cp = ch.codePointAt(0);
+      displayWidth += isWide(cp) ? 2 : 1;
+    });
+
+    // Links
+    var urls = text.match(URL_RE) || [];
+    var linkCount = urls.length;
+
+    // X weighted count: URLs billed at 23, CJK & emoji weigh 2, others 1.
+    var stripped = text.replace(URL_RE, "");
+    var gx = graphemes(stripped);
+    var xw = 0;
+    gx.forEach(function (ch) {
+      if (isEmoji(ch)) {
+        xw += 2;
+        return;
+      }
+      var cp = ch.codePointAt(0);
+      xw += isWide(cp) ? 2 : 1;
+    });
+    xw += linkCount * 23;
+
+    return {
+      charCount: charCount,
+      displayWidth: displayWidth,
+      emojiCount: emojiCount,
+      linkCount: linkCount,
+      xWeighted: xw,
+    };
+  }
+
+  function statusFor(value, limit) {
+    if (value > limit) return "over";
+    if (value > limit * 0.9) return "tight";
+    return "ok";
+  }
+  var BADGE_TEXT = { ok: "여유", tight: "아슬아슬", over: "초과" };
+
+  /* ---------------------------------------------------------------
+     Render
+     --------------------------------------------------------------- */
+
+  var hookEl = document.getElementById("hook");
+  var resultEl = document.getElementById("result");
+  var basisEl = document.getElementById("basis");
+  var lastPrompt = "";
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function fmt(n) {
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  var EMPTY_HTML =
+    '<div class="empty-state"><div class="big" aria-hidden="true">⌁</div>' +
+    "<p><strong>훅을 입력하면 여기서 바로 계산됩니다.</strong></p>" +
+    "<p>문자 수 · 표시폭 · X 가중 글자수와 3개 폴드 존 통과 여부를 보여드립니다.</p></div>";
+
+  function render() {
+    var text = hookEl.value;
+    if (!text.trim()) {
+      resultEl.innerHTML = EMPTY_HTML;
+      lastPrompt = "";
+      return;
+    }
+
+    var m = analyze(text);
+    var byWidth = basisEl.checked;
+    var foldValue = byWidth ? m.displayWidth : m.charCount;
+    var basisWord = byWidth ? "표시폭" : "문자 수";
+
+    var html = "";
+
+    // ---- stat tiles ----
+    html += '<div class="stats">';
+    html +=
+      '<div class="stat"><div class="v">' +
+      fmt(m.charCount) +
+      '</div><div class="k">문자 수</div><div class="s">보이는 글자</div></div>';
+    html +=
+      '<div class="stat"><div class="v">' +
+      fmt(m.displayWidth) +
+      '</div><div class="k">표시폭</div><div class="s">한글·전각 2칸</div></div>';
+    html +=
+      '<div class="stat hl"><div class="v">' +
+      fmt(m.xWeighted) +
+      '</div><div class="k">X 가중 글자수</div><div class="s">/ 280 · 공식</div></div>';
+    html += "</div>";
+    html +=
+      '<div class="subcount"><span>링크 <b>' +
+      m.linkCount +
+      "</b>개" +
+      (m.linkCount ? " (X에서 각 23자)" : "") +
+      "</span><span>이모지 <b>" +
+      m.emojiCount +
+      "</b>개" +
+      (m.emojiCount ? " (X에서 각 2자)" : "") +
+      "</span></div>";
+
+    // ---- fold zone evaluation ----
+    var passCount = 0;
+    var tightestPass = null;
+    var zoneRows = "";
+    ZONES.forEach(function (z) {
+      var st = statusFor(foldValue, z.limit);
+      if (st !== "over") {
+        passCount++;
+        if (!tightestPass || z.limit < tightestPass.limit) tightestPass = z;
+      }
+      var pct = Math.min((foldValue / z.limit) * 100, 100);
+      var rem =
+        foldValue <= z.limit
+          ? fmt(z.limit - foldValue) + basisWord + " 여유"
+          : fmt(foldValue - z.limit) + basisWord + " 초과";
+      zoneRows +=
+        '<li class="zone st-' +
+        st +
+        '">' +
+        '<div class="zone-top">' +
+        '<p class="zone-name">' +
+        esc(z.name) +
+        '<span class="zone-lim">' +
+        "기준 " +
+        z.limit +
+        '자</span><span class="conf ' +
+        z.conf +
+        '">' +
+        z.confLabel +
+        "</span></p>" +
+        '<span class="badge st-' +
+        st +
+        '">' +
+        BADGE_TEXT[st] +
+        "</span>" +
+        "</div>" +
+        '<div class="zbar" role="img" aria-label="' +
+        esc(z.name) +
+        " " +
+        foldValue +
+        " / " +
+        z.limit +
+        '"><div class="zfill st-' +
+        st +
+        '" style="width:' +
+        pct.toFixed(1) +
+        '%"></div></div>' +
+        '<div class="zone-foot"><span class="zone-rem st-' +
+        st +
+        '">' +
+        basisWord +
+        " " +
+        fmt(foldValue) +
+        " / " +
+        z.limit +
+        "자 · " +
+        rem +
+        "</span></div>" +
+        '<p class="zone-note">' +
+        esc(z.note) +
+        "</p>" +
+        "</li>";
+    });
+
+    // ---- verdict ----
+    var tone, vtitle, vdesc;
+    if (passCount === ZONES.length) {
+      tone = "pass";
+      vtitle = "3개 폴드 존을 모두 통과 — 한 눈에 읽히는 훅입니다";
+      vdesc =
+        "가장 좁은 인스타 첫 캡션존까지 들어옵니다. 어느 플랫폼에서도 잘리지 않고 첫 화면에 다 보일 가능성이 높습니다.";
+    } else if (passCount === 0) {
+      tone = "fail";
+      vtitle = "모든 폴드 존을 초과 — 첫 화면에서 잘립니다";
+      vdesc =
+        "핵심 주장이 '더 보기' 뒤로 숨습니다. 첫 문장을 링크드인 폴드(약 200자) 안으로, 이상적으로는 125자 안으로 압축하세요.";
+    } else {
+      tone = "mixed";
+      vtitle = passCount + " / " + ZONES.length + "개 폴드 존 통과";
+      vdesc =
+        (tightestPass
+          ? "통과한 가장 좁은 존은 '" + tightestPass.name + "'입니다. "
+          : "") +
+        "더 좁은 존까지 확보하려면 첫 문장을 조금 더 압축하세요.";
+    }
+    html +=
+      '<div class="verdict tone-' +
+      tone +
+      '"><p class="verdict-title">' +
+      esc(vtitle) +
+      '</p><p class="verdict-desc">' +
+      esc(vdesc) +
+      "</p></div>";
+
+    html += '<div class="result-block-title">폴드 존 (훅이 잘리는가)</div>';
+    html += '<ul class="zones">' + zoneRows + "</ul>";
+
+    // ---- hard limits ----
+    var limRows = "";
+    LIMITS.forEach(function (z) {
+      var value = z.metric === "xw" ? m.xWeighted : m.charCount;
+      var st = statusFor(value, z.limit);
+      var pct = Math.min((value / z.limit) * 100, 100);
+      var basisL = z.metric === "xw" ? "X 가중" : "문자 수";
+      var rem =
+        value <= z.limit
+          ? fmt(z.limit - value) + "자 남음"
+          : fmt(value - z.limit) + "자 초과";
+      limRows +=
+        '<li class="zone st-' +
+        st +
+        '">' +
+        '<div class="zone-top">' +
+        '<p class="zone-name">' +
+        esc(z.name) +
+        '<span class="zone-lim">최대 ' +
+        fmt(z.limit) +
+        '자</span><span class="conf ' +
+        z.conf +
+        '">' +
+        z.confLabel +
+        "</span></p>" +
+        '<span class="badge st-' +
+        st +
+        '">' +
+        (st === "over" ? "초과" : BADGE_TEXT[st]) +
+        "</span>" +
+        "</div>" +
+        '<div class="zbar" role="img" aria-label="' +
+        esc(z.name) +
+        " " +
+        value +
+        " / " +
+        z.limit +
+        '"><div class="zfill st-' +
+        st +
+        '" style="width:' +
+        pct.toFixed(1) +
+        '%"></div></div>' +
+        '<div class="zone-foot"><span class="zone-rem st-' +
+        st +
+        '">' +
+        basisL +
+        " " +
+        fmt(value) +
+        " / " +
+        fmt(z.limit) +
+        "자 · " +
+        rem +
+        "</span></div>" +
+        '<p class="zone-note">' +
+        esc(z.note) +
+        "</p>" +
+        "</li>";
+    });
+    html += '<div class="result-block-title">하드 상한 (발행 가능한가)</div>';
+    html += '<ul class="zones">' + limRows + "</ul>";
+
+    // ---- AI prompt ----
+    lastPrompt = buildPrompt(text, m, foldValue, byWidth);
+    html += '<div class="result-block-title">다음 단계: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 측정값을 근거로 훅을 폴드 안으로 압축한 KO/EN 버전을 제안받습니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt" id="prompt-text">' +
+      esc(lastPrompt) +
+      "</pre></div>";
+    html +=
+      '<div class="copy-row no-print"><button class="btn-copy" id="copyBtn">프롬프트 복사</button>' +
+      '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>' +
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span></div>';
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+  }
+
+  function buildPrompt(text, m, foldValue, byWidth) {
+    var basisWord = byWidth ? "표시폭(한글 2칸)" : "문자 수";
+    var failing = ZONES.filter(function (z) {
+      return foldValue > z.limit;
+    });
+    var lines = [];
+    lines.push(
+      "당신은 소셜 카피의 훅(첫 문장)을 다듬는 에디터입니다. 아래 훅을 플랫폼 폴드 안에서 잘리지 않도록 압축해 주세요."
+    );
+    lines.push("");
+    lines.push("[현재 훅]");
+    lines.push(text.trim());
+    lines.push("");
+    lines.push("[측정값 (" + basisWord + " 기준)]");
+    lines.push(
+      "- 문자 수 " +
+        m.charCount +
+        " · 표시폭 " +
+        m.displayWidth +
+        " · X 가중 " +
+        m.xWeighted +
+        "/280 · 링크 " +
+        m.linkCount +
+        " · 이모지 " +
+        m.emojiCount
+    );
+    lines.push("");
+    if (failing.length) {
+      lines.push("[통과하지 못한 폴드 존]");
+      failing.forEach(function (z) {
+        lines.push(
+          "- " +
+            z.name +
+            " (기준 " +
+            z.limit +
+            "자): 현재 " +
+            foldValue +
+            "자, " +
+            (foldValue - z.limit) +
+            "자 초과"
+        );
+      });
+    } else {
+      lines.push("[폴드 존] 현재 3개 존을 모두 통과했습니다. 톤을 유지한 채 더 강한 훅 대안을 제안해 주세요.");
+    }
+    lines.push("");
+    lines.push("[요청]");
+    lines.push(
+      "1. 핵심 주장(한 문장)은 유지하되, 가장 좁은 미통과 존 안에 들어오도록 압축하세요."
+    );
+    lines.push(
+      "2. 한국어와 영어를 각각 네이티브하게 리보이싱하세요(기계번역 금지). 영어는 별도 줄로."
+    );
+    lines.push(
+      "3. 원문에 없는 수치·사실·주장을 지어내지 마세요. 데이터가 없으면 자리표시자로 두세요."
+    );
+    lines.push("4. 세 가지 버전을 제안하세요:");
+    lines.push("   (A) 초압축 — 인스타 첫 캡션존(125자) 안");
+    lines.push("   (B) 균형 — 링크드인 폴드(약 200자) 안");
+    lines.push("   (C) 원문 톤 최대 유지 — X 단일 포스트(280자) 안");
+    lines.push(
+      "5. 각 버전마다 예상 문자 수와 통과하는 존을 함께 표기하세요. (한글은 X에서 2자, 링크는 23자로 계산)"
+    );
+    return lines.join("\n");
+  }
+
+  /* ---------------------------------------------------------------
+     Wiring
+     --------------------------------------------------------------- */
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  hookEl.addEventListener("input", function () {
+    grow(hookEl);
+    render();
+  });
+  basisEl.addEventListener("change", render);
+
+  // presets
+  var EXAMPLES = {
+    short: "전략이 실패하는 진짜 이유는 실행이 아니라 선택입니다.",
+    mid:
+      "30년간 5,000개 기업을 만나며 깨달은 것: 성장이 멈춘 회사는 대개 '무엇을 안 할지'를 정하지 못한 회사였습니다.",
+    long:
+      "언더백 경영자가 가장 먼저 버려야 할 착각은 '좋은 실행이 좋은 전략을 이긴다'는 믿음입니다. 실행은 통제 가능한 비용이고, 전략은 통제 불가능한 고객의 선택에 거는 이론이기 때문입니다. 자세한 프레임워크는 여기 👉 https://albaaam.com 에서 확인하세요 🙂",
+  };
+  document.getElementById("presets").addEventListener("click", function (e) {
+    var btn = e.target.closest(".chip");
+    if (!btn) return;
+    hookEl.value = EXAMPLES[btn.dataset.ex] || "";
+    grow(hookEl);
+    render();
+    hookEl.focus();
+  });
+
+  // reset
+  document.getElementById("reset").addEventListener("click", function () {
+    hookEl.value = "";
+    grow(hookEl);
+    render();
+    hookEl.focus();
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // initial state
+  render();
+</script>

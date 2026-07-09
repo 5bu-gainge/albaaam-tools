@@ -1,0 +1,1315 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>네이버 제목 & 두괄식 도입 검사기</title>
+<meta
+  name="description"
+  content="제목 앞 20자 안에 핵심 키워드가 오는지, 첫 문단이 150자 이내 두괄식이고 키워드가 1회 들어가는지 실시간으로 점검합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #1f7a70;
+    --accent-strong: #17605a;
+    --accent-tint: #e7f3f1;
+    --accent-tint-2: #d2e8e4;
+    --ink: #1f2421;
+    --ink-soft: #454b47;
+    --ink-mute: #6a716c;
+    --paper: #f7f9f7;
+    --card: #ffffff;
+    --line: #e3e8e3;
+    --line-strong: #d1d8d1;
+
+    --good: #2f6f4f;
+    --good-tint: #e7f2ea;
+    --good-line: #cfe4d8;
+    --warn: #9a6a12;
+    --warn-tint: #fbf1dd;
+    --warn-line: #f0dfba;
+    --bad: #ab372f;
+    --bad-tint: #fbe9e7;
+    --bad-line: #f2ccc7;
+    --neutral: #7b827c;
+    --neutral-tint: #eef1ee;
+
+    --shadow: 0 1px 2px rgba(31, 36, 33, 0.05), 0 6px 20px rgba(31, 36, 33, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field {
+    margin-bottom: 16px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  .label-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .counter {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    flex: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .counter.over {
+    color: var(--bad);
+  }
+  input.text,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input.text {
+    min-height: 46px;
+  }
+  textarea {
+    min-height: 96px;
+    resize: none;
+    overflow: hidden;
+    display: block;
+  }
+  input.text:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input.text::placeholder,
+  textarea::placeholder {
+    color: #a2a9a3;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    min-height: 46px;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 150px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-bad {
+    background: var(--bad-tint);
+    border-color: var(--bad-line);
+  }
+  .verdict.tone-warn {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-good {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.34rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-bad .verdict-title {
+    color: var(--bad);
+  }
+  .verdict.tone-warn .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-good .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: rgba(31, 36, 33, 0.12);
+  }
+  .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-good .pip.lit {
+    background: var(--good);
+  }
+  .verdict.tone-warn .pip.lit {
+    background: var(--warn);
+  }
+  .verdict.tone-bad .pip.lit {
+    background: var(--bad);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .group-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  ul.checks {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  li.check {
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--neutral);
+    border-radius: 11px;
+    padding: 13px 15px;
+    background: #fcfdfc;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  li.check.good {
+    border-left-color: var(--good);
+    background: var(--good-tint);
+  }
+  li.check.warn {
+    border-left-color: var(--warn);
+    background: var(--warn-tint);
+  }
+  li.check.bad {
+    border-left-color: var(--bad);
+    background: var(--bad-tint);
+  }
+  li.check.neutral {
+    border-left-color: var(--neutral);
+    background: var(--neutral-tint);
+  }
+  .check-icon {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #fff;
+    margin-top: 1px;
+  }
+  li.check.good .check-icon {
+    background: var(--good);
+  }
+  li.check.warn .check-icon {
+    background: var(--warn);
+  }
+  li.check.bad .check-icon {
+    background: var(--bad);
+  }
+  li.check.neutral .check-icon {
+    background: var(--neutral);
+  }
+  .check-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .check-label {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 3px;
+    color: var(--ink);
+  }
+  .check-detail {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #24302d;
+    color: #edf3f0;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 36, 33, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">네이버 SEO · 두괄식 진단</span>
+    <h1>네이버 제목 &amp; 두괄식 도입 검사기</h1>
+    <p class="lede">
+      제목 앞 20자 안에 핵심 키워드가 오는지, 첫 문단이 150자 이내 두괄식이고
+      메인키워드가 1회 들어가는지 <strong>입력하는 즉시</strong> 점검합니다.
+      네이버 상위노출의 첫 관문인 제목과 도입부를 발행 전에 다듬으세요.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>초안 입력</h2>
+    </div>
+    <p class="panel-sub">
+      메인키워드 1개와 제목, 첫 문단(도입부)을 넣으면 아래에서 실시간으로
+      진단합니다. 세 칸을 다 채우면 가장 정확합니다.
+    </p>
+
+    <div class="field">
+      <div class="label-row">
+        <label class="field-label" for="kw">메인키워드 (1개)</label>
+      </div>
+      <input
+        class="text"
+        type="text"
+        id="kw"
+        autocomplete="off"
+        placeholder="예) 중소기업 OKR 도입"
+      />
+      <p class="field-hint">
+        1 포스트 = 1 메인키워드. 이 키워드가 제목·도입 검사의 기준이 됩니다.
+      </p>
+    </div>
+
+    <div class="field">
+      <div class="label-row">
+        <label class="field-label" for="title">제목</label>
+        <span class="counter" id="titleCount" aria-hidden="true">0 / 40자</span>
+      </div>
+      <input
+        class="text"
+        type="text"
+        id="title"
+        autocomplete="off"
+        placeholder="예) 중소기업 OKR 도입, 3개월 실전 후기와 도입 순서 정리"
+      />
+    </div>
+
+    <div class="field">
+      <div class="label-row">
+        <label class="field-label" for="lead">첫 문단 (도입부)</label>
+        <span class="counter" id="leadCount" aria-hidden="true">0 / 150자</span>
+      </div>
+      <textarea
+        id="lead"
+        placeholder="예) 중소기업 OKR 도입의 핵심은 목표 3개, 성과지표 3개로 좁히는 것입니다. 저희가 3개월간 직접 운영하며 확인한 도입 순서와 시행착오를 정리했습니다."
+      ></textarea>
+      <p class="field-hint">
+        입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+        없습니다.
+      </p>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="example" type="button">
+        예시로 채워보기
+      </button>
+      <button class="btn-ghost" id="reset" type="button">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>실시간 진단</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">✎</div>
+        <p><strong>아직 입력이 없습니다.</strong></p>
+        <p>메인키워드·제목·도입부를 입력하면 즉시 진단이 나타납니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 네이버 블로그 발행 표준 2026
+      (C-Rank · D.I.A.+ · 스마트블록)과 두괄식 도입 원칙. 제목은 메인키워드를 맨
+      앞에 두고 핵심을 앞 20자 안에(모바일 검색 잘림 방지) 25~40자로, 첫 문단은
+      150자 이내에서 글의 답을 먼저 제시하며 메인키워드를 1회 자연스럽게 넣는 것을
+      기준으로 삼았습니다.
+    </p>
+    <p>
+      두괄식 판정은 인사·배경으로 시작하는지, 결론을 뒤로 미루는 문형인지,
+      키워드가 앞쪽에 있는지 같은 문형 신호로 추정하는 보조 지표입니다. 반복
+      횟수·글자수 임계는 네이버 비공개 알고리즘 기반 권장 범위이며 공식 수치가
+      아닙니다. 이 도구는 사람의 판단을 돕는 보조 도구일 뿐, 발행 여부를 대신
+      결정하지 않습니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select" type="button">
+        전체 선택
+      </button>
+      <button class="btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------- helpers ----------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  // code-point length (Korean syllables count as 1)
+  function cpLen(s) {
+    return Array.from(s).length;
+  }
+  // code-point index of needle in haystack (-1 if absent)
+  function cpIndexOf(hay, needle) {
+    if (!needle) return -1;
+    var i = hay.indexOf(needle);
+    if (i < 0) return -1;
+    return Array.from(hay.slice(0, i)).length;
+  }
+  // non-overlapping occurrence count
+  function countOccur(hay, needle) {
+    if (!needle) return 0;
+    var c = 0,
+      i = 0;
+    while ((i = hay.indexOf(needle, i)) >= 0) {
+      c++;
+      i += needle.length;
+    }
+    return c;
+  }
+
+  // ---------- title analysis ----------
+  function analyzeTitle(kw, title) {
+    var items = [];
+    var t = title.trim();
+    var k = kw.trim();
+    var tLower = t.toLowerCase();
+    var kLower = k.toLowerCase();
+    var tl = cpLen(t);
+    var kwIn = k && tLower.indexOf(kLower) >= 0;
+    var kwPos = kwIn ? cpIndexOf(tLower, kLower) : -1;
+    var kwCount = kwIn ? countOccur(tLower, kLower) : 0;
+
+    // T1 keyword present
+    if (!k) {
+      items.push({
+        status: "neutral",
+        label: "메인키워드 미입력",
+        detail:
+          "메인키워드를 입력하면 제목·도입의 키워드 배치 검사가 시작됩니다.",
+      });
+    } else if (!t) {
+      items.push({
+        status: "neutral",
+        label: "제목 미입력",
+        detail: "제목을 입력하면 키워드 앞배치와 길이를 검사합니다.",
+      });
+    } else if (kwIn) {
+      items.push({
+        status: "good",
+        label: "제목에 메인키워드 포함",
+        detail: "제목에 '" + k + "'가 들어 있습니다.",
+      });
+    } else {
+      items.push({
+        status: "bad",
+        label: "제목에 메인키워드 없음",
+        detail:
+          "1포스트=1키워드 원칙상 제목 맨 앞에 '" + k + "'를 넣어야 노출됩니다.",
+      });
+    }
+
+    // T2 front placement (only when keyword is in title)
+    if (k && t && kwIn) {
+      if (kwPos <= 2) {
+        items.push({
+          status: "good",
+          label: "키워드 맨 앞 배치",
+          detail:
+            "키워드가 제목 맨 앞에 있어 모바일 검색결과 잘림에 가장 안전합니다.",
+        });
+      } else if (kwPos < 20) {
+        items.push({
+          status: "good",
+          label: "키워드 앞 20자 이내",
+          detail:
+            "키워드가 " +
+            (kwPos + 1) +
+            "번째 글자에서 시작합니다. 앞 20자 안이라 무난하며, 맨 앞으로 당기면 더 강해집니다.",
+        });
+      } else {
+        items.push({
+          status: "warn",
+          label: "키워드가 뒤로 밀림",
+          detail:
+            "키워드가 " +
+            (kwPos + 1) +
+            "번째 글자에 있습니다. 앞 20자 안(가능하면 맨 앞)으로 옮기세요. 모바일 검색결과에서 키워드가 잘려 보일 수 있습니다.",
+        });
+      }
+    }
+
+    // T3 length
+    if (t) {
+      var lenStatus, lenMsg;
+      if (tl >= 25 && tl <= 40) {
+        lenStatus = "good";
+        lenMsg = "권장 범위(25~40자)입니다. 검색 노출과 정보량이 균형을 이룹니다.";
+      } else if (tl < 20) {
+        lenStatus = "bad";
+        lenMsg =
+          "너무 짧습니다(권장 25~40자). 핵심 이득·후킹 문구를 덧붙여 정보량을 키우세요.";
+      } else if (tl < 25) {
+        lenStatus = "warn";
+        lenMsg =
+          "조금 짧습니다. 25~40자에서 정보량과 노출이 가장 균형을 이룹니다.";
+      } else if (tl <= 50) {
+        lenStatus = "warn";
+        lenMsg =
+          "다소 깁니다. 핵심을 앞 20자에 두고 40자 안으로 줄이면 모바일에서 잘 보입니다.";
+      } else {
+        lenStatus = "bad";
+        lenMsg =
+          "너무 깁니다. 모바일 검색결과에서 뒷부분이 잘립니다. 40자 안으로 줄이세요.";
+      }
+      items.push({
+        status: lenStatus,
+        label: "제목 길이 " + tl + "자",
+        detail: lenMsg,
+      });
+    }
+
+    // T4 clickbait / special-char stuffing
+    if (t) {
+      var specialFlag =
+        /(!{2,}|\?{2,}|~{2,}|\.{3,}|[★☆♥♡❤✨🔥]{2,}|ㅋ{3,}|ㅎ{3,})/.test(t) ||
+        (t.match(/[!?]/g) || []).length >= 3;
+      if (specialFlag) {
+        items.push({
+          status: "warn",
+          label: "특수문자·낚시 신호",
+          detail:
+            "반복 특수문자(!!, ~~, …, ★ 등)나 과한 느낌표가 감지됐습니다. 제목 내 의미 없는 특수문자는 스터핑·낚시 신호로 읽혀 강등될 수 있습니다.",
+        });
+      } else {
+        items.push({
+          status: "good",
+          label: "과장 특수문자 없음",
+          detail: "낚시성 특수문자·기호 남용 신호가 없습니다.",
+        });
+      }
+    }
+
+    // T5 keyword stuffing in title
+    if (k && t && kwCount >= 2) {
+      items.push({
+        status: "warn",
+        label: "제목 키워드 반복",
+        detail:
+          "'" +
+          k +
+          "'가 제목에 " +
+          kwCount +
+          "번 반복됩니다. 제목에는 1번이면 충분하며, 반복 도배는 저품질 신호입니다.",
+      });
+    }
+
+    return items;
+  }
+
+  // ---------- lead (first paragraph) analysis ----------
+  function analyzeLead(kw, lead) {
+    var items = [];
+    var l = lead.trim();
+    var k = kw.trim();
+    if (!l) {
+      items.push({
+        status: "neutral",
+        label: "도입부 미입력",
+        detail:
+          "첫 문단(도입부)을 입력하면 길이·두괄식·키워드 1회를 진단합니다.",
+      });
+      return items;
+    }
+
+    var lLower = l.toLowerCase();
+    var kLower = k.toLowerCase();
+    var ll = cpLen(l);
+    var kwIn = k && lLower.indexOf(kLower) >= 0;
+    var kwPos = kwIn ? cpIndexOf(lLower, kLower) : -1;
+    var kwCount = kwIn ? countOccur(lLower, kLower) : 0;
+
+    // L1 length <= 150
+    var lenStatus, lenMsg;
+    if (ll <= 150) {
+      lenStatus = "good";
+      lenMsg =
+        ll +
+        "자로 150자 이내입니다. 첫 문단에 글의 답을 담기 좋은 길이입니다.";
+    } else if (ll <= 250) {
+      lenStatus = "warn";
+      lenMsg =
+        ll +
+        "자로 다소 깁니다. 두괄식은 첫 150자 안에 답을 담을 때 가장 강합니다. 배경 설명은 본문으로 내리세요.";
+    } else {
+      lenStatus = "bad";
+      lenMsg =
+        ll +
+        "자로 너무 깁니다. 핵심 답을 첫 150자로 압축하고 나머지는 소제목 아래로 옮기세요.";
+    }
+    items.push({
+      status: lenStatus,
+      label: "도입 길이 " + ll + "자",
+      detail: lenMsg,
+    });
+
+    // L2 keyword exactly once
+    if (k) {
+      if (kwCount === 1) {
+        items.push({
+          status: "good",
+          label: "도입 메인키워드 1회",
+          detail: "'" + k + "'가 도입에 1회 자연스럽게 들어갔습니다.",
+        });
+      } else if (kwCount === 0) {
+        items.push({
+          status: "bad",
+          label: "도입에 키워드 없음",
+          detail:
+            "첫 문단에 '" +
+            k +
+            "'를 1회 넣어 검색의도와 본문을 일치시키세요. 제목-도입 키워드 불일치는 노출에 불리합니다.",
+        });
+      } else {
+        items.push({
+          status: "warn",
+          label: "도입 키워드 과다",
+          detail:
+            "'" +
+            k +
+            "'가 도입에 " +
+            kwCount +
+            "번 나옵니다. 도입에서는 1회면 충분합니다. 반복은 스터핑으로 읽힐 수 있습니다.",
+        });
+      }
+    }
+
+    // L3 lead-first (두괄식) heuristic
+    var fillerOpener = /^\s*(안녕하세[요용]|안녕하십니까|반갑습니다|여러분|오늘은|오늘도|요즘은?|최근에?|다들|자,\s|이번에는|이번엔|얼마\s?전|며칠\s?전)/.test(
+      l
+    );
+    var tail = Array.from(l).slice(-45).join("");
+    var deferEnding = /(알아보|살펴보|소개(해|하)|정리해|다뤄|다루어|이야기해|풀어|짚어|공유해|알려|보여)\s?(드리겠|드릴|보겠|볼게|볼까|보려|보고자|겠습니다|겠어요|려고\s?합니다|려\s?합니다|하겠습니다)/.test(
+      tail
+    );
+    var kwEarly = kwIn && kwPos <= 40;
+    var kwLate = kwIn && kwPos >= 90;
+
+    var reasons = [];
+    if (fillerOpener)
+      reasons.push("인사·배경 문장으로 시작해 핵심이 뒤로 밀립니다.");
+    if (deferEnding && !kwEarly)
+      reasons.push("'~알아보겠습니다'처럼 결론을 뒤로 미루는 문형입니다.");
+    if (kwLate)
+      reasons.push(
+        "메인키워드가 도입 뒤쪽(약 " + (kwPos + 1) + "번째 글자)에 있습니다."
+      );
+
+    var minus = reasons.length;
+    var leadStatus, leadMsg;
+    if (minus === 0) {
+      leadStatus = "good";
+      leadMsg = kwEarly
+        ? "핵심 답과 키워드를 앞쪽에서 바로 제시하는 두괄식 구조입니다."
+        : "결론을 미루는 신호가 없습니다. 첫 문장에 글의 답을 두면 두괄식이 더 또렷해집니다.";
+    } else if (minus === 1) {
+      leadStatus = "warn";
+      leadMsg =
+        reasons[0] +
+        " 첫 문장에 글의 답과 메인키워드를 먼저 배치하면 두괄식이 살아납니다.";
+    } else {
+      leadStatus = "bad";
+      leadMsg =
+        reasons.join(" ") +
+        " 미괄식에 가깝습니다. 첫 문장을 곧바로 결론으로 바꾸세요.";
+    }
+    items.push({
+      status: leadStatus,
+      label: "두괄식 도입 구조",
+      detail: leadMsg,
+    });
+
+    return items;
+  }
+
+  // ---------- verdict ----------
+  function makeVerdict(items) {
+    var good = 0,
+      warn = 0,
+      bad = 0,
+      active = 0;
+    items.forEach(function (it) {
+      if (it.status === "neutral") return;
+      active++;
+      if (it.status === "good") good++;
+      else if (it.status === "warn") warn++;
+      else if (it.status === "bad") bad++;
+    });
+    var v;
+    if (bad > 0) {
+      v = {
+        tone: "bad",
+        title: "핵심 항목을 먼저 손보세요",
+        desc: "아래 빨강 항목은 검색 노출에 직접 영향을 줍니다. 제목 키워드 배치와 도입 두괄식·키워드부터 고치세요.",
+      };
+    } else if (warn > 0) {
+      v = {
+        tone: "warn",
+        title: "조금만 다듬으면 됩니다",
+        desc: "치명적 문제는 없습니다. 아래 노랑 항목을 보완하면 제목·도입 완성도가 한 단계 올라갑니다.",
+      };
+    } else {
+      v = {
+        tone: "good",
+        title: "제목·도입 기준을 모두 통과했습니다",
+        desc: "키워드 앞배치와 두괄식 도입 기준을 통과했습니다. 이제 본문 소제목·사진·태그를 발행 체크리스트로 이어가세요.",
+      };
+    }
+    v.good = good;
+    v.warn = warn;
+    v.bad = bad;
+    v.active = active;
+    return v;
+  }
+
+  // ---------- AI prompt ----------
+  function buildPrompt(kw, title, lead, issues) {
+    var L = [];
+    L.push(
+      "당신은 네이버 블로그 검색(C-Rank·D.I.A.+·스마트블록)에 정통한 한국어 카피 코치입니다."
+    );
+    L.push(
+      "아래 초안을 네이버 상위노출 규칙에 맞게, 제목과 두괄식 도입부만 다듬어 주세요."
+    );
+    L.push("");
+    L.push("【현재 초안】");
+    L.push("- 메인키워드: " + (kw.trim() || "(미정)"));
+    L.push("- 제목: " + (title.trim() || "(없음)"));
+    L.push("- 도입부: " + (lead.trim() || "(없음)"));
+    L.push("");
+    L.push("【자동 진단에서 나온 보완점】");
+    if (issues.length === 0) {
+      L.push("- 특이 보완점 없음. 완성도를 한 단계 더 높여 주세요.");
+    } else {
+      issues.forEach(function (s) {
+        L.push("- " + s);
+      });
+    }
+    L.push("");
+    L.push("【반영할 네이버 규칙】");
+    L.push(
+      "1. 제목: 메인키워드를 맨 앞에 두고 25~40자, 핵심을 앞 20자 안에. 낚시성 특수문자·키워드 도배 금지, 제목과 본문 내용 일치."
+    );
+    L.push(
+      "2. 도입(첫 문단): 150자 이내 두괄식. 첫 문장에 글의 답/가치를 먼저 제시하고 메인키워드를 1회만 자연스럽게 넣기. 인사·배경으로 시작하거나 결론을 뒤로 미루지 않기."
+    );
+    L.push("3. 1포스트=1메인키워드. 연관키워드는 소제목·본문에서 다루기.");
+    L.push("");
+    L.push("【요청 산출물】");
+    L.push("- 제목 3안 (각각 규칙 준수 + 왜 그렇게 배치했는지 한 줄 근거)");
+    L.push("- 두괄식 도입부 1안 (150자 이내, 끝에 글자수 표기)");
+    L.push(
+      "- 없는 수치·사실은 지어내지 말고, 필요하면 저에게 무엇을 채워야 할지 되물어 주세요."
+    );
+    return L.join("\n");
+  }
+
+  // ---------- render ----------
+  var ICON = { good: "✓", warn: "!", bad: "×", neutral: "·" };
+
+  function renderChecks(items) {
+    var html = '<ul class="checks">';
+    items.forEach(function (it) {
+      html += '<li class="check ' + it.status + '">';
+      html +=
+        '<span class="check-icon" aria-hidden="true">' +
+        ICON[it.status] +
+        "</span>";
+      html += '<div class="check-body">';
+      html += '<p class="check-label">' + esc(it.label) + "</p>";
+      html += '<p class="check-detail">' + esc(it.detail) + "</p>";
+      html += "</div></li>";
+    });
+    html += "</ul>";
+    return html;
+  }
+
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function emptyState() {
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">✎</div>' +
+      "<p><strong>아직 입력이 없습니다.</strong></p>" +
+      "<p>메인키워드·제목·도입부를 입력하면 즉시 진단이 나타납니다.</p></div>";
+    lastPrompt = "";
+  }
+
+  function analyze() {
+    var kw = document.getElementById("kw").value;
+    var title = document.getElementById("title").value;
+    var lead = document.getElementById("lead").value;
+
+    updateCounters(title, lead);
+
+    if (!kw.trim() && !title.trim() && !lead.trim()) {
+      emptyState();
+      return;
+    }
+
+    var titleItems = analyzeTitle(kw, title);
+    var leadItems = analyzeLead(kw, lead);
+    var all = titleItems.concat(leadItems);
+    var v = makeVerdict(all);
+
+    // issues for prompt = warn/bad detail lines
+    var issues = [];
+    all.forEach(function (it) {
+      if (it.status === "warn" || it.status === "bad")
+        issues.push(it.label + " — " + it.detail);
+    });
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + v.tone + '">';
+    html +=
+      '<p class="verdict-label">검사 결과 · 통과 ' +
+      v.good +
+      " · 보완 " +
+      v.warn +
+      " · 미흡 " +
+      v.bad +
+      "</p>";
+    html += '<p class="verdict-title">' + esc(v.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(v.desc) + "</p>";
+    var total = v.active || 1;
+    html +=
+      '<div class="meter" role="img" aria-label="' +
+      total +
+      "개 항목 중 " +
+      v.good +
+      '개 통과">';
+    for (var p = 0; p < total; p++) {
+      html += '<span class="pip' + (p < v.good ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html += '<p class="meter-caption">' + v.good + " / " + total + " 항목 통과</p>";
+    html += "</div>";
+
+    // groups
+    html += '<div class="group-title">제목 검사</div>';
+    html += renderChecks(titleItems);
+    html += '<div class="group-title">도입부 검사</div>';
+    html += renderChecks(leadItems);
+
+    // AI prompt
+    lastPrompt = buildPrompt(kw, title, lead, issues);
+    html += '<div class="group-title">AI에 붙여넣을 개선 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 진단을 바탕으로 규칙에 맞는 제목 3안과 두괄식 도입 1안을 만들어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn" type="button">프롬프트 복사</button>';
+    html +=
+      '<button class="btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+  }
+
+  // ---------- counters ----------
+  function updateCounters(title, lead) {
+    var tc = document.getElementById("titleCount");
+    var lc = document.getElementById("leadCount");
+    var tl = cpLen(title.trim() ? title : title.replace(/\s+$/, ""));
+    tl = cpLen(title);
+    var ll = cpLen(lead);
+    tc.textContent = tl + " / 40자";
+    tc.classList.toggle("over", tl > 40);
+    lc.textContent = ll + " / 150자";
+    lc.classList.toggle("over", ll > 150);
+  }
+
+  // ---------- auto-grow textarea ----------
+  var leadEl = document.getElementById("lead");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  // ---------- wiring ----------
+  ["kw", "title", "lead"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", function () {
+      if (id === "lead") grow(leadEl);
+      analyze();
+    });
+  });
+
+  // example
+  document.getElementById("example").addEventListener("click", function () {
+    document.getElementById("kw").value = "중소기업 OKR 도입";
+    document.getElementById("title").value =
+      "우리 회사가 바뀐 이유, 중소기업 OKR 도입 3개월 솔직 후기!!";
+    document.getElementById("lead").value =
+      "안녕하세요, 가인지컨설팅입니다. 오늘은 요즘 많이들 궁금해하시는 주제를 하나 가져왔는데요. 바로 중소기업 OKR 도입에 대한 이야기입니다. 저희가 지난 3개월간 직접 겪으며 알게 된 것들을 하나씩 풀어보려고 합니다.";
+    grow(leadEl);
+    analyze();
+    document
+      .getElementById("result-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // reset
+  document.getElementById("reset").addEventListener("click", function () {
+    document.getElementById("kw").value = "";
+    document.getElementById("title").value = "";
+    document.getElementById("lead").value = "";
+    grow(leadEl);
+    analyze();
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // initial
+  analyze();
+</script>

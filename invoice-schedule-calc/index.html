@@ -1,0 +1,1061 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>세금계산서 발행·입금 일정 계산기</title>
+<meta name="description" content="계약 시작일·총액·분할 횟수·발행 규칙을 넣으면 회차별 입금예정일과 세금계산서 발행일을 표로 만들어 줍니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #1f6b5e;
+    --accent-strong: #16544a;
+    --accent-tint: #e6f1ef;
+    --accent-tint-2: #cfe5e0;
+    --ink: #1e2422;
+    --ink-soft: #414a47;
+    --ink-mute: #636d69;
+    --paper: #f5f8f7;
+    --card: #ffffff;
+    --line: #dde5e2;
+    --line-strong: #ccd6d2;
+    --good: #1f6b5e;
+    --good-tint: #e6f1ef;
+    --warn: #b4472a;
+    --warn-tint: #fbeae4;
+    --shadow: 0 1px 2px rgba(30, 36, 34, 0.05), 0 6px 20px rgba(30, 36, 34, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- form ---------- */
+  .form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    min-height: 48px;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23636d69' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    padding-right: 42px;
+  }
+  input:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input.err,
+  select.err {
+    border-color: var(--warn);
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-hint.live {
+    color: var(--accent-strong);
+    font-weight: 600;
+  }
+  .field-error {
+    font-size: 0.84rem;
+    color: var(--warn);
+    font-weight: 600;
+    margin: 8px 0 0;
+    display: none;
+  }
+  .field-error.show {
+    display: block;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 48px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .summary {
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+    margin-bottom: 18px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .summary-title {
+    font-size: 1.24rem;
+    font-weight: 800;
+    margin: 0 0 12px;
+    color: var(--accent-strong);
+    line-height: 1.3;
+  }
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    margin: 0 0 4px;
+  }
+  .stat {
+    min-width: 0;
+  }
+  .stat .k {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    font-weight: 700;
+    margin: 0 0 2px;
+  }
+  .stat .v {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .check-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 14px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--good);
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+  .check-badge.bad {
+    background: var(--warn);
+  }
+  .check-badge svg {
+    width: 15px;
+    height: 15px;
+    flex: none;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* ---------- table ---------- */
+  .tbl-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  table.sched {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 540px;
+    font-size: 0.92rem;
+  }
+  table.sched th,
+  table.sched td {
+    padding: 11px 13px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  table.sched thead th {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    position: sticky;
+    top: 0;
+  }
+  table.sched td.seq {
+    font-weight: 800;
+    color: var(--accent);
+    width: 44px;
+    text-align: center;
+  }
+  table.sched td.amt {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+  table.sched .wd {
+    color: var(--ink-mute);
+    font-size: 0.86em;
+    font-weight: 600;
+  }
+  table.sched tbody tr:nth-child(even) td {
+    background: #fafcfb;
+  }
+  table.sched tfoot td {
+    border-top: 2px solid var(--line-strong);
+    border-bottom: none;
+    font-weight: 800;
+    background: #fff;
+  }
+  table.sched tfoot td.amt {
+    color: var(--accent-strong);
+  }
+  .tbl-note {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 10px 2px 0;
+    line-height: 1.6;
+  }
+
+  /* ---------- prompt ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #22302c;
+    color: #eef4f1;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 36, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    resize: vertical;
+    overflow-y: auto;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    .tbl-wrap {
+      overflow: visible;
+    }
+    table.sched {
+      min-width: 0;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">재무 실무 · 세금계산서 일정</span>
+    <h1>세금계산서 발행·입금 일정 계산기</h1>
+    <p class="lede">
+      계약 시작일·총액·분할 횟수·발행 규칙을 넣으면, 회차별 <strong>입금예정일</strong>과
+      그로부터 파생되는 <strong>세금계산서 발행일</strong>을 한 표로 계산합니다. 두 날짜는
+      서로 다릅니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>계약 조건 입력</h2>
+    </div>
+    <p class="panel-sub">
+      네 가지만 넣으면 됩니다. 말일·윤년·요일은 달력 규칙으로 자동 계산합니다.
+    </p>
+
+    <div class="form-grid">
+      <div class="field">
+        <label class="field-label" for="start">계약 시작일 (첫 서비스 월)</label>
+        <input type="date" id="start" aria-describedby="start-err" />
+        <p class="field-error" id="start-err">계약 시작일을 선택하세요.</p>
+        <p class="field-hint">
+          회차별 서비스 월 = 시작 월부터 한 달씩. 날짜(일)는 무시되고 연·월만 씁니다.
+        </p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="total">총 계약금액 (원)</label>
+        <input
+          type="text"
+          id="total"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="예) 36000000"
+          aria-describedby="total-err total-hint"
+        />
+        <p class="field-error" id="total-err">1원 이상의 금액을 숫자로 입력하세요.</p>
+        <p class="field-hint live" id="total-hint">공급가액 기준 총액을 숫자만 입력하세요.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="count">분할 횟수 (회)</label>
+        <input
+          type="number"
+          id="count"
+          min="1"
+          max="60"
+          step="1"
+          inputmode="numeric"
+          placeholder="예) 12"
+          aria-describedby="count-err"
+        />
+        <p class="field-error" id="count-err">1에서 60 사이의 정수를 입력하세요.</p>
+        <p class="field-hint">
+          나눠떨어지지 않는 잔돈은 회계 관행대로 <strong>마지막 회차</strong>에 몰아 줍니다.
+        </p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="rule">입금 예정일 규칙</label>
+        <select id="rule">
+          <option value="전월_말일" selected>전월 말일 입금 (선입금 · 가장 흔함)</option>
+          <option value="월_말일">당월 말일 입금 (후입금)</option>
+        </select>
+        <p class="field-hint" id="rule-hint"></p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="calc">일정 계산하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>계산 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">&#9711;</div>
+        <p><strong>아직 계산 전입니다.</strong></p>
+        <p>계약 조건을 입력하고 '일정 계산하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 입금예정일은 계약서가 정한 "~까지 입금" 기한(전월/당월
+      말일)이고, 세금계산서 발행일은 입금예정일이 속한 주의 <em>전주 월요일</em>(단, 입금예정일이
+      목·금이면 <em>같은 주 월요일</em>)로 파생합니다. 말일·윤년은 달력 규칙으로 계산해 2월 29일을
+      놓치지 않습니다. 규칙 출처: 가인지컨설팅그룹 세금계산서 발행 관행(invoice-schedule-builder).
+    </p>
+    <p>
+      이 계산기는 반복 실무를 돕는 보조 도구입니다. 주말·공휴일 입금 처리, 반기·분기 등 비월별
+      주기, 개별 명시 일정은 담당자가 최종 확인하세요. 입력값은 이 브라우저 밖으로 전송되지
+      않으며, 외부 서버·API 호출도 없습니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- constants ---------- */
+  var WD = ["월", "화", "수", "목", "금", "토", "일"]; // Mon=0 .. Sun=6
+  var RULE_LABEL = {
+    "전월_말일": "전월 말일 입금 (선입금)",
+    "월_말일": "당월 말일 입금 (후입금)",
+  };
+  var RULE_HINT = {
+    "전월_말일":
+      "회차의 서비스 월 '전월' 말일까지 입금. 예: 1월 서비스 → 전년 12월 31일 입금예정.",
+    "월_말일":
+      "회차의 서비스 월 '당월' 말일까지 입금. 예: 1월 서비스 → 1월 31일 입금예정.",
+  };
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function pad(n) {
+    return (n < 10 ? "0" : "") + n;
+  }
+  function fmt(d) {
+    // local-time safe YYYY-MM-DD (never toISOString → avoids UTC shift)
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+  function wdOf(d) {
+    return (d.getDay() + 6) % 7; // Mon=0 .. Sun=6
+  }
+  function won(n) {
+    return n.toLocaleString("ko-KR") + "원";
+  }
+  // last calendar day of a 1-based month; leap years handled by the Date engine
+  function lastDayDate(year, month1) {
+    return new Date(year, month1, 0);
+  }
+  // deposit due date for installment k (1-based) given start year/month + rule
+  function depositDue(startYear, startMonth1, k, rule) {
+    var totalIdx = startYear * 12 + (startMonth1 - 1) + (k - 1); // 0-based month index
+    if (rule === "전월_말일") {
+      var p = totalIdx - 1;
+      return lastDayDate(Math.floor(p / 12), (((p % 12) + 12) % 12) + 1);
+    }
+    return lastDayDate(Math.floor(totalIdx / 12), (totalIdx % 12) + 1);
+  }
+  // tax-invoice issue date derived from deposit due date (weekday rule)
+  function taxIssueDate(due) {
+    var wd = wdOf(due); // Mon=0 .. Sun=6
+    var monday = new Date(due);
+    monday.setDate(due.getDate() - wd); // Monday of the same week
+    if (wd === 3 || wd === 4) return monday; // Thu/Fri → same-week Monday
+    var prev = new Date(monday);
+    prev.setDate(monday.getDate() - 7); // else → previous-week Monday
+    return prev;
+  }
+
+  /* ---------- element refs ---------- */
+  var startEl = document.getElementById("start");
+  var totalEl = document.getElementById("total");
+  var countEl = document.getElementById("count");
+  var ruleEl = document.getElementById("rule");
+  var totalHint = document.getElementById("total-hint");
+  var ruleHint = document.getElementById("rule-hint");
+  var resultEl = document.getElementById("result");
+
+  function setRuleHint() {
+    ruleHint.textContent = RULE_HINT[ruleEl.value] || "";
+  }
+  setRuleHint();
+  ruleEl.addEventListener("change", setRuleHint);
+
+  /* ---------- live amount formatting ---------- */
+  totalEl.addEventListener("input", function () {
+    var digits = totalEl.value.replace(/[^0-9]/g, "");
+    var n = digits ? parseInt(digits, 10) : 0;
+    if (n > 0) {
+      totalHint.textContent = won(n) + " (숫자만 입력)";
+    } else {
+      totalHint.textContent = "공급가액 기준 총액을 숫자만 입력하세요.";
+    }
+  });
+
+  /* ---------- validation ---------- */
+  function showErr(el, errId, on) {
+    el.classList.toggle("err", on);
+    var e = document.getElementById(errId);
+    if (e) e.classList.toggle("show", on);
+    if (on) el.setAttribute("aria-invalid", "true");
+    else el.removeAttribute("aria-invalid");
+  }
+
+  function readInputs() {
+    var ok = true;
+    var startVal = startEl.value; // "YYYY-MM-DD" or ""
+    var totalDigits = totalEl.value.replace(/[^0-9]/g, "");
+    var total = totalDigits ? parseInt(totalDigits, 10) : 0;
+    var count = parseInt(countEl.value, 10);
+
+    var startBad = !startVal || !/^\d{4}-\d{2}-\d{2}$/.test(startVal);
+    showErr(startEl, "start-err", startBad);
+    if (startBad) ok = false;
+
+    var totalBad = !(total >= 1);
+    showErr(totalEl, "total-err", totalBad);
+    if (totalBad) ok = false;
+
+    var countBad = !(count >= 1 && count <= 60);
+    showErr(countEl, "count-err", countBad);
+    if (countBad) ok = false;
+
+    if (!ok) return null;
+
+    var parts = startVal.split("-");
+    return {
+      startYear: parseInt(parts[0], 10),
+      startMonth1: parseInt(parts[1], 10),
+      total: total,
+      count: count,
+      rule: ruleEl.value,
+    };
+  }
+
+  /* ---------- core compute ---------- */
+  function buildSchedule(cfg) {
+    var base = Math.floor(cfg.total / cfg.count);
+    var rows = [];
+    for (var k = 1; k <= cfg.count; k++) {
+      var due = depositDue(cfg.startYear, cfg.startMonth1, k, cfg.rule);
+      var iss = taxIssueDate(due);
+      var amt = k < cfg.count ? base : cfg.total - base * (cfg.count - 1);
+      rows.push({ seq: k, due: due, iss: iss, amt: amt });
+    }
+    return rows;
+  }
+
+  // self-verification mirroring the source skill's checks
+  function verify(rows, cfg) {
+    if (rows.length !== cfg.count) return false;
+    var sum = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      sum += r.amt;
+      if (wdOf(r.iss) !== 0) return false; // issue date must be Monday
+      if (!(r.iss < r.due)) return false; // issue must precede deposit
+      if (i > 0 && !(rows[i - 1].due < r.due)) return false; // strictly increasing
+    }
+    return sum === cfg.total;
+  }
+
+  /* ---------- prompt builder ---------- */
+  function buildPrompt(rows, cfg) {
+    var lines = [];
+    lines.push(
+      "당신은 재무·경리 실무를 돕는 어시스턴트입니다. 아래 세금계산서 발행·입금 일정을 검토하고 실무 산출물을 만들어 주세요."
+    );
+    lines.push("");
+    lines.push("【계약 개요】");
+    lines.push("- 계약 시작일: " + cfg.startYear + "-" + pad(cfg.startMonth1));
+    lines.push("- 총 계약금액: " + won(cfg.total));
+    lines.push("- 분할 횟수: " + cfg.count + "회");
+    lines.push("- 입금 규칙: " + RULE_LABEL[cfg.rule]);
+    lines.push(
+      "- 발행일 규칙: 입금예정일 주의 전주 월요일(단, 입금예정일이 목·금이면 같은 주 월요일)"
+    );
+    lines.push("");
+    lines.push("【회차별 일정】");
+    rows.forEach(function (r) {
+      lines.push(
+        r.seq +
+          "회차 | 입금예정일 " +
+          fmt(r.due) +
+          "(" +
+          WD[wdOf(r.due)] +
+          ") | 세금계산서 발행일 " +
+          fmt(r.iss) +
+          "(월) | " +
+          won(r.amt)
+      );
+    });
+    lines.push("합계: " + won(cfg.total));
+    lines.push("");
+    lines.push("【요청 사항】");
+    lines.push(
+      "1. 각 세금계산서 발행일과 입금예정일을 캘린더 알림 문구로 정리해 주세요(제목·날짜·메모)."
+    );
+    lines.push(
+      "2. 입금예정일이 주말·공휴일과 겹치는 회차를 표시하고, 앞당길지 미룰지 확인 질문을 던져 주세요."
+    );
+    lines.push(
+      "3. 고객에게 보낼 '연간 세금계산서 발행·입금 안내' 메시지 초안을 정중한 존댓말로 작성해 주세요."
+    );
+    lines.push("4. 회차 금액의 합이 총 계약금액과 일치하는지 다시 검산해 주세요.");
+    lines.push(
+      "숫자를 임의로 바꾸지 말고, 규칙이 애매하면 저에게 사실을 먼저 물어봐 주세요."
+    );
+    return lines.join("\n");
+  }
+
+  /* ---------- render ---------- */
+  var lastPrompt = "";
+
+  function render(rows, cfg) {
+    var passed = verify(rows, cfg);
+    var html = "";
+
+    // summary
+    html += '<div class="summary">';
+    html += '<p class="summary-title">' + cfg.count + "회 분할 · " + esc(won(cfg.total)) + "</p>";
+    html += '<div class="stat-row">';
+    html +=
+      '<div class="stat"><p class="k">첫 발행일</p><p class="v">' +
+      fmt(rows[0].iss) +
+      "</p></div>";
+    html +=
+      '<div class="stat"><p class="k">마지막 입금예정일</p><p class="v">' +
+      fmt(rows[rows.length - 1].due) +
+      "</p></div>";
+    html +=
+      '<div class="stat"><p class="k">규칙</p><p class="v" style="font-size:0.9rem">' +
+      esc(RULE_LABEL[cfg.rule]) +
+      "</p></div>";
+    html += "</div>";
+    var checkSvg =
+      '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 12.5L10 17.5L19 7" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    if (passed) {
+      html +=
+        '<span class="check-badge">' +
+        checkSvg +
+        "회차 합계 = 총액 검증 통과 · 발행일 모두 월요일</span>";
+    } else {
+      html +=
+        '<span class="check-badge bad">' +
+        checkSvg +
+        "검증 실패 — 입력값을 확인하세요</span>";
+    }
+    html += "</div>";
+
+    // table
+    html += '<div class="result-block-title">회차별 일정</div>';
+    html += '<div class="tbl-wrap"><table class="sched">';
+    html +=
+      "<thead><tr><th>회차</th><th>입금예정일</th><th>세금계산서 발행일</th><th style=\"text-align:right\">금액</th></tr></thead>";
+    html += "<tbody>";
+    rows.forEach(function (r) {
+      html += "<tr>";
+      html += '<td class="seq">' + r.seq + "</td>";
+      html +=
+        "<td>" + fmt(r.due) + ' <span class="wd">(' + WD[wdOf(r.due)] + ")</span></td>";
+      html += "<td>" + fmt(r.iss) + ' <span class="wd">(월)</span></td>';
+      html += '<td class="amt">' + esc(won(r.amt)) + "</td>";
+      html += "</tr>";
+    });
+    html += "</tbody>";
+    html +=
+      '<tfoot><tr><td class="seq"></td><td colspan="2">합계 (' +
+      cfg.count +
+      '회)</td><td class="amt">' +
+      esc(won(cfg.total)) +
+      "</td></tr></tfoot>";
+    html += "</table></div>";
+    html +=
+      '<p class="tbl-note">세금계산서 발행일은 항상 입금예정일보다 이르고, 항상 월요일입니다. ' +
+      "발행일과 입금예정일은 서로 다른 날짜라는 점에 유의하세요. 표는 좌우로 스크롤됩니다.</p>";
+
+    // prompt
+    lastPrompt = buildPrompt(rows, cfg);
+    html += '<div class="result-block-title">활용: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 일정으로 캘린더 알림·고객 안내문·검산을 함께 만들어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF 저장</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ---------- calc button ---------- */
+  document.getElementById("calc").addEventListener("click", function () {
+    var cfg = readInputs();
+    if (!cfg) {
+      // focus first invalid field
+      var firstBad = document.querySelector(".err");
+      if (firstBad) firstBad.focus();
+      return;
+    }
+    var rows = buildSchedule(cfg);
+    render(rows, cfg);
+  });
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    startEl.value = "";
+    totalEl.value = "";
+    countEl.value = "";
+    ruleEl.value = "전월_말일";
+    setRuleHint();
+    totalHint.textContent = "공급가액 기준 총액을 숫자만 입력하세요.";
+    ["start", "total", "count"].forEach(function (id) {
+      showErr(document.getElementById(id), id + "-err", false);
+    });
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">&#9711;</div>' +
+      "<p><strong>아직 계산 전입니다.</strong></p>" +
+      "<p>계약 조건을 입력하고 '일정 계산하기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    startEl.focus();
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text); // tier 3: manual modal
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

@@ -1,0 +1,1310 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>한국어 의미 단위 줄바꿈기</title>
+<meta
+  name="description"
+  content="긴 한국어 문장을 글자수가 아니라 의미(어절) 단위로 끊어 포스터·썸네일·카피용 줄바꿈안을 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #4a5a86;
+    --accent-strong: #384670;
+    --accent-tint: #eef1f8;
+    --accent-tint-2: #dee3f1;
+    --ink: #20222b;
+    --ink-soft: #454a58;
+    --ink-mute: #676d7c;
+    --paper: #f6f7fb;
+    --card: #ffffff;
+    --line: #e4e6ee;
+    --line-strong: #d2d6e2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #a35a12;
+    --warn-tint: #fff4e7;
+    --warn-line: #f2ddc4;
+    --shadow: 0 1px 2px rgba(32, 34, 43, 0.05), 0 6px 20px rgba(32, 34, 43, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 92px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 1.02rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfbfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a3a7b4;
+  }
+  .field-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 8px 0 0;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 0;
+  }
+  .count-note {
+    font-size: 0.84rem;
+    color: var(--accent-strong);
+    font-weight: 700;
+    margin: 0;
+  }
+
+  /* ---------- controls ---------- */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 26px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+  }
+  .ctrl {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ctrl-label {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .seg {
+    display: inline-flex;
+    background: #eef0f5;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .seg button {
+    font-family: inherit;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+    cursor: pointer;
+    min-height: 40px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .seg button[aria-pressed="true"] {
+    background: var(--card);
+    color: var(--accent-strong);
+    box-shadow: 0 1px 3px rgba(32, 34, 43, 0.12);
+  }
+  .num-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .num-wrap input {
+    width: 78px;
+    font-family: inherit;
+    font-size: 0.98rem;
+    color: var(--ink);
+    background: #fbfbfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 9px 11px;
+    min-height: 40px;
+  }
+  .num-wrap input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .num-wrap .unit {
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 22px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  .btn-primary,
+  .btn-ghost {
+    padding: 13px 20px;
+    min-height: 48px;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.7rem;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    font-weight: 800;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .notice {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 11px;
+    padding: 14px 15px;
+    margin: 0;
+  }
+
+  /* ---------- candidate cards ---------- */
+  .cand-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .cand {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fbfbfe;
+    padding: 16px 16px 15px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .cand.rec {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    background: #fff;
+  }
+  .cand-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .cand-title {
+    font-size: 1.02rem;
+    font-weight: 800;
+    margin: 0;
+  }
+  .cand-badge {
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .cand-badge.rec {
+    color: #fff;
+    background: var(--accent);
+  }
+  .cand-badge.warn {
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+  }
+  .cand-badge.ok {
+    color: var(--good);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+  }
+
+  .preview {
+    background: linear-gradient(180deg, #f3f5fb 0%, #eef1f8 100%);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 12px;
+    padding: 22px 18px;
+    text-align: center;
+  }
+  .cand.rec .preview {
+    background: linear-gradient(180deg, #eef1fb 0%, #e6ebf7 100%);
+  }
+  .pv-line {
+    display: block;
+    font-size: 1.34rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--ink);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  .pv-line .cnt {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 6px;
+    padding: 0 6px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .cand-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin: 13px 0 2px;
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+  }
+  .cand-meta b {
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+
+  .breaks {
+    margin: 12px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    align-items: center;
+  }
+  .breaks .lbl {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    font-weight: 700;
+    margin-right: 2px;
+  }
+  .chip {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 7px;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .chip.t-sentence {
+    background: var(--good-tint);
+    color: var(--good);
+    border-color: #cfe4d8;
+  }
+  .chip.t-comma {
+    background: var(--good-tint);
+    color: var(--good);
+    border-color: #cfe4d8;
+  }
+  .chip.t-plain {
+    background: #eeeef2;
+    color: var(--ink-mute);
+    border-color: var(--line-strong);
+  }
+
+  .cand-actions {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.92rem;
+    padding: 10px 16px;
+    min-height: 42px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.86rem;
+    color: var(--good);
+    font-weight: 700;
+    min-height: 1em;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 26px 0 10px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232630;
+    color: #eef0f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 34, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .controls {
+      gap: 16px 20px;
+    }
+    .pv-line {
+      font-size: 1.18rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    .cand-actions,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    .cand {
+      break-inside: avoid;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">한글 타이포그래피 · 의미 단위 줄바꿈</span>
+    <h1>한국어 의미 단위 줄바꿈기</h1>
+    <p class="lede">
+      긴 한국어 문장을 글자수로 뚝 자르면 어절 한복판이 갈라져 어색해집니다. 이
+      도구는 조사·연결어미·쉼표 같은 <strong>의미 경계</strong>에서 끊어, 각 줄이
+      비슷한 길이로 맞물리는 포스터·썸네일·카피용 줄바꿈안을 만들어 줍니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>문장 입력</h2>
+    </div>
+    <p class="panel-sub">
+      포스터·썸네일에 넣을 한 문장(또는 짧은 카피)을 붙여넣으세요. 어절(띄어쓰기
+      단위)은 절대 중간에서 쪼개지 않습니다.
+    </p>
+    <label class="field-label" for="src">줄바꿈할 문장</label>
+    <textarea
+      id="src"
+      placeholder="예) 안 될 이유를 찾기보다 긍정적인 가능성을 보고 새로운 시도를 지속합니다."
+    ></textarea>
+    <div class="field-meta">
+      <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+      <p class="count-note" id="counter" aria-live="polite"></p>
+    </div>
+
+    <div class="controls">
+      <div class="ctrl">
+        <span class="ctrl-label" id="lines-label">원하는 줄 수</span>
+        <div class="seg" role="group" aria-labelledby="lines-label" id="seg-lines">
+          <button type="button" data-lines="auto" aria-pressed="true">자동</button>
+          <button type="button" data-lines="2" aria-pressed="false">2줄</button>
+          <button type="button" data-lines="3" aria-pressed="false">3줄</button>
+          <button type="button" data-lines="4" aria-pressed="false">4줄</button>
+        </div>
+      </div>
+      <div class="ctrl">
+        <label class="ctrl-label" for="maxch">한 줄 최대 글자 (선택)</label>
+        <div class="num-wrap">
+          <input
+            id="maxch"
+            type="number"
+            inputmode="numeric"
+            min="4"
+            max="40"
+            placeholder="예: 12"
+          />
+          <span class="unit">자</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="run">줄바꿈안 만들기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>줄바꿈안</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">가 / 나 / 다</div>
+        <p><strong>아직 만든 줄바꿈안이 없습니다.</strong></p>
+        <p>문장을 입력하고 '줄바꿈안 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 한글은 어절(띄어쓰기 단위) 안에서 줄이
+      갈라지면 가독성이 급격히 떨어집니다. 이 도구는 <em>core-value-poster</em>
+      제작 원칙 - "글자 수가 아니라 의미 단위로 끊고, 어절을 온전히 보존한다" -
+      과 웹 타이포그래피의 <code>word-break: keep-all</code> 관행을 그대로
+      구현했습니다. 각 줄바꿈 지점은 문장부호 &gt; 연결어미 &gt; 조사 &gt; 일반
+      경계 순으로 가중치를 매긴 뒤, 줄 길이의 균형까지 함께 고려해 고릅니다.
+    </p>
+    <p>
+      경계 유형(연결어미·조사 등)은 표기 기반의 <strong>추정</strong>이며,
+      형태소 분석기 수준의 정확도는 아닙니다. 이 도구는 줄바꿈 후보를 빠르게
+      제안하는 보조 도구이며, 최종 디자인 판단은 사람이 눈으로 확인해 정하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* =========================================================
+     한국어 의미 단위 줄바꿈 엔진
+     - 어절(띄어쓰기 단위)은 절대 중간에서 쪼개지 않는다.
+     - 어절 사이 '간격'마다 경계 강도를 점수화한다.
+       문장부호 > 연결어미 > 조사 > 일반 경계
+     - 목표 줄 수 L에 대해, 경계 강도와 줄 길이 균형을 함께
+       최적화(동적 계획법)해 줄바꿈 지점을 고른다.
+     ========================================================= */
+
+  var BREAK_MAX = 12; // 경계 점수 상한 (정규화 기준)
+  var W = 3; // 경계 품질 가중치 (균형 대비)
+
+  function clen(s) {
+    // 코드포인트 기준 글자 수 (한글은 BMP지만 이모지 대비)
+    return Array.from(s).length;
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // 어절의 끝을 보고 그 뒤 간격의 경계 유형/점수를 판정
+  function classifyGap(cur) {
+    var raw = cur;
+    // 닫는 괄호/따옴표는 벗겨서 끝 판정
+    var trimmedClose = raw.replace(/[)\]}»”’"']+$/u, "");
+
+    // 1) 문장 끝 부호
+    if (/[.!?…]$/.test(trimmedClose)) {
+      return { score: 12, type: "sentence", label: "문장 끝" };
+    }
+    // 2) 쉼표류
+    if (/[,、；;:·]$/.test(trimmedClose)) {
+      return { score: 10, type: "comma", label: "쉼표" };
+    }
+
+    // 끝 문장부호를 모두 제거한 어간 파트
+    var c = trimmedClose.replace(/[.,!?…·;:·]+$/u, "");
+
+    // 3) 연결어미 (긴 패턴 우선)
+    var CONN = [
+      { re: /(으면서|면서)$/, s: 8 },
+      { re: /(거나|든지|든가)$/, s: 7 },
+      { re: /(지만|는데|ㄴ데|은데)$/, s: 8 },
+      { re: /(으나)$/, s: 8 },
+      { re: /(아서|어서|여서|니까|으니|므로|도록|고자|려고|으려고)$/, s: 7 },
+      { re: /(으면|면|거든)$/, s: 6 },
+      { re: /(며)$/, s: 8 },
+      { re: /(고)$/, s: 7 },
+    ];
+    for (var i = 0; i < CONN.length; i++) {
+      if (CONN[i].re.test(c)) {
+        return { score: CONN[i].s, type: "connective", label: "연결어미" };
+      }
+    }
+
+    // 4) 조사 (긴 패턴 우선)
+    var JOSA = [
+      { re: /(에서|에게서|께서|로서|로써|으로서|으로써|에게|한테|더러)$/, s: 5 },
+      { re: /(으로|와|과|이랑|처럼|만큼|보다|까지|부터|마다|조차|마저|밖에|대로|께)$/, s: 5 },
+      { re: /(랑|로)$/, s: 4 },
+      { re: /(은|는|이|가|을|를|도|만)$/, s: 4 },
+      { re: /(이나|나)$/, s: 3 },
+    ];
+    for (var j = 0; j < JOSA.length; j++) {
+      if (JOSA[j].re.test(c)) {
+        return { score: JOSA[j].s, type: "particle", label: "조사" };
+      }
+    }
+
+    // 5) 관형격 '의' — 뒤 명사에 붙으므로 약한 경계
+    if (/의$/.test(c)) {
+      return { score: 2, type: "particle", label: "조사(약)" };
+    }
+
+    // 6) 그 밖의 일반 어절 경계
+    return { score: 0, type: "plain", label: "어절 경계" };
+  }
+
+  // 텍스트 -> 어절 배열 + 간격 점수 배열
+  function tokenize(text) {
+    var norm = text.replace(/\s+/g, " ").trim();
+    if (!norm) return { eojeols: [], gaps: [] };
+    var eojeols = norm.split(" ");
+    var gaps = [];
+    for (var i = 0; i < eojeols.length - 1; i++) {
+      gaps.push(classifyGap(eojeols[i]));
+    }
+    return { eojeols: eojeols, gaps: gaps };
+  }
+
+  // L줄로 나누는 최적 분할 (DP). 실패 시 null.
+  function partition(eojeols, gaps, L) {
+    var n = eojeols.length;
+    if (n < L) return null;
+
+    // 어절별 글자수 + 접두합
+    var w = eojeols.map(clen);
+    var pref = [0];
+    for (var i = 0; i < n; i++) pref.push(pref[i] + w[i]);
+
+    // [p, c) 구간을 한 줄로 합쳤을 때 글자수 (어절 사이 공백 포함)
+    function lineLen(p, c) {
+      return pref[c] - pref[p] + (c - p - 1);
+    }
+    var total = lineLen(0, n);
+    var ideal = total / L;
+
+    function breakPen(gapIdx) {
+      return W * (BREAK_MAX - gaps[gapIdx].score);
+    }
+
+    var INF = Infinity;
+    // dp[c][j] = 앞의 c개 어절을 j줄로 나눈 최소 비용
+    var dp = [];
+    var back = [];
+    for (var a = 0; a <= n; a++) {
+      dp.push(new Array(L + 1).fill(INF));
+      back.push(new Array(L + 1).fill(-1));
+    }
+    dp[0][0] = 0;
+
+    for (var jj = 1; jj <= L; jj++) {
+      for (var c = jj; c <= n; c++) {
+        // 이 줄(j번째)의 시작 어절 인덱스 p
+        for (var p = jj - 1; p < c; p++) {
+          if (dp[p][jj - 1] === INF) continue;
+          var d = lineLen(p, c) - ideal;
+          var cost = dp[p][jj - 1] + d * d;
+          if (p > 0) cost += breakPen(p - 1); // 이 줄 시작 앞 간격 = p-1
+          if (cost < dp[c][jj]) {
+            dp[c][jj] = cost;
+            back[c][jj] = p;
+          }
+        }
+      }
+    }
+
+    if (dp[n][L] === INF) return null;
+
+    // 역추적
+    var cuts = [];
+    var cc = n;
+    for (var k = L; k >= 1; k--) {
+      var p2 = back[cc][k];
+      cuts.unshift([p2, cc]);
+      cc = p2;
+    }
+
+    var lines = cuts.map(function (seg) {
+      return eojeols.slice(seg[0], seg[1]).join(" ");
+    });
+    var lens = cuts.map(function (seg) {
+      return lineLen(seg[0], seg[1]);
+    });
+    // 선택된 경계들 (각 줄 시작 앞 간격 = 줄 시작 어절 -1)
+    var chosen = [];
+    for (var m = 1; m < cuts.length; m++) {
+      var gi = cuts[m][0] - 1;
+      chosen.push(gaps[gi]);
+    }
+
+    var maxLen = Math.max.apply(null, lens);
+    var minLen = Math.min.apply(null, lens);
+    var balance = maxLen > 0 ? minLen / maxLen : 1;
+    var avgBreak =
+      chosen.length > 0
+        ? chosen.reduce(function (acc, g) {
+            return acc + g.score;
+          }, 0) / chosen.length
+        : BREAK_MAX;
+
+    return {
+      L: L,
+      lines: lines,
+      lens: lens,
+      chosen: chosen,
+      maxLen: maxLen,
+      minLen: minLen,
+      balance: balance,
+      breakQ: avgBreak / BREAK_MAX,
+      cost: dp[n][L],
+    };
+  }
+
+  // 여러 L에 대한 후보 생성 + 추천 선정
+  function buildCandidates(text, maxChars) {
+    var t = tokenize(text);
+    var n = t.eojeols.length;
+    var cands = [];
+    for (var L = 2; L <= 4; L++) {
+      var c = partition(t.eojeols, t.gaps, L);
+      if (c) cands.push(c);
+    }
+    if (cands.length === 0) return { eojeols: t.eojeols, cands: [] };
+
+    // 점수: 균형 + 경계품질 - 폭초과 페널티 + 적은줄수 소폭 선호
+    cands.forEach(function (c) {
+      var s = 0.5 * c.balance + 0.45 * c.breakQ;
+      s += c.L === 2 ? 0.05 : c.L === 3 ? 0.025 : 0;
+      c.overflow = maxChars ? c.maxLen > maxChars : false;
+      if (c.overflow) s -= 1;
+      c.score = s;
+    });
+
+    var best = cands.reduce(function (a, b) {
+      return b.score > a.score ? b : a;
+    });
+    best.recommended = true;
+
+    return { eojeols: t.eojeols, cands: cands, best: best };
+  }
+
+  // AI 프롬프트 생성
+  function buildPrompt(text, seg, maxChars, best) {
+    var norm = text.replace(/\s+/g, " ").trim();
+    var lines = [];
+    lines.push(
+      "당신은 한국어 타이포그래피와 카피라이팅에 능한 편집 디자이너입니다."
+    );
+    lines.push(
+      "아래 한 문장을 포스터/썸네일용으로 '의미 단위'로 줄바꿈해 주세요."
+    );
+    lines.push("");
+    lines.push("[줄바꿈 원칙]");
+    lines.push("- 글자 수가 아니라 의미(어절/구/절) 단위로 끊는다.");
+    lines.push("- 어절(띄어쓰기 단위) 중간에서는 절대 끊지 않는다.");
+    lines.push("- 조사·연결어미·쉼표처럼 자연스러운 경계에서 끊는다.");
+    lines.push("- 각 줄의 길이를 최대한 비슷하게 맞춰 시각적 균형을 잡는다.");
+    lines.push("- 원문의 단어·표현·의미는 절대 바꾸지 않는다. 줄바꿈 위치만 조정한다.");
+    lines.push("");
+    lines.push("[제약]");
+    lines.push(
+      "- 목표 줄 수: " + (seg === "auto" ? "제한 없음(가장 자연스러운 수)" : seg + "줄")
+    );
+    lines.push("- 한 줄 최대 글자수: " + (maxChars ? maxChars + "자" : "제한 없음"));
+    lines.push("");
+    lines.push("[원문]");
+    lines.push(norm);
+    lines.push("");
+    if (best) {
+      lines.push("[참고: 자동 생성한 " + best.L + "줄 초안]");
+      best.lines.forEach(function (ln, i) {
+        lines.push(i + 1 + "행: " + ln + "  (" + best.lens[i] + "자)");
+      });
+      lines.push("");
+    }
+    lines.push("[요청]");
+    lines.push("1. 위 원칙을 지킨 줄바꿈안 3개를 제시하고, 각 줄의 글자수를 함께 표기해 주세요.");
+    lines.push("2. 각 안이 '어디서·왜' 끊었는지 한 줄로 설명해 주세요.");
+    lines.push("3. 가장 추천하는 안 하나를 이유와 함께 골라 주세요.");
+    return lines.join("\n");
+  }
+
+  /* ---------------- 상태 ---------------- */
+  var state = { seg: "auto", candTexts: [], lastPrompt: "" };
+
+  /* ---------------- 입력/컨트롤 ---------------- */
+  var src = document.getElementById("src");
+  var counter = document.getElementById("counter");
+  var maxchEl = document.getElementById("maxch");
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  function updateCounter() {
+    var norm = src.value.replace(/\s+/g, " ").trim();
+    var chars = clen(src.value.replace(/\s/g, ""));
+    var eoj = norm ? norm.split(" ").length : 0;
+    counter.textContent = norm ? chars + "자 · " + eoj + "어절" : "";
+  }
+  src.addEventListener("input", function () {
+    grow(src);
+    updateCounter();
+  });
+
+  var seg = document.getElementById("seg-lines");
+  seg.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-lines]");
+    if (!btn) return;
+    state.seg = btn.dataset.lines;
+    Array.prototype.forEach.call(seg.querySelectorAll("button"), function (b) {
+      b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+    });
+  });
+
+  /* ---------------- 실행 ---------------- */
+  var resultEl = document.getElementById("result");
+
+  function readMaxChars() {
+    var v = parseInt(maxchEl.value, 10);
+    if (isNaN(v) || v <= 0) return null;
+    return v;
+  }
+
+  function chipClass(type) {
+    return "chip t-" + type;
+  }
+
+  function renderCandidate(c, maxChars) {
+    var html = "";
+    html += '<div class="cand' + (c.recommended ? " rec" : "") + '">';
+    html += '<div class="cand-head">';
+    html += '<p class="cand-title">' + c.L + "줄</p>";
+    if (c.recommended) html += '<span class="cand-badge rec">추천</span>';
+    if (c.overflow) {
+      html +=
+        '<span class="cand-badge warn">최장 ' +
+        c.maxLen +
+        "자 · 폭 초과</span>";
+    } else if (maxChars) {
+      html += '<span class="cand-badge ok">폭 이내</span>';
+    }
+    html += "</div>";
+
+    // 미리보기
+    html += '<div class="preview">';
+    c.lines.forEach(function (ln, i) {
+      html +=
+        '<span class="pv-line">' +
+        esc(ln) +
+        '<span class="cnt">' +
+        c.lens[i] +
+        "자</span></span>";
+    });
+    html += "</div>";
+
+    // 메타
+    html += '<div class="cand-meta">';
+    html += "<span><b>최장</b> " + c.maxLen + "자</span>";
+    html += "<span><b>균형</b> " + Math.round(c.balance * 100) + "%</span>";
+    var qLabel = c.breakQ >= 0.6 ? "좋음" : c.breakQ >= 0.35 ? "보통" : "약함";
+    html += "<span><b>경계 품질</b> " + qLabel + "</span>";
+    html += "</div>";
+
+    // 경계 유형 칩
+    if (c.chosen.length) {
+      html += '<div class="breaks"><span class="lbl">줄바꿈 지점</span>';
+      c.chosen.forEach(function (g, i) {
+        html +=
+          '<span class="' +
+          chipClass(g.type) +
+          '" title="' +
+          (i + 1) +
+          "번 줄바꿈">" +
+          esc(g.label) +
+          "</span>";
+      });
+      html += "</div>";
+    }
+
+    // 복사
+    html += '<div class="cand-actions no-print">';
+    html +=
+      '<button class="btn-copy" data-copy="cand" data-idx="' +
+      c._idx +
+      '">이 안 복사</button>';
+    html +=
+      '<span class="copy-status" role="status" aria-live="polite" id="cs-' +
+      c._idx +
+      '"></span>';
+    html += "</div>";
+
+    html += "</div>";
+    return html;
+  }
+
+  document.getElementById("run").addEventListener("click", function () {
+    var text = src.value;
+    if (!text.replace(/\s+/g, "").length) {
+      resultEl.innerHTML =
+        '<p class="notice">먼저 줄바꿈할 문장을 입력해 주세요.</p>';
+      return;
+    }
+
+    var maxChars = readMaxChars();
+    var built = buildCandidates(text, maxChars);
+
+    if (built.cands.length === 0) {
+      var msg =
+        built.eojeols.length <= 1
+          ? "어절이 하나뿐이라 의미 단위로 나눌 수 없습니다. 어절 중간을 쪼개지 않는 것이 이 도구의 원칙입니다. 띄어쓰기가 있는 문장을 넣어 주세요."
+          : "어절 수가 너무 적어 2줄 이상으로 나눌 수 없습니다. 조금 더 긴 문장을 넣어 주세요.";
+      resultEl.innerHTML = '<p class="notice">' + msg + "</p>";
+      return;
+    }
+
+    // 표시 대상 결정: 자동이면 전체(추천 먼저), 특정 줄 수면 그 후보 우선
+    var display = built.cands.slice();
+    if (state.seg !== "auto") {
+      var want = parseInt(state.seg, 10);
+      var picked = display.filter(function (c) {
+        return c.L === want;
+      });
+      var rest = display.filter(function (c) {
+        return c.L !== want;
+      });
+      display = picked.concat(rest);
+    } else {
+      // 추천을 맨 앞으로
+      display.sort(function (a, b) {
+        return b.score - a.score;
+      });
+    }
+
+    // 인덱스 + 복사 텍스트 저장
+    state.candTexts = [];
+    display.forEach(function (c, i) {
+      c._idx = i;
+      state.candTexts[i] = c.lines.join("\n");
+    });
+
+    var head = "";
+    if (state.seg !== "auto") {
+      var hasWant = built.cands.some(function (c) {
+        return c.L === parseInt(state.seg, 10);
+      });
+      if (!hasWant) {
+        head +=
+          '<p class="notice" style="margin-bottom:16px">요청하신 ' +
+          state.seg +
+          "줄로는 나눌 수 없어(어절 수 부족), 가능한 다른 줄 수를 대신 보여 드립니다.</p>";
+      }
+    }
+
+    var html = head + '<div class="cand-list">';
+    display.forEach(function (c) {
+      html += renderCandidate(c, maxChars);
+    });
+    html += "</div>";
+
+    // AI 프롬프트
+    state.lastPrompt = buildPrompt(text, state.seg, maxChars, built.best);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">더 다듬고 싶다면 아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으세요. 위 제약(줄 수·최대 글자)과 원문이 함께 담겨 있습니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt">' +
+      esc(state.lastPrompt) +
+      "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" data-copy="prompt">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" role="status" aria-live="polite" id="cs-prompt"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+
+    var pb = document.getElementById("printBtn");
+    if (pb) pb.addEventListener("click", function () {
+      window.print();
+    });
+
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------------- 초기화 ---------------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    src.value = "";
+    maxchEl.value = "";
+    grow(src);
+    updateCounter();
+    state.candTexts = [];
+    state.lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">가 / 나 / 다</div>' +
+      "<p><strong>아직 만든 줄바꿈안이 없습니다.</strong></p>" +
+      "<p>문장을 입력하고 '줄바꿈안 만들기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ---------------- 복사 (3단 폴백) ---------------- */
+  resultEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-copy]");
+    if (!btn) return;
+    var kind = btn.dataset.copy;
+    var text, statusEl;
+    if (kind === "prompt") {
+      text = state.lastPrompt;
+      statusEl = document.getElementById("cs-prompt");
+    } else {
+      var idx = parseInt(btn.dataset.idx, 10);
+      text = state.candTexts[idx];
+      statusEl = document.getElementById("cs-" + idx);
+    }
+    if (text == null) return;
+    copyText(text, statusEl);
+  });
+
+  function flash(statusEl, msg) {
+    if (!statusEl) return;
+    statusEl.textContent = msg;
+    setTimeout(function () {
+      if (statusEl) statusEl.textContent = "";
+    }, 2600);
+  }
+
+  function copyText(text, statusEl) {
+    // tier 1
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flash(statusEl, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusEl);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusEl);
+  }
+
+  function legacyCopy(text, statusEl) {
+    // tier 2: execCommand + 반환값 확인
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (err) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flash(statusEl, "복사되었습니다");
+    } else {
+      openModal(text); // tier 3
+    }
+  }
+
+  /* ---------------- 수동 복사 모달 ---------------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // 초기 카운터
+  updateCounter();
+</script>

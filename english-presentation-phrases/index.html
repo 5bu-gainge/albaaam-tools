@@ -1,0 +1,1413 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>영어 발표 전환·신호 표현 사전</title>
+<meta
+  name="description"
+  content="발표를 잇는 오프닝·프레이밍·설명·강조·전환·클로징 표현을 상황별로 찾아 복사하는 표현 사전."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #157a6e;
+    --accent-strong: #0e5c52;
+    --accent-tint: #e7f3f1;
+    --accent-tint-2: #d2e8e4;
+    --ink: #1e2422;
+    --ink-soft: #414b48;
+    --ink-mute: #667069;
+    --paper: #f5f8f7;
+    --card: #ffffff;
+    --line: #e2e8e6;
+    --line-strong: #cdd6d3;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --shadow: 0 1px 2px rgba(20, 34, 31, 0.05), 0 6px 20px rgba(20, 34, 31, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- search ---------- */
+  .search-box {
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .search-box svg.mag {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+    color: var(--ink-mute);
+  }
+  input.search {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 40px 13px 42px;
+    min-height: 48px;
+  }
+  input.search:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input.search::placeholder {
+    color: #9aa39f;
+  }
+  .search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--ink-mute);
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 8px;
+    display: none;
+    padding: 0;
+  }
+  .search-clear:hover {
+    background: var(--line);
+    color: var(--ink);
+  }
+  .search-clear.show {
+    display: block;
+  }
+
+  /* ---------- chips ---------- */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 9px 15px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .chip:hover {
+    border-color: var(--ink-mute);
+  }
+  .chip[aria-pressed="true"] {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .chip .cnt {
+    font-size: 0.78rem;
+    font-weight: 700;
+    opacity: 0.7;
+    margin-left: 6px;
+  }
+
+  .count-line {
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin: 16px 0 12px;
+  }
+
+  /* ---------- phrase cards ---------- */
+  ul.pc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  li.pc {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfdfc;
+    padding: 15px 16px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  li.pc.added {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .pc-tag {
+    display: inline-block;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 3px 9px;
+    border-radius: 6px;
+    margin-bottom: 9px;
+  }
+  li.pc.added .pc-tag {
+    background: #fff;
+  }
+  .pc-en {
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 5px;
+    line-height: 1.4;
+  }
+  .pc-ko {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    margin: 0 0 4px;
+  }
+  .pc-use {
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    margin: 0 0 13px;
+  }
+  .pc-acts {
+    display: flex;
+    gap: 9px;
+  }
+  .pc-acts button {
+    flex: 1 1 0;
+    min-height: 44px;
+  }
+
+  /* ---------- buttons ---------- */
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 12px 18px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s,
+      color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--accent-strong);
+    border-color: var(--accent-tint-2);
+  }
+  .btn-outline:hover {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  li.pc.added .btn-outline {
+    background: #fff;
+    border-color: var(--accent);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .btn-add.is-added {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .pc-empty {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .pc-empty .big {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+  }
+  .pc-empty p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* ---------- builder ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 62px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa39f;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 18px;
+  }
+
+  ol.track {
+    list-style: none;
+    margin: 0 0 4px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    counter-reset: t;
+  }
+  li.track-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 13px;
+    background: #fbfdfc;
+  }
+  li.track-item .ti-num {
+    counter-increment: t;
+    flex: none;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    width: 20px;
+    text-align: center;
+    margin-top: 2px;
+  }
+  li.track-item .ti-num::before {
+    content: counter(t);
+  }
+  .ti-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .ti-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border-radius: 5px;
+    padding: 2px 7px;
+    margin-bottom: 4px;
+  }
+  .ti-en {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 2px;
+  }
+  .ti-ko {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 0;
+  }
+  .ti-remove {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    min-height: 0;
+    padding: 0;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    color: var(--ink-mute);
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+  .ti-remove:hover {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+  }
+
+  .builder-empty {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 22px 12px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 12px;
+    background: #fbfdfc;
+  }
+  .builder-empty .big {
+    font-size: 1.7rem;
+    margin-bottom: 6px;
+  }
+  .builder-empty p {
+    margin: 4px 0;
+    font-size: 0.92rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  .actions .btn-primary {
+    flex: 1 1 auto;
+    min-width: 170px;
+  }
+  .actions button {
+    min-height: 46px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* prompt box */
+  pre.prompt {
+    margin: 0;
+    background: #1c2b28;
+    color: #eef4f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+    min-height: 44px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* reference details */
+  details.ref {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  details.ref > summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 16px 18px;
+    font-weight: 800;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  details.ref > summary::-webkit-details-marker {
+    display: none;
+  }
+  details.ref > summary .caret {
+    margin-left: auto;
+    transition: transform 0.2s;
+    color: var(--ink-mute);
+    font-size: 0.9rem;
+  }
+  details.ref[open] > summary .caret {
+    transform: rotate(180deg);
+  }
+  .ref-body {
+    padding: 0 18px 20px;
+  }
+  .ref-note {
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+    margin: 0 0 14px;
+  }
+  .swap-group-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin: 16px 0 8px;
+  }
+  ul.swaps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  li.swap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 0.92rem;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: #fbfdfc;
+  }
+  li.swap .bad {
+    color: var(--ink-mute);
+    text-decoration: line-through;
+    text-decoration-color: #c4b0ad;
+  }
+  li.swap .arrow {
+    color: var(--accent);
+    font-weight: 800;
+  }
+  li.swap .good {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 34, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .actions .btn-primary {
+      min-width: 100%;
+    }
+    .pc-acts {
+      flex-direction: column;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    .search-box,
+    .chips,
+    #builder-inputs,
+    .actions,
+    .copy-row,
+    details.ref,
+    .pc-acts,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">English Presentation · 전환·신호 표현</span>
+    <h1>영어 발표 전환·신호 표현 사전</h1>
+    <p class="lede">
+      영어 회의·발표에서 말과 말을 잇는 순간, 어떻게 말해야 자연스러운지 막힐
+      때가 있습니다. 오프닝·프레이밍·설명·강조·전환·클로징 표현을 상황별로 찾아
+      바로 복사하세요. 골라 담으면 발표 뼈대와 AI 프롬프트까지 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="dict-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>표현 사전</h2>
+    </div>
+    <p class="panel-sub">
+      상황(카테고리)으로 좁히고, 한국어나 영어 키워드로 검색하세요. 각 표현은 그
+      자리에서 복사하거나 '담기'로 발표 뼈대에 모을 수 있습니다.
+    </p>
+
+    <div class="search-box">
+      <svg class="mag" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+        <path d="M20 20L16.5 16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      <input
+        type="text"
+        class="search"
+        id="search"
+        placeholder="예) 강조, 전환, key point, so what ..."
+        aria-label="표현 검색"
+        autocomplete="off"
+      />
+      <button class="search-clear" id="searchClear" type="button" aria-label="검색어 지우기">&times;</button>
+    </div>
+
+    <div class="chips" id="chips" role="group" aria-label="상황 카테고리 필터"></div>
+
+    <p class="count-line" id="count" role="status" aria-live="polite"></p>
+
+    <ul class="pc-list" id="pcList"></ul>
+  </section>
+
+  <section class="panel" id="builder-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>내 발표 뼈대</h2>
+    </div>
+    <p class="panel-sub">
+      담은 표현이 발표 흐름 순서(오프닝 → 클로징)로 정렬됩니다. 발표 주제를
+      적으면, 이 표현들을 뼈대로 삼아 자연스러운 영어 스크립트를 써 줄 AI
+      프롬프트를 만들어 드립니다.
+    </p>
+
+    <div id="builder-inputs">
+      <label class="field-label" for="topic">발표 주제 · 맥락 (선택)</label>
+      <textarea
+        id="topic"
+        placeholder="예) 3분기 리텐션 하락 원인과 대응안을 팀 리더들에게 보고하는 10분 발표"
+      ></textarea>
+      <p class="field-hint">
+        입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+        없습니다.
+      </p>
+    </div>
+
+    <div id="track-area"></div>
+  </section>
+
+  <details class="ref">
+    <summary>
+      보너스: 문어체를 구어체로 바꾸기
+      <span class="caret" aria-hidden="true">&#9660;</span>
+    </summary>
+    <div class="ref-body">
+      <p class="ref-note">
+        발표에서 자주 튀어나오는 '글로 쓴 말투'와, 대신 쓰면 훨씬 자연스럽게
+        들리는 '말하는 말투' 짝입니다. 왼쪽은 피하고 오른쪽을 쓰세요.
+      </p>
+      <div id="swap-signposts"></div>
+      <div id="swap-words"></div>
+    </div>
+  </details>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 사내 스킬
+      <em>natural-spoken-script</em>의 구어 표현 뱅크(오프닝·프레이밍·설명·강조·전환·클로징),
+      신호 표현 규칙(Rule 6), 구조 공식, 그리고 문어체 회피 목록에서
+      추출했습니다. 좋은 구어 표현의 기준은 "실제로 소리 내어 말했을 때
+      자연스러운가"입니다.
+    </p>
+    <p>
+      이 도구는 표현 선택을 돕는 보조 도구이며, 발표 내용을 대신 확정해 주지
+      않습니다. 사실·숫자는 지어내지 마시고, 표현은 맥락에 맞게 골라
+      쓰세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div class="sr-only" id="live" role="status" aria-live="polite"></div>
+
+<script>
+  "use strict";
+
+  /* ---------------------------------------------------------------
+     Category metadata — presentation moments, in delivery order.
+     Sourced from natural-spoken-script SKILL.md "Preferred phrase
+     bank" and the Structural Formula (open -> ... -> close).
+  --------------------------------------------------------------- */
+  var CATS = [
+    { id: "open", ko: "오프닝", en: "Opening" },
+    { id: "frame", ko: "프레이밍", en: "Framing" },
+    { id: "explain", ko: "설명", en: "Explaining" },
+    { id: "emphasize", ko: "강조", en: "Emphasizing" },
+    { id: "transition", ko: "전환", en: "Transitioning" },
+    { id: "close", ko: "클로징", en: "Closing" },
+  ];
+  var CAT_ORDER = ["open", "frame", "explain", "emphasize", "transition", "close"];
+  var CAT_KO = {};
+  CATS.forEach(function (c) {
+    CAT_KO[c.id] = c.ko;
+  });
+
+  /* ---------------------------------------------------------------
+     Phrase bank. Every entry follows the skill's spoken-style rules
+     (short, active, simple connectors, natural signposting). The
+     canonical bank phrases are used verbatim; the rest are direct,
+     consistent instantiations of the same rules — never invented
+     facts, only reusable connective phrasing.
+  --------------------------------------------------------------- */
+  var DATA = [
+    // ---------- OPENING ----------
+    { c: "open", en: "Let's start with the problem.", ko: "먼저 문제부터 짚어보죠.", use: "본론의 핵심 문제로 곧장 들어갈 때." },
+    { c: "open", en: "Here's the context.", ko: "먼저 배경을 말씀드리겠습니다.", use: "상황·배경을 먼저 깔아줄 때." },
+    { c: "open", en: "I want to begin with one question.", ko: "질문 하나로 시작하고 싶습니다.", use: "질문을 던져 청중을 끌어들일 때." },
+    { c: "open", en: "Here's the issue.", ko: "핵심 이슈는 이겁니다.", use: "군더더기 없이 바로 쟁점을 꺼낼 때." },
+    { c: "open", en: "The question is simple.", ko: "질문은 간단합니다.", use: "복잡해 보이는 주제를 단순한 질문으로 압축할 때." },
+    { c: "open", en: "Thanks for having me. Let's get right to it.", ko: "불러주셔서 감사합니다. 바로 시작하죠.", use: "짧은 인사 뒤 곧장 본론으로." },
+    { c: "open", en: "Before we dive in, here's the one thing I want you to remember.", ko: "본론 전에, 딱 하나만 기억해 주세요.", use: "핵심 한 줄을 먼저 각인시킬 때." },
+    { c: "open", en: "Let me set the scene.", ko: "상황부터 그려보겠습니다.", use: "장면·맥락을 먼저 세팅할 때." },
+
+    // ---------- FRAMING ----------
+    { c: "frame", en: "The main point is this.", ko: "핵심은 이겁니다.", use: "메시지를 발표 초반에 못박을 때." },
+    { c: "frame", en: "What matters here is...", ko: "여기서 중요한 건...", use: "무엇이 중요한지 초점을 잡아줄 때." },
+    { c: "frame", en: "Here's the way to think about it.", ko: "이렇게 생각하시면 됩니다.", use: "청중에게 사고의 틀을 제시할 때." },
+    { c: "frame", en: "The biggest issue isn't demand. It's retention.", ko: "가장 큰 문제는 수요가 아니라 리텐션입니다.", use: "통념을 뒤집어 진짜 쟁점을 세울 때(X가 아니라 Y 패턴)." },
+    { c: "frame", en: "There are two things to notice here.", ko: "여기서 눈여겨볼 게 두 가지입니다.", use: "포인트 개수를 미리 예고할 때." },
+    { c: "frame", en: "Let me put it another way.", ko: "다르게 말해보겠습니다.", use: "같은 메시지를 재구성해 이해를 도울 때." },
+    { c: "frame", en: "Put simply, this is about trust.", ko: "간단히 말하면, 결국 신뢰의 문제입니다.", use: "복잡한 내용을 한 줄로 압축할 때." },
+    { c: "frame", en: "The important point is where we focus next.", ko: "중요한 지점은 다음에 어디에 집중하느냐입니다.", use: "핵심을 강조하며 관점을 세울 때." },
+
+    // ---------- EXPLAINING ----------
+    { c: "explain", en: "What this means is...", ko: "이게 뜻하는 바는...", use: "결과·의미를 풀어줄 때." },
+    { c: "explain", en: "The reason is simple.", ko: "이유는 간단합니다.", use: "근거를 제시하며 이어갈 때." },
+    { c: "explain", en: "Let me walk you through it.", ko: "차근차근 설명드리겠습니다.", use: "단계별로 안내할 때." },
+    { c: "explain", en: "Here's how it works.", ko: "작동 방식은 이렇습니다.", use: "구조·메커니즘을 설명할 때." },
+    { c: "explain", en: "First... Second... And third...", ko: "첫째... 둘째... 그리고 셋째...", use: "여러 항목을 순서대로 나열할 때." },
+    { c: "explain", en: "Let me give you an example.", ko: "예를 하나 들어보겠습니다.", use: "추상적인 설명을 구체 사례로 내릴 때." },
+    { c: "explain", en: "Think of it this way.", ko: "이렇게 생각해 보세요.", use: "비유·관점으로 이해를 도울 때." },
+    { c: "explain", en: "In other words, we buy time.", ko: "다시 말해, 시간을 버는 겁니다.", use: "같은 내용을 더 쉬운 말로 바꿔줄 때." },
+
+    // ---------- EMPHASIZING ----------
+    { c: "emphasize", en: "This is the part that matters.", ko: "바로 이 부분이 중요합니다.", use: "핵심 구간을 짚어줄 때." },
+    { c: "emphasize", en: "That's the key point.", ko: "그게 핵심입니다.", use: "요점을 못박을 때." },
+    { c: "emphasize", en: "The real issue is retention, not price.", ko: "진짜 문제는 가격이 아니라 리텐션입니다.", use: "표면 아래 본질을 드러낼 때." },
+    { c: "emphasize", en: "Here's the key takeaway.", ko: "핵심만 말씀드리면 이렇습니다.", use: "가장 중요한 결론을 강조할 때." },
+    { c: "emphasize", en: "If you remember one thing, remember this.", ko: "하나만 기억하신다면, 바로 이겁니다.", use: "단 하나의 메시지를 각인시킬 때." },
+    { c: "emphasize", en: "Let me say that again.", ko: "다시 한 번 말씀드립니다.", use: "반복으로 중요도를 끌어올릴 때." },
+    { c: "emphasize", en: "That's the whole point.", ko: "그게 요점의 전부입니다.", use: "메시지를 단호하게 마무리 강조할 때." },
+    { c: "emphasize", en: "This is what I want you to take away.", ko: "이걸 가져가셨으면 합니다.", use: "청중이 남길 것을 직접 지정할 때." },
+
+    // ---------- TRANSITIONING ----------
+    { c: "transition", en: "So where does that leave us?", ko: "그래서 지금 우리는 어디에 있을까요?", use: "정리한 뒤 다음 논점으로 넘어갈 때." },
+    { c: "transition", en: "That brings us to the next point.", ko: "그럼 다음 포인트로 넘어갑니다.", use: "다음 섹션으로 자연스럽게 이동할 때." },
+    { c: "transition", en: "So what should we do?", ko: "그럼 무엇을 해야 할까요?", use: "문제 제기에서 해법으로 전환할 때." },
+    { c: "transition", en: "Now, why does this matter?", ko: "그런데, 이게 왜 중요할까요?", use: "사실에서 의미·시사점으로 넘어갈 때." },
+    { c: "transition", en: "That brings us to the recommendation.", ko: "이제 제안으로 넘어가겠습니다.", use: "분석에서 권고로 전환할 때." },
+    { c: "transition", en: "With that in mind, let's look at the numbers.", ko: "그 점을 염두에 두고, 수치를 보겠습니다.", use: "앞 내용을 이어 다음으로 연결할 때." },
+    { c: "transition", en: "Let's move on to the plan.", ko: "이제 실행안으로 넘어가 보죠.", use: "주제를 바꿀 때 간단한 전환으로." },
+    { c: "transition", en: "So the next question is what to do about it.", ko: "그럼 다음 질문은, 이걸 어떻게 할 것인가입니다.", use: "다음 논점을 질문 형태로 열 때." },
+
+    // ---------- CLOSING ----------
+    { c: "close", en: "The takeaway is simple.", ko: "요점은 간단합니다.", use: "마무리에서 핵심을 다시 눌러줄 때." },
+    { c: "close", en: "So the next step is clear.", ko: "그래서 다음 단계는 분명합니다.", use: "행동으로 연결하며 닫을 때." },
+    { c: "close", en: "That's why this matters.", ko: "그래서 이게 중요합니다.", use: "의미를 각인하며 마무리할 때." },
+    { c: "close", en: "And that's the point I want to leave you with.", ko: "이 점을 남기고 싶습니다.", use: "마지막 메시지를 각인하며 닫을 때." },
+    { c: "close", en: "So, to sum up...", ko: "요약하자면...", use: "핵심을 압축해 정리할 때." },
+    { c: "close", en: "Here's what I'm asking for.", ko: "제가 요청드리는 건 이겁니다.", use: "명확한 행동 요청(CTA)으로 닫을 때." },
+    { c: "close", en: "Let me leave you with this.", ko: "이 말로 마무리하겠습니다.", use: "여운 있는 한 문장으로 닫을 때." },
+    { c: "close", en: "Thank you. I'm happy to take questions.", ko: "감사합니다. 질문 받겠습니다.", use: "발표를 닫고 Q&A로 넘길 때." },
+  ];
+  DATA.forEach(function (p, i) {
+    p.id = "p" + i;
+    p.hay = (p.en + " " + p.ko + " " + p.use + " " + CAT_KO[p.c]).toLowerCase();
+  });
+
+  /* Written -> spoken swaps, from the skill's "avoid" lists. */
+  var SIGNPOST_SWAPS = [
+    { bad: "It is important to note that...", good: "The important point is..." },
+    { bad: "As can be observed...", good: "As you can see..." },
+    { bad: "The following section illustrates...", good: "Let's look at..." },
+    { bad: "Based on the results of our survey...", good: "We asked, and here's what we found." },
+    { bad: "This demonstrates the necessity of...", good: "This shows why we need to..." },
+    { bad: "Having reviewed the data...", good: "We looked at the data, and..." },
+  ];
+  var WORD_SWAPS = [
+    { bad: "utilize", good: "use" },
+    { bad: "facilitate", good: "help" },
+    { bad: "demonstrate", good: "show" },
+    { bad: "approximately", good: "about" },
+    { bad: "sufficient", good: "enough" },
+    { bad: "prior to", good: "before" },
+    { bad: "examine", good: "look at" },
+    { bad: "investigate", good: "look into" },
+    { bad: "postpone", good: "push back" },
+    { bad: "establish", good: "set up" },
+  ];
+
+  // ---- utilities ----
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+  function announce(msg) {
+    var l = document.getElementById("live");
+    if (!l) return;
+    l.textContent = "";
+    setTimeout(function () {
+      l.textContent = msg;
+    }, 30);
+  }
+
+  // ---- state ----
+  var activeCat = "all";
+  var term = "";
+  var added = {}; // id -> true
+
+  // ---- elements ----
+  var searchEl = document.getElementById("search");
+  var searchClear = document.getElementById("searchClear");
+  var chipsEl = document.getElementById("chips");
+  var countEl = document.getElementById("count");
+  var listEl = document.getElementById("pcList");
+  var trackArea = document.getElementById("track-area");
+  var topicEl = document.getElementById("topic");
+
+  // ---- render chips ----
+  function catCount(id) {
+    return DATA.filter(function (p) {
+      return p.c === id;
+    }).length;
+  }
+  (function renderChips() {
+    var html = "";
+    html +=
+      '<button class="chip" type="button" data-cat="all" aria-pressed="true">전체' +
+      '<span class="cnt">' + DATA.length + "</span></button>";
+    CATS.forEach(function (c) {
+      html +=
+        '<button class="chip" type="button" data-cat="' + c.id + '" aria-pressed="false">' +
+        esc(c.ko) + '<span class="cnt">' + catCount(c.id) + "</span></button>";
+    });
+    chipsEl.innerHTML = html;
+  })();
+
+  chipsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest(".chip");
+    if (!btn) return;
+    activeCat = btn.dataset.cat;
+    Array.prototype.forEach.call(chipsEl.querySelectorAll(".chip"), function (b) {
+      b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+    });
+    renderList();
+  });
+
+  // ---- search ----
+  function tokens(s) {
+    return s.toLowerCase().split(/\s+/).filter(Boolean);
+  }
+  function matches(p) {
+    if (!term) return true;
+    var ts = tokens(term);
+    for (var i = 0; i < ts.length; i++) {
+      if (p.hay.indexOf(ts[i]) === -1) return false;
+    }
+    return true;
+  }
+  searchEl.addEventListener("input", function () {
+    term = searchEl.value.trim();
+    searchClear.classList.toggle("show", term.length > 0);
+    renderList();
+  });
+  searchClear.addEventListener("click", function () {
+    searchEl.value = "";
+    term = "";
+    searchClear.classList.remove("show");
+    searchEl.focus();
+    renderList();
+  });
+
+  // ---- render dictionary list ----
+  function currentResults() {
+    return DATA.filter(function (p) {
+      return (activeCat === "all" || p.c === activeCat) && matches(p);
+    });
+  }
+
+  function renderList() {
+    var res = currentResults();
+    var scope = activeCat === "all" ? "전체" : CAT_KO[activeCat];
+    if (res.length === 0) {
+      countEl.textContent = "검색 결과 0개";
+      listEl.innerHTML =
+        '<li class="pc-empty"><div class="big" aria-hidden="true">&#128269;</div>' +
+        "<p><strong>" + esc(term ? "'" + term + "'" : scope) +
+        "에 맞는 표현이 없습니다.</strong></p>" +
+        "<p>검색어를 줄이거나 다른 카테고리를 눌러 보세요.</p></li>";
+      return;
+    }
+    countEl.textContent =
+      scope + " · " + res.length + "개 표현" + (term ? " (검색: " + esc(term) + ")" : "");
+    var html = "";
+    res.forEach(function (p) {
+      var on = !!added[p.id];
+      html += '<li class="pc' + (on ? " added" : "") + '" data-id="' + p.id + '">';
+      html += '<span class="pc-tag">' + esc(CAT_KO[p.c]) + "</span>";
+      html += '<p class="pc-en">' + esc(p.en) + "</p>";
+      html += '<p class="pc-ko">' + esc(p.ko) + "</p>";
+      html += '<p class="pc-use">' + esc(p.use) + "</p>";
+      html += '<div class="pc-acts">';
+      html +=
+        '<button type="button" class="btn-outline btn-add' + (on ? " is-added" : "") +
+        '" data-add="' + p.id + '" aria-pressed="' + (on ? "true" : "false") + '">' +
+        (on ? "담김 &#10003;" : "&#43; 담기") + "</button>";
+      html +=
+        '<button type="button" class="btn-ghost" data-copy="' + p.id + '">복사</button>';
+      html += "</div>";
+      html += "</li>";
+    });
+    listEl.innerHTML = html;
+  }
+
+  listEl.addEventListener("click", function (e) {
+    var addBtn = e.target.closest("[data-add]");
+    if (addBtn) {
+      toggleAdd(addBtn.getAttribute("data-add"));
+      return;
+    }
+    var copyBtn = e.target.closest("[data-copy]");
+    if (copyBtn) {
+      var p = byId(copyBtn.getAttribute("data-copy"));
+      if (p)
+        copyText(p.en, function () {
+          copyBtn.textContent = "복사됨 ✓";
+          announce("복사되었습니다: " + p.en);
+          setTimeout(function () {
+            copyBtn.textContent = "복사";
+          }, 1600);
+        });
+    }
+  });
+
+  function byId(id) {
+    for (var i = 0; i < DATA.length; i++) if (DATA[i].id === id) return DATA[i];
+    return null;
+  }
+
+  function toggleAdd(id) {
+    if (added[id]) delete added[id];
+    else added[id] = true;
+    // update card in place
+    var card = listEl.querySelector('li.pc[data-id="' + id + '"]');
+    if (card) {
+      var on = !!added[id];
+      card.classList.toggle("added", on);
+      var b = card.querySelector("[data-add]");
+      if (b) {
+        b.classList.toggle("is-added", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+        b.innerHTML = on ? "담김 &#10003;" : "&#43; 담기";
+      }
+    }
+    var p = byId(id);
+    announce((added[id] ? "담았습니다: " : "뺐습니다: ") + (p ? p.en : ""));
+    renderTrack();
+  }
+
+  // ---- builder / track ----
+  function selectedOrdered() {
+    // canonical: category delivery order, then dictionary order within category
+    return DATA.filter(function (p) {
+      return added[p.id];
+    }).sort(function (a, b) {
+      var ca = CAT_ORDER.indexOf(a.c);
+      var cb = CAT_ORDER.indexOf(b.c);
+      if (ca !== cb) return ca - cb;
+      return DATA.indexOf(a) - DATA.indexOf(b);
+    });
+  }
+
+  function renderTrack() {
+    var sel = selectedOrdered();
+    if (sel.length === 0) {
+      trackArea.innerHTML =
+        '<div class="builder-empty"><div class="big" aria-hidden="true">&#129520;</div>' +
+        "<p><strong>아직 담은 표현이 없습니다.</strong></p>" +
+        "<p>위 사전에서 '담기'를 눌러 발표 흐름을 만들어 보세요.</p></div>";
+      return;
+    }
+    var html = '<ol class="track">';
+    sel.forEach(function (p) {
+      html += '<li class="track-item" data-id="' + p.id + '">';
+      html += '<span class="ti-num" aria-hidden="true"></span>';
+      html += '<div class="ti-body">';
+      html += '<span class="ti-tag">' + esc(CAT_KO[p.c]) + "</span>";
+      html += '<p class="ti-en">' + esc(p.en) + "</p>";
+      html += '<p class="ti-ko">' + esc(p.ko) + "</p>";
+      html += "</div>";
+      html +=
+        '<button type="button" class="ti-remove" data-remove="' + p.id +
+        '" aria-label="빼기: ' + esc(p.en) + '">&times;</button>';
+      html += "</li>";
+    });
+    html += "</ol>";
+
+    html += '<div class="actions no-print">';
+    html += '<button type="button" class="btn-primary" id="genPrompt">AI 프롬프트 생성</button>';
+    html += '<button type="button" class="btn-ghost" id="copyTrack">뼈대 복사</button>';
+    html += '<button type="button" class="btn-ghost" id="clearTrack">비우기</button>';
+    html += "</div>";
+    html += '<div id="prompt-out"></div>';
+
+    trackArea.innerHTML = html;
+  }
+
+  trackArea.addEventListener("click", function (e) {
+    var rm = e.target.closest("[data-remove]");
+    if (rm) {
+      var id = rm.getAttribute("data-remove");
+      delete added[id];
+      // sync card if visible
+      var card = listEl.querySelector('li.pc[data-id="' + id + '"]');
+      if (card) {
+        card.classList.remove("added");
+        var b = card.querySelector("[data-add]");
+        if (b) {
+          b.classList.remove("is-added");
+          b.setAttribute("aria-pressed", "false");
+          b.innerHTML = "&#43; 담기";
+        }
+      }
+      renderTrack();
+      return;
+    }
+    if (e.target.closest("#genPrompt")) {
+      generatePrompt();
+      return;
+    }
+    if (e.target.closest("#copyTrack")) {
+      var skeleton = buildSkeleton(selectedOrdered());
+      var btn = e.target.closest("#copyTrack");
+      copyText(skeleton, function () {
+        btn.textContent = "복사됨 ✓";
+        announce("발표 뼈대를 복사했습니다.");
+        setTimeout(function () {
+          btn.textContent = "뼈대 복사";
+        }, 1600);
+      });
+      return;
+    }
+    if (e.target.closest("#clearTrack")) {
+      clearTrack();
+      return;
+    }
+  });
+
+  function clearTrack() {
+    added = {};
+    renderTrack();
+    renderList();
+    announce("발표 뼈대를 비웠습니다.");
+  }
+
+  function buildSkeleton(sel) {
+    var lines = ["영어 발표 표현 뼈대 (오프닝 → 클로징)", ""];
+    sel.forEach(function (p) {
+      lines.push("[" + CAT_KO[p.c] + "] " + p.en);
+      lines.push("    " + p.ko);
+    });
+    return lines.join("\n");
+  }
+
+  function buildPrompt(sel, topic) {
+    var lines = [];
+    lines.push(
+      "You are a speech coach who makes English presentation scripts sound natural when spoken aloud, not read like a written report."
+    );
+    lines.push(
+      "Write a natural, spoken-sounding English presentation script for the context below."
+    );
+    lines.push("");
+    lines.push("【발표 주제 · 맥락】");
+    if (topic && topic.trim()) {
+      lines.push(topic.trim());
+    } else {
+      lines.push("(사용자가 이어서 제공합니다. 먼저 주제와 청중을 한 번 물어봐 주세요.)");
+    }
+    lines.push("");
+    lines.push("【사용할 전환·신호 표현 (이 흐름을 뼈대로)】");
+    if (sel.length === 0) {
+      lines.push("(별도로 지정하지 않았습니다. 아래 규칙에 맞는 자연스러운 신호 표현을 직접 골라 주세요.)");
+    } else {
+      sel.forEach(function (p) {
+        lines.push("- [" + CAT_KO[p.c] + "] " + p.en);
+      });
+    }
+    lines.push("");
+    lines.push("【작성 규칙】");
+    lines.push("1. 짧은 문장으로 씁니다. 한 문장은 한 가지 일만 합니다.");
+    lines.push("2. 능동태, 쉬운 단어, 자연스러운 축약(we're, it's, that's)을 씁니다.");
+    lines.push("3. 연결어는 and / but / so / because / when / if 위주로. moreover · furthermore · therefore 남발은 피합니다.");
+    lines.push("4. 딱딱한 문어체는 금지: \"Having reviewed...\", \"It is important to note that...\", \"As can be observed...\" 대신 말하는 신호 표현을 씁니다.");
+    lines.push("5. 구조: 자연스러운 오프닝 → 핵심 메시지 먼저 → 단계별 설명 → 왜 중요한지 → 매끄러운 클로징.");
+    lines.push("6. 사실·숫자·인용을 지어내지 마세요. 구체 수치가 필요하면 [숫자 입력]처럼 자리표시자로 남기고 제게 물어 주세요.");
+    lines.push("7. 위에 준 표현은 순서의 뼈대로 삼되, 그 사이를 자연스럽게 이어 하나의 말로 완성하세요.");
+    lines.push("8. 마지막에 Delivery Notes(강조할 부분 / 속도 / 멈출 지점 / 톤)를 3~5줄로 붙여 주세요.");
+    return lines.join("\n");
+  }
+
+  var lastPrompt = "";
+
+  function generatePrompt() {
+    var sel = selectedOrdered();
+    lastPrompt = buildPrompt(sel, topicEl.value);
+    var out = document.getElementById("prompt-out");
+    if (!out) return;
+    var html = "";
+    html += '<div class="result-block-title">AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 담은 표현을 뼈대로 삼아 자연스러운 영어 발표 스크립트를 써 줍니다.</p>';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += '<div class="copy-row no-print">';
+    html += '<button type="button" class="btn-copy" id="copyPrompt">프롬프트 복사</button>';
+    html += '<button type="button" class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="promptStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+    out.innerHTML = html;
+
+    document.getElementById("copyPrompt").addEventListener("click", function () {
+      copyText(lastPrompt, function () {
+        var s = document.getElementById("promptStatus");
+        if (s) s.textContent = "복사되었습니다";
+        announce("프롬프트를 복사했습니다.");
+        setTimeout(function () {
+          if (s) s.textContent = "";
+        }, 2600);
+      });
+    });
+    document.getElementById("printBtn").addEventListener("click", function () {
+      window.print();
+    });
+    out.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  // ---- topic auto-grow ----
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  topicEl.addEventListener("input", function () {
+    grow(topicEl);
+  });
+
+  /* ---------------------------------------------------------------
+     Copy — 3-tier fallback: navigator.clipboard -> execCommand
+     (return-value checked) -> manual modal.
+  --------------------------------------------------------------- */
+  function copyText(text, onOk) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          if (onOk) onOk();
+        },
+        function () {
+          legacyCopy(text, onOk);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, onOk);
+  }
+  function legacyCopy(text, onOk) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      if (onOk) onOk();
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // ---- reference swaps render ----
+  (function renderSwaps() {
+    function block(list) {
+      var h = '<ul class="swaps">';
+      list.forEach(function (s) {
+        h +=
+          '<li class="swap"><span class="bad">' + esc(s.bad) +
+          '</span><span class="arrow" aria-hidden="true">&#8594;</span><span class="good">' +
+          esc(s.good) + "</span></li>";
+      });
+      h += "</ul>";
+      return h;
+    }
+    document.getElementById("swap-signposts").innerHTML =
+      '<p class="swap-group-title">신호 표현</p>' + block(SIGNPOST_SWAPS);
+    document.getElementById("swap-words").innerHTML =
+      '<p class="swap-group-title">단어 · 동사</p>' + block(WORD_SWAPS);
+  })();
+
+  // ---- init ----
+  renderList();
+  renderTrack();
+</script>

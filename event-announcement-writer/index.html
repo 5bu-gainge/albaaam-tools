@@ -1,0 +1,1387 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>사내 행사·특강 공지문 생성기</title>
+<meta
+  name="description"
+  content="행사 정보만 넣으면 일정 나열이 아니라 '왜 와야 하는지'가 느껴지는 사내 공지문을 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3f6d8e;
+    --accent-strong: #315772;
+    --accent-tint: #eaf1f6;
+    --accent-tint-2: #d5e3ee;
+    --ink: #20242b;
+    --ink-soft: #464c56;
+    --ink-mute: #656b73;
+    --paper: #f6f8fa;
+    --card: #ffffff;
+    --line: #e4e8ee;
+    --line-strong: #d3d9e1;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --shadow: 0 1px 2px rgba(32, 36, 43, 0.05), 0 6px 20px rgba(32, 36, 43, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field {
+    margin-bottom: 15px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  label.field-label .req {
+    color: var(--accent);
+    margin-left: 3px;
+  }
+  label.field-label .opt {
+    color: var(--ink-mute);
+    font-weight: 600;
+    font-size: 0.82rem;
+    margin-left: 4px;
+  }
+  .input,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fdfefe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input.input,
+  select.input {
+    height: 46px;
+  }
+  select.input {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23656b73' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+  textarea {
+    min-height: 84px;
+    resize: none;
+    overflow: hidden;
+  }
+  .input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  ::placeholder {
+    color: #9aa2ac;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+    min-height: 46px;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .err {
+    color: #b23b3b;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin: 12px 0 0;
+    min-height: 1em;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.7rem;
+    margin-bottom: 8px;
+    color: var(--accent-tint-2);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .result-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    margin-bottom: 4px;
+  }
+  .result-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--ink);
+  }
+  .chip {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .detect-note {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 0 0 14px;
+  }
+
+  .out-label {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 4px 0 8px;
+  }
+  textarea.out {
+    min-height: 260px;
+    background: #fcfdfe;
+    border: 1px solid var(--line-strong);
+    border-left: 3px solid var(--accent);
+    font-size: 1rem;
+    line-height: 1.78;
+    white-space: pre-wrap;
+    color: var(--ink);
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: var(--accent-strong);
+  }
+  .btn-mini {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+    font-size: 0.9rem;
+    padding: 10px 15px;
+  }
+  .btn-mini:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  .notes {
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .notes li {
+    border: 1px solid var(--accent-tint-2);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: var(--accent-tint);
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 22px 0 0;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 26px 0 8px;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #242a31;
+    color: #eef2f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 36, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .row2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-basic,
+    #input-detail,
+    .copy-row,
+    .actions,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    textarea.out {
+      border: 1px solid #ccc;
+      min-height: 0;
+      background: #fff;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">사내 커뮤니케이션 · 행사 공지</span>
+    <h1>사내 행사·특강 공지문 생성기</h1>
+    <p class="lede">
+      행사 정보만 넣으면, 일정 나열이 아니라 '왜 와야 하는지'가 느껴지는 사내
+      공지문을 만들어 드립니다. 개인의 유익을 먼저, 회사 이야기는 나중에.
+    </p>
+  </header>
+
+  <section class="panel" id="input-basic">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>행사 정보</h2>
+    </div>
+    <p class="panel-sub">별표(<span style="color: var(--accent)">*</span>)는 필수입니다. 나머지는 비워도 됩니다.</p>
+
+    <div class="field">
+      <label class="field-label" for="name">행사명<span class="req">*</span></label>
+      <input class="input" id="name" type="text" placeholder="예) OKR 특강, 상반기 타운홀, 팀 워크숍" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="date">날짜<span class="req">*</span></label>
+      <input class="input" id="date" type="date" />
+      <p class="field-hint">요일은 자동으로 붙습니다. (예: 6월 10일(화))</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label">시간 <span class="opt">선택</span></label>
+      <div class="row2">
+        <input class="input" id="start" type="time" aria-label="시작 시간" />
+        <input class="input" id="end" type="time" aria-label="종료 시간" />
+      </div>
+      <p class="field-hint">시작 · 종료 시간을 넣으면 오전/오후로 정리됩니다.</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="place">장소<span class="req">*</span></label>
+      <input class="input" id="place" type="text" placeholder="예) 3층 대회의실, 온라인(Zoom)" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="target">대상 <span class="opt">선택</span></label>
+      <input class="input" id="target" type="text" placeholder="비워두면 '전 구성원'으로 들어갑니다" />
+    </div>
+  </section>
+
+  <section class="panel" id="input-detail">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>성격과 결</h2>
+    </div>
+    <p class="panel-sub">
+      '왜 와야 하는지'는 행사 성격에 맞춰 다르게 씁니다. 핵심 주제 한 줄을 넣으면
+      훨씬 구체적으로 살아납니다.
+    </p>
+
+    <div class="field">
+      <label class="field-label" for="type">행사 성격</label>
+      <select class="input" id="type">
+        <option value="auto">자동 감지 (행사명·주제로 판단)</option>
+        <option value="lecture">특강 · 세미나</option>
+        <option value="workshop">워크샵 · 실습</option>
+        <option value="team">팀빌딩 · 친목</option>
+        <option value="strategy">전략 · OKR · 목표설정</option>
+        <option value="onboarding">교육 · 온보딩</option>
+        <option value="wellbeing">건강 · 복지 · 힐링</option>
+        <option value="townhall">타운홀 · 전사 공유</option>
+        <option value="etc">기타</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="topic">핵심 주제 한 줄 <span class="opt">선택</span></label>
+      <input class="input" id="topic" type="text" placeholder="예) 목표를 세우고 측정하는 법, 스트레스 관리, 신규 제품 로드맵" />
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label class="field-label" for="tone">톤</label>
+        <select class="input" id="tone">
+          <option value="warm">따뜻하게</option>
+          <option value="plain">담백하게</option>
+          <option value="lively">활기차게</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label" for="attend">참석 여부</label>
+        <select class="input" id="attend">
+          <option value="none">명시 안 함</option>
+          <option value="req">참석 필수</option>
+          <option value="free">자유 참석</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="channel">발송 채널</label>
+      <select class="input" id="channel">
+        <option value="kakao">카카오톡 / 사내 메신저</option>
+        <option value="notion">노션 / 게시판</option>
+        <option value="email">이메일</option>
+      </select>
+      <p class="field-hint">이메일을 고르면 '제목:' 줄이 함께 만들어집니다.</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="speaker">강사 · 주최자 소개 <span class="opt">선택</span></label>
+      <textarea id="speaker" placeholder="적어 두면 손대지 않고 공지문 서두에 그대로 넣습니다."></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="userq">사전 생각거리 질문 <span class="opt">선택</span></label>
+      <input class="input" id="userq" type="text" placeholder="직접 넣지 않으면 성격에 맞는 열린 질문을 하나 제안합니다" />
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="make">공지문 만들기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+    <p class="err" id="err" role="alert" aria-live="assertive"></p>
+    <p class="field-hint" style="margin-top: 12px">
+      입력한 내용은 이 브라우저 안에서만 처리되며, 어디로도 전송되지 않습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>완성된 공지문</h2>
+    </div>
+    <div id="result" role="region" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">&#9671;</div>
+        <p><strong>아직 만들기 전입니다.</strong></p>
+        <p>행사 정보를 넣고 '공지문 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 사내 공지문 작성 원칙(가인지
+      event-announcement 스킬). 좋은 공지문은 일정을 나열하지 않습니다. 바쁜
+      일상의 구체적 공감으로 문을 열고, 개인의 유익을 먼저 말한 뒤 회사 이야기를
+      가볍게 붙이며, 상투구('여러분의 성장을 위해 마련했습니다')와 기대효과
+      불릿을 피하고, 참석 전 떠올릴 열린 질문 하나와 실제로 오고 싶어지는 한마디로
+      끝맺습니다.
+    </p>
+    <p>
+      이 도구는 초안을 빠르게 잡아 주는 보조 도구입니다. 결과의 마지막 온도는 직접
+      다듬어 완성하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ----------------------------------------------------------------
+     콘텐츠 뱅크 — event-announcement SKILL.md의 "왜 하는가" 원칙을
+     행사 성격별로 구조화한 것. 각 성격마다:
+       openers  : 바쁜 일상의 구체적 공감 (문 여는 한 문장)
+       gainT/gainP : 개인의 유익 (주제 있음 / 없음)
+       bridges  : 회사·팀 연결 (나중에, 가볍게 — 개인 focus 성격은 비움)
+       questions: 참석 전 떠올릴 열린 질문 (정답 없음)
+       closings : 실제로 오고 싶어지는 마무리 한마디
+     주제 josa({t을}/{t로}/{t는}/{t이})는 받침으로 자동 선택.
+  ---------------------------------------------------------------- */
+  var BANK = {
+    lecture: {
+      label: "특강 · 세미나",
+      openers: [
+        "매일 쳐내야 할 일에 파묻히다 보면, 한 발 물러나 생각할 틈이 좀처럼 없습니다.",
+        "바쁘게 달리다 보면 '이게 맞나' 싶은 순간이 문득 찾아옵니다.",
+        "익숙한 방식에만 기대다 보면, 새로운 시야가 그리워질 때가 있습니다.",
+      ],
+      gainT: [
+        "이번 특강은 {t} 이야기로 그 생각의 실마리를 함께 풀어 봅니다.",
+        "{t을} 주제로, 당장 내일 써먹을 관점 하나를 챙겨 가시도록 준비했습니다.",
+        "{t을} 깊이 들여다보며, 익숙한 문제를 새로운 눈으로 다시 보는 시간입니다.",
+      ],
+      gainP: [
+        "이번 특강은 잠시 멈춰 서서 생각을 정리해 볼 기회입니다.",
+        "당장 내일 써먹을 관점 하나쯤은 꼭 챙겨 가시도록 준비했습니다.",
+        "익숙한 문제를 새로운 눈으로 다시 보는 시간입니다.",
+      ],
+      bridges: [
+        "각자의 시야가 넓어지면, 함께 만드는 결과도 자연스럽게 달라집니다.",
+        "한 사람의 관점이 트이면, 팀의 대화도 한 뼘 깊어집니다.",
+      ],
+      questions: [
+        "요즘 나는 어떤 질문 앞에서 가장 오래 머무는가?",
+        "지금 하는 일에서 더 잘하고 싶은 한 가지는 무엇인가?",
+        "이 주제에 대해 평소 품고 있던 궁금증은 무엇인가?",
+      ],
+      closings: [
+        "편한 마음으로 오세요. {place}에서 기다리겠습니다.",
+        "{place}에서 뵙겠습니다.",
+        "좋은 이야기 잔뜩 준비해 두겠습니다. {place}에서 만나요.",
+      ],
+    },
+    workshop: {
+      label: "워크샵 · 실습",
+      openers: [
+        "머리로 아는 것과 실제로 해보는 것 사이에는 늘 거리가 있습니다.",
+        "설명을 듣는 것만으로는 좀처럼 손에 익지 않는 것들이 있습니다.",
+        "'언젠가 제대로 해봐야지' 미뤄 둔 일, 하나쯤 있으실 겁니다.",
+      ],
+      gainT: [
+        "이번에는 직접 손을 움직여 {t을} 몸으로 익혀 봅니다.",
+        "{t을} 듣기만 하지 않고, 그 자리에서 직접 해보며 감을 잡습니다.",
+        "{t을} 실습으로 풀어, 끝나면 '해봤다'는 감각이 남도록 준비했습니다.",
+      ],
+      gainP: [
+        "이번에는 듣기만 하지 않고, 직접 해보며 익히는 시간입니다.",
+        "그 자리에서 직접 손을 움직여 감을 잡아 봅니다.",
+        "끝나고 나면 '해봤다'는 감각 하나가 분명히 남습니다.",
+      ],
+      bridges: ["각자 손에 익힌 것이 모이면, 팀의 일하는 방식도 조금씩 달라집니다."],
+      questions: [
+        "이 주제에서 내가 가장 자신 없는 부분은 어디인가?",
+        "직접 해본다면 가장 먼저 시험해 보고 싶은 것은 무엇인가?",
+        "평소 '이건 어떻게 하는 거지?' 싶었던 순간은 언제인가?",
+      ],
+      closings: [
+        "가볍게 오셔서 직접 부딪혀 보세요. {place}에서 뵙겠습니다.",
+        "{place}에서 함께 해봅시다.",
+        "손만 가져오시면 됩니다. {place}에서 기다릴게요.",
+      ],
+    },
+    team: {
+      label: "팀빌딩 · 친목",
+      openers: [
+        "같은 사무실에 있어도, 서로를 제대로 알 기회는 의외로 많지 않습니다.",
+        "일로만 마주치다 보면, 사람 대 사람으로 이야기 나눌 틈이 없습니다.",
+        "바쁜 일상 속에서 함께 웃어 본 게 언제였나 싶을 때가 있습니다.",
+      ],
+      gainT: [
+        "이번 시간은 일 이야기는 잠시 접고, {t로} 서로를 편하게 알아가는 자리입니다.",
+        "{t을} 핑계 삼아, 평소 못 나눈 이야기를 나누는 시간입니다.",
+        "{t} 속에서 서로의 새로운 모습을 발견하는 자리입니다.",
+      ],
+      gainP: [
+        "이번 시간은 일 이야기 잠시 접어두고, 서로를 편하게 알아가는 자리입니다.",
+        "평소 바빠서 못 나눈 이야기를 나누는 시간입니다.",
+        "서로의 새로운 모습을 발견하는 자리입니다.",
+      ],
+      bridges: [],
+      questions: [
+        "우리 팀에서 요즘 가장 고마웠던 순간은 언제인가?",
+        "함께 일하는 사람들에게 평소 못 했던 한마디가 있다면?",
+        "올해 팀과 함께 만들고 싶은 기억은 무엇인가?",
+      ],
+      closings: [
+        "부담 없이 오셔서 즐기다 가세요. {place}에서 기다리겠습니다.",
+        "{place}에서 편하게 만나요.",
+        "몸만 가볍게 오세요. {place}에서 기다릴게요.",
+      ],
+    },
+    strategy: {
+      label: "전략 · OKR · 목표설정",
+      openers: [
+        "열심히 일하는데 방향이 흐릿하다는 느낌, 한 번쯤 드셨을 겁니다.",
+        "바쁘게는 움직이는데 '무엇을 향해 가는지' 물으면 답이 막힐 때가 있습니다.",
+        "할 일은 많은데 정작 중요한 게 뒤로 밀리는 날들이 있습니다.",
+      ],
+      gainT: [
+        "이번 시간은 그 방향을 함께 잡아 봅니다. {t을} 어떻게 세우고 실행할지 정리합니다.",
+        "{t을} 통해, 막연했던 목표를 손에 잡히는 언어로 바꿔 봅니다.",
+        "{t로} 우선순위를 다시 세우고, 흩어진 에너지를 한 곳으로 모읍니다.",
+      ],
+      gainP: [
+        "이번 시간은 흐릿했던 방향을 함께 또렷하게 잡아 봅니다.",
+        "막연했던 목표를 손에 잡히는 언어로 바꿔 봅니다.",
+        "우선순위를 다시 세우고, 흩어진 에너지를 한 곳으로 모읍니다.",
+      ],
+      bridges: [
+        "각자의 목표가 또렷해질수록, 우리가 함께 가는 방향도 선명해집니다.",
+        "개인의 방향과 팀의 방향이 만나는 지점을 함께 찾아봅니다.",
+      ],
+      questions: [
+        "올해 나는 어떤 일에서 성취감을 느끼고 싶은가?",
+        "지금 내 일에서 가장 중요한 목표 하나는 무엇인가?",
+        "'잘하고 있다'를 나는 무엇으로 확인하고 있는가?",
+      ],
+      closings: [
+        "생각할 거리를 안고 편하게 오세요. {place}에서 뵙겠습니다.",
+        "{place}에서 방향을 함께 잡아 봅시다.",
+        "머릿속 물음표 하나 챙겨서 오세요. {place}에서 기다릴게요.",
+      ],
+    },
+    onboarding: {
+      label: "교육 · 온보딩",
+      openers: [
+        "새로운 환경에 적응하는 일은 누구에게나 낯설고 조심스럽습니다.",
+        "처음에는 무엇을 물어봐야 할지조차 막막할 때가 있습니다.",
+        "'이런 걸 물어봐도 되나' 싶어 혼자 삼킨 질문, 다들 하나쯤 있습니다.",
+      ],
+      gainT: [
+        "이번 시간은 {t을} 비롯해 꼭 필요한 것들을 차근차근 짚어 드립니다.",
+        "{t을} 처음부터 천천히 풀어, 막막함을 덜어 드리는 자리입니다.",
+        "{t을} 함께 둘러보며, 혼자 헤매지 않도록 길을 잡아 드립니다.",
+      ],
+      gainP: [
+        "이번 시간은 꼭 필요한 것들을 차근차근 짚어 드리는 자리입니다.",
+        "처음부터 천천히 풀어, 막막함을 덜어 드리는 시간입니다.",
+        "함께 둘러보며 혼자 헤매지 않도록 길을 잡아 드립니다.",
+      ],
+      bridges: [],
+      questions: [
+        "지금 가장 궁금하거나 막막한 것은 무엇인가?",
+        "여기서 잘 지내기 위해 가장 알고 싶은 한 가지는?",
+        "첫 몇 주 동안 꼭 익히고 싶은 것은 무엇인가?",
+      ],
+      closings: [
+        "궁금한 걸 잔뜩 안고 오셔도 좋습니다. {place}에서 기다리겠습니다.",
+        "{place}에서 편하게 만나요.",
+        "물음표는 많을수록 좋습니다. {place}에서 기다릴게요.",
+      ],
+    },
+    wellbeing: {
+      label: "건강 · 복지 · 힐링",
+      openers: [
+        "일에 치이다 보면, 정작 내 몸과 마음은 뒷전이 되기 쉽습니다.",
+        "괜찮다고 넘기는 사이, 피로가 조용히 쌓여 갑니다.",
+        "쉬는 법을 잊은 채 달리기만 한 건 아닌지, 문득 돌아보게 됩니다.",
+      ],
+      gainT: [
+        "이번 시간은 {t로} 온전히 나를 위해 잠시 숨을 고르는 자리입니다.",
+        "{t을} 통해, 굳어 있던 몸과 마음을 잠시 풀어 봅니다.",
+        "{t} 속에서 나를 돌보는 작은 방법 하나를 챙겨 갑니다.",
+      ],
+      gainP: [
+        "이번 시간만큼은 온전히 나를 위해 잠시 숨을 고르는 자리입니다.",
+        "굳어 있던 몸과 마음을 잠시 풀어 보는 시간입니다.",
+        "나를 돌보는 작은 방법 하나를 챙겨 가는 자리입니다.",
+      ],
+      bridges: [],
+      questions: [
+        "요즘 나는 무엇을 할 때 가장 편안해지는가?",
+        "최근 나를 위해 쓴 시간은 언제였는가?",
+        "오늘 내 몸과 마음은 어떤 신호를 보내고 있는가?",
+      ],
+      closings: [
+        "잠시 쉬어 간다는 마음으로 오세요. {place}에서 기다리겠습니다.",
+        "{place}에서 편히 숨 고르고 가세요.",
+        "아무 준비 없이 몸만 오세요. {place}에서 기다릴게요.",
+      ],
+    },
+    townhall: {
+      label: "타운홀 · 전사 공유",
+      openers: [
+        "각자 자리에서 열심히 달리다 보면, 큰 그림을 함께 볼 기회는 드뭅니다.",
+        "내 일은 잘 알아도, 옆 팀이 무엇을 향해 가는지는 의외로 잘 모릅니다.",
+        "우리가 지금 어디쯤 와 있는지, 문득 궁금해질 때가 있습니다.",
+      ],
+      gainT: [
+        "이번 시간은 {t을} 중심으로, 지금 우리가 어디로 가는지 함께 맞춰 봅니다.",
+        "{t을} 함께 나누며, 흩어져 있던 이야기를 한자리에 모읍니다.",
+        "{t을} 투명하게 공유하고, 궁금한 것을 함께 풀어 봅니다.",
+      ],
+      gainP: [
+        "이번 시간은 지금 우리가 어디쯤 와 있고 어디로 가는지 함께 맞춰 보는 자리입니다.",
+        "흩어져 있던 이야기를 한자리에 모으는 시간입니다.",
+        "지금 상황을 투명하게 공유하고, 궁금한 것을 함께 풀어 봅니다.",
+      ],
+      bridges: ["내 일이 전체 그림 속 어디에 놓이는지 보이면, 하루하루가 조금 달라집니다."],
+      questions: [
+        "우리가 함께 가는 방향에 대해 나는 무엇이 가장 궁금한가?",
+        "이 자리에서 꼭 듣고 싶은 이야기 한 가지는 무엇인가?",
+        "요즘 내 일과 회사의 방향은 어디서 만나고 있는가?",
+      ],
+      closings: [
+        "궁금한 것을 안고 편하게 오세요. {place}에서 뵙겠습니다.",
+        "{place}에서 함께 이야기 나눠요.",
+        "묻고 싶은 것 하나 챙겨서 오세요. {place}에서 기다릴게요.",
+      ],
+    },
+    etc: {
+      label: "기타",
+      openers: [
+        "바쁜 일상 속에서, 잠시 함께 모이는 시간을 마련했습니다.",
+        "각자 바쁘시겠지만, 잠깐 함께할 자리를 준비했습니다.",
+        "자주 있는 자리는 아니라, 조심스럽게 초대를 건넵니다.",
+      ],
+      gainT: [
+        "이번 자리에서는 {t을} 함께 나눕니다.",
+        "{t을} 사이에 두고, 편하게 이야기 나누는 시간입니다.",
+        "{t을} 계기로 서로에게 좋은 시간이 되도록 준비했습니다.",
+      ],
+      gainP: [
+        "이번 자리가 서로에게 좋은 시간이 되도록 준비했습니다.",
+        "편하게 이야기 나누며 함께하는 시간입니다.",
+        "잠시 일상에서 벗어나 함께 숨 돌리는 자리입니다.",
+      ],
+      bridges: ["이런 시간이 쌓이면, 함께 일하는 하루도 조금 더 가벼워집니다."],
+      questions: [
+        "이 자리에서 나는 무엇을 얻어 가고 싶은가?",
+        "오늘 함께하는 사람들과 나누고 싶은 이야기는 무엇인가?",
+        "요즘 내게 가장 필요한 시간은 어떤 시간인가?",
+      ],
+      closings: [
+        "편한 마음으로 오세요. {place}에서 기다리겠습니다.",
+        "{place}에서 뵙겠습니다.",
+        "부담 없이 오세요. {place}에서 기다릴게요.",
+      ],
+    },
+  };
+
+  /* ---------- helpers ---------- */
+  function $(id) {
+    return document.getElementById(id);
+  }
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function hashStr(s) {
+    var h = 5381;
+    for (var i = 0; i < s.length; i++) {
+      h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+    }
+    return h;
+  }
+
+  // 받침 판정 후 조사 자동 선택 (한글 아니면 받침 있는 것으로 처리)
+  function jong(w) {
+    if (!w) return -2;
+    var c = w.charCodeAt(w.length - 1);
+    if (c < 0xac00 || c > 0xd7a3) return -1; // 비한글
+    return (c - 0xac00) % 28;
+  }
+  function hasB(w) {
+    var j = jong(w);
+    return j === -1 || j > 0;
+  }
+  function jEul(w) {
+    return w + (hasB(w) ? "을" : "를");
+  }
+  function jNeun(w) {
+    return w + (hasB(w) ? "은" : "는");
+  }
+  function jI(w) {
+    return w + (hasB(w) ? "이" : "가");
+  }
+  function jRo(w) {
+    var j = jong(w);
+    if (j === -1) return w + "로"; // 비한글은 '로'로
+    if (j === 0 || j === 8) return w + "로"; // 받침 없음 또는 ㄹ
+    return w + "으로";
+  }
+  function fillTopic(str, topic) {
+    return str
+      .replace(/\{t을\}/g, jEul(topic))
+      .replace(/\{t로\}/g, jRo(topic))
+      .replace(/\{t는\}/g, jNeun(topic))
+      .replace(/\{t이\}/g, jI(topic))
+      .replace(/\{t\}/g, topic);
+  }
+
+  var WD = ["일", "월", "화", "수", "목", "금", "토"];
+  function fmtDate(v) {
+    if (!v) return "";
+    var p = v.split("-");
+    if (p.length < 3) return v;
+    var y = +p[0],
+      m = +p[1],
+      d = +p[2];
+    var dt = new Date(y, m - 1, d);
+    if (isNaN(dt.getTime())) return v;
+    return m + "월 " + d + "일(" + WD[dt.getDay()] + ")";
+  }
+  function fmtOne(v) {
+    var p = v.split(":");
+    var h = +p[0],
+      mi = +p[1];
+    var ap = h < 12 ? "오전" : "오후";
+    var h12 = h % 12;
+    if (h12 === 0) h12 = 12;
+    var mm = (mi < 10 ? "0" : "") + mi;
+    return { ap: ap, txt: h12 + ":" + mm };
+  }
+  function fmtTime(s, e) {
+    if (!s && !e) return "";
+    if (s && !e) {
+      var a = fmtOne(s);
+      return a.ap + " " + a.txt;
+    }
+    if (!s && e) {
+      var b = fmtOne(e);
+      return b.ap + " " + b.txt;
+    }
+    var a2 = fmtOne(s),
+      b2 = fmtOne(e);
+    return a2.ap + " " + a2.txt + " ~ " + (a2.ap === b2.ap ? b2.txt : b2.ap + " " + b2.txt);
+  }
+
+  // 행사명 + 주제로 성격 자동 감지
+  function detectType(text) {
+    var t = (text || "").toLowerCase();
+    var rules = [
+      ["strategy", /(okr|kpi|목표|전략|성과|플래닝|planning|비전|로드맵|우선순위)/],
+      ["wellbeing", /(건강|복지|힐링|명상|요가|스트레칭|마음|웰빙|번아웃|휴식|리프레시|스트레스)/],
+      ["team", /(팀빌딩|팀 ?빌딩|친목|단합|회식|워크숍 ?친목|나들이|레크|엠티|\bmt\b)/],
+      ["onboarding", /(온보딩|신입|입사|기초|기본기|필수 ?교육|오리엔테이션|\bot\b)/],
+      ["townhall", /(타운홀|전사|월례|분기|공유회|전 ?직원|townhall|all ?hands|올핸즈|간담회)/],
+      ["workshop", /(워크샵|워크숍|실습|핸즈온|hands|해커톤|실전|클리닉)/],
+      ["lecture", /(특강|세미나|강연|강의|인사이트|트렌드|콘퍼런스|컨퍼런스|포럼|초청)/],
+    ];
+    for (var i = 0; i < rules.length; i++) {
+      if (rules[i][1].test(t)) return rules[i][0];
+    }
+    return "etc";
+  }
+
+  /* ---------- state ---------- */
+  var shuffle = 0;
+  var lastPrompt = "";
+
+  /* ---------- gather inputs ---------- */
+  function gather() {
+    var name = $("name").value.trim();
+    var place = $("place").value.trim();
+    var dateRaw = $("date").value;
+    var topic = $("topic").value.trim();
+    var typeSel = $("type").value;
+    var type = typeSel === "auto" ? detectType(name + " " + topic) : typeSel;
+    var target = $("target").value.trim() || "전 구성원";
+    var speaker = $("speaker").value.trim();
+    var tone = $("tone").value;
+    var attend = $("attend").value;
+    var channel = $("channel").value;
+    var userq = $("userq").value.trim();
+    return {
+      name: name,
+      place: place,
+      dateK: fmtDate(dateRaw),
+      timeStr: fmtTime($("start").value, $("end").value),
+      topic: topic,
+      typeSel: typeSel,
+      type: type,
+      typeLabel: BANK[type].label,
+      target: target,
+      speaker: speaker,
+      tone: tone,
+      attend: attend,
+      channel: channel,
+      userq: userq,
+    };
+  }
+
+  /* ---------- compose the "why" prose + question + closing ---------- */
+  function compose(d) {
+    var b = BANK[d.type];
+    var h = hashStr(d.name + "|" + d.topic);
+    var oi = (h + shuffle) % b.openers.length;
+    var gi = (h + shuffle * 2 + 1) % b.gainT.length;
+    var qi = (h + shuffle * 3 + 2) % b.questions.length;
+    var toneBase = d.tone === "warm" ? 0 : d.tone === "plain" ? 1 : 2;
+    var ci = (toneBase + shuffle) % b.closings.length;
+
+    var opener = b.openers[oi];
+    var gain = d.topic ? fillTopic(b.gainT[gi], d.topic) : b.gainP[gi];
+
+    // 회사·팀 연결은 나중에, 가볍게 — 담백 톤이면 생략
+    var bridge = "";
+    if (d.tone !== "plain" && b.bridges.length) {
+      bridge = b.bridges[(h + shuffle) % b.bridges.length];
+    }
+
+    var why = opener + " " + gain + (bridge ? " " + bridge : "");
+    var question = d.userq || b.questions[qi];
+    var closing = b.closings[ci].replace(/\{place\}/g, d.place);
+
+    return { why: why, question: question, closing: closing };
+  }
+
+  /* ---------- build the announcement text ---------- */
+  function buildAnnouncement(d, c) {
+    var L = [];
+    var titleLine = d.dateK + " " + d.name + " 안내";
+    if (d.channel === "email") {
+      L.push("제목: " + titleLine);
+    } else {
+      L.push("[공지] " + titleLine);
+    }
+    L.push("");
+
+    if (d.speaker) {
+      L.push(d.speaker);
+      L.push("");
+    }
+
+    var sched = d.dateK + (d.timeStr ? " " + d.timeStr : "") + " | " + d.place;
+    L.push(sched);
+    L.push("대상 · " + d.target);
+    if (d.attend === "req") L.push("참석 · 필수");
+    else if (d.attend === "free") L.push("참석 · 자유 (편하게 오세요)");
+    L.push("");
+
+    L.push(c.why);
+    L.push("");
+
+    L.push("오시기 전에 한 가지만 떠올려 오세요.");
+    L.push('"' + c.question + '"');
+    L.push("");
+
+    L.push(c.closing);
+    return L.join("\n");
+  }
+
+  /* ---------- "채워두면 더 좋아지는 것" 감지 ---------- */
+  function buildNotes(d) {
+    var n = [];
+    if (!d.topic)
+      n.push(
+        "핵심 주제 한 줄을 넣으면 '왜 와야 하는지'가 훨씬 구체적으로 살아납니다."
+      );
+    if (!d.speaker && (d.type === "lecture" || d.type === "workshop"))
+      n.push(
+        "강사·진행자 소개를 한 블록 넣으면 신뢰가 올라갑니다. 넣으면 손대지 않고 서두에 그대로 배치됩니다."
+      );
+    if (!d.timeStr)
+      n.push("시작·종료 시간을 넣으면 일정을 한눈에 스캔하기 좋습니다.");
+    if (d.attend === "none")
+      n.push("참석이 필수인지 자유인지 한 줄 정하면 구성원이 덜 헷갈립니다.");
+    return n;
+  }
+
+  /* ---------- AI 다듬기 프롬프트 ---------- */
+  function buildPrompt(d, announcement) {
+    var P = [];
+    P.push(
+      "당신은 사내 커뮤니케이션 카피라이터입니다. 아래 정보로 '오고 싶어지는' 사내 행사 공지문을 다듬어 주세요."
+    );
+    P.push("");
+    P.push("[행사 정보]");
+    P.push("- 행사명: " + d.name);
+    P.push("- 성격: " + d.typeLabel);
+    P.push("- 일시: " + d.dateK + (d.timeStr ? " " + d.timeStr : ""));
+    P.push("- 장소: " + d.place);
+    P.push("- 대상: " + d.target);
+    if (d.topic) P.push("- 핵심 주제: " + d.topic);
+    if (d.attend === "req") P.push("- 참석: 필수");
+    else if (d.attend === "free") P.push("- 참석: 자유");
+    if (d.speaker) {
+      P.push("- 강사/주최자 소개(원문 그대로 서두 배치, 수정 금지):");
+      P.push(d.speaker);
+    }
+    P.push("");
+    P.push("[작성 원칙]");
+    P.push("1. 일정 나열이 아니라 '왜 와야 하는지'가 느껴지게 씁니다.");
+    P.push("2. 개인의 유익을 먼저 말하고, 회사 이야기는 나중에 가볍게 붙입니다.");
+    P.push(
+      "3. 바쁜 일상의 구체적 공감 한 가지로 문을 엽니다. '여러분의 성장을 위해 마련했습니다' 같은 상투구와 기대효과 불릿은 쓰지 않습니다."
+    );
+    P.push("4. 산문 위주, 짧은 문장, 말하듯 편한 구어체. 이모지는 넣지 않습니다.");
+    P.push(
+      "5. 참석 전 떠올릴 열린 질문 한 개를 넣고, 형식적 인사 대신 실제로 오고 싶어지는 한마디로 끝맺습니다."
+    );
+    P.push(
+      "6. 한국어로 씁니다. 영어 병기는 개념어(OKR 등)에만 허용합니다. 없는 사실은 지어내지 말고 비워 둡니다."
+    );
+    P.push("");
+    P.push("[초안]");
+    P.push(announcement);
+    P.push("");
+    P.push(
+      "위 초안을 원칙에 맞게 더 자연스럽고 따뜻하게 다듬어 주세요. 필요하면 담백 버전과 따뜻한 버전 두 가지를 제안해 주세요."
+    );
+    return P.join("\n");
+  }
+
+  /* ---------- auto-grow ---------- */
+  function grow(el) {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  $("speaker").addEventListener("input", function () {
+    grow(this);
+  });
+
+  /* ---------- render result ---------- */
+  var resultEl = $("result");
+
+  function render(d) {
+    var c = compose(d);
+    var announcement = buildAnnouncement(d, c);
+    var notes = buildNotes(d);
+    lastPrompt = buildPrompt(d, announcement);
+
+    var detectNote =
+      d.typeSel === "auto"
+        ? "행사명·주제를 보고 '" + d.typeLabel + "' 성격으로 판단했습니다. STEP 2에서 직접 바꿀 수 있어요."
+        : "선택하신 '" + d.typeLabel + "' 성격에 맞춰 썼습니다.";
+
+    var html = "";
+    html += '<div class="result-head">';
+    html += '<p class="result-title">공지문 초안이 완성됐어요</p>';
+    html += '<span class="chip">' + esc(d.typeLabel) + "</span>";
+    html += "</div>";
+    html += '<p class="detect-note">' + esc(detectNote) + "</p>";
+
+    html += '<p class="out-label">공지문 (바로 고쳐 쓸 수 있어요)</p>';
+    html += '<textarea class="out" id="out" spellcheck="false" aria-label="완성된 공지문"></textarea>';
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyOut">공지문 복사</button>';
+    html += '<button class="btn-mini" id="reroll">다른 표현으로</button>';
+    html += '<button class="btn-mini" id="printBtn">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="statusOut" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    if (notes.length) {
+      html += '<p class="result-block-title">채워두면 더 좋아지는 것</p>';
+      html += '<ul class="notes">';
+      notes.forEach(function (t) {
+        html += "<li>" + esc(t) + "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html +=
+        '<p class="clean-note">필요한 정보가 골고루 담겼습니다. 마지막 한 문장만 소리 내어 읽어 보고, 실제로 오고 싶어지는지 점검해 보세요.</p>';
+    }
+
+    html += '<p class="result-block-title no-print">더 다듬고 싶다면 · AI 프롬프트</p>';
+    html +=
+      '<p class="panel-sub no-print" style="margin-bottom:10px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 초안을 원칙에 맞게 더 자연스럽게 고쳐 줍니다.</p>';
+    html += '<pre class="prompt no-print" id="promptText">' + esc(lastPrompt) + "</pre>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-mini" id="copyPrompt">프롬프트 복사</button>';
+    html += '<span class="copy-status" id="statusPrompt" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+
+    var out = $("out");
+    out.value = announcement;
+    grow(out);
+    out.addEventListener("input", function () {
+      grow(out);
+    });
+
+    $("copyOut").addEventListener("click", function () {
+      copyText($("out").value, "statusOut");
+    });
+    $("copyPrompt").addEventListener("click", function () {
+      copyText(lastPrompt, "statusPrompt");
+    });
+    $("reroll").addEventListener("click", function () {
+      shuffle++;
+      render(gather());
+    });
+    $("printBtn").addEventListener("click", function () {
+      window.print();
+    });
+  }
+
+  /* ---------- validate + make ---------- */
+  function make() {
+    var errEl = $("err");
+    var missing = [];
+    if (!$("name").value.trim()) missing.push(["행사명", "name"]);
+    if (!$("date").value) missing.push(["날짜", "date"]);
+    if (!$("place").value.trim()) missing.push(["장소", "place"]);
+    if (missing.length) {
+      errEl.textContent =
+        missing.map(function (m) { return m[0]; }).join(", ") + "을(를) 먼저 채워 주세요.";
+      $(missing[0][1]).focus();
+      return;
+    }
+    errEl.textContent = "";
+    shuffle = 0;
+    render(gather());
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  $("make").addEventListener("click", make);
+
+  // 성격을 수동 지정하면 감지 무의미 알림 방지 — 입력 바뀌면 에러 지움
+  ["name", "date", "place"].forEach(function (id) {
+    $(id).addEventListener("input", function () {
+      $("err").textContent = "";
+    });
+  });
+
+  /* ---------- reset ---------- */
+  $("reset").addEventListener("click", function () {
+    ["name", "date", "start", "end", "place", "target", "topic", "speaker", "userq"].forEach(
+      function (id) {
+        $(id).value = "";
+      }
+    );
+    $("type").value = "auto";
+    $("tone").value = "warm";
+    $("attend").value = "none";
+    $("channel").value = "kakao";
+    grow($("speaker"));
+    $("err").textContent = "";
+    shuffle = 0;
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">&#9671;</div>' +
+      "<p><strong>아직 만들기 전입니다.</strong></p>" +
+      "<p>행사 정보를 넣고 '공지문 만들기'를 누르세요.</p></div>";
+    $("input-basic").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- copy: 3-tier fallback ---------- */
+  function flash(statusId, msg) {
+    var s = $(statusId);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+  function copyText(text, statusId) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flash(statusId, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusId);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusId);
+  }
+  function legacyCopy(text, statusId) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flash(statusId, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = $("modal");
+  var modalText = $("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  $("modal-close").addEventListener("click", closeModal);
+  $("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

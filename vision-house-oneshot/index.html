@@ -1,0 +1,1554 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>조직 비전하우스 한장 메이커</title>
+<meta
+  name="description"
+  content="핵심가치·핵심역량·사명·비전을 입력하면 인쇄 가능한 비전하우스 카드를 즉석 생성한다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2f6f66;
+    --accent-strong: #235049;
+    --accent-tint: #e8f1ef;
+    --accent-tint-2: #d3e5e1;
+    --ink: #21231f;
+    --ink-soft: #474b45;
+    --ink-mute: #6a6e67;
+    --paper: #f6f8f5;
+    --card: #ffffff;
+    --line: #e2e6df;
+    --line-strong: #d0d5cb;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #a35a12;
+    --warn-tint: #fff6ec;
+    --warn-line: #f2ddc4;
+    --shadow: 0 1px 2px rgba(33, 35, 31, 0.05), 0 6px 20px rgba(33, 35, 31, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field {
+    margin-bottom: 16px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  label.field-label .req {
+    color: var(--accent);
+    font-size: 0.82rem;
+    margin-left: 4px;
+  }
+  label.field-label .opt {
+    color: var(--ink-mute);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 4px;
+  }
+  input[type="text"],
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfdfb;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input[type="text"] {
+    height: 46px;
+  }
+  textarea {
+    min-height: 84px;
+    resize: none;
+    overflow: hidden;
+  }
+  input[type="text"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #a2a89e;
+  }
+  .field-hint {
+    font-size: 0.83rem;
+    color: var(--ink-mute);
+    margin: 7px 0 0;
+  }
+  .field-hint code {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 0.82em;
+    font-family: "Pretendard", system-ui, monospace;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .notice {
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    color: var(--warn);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.94rem;
+    font-weight: 600;
+  }
+
+  /* ---------- vision house card ---------- */
+  .vh-house {
+    max-width: 580px;
+    margin: 4px auto 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .vh-name {
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.08rem;
+    color: var(--ink);
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+  .pediment {
+    width: 0;
+    height: 0;
+    margin: 0 auto -1px;
+    border-left: 150px solid transparent;
+    border-right: 150px solid transparent;
+    border-bottom: 44px solid var(--accent-strong);
+  }
+  .layer {
+    padding: 15px 16px;
+    position: relative;
+  }
+  .layer-tag {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+    color: var(--accent-strong);
+  }
+  .layer-tag.light {
+    color: rgba(255, 255, 255, 0.88);
+  }
+  .layer-tag.dark {
+    color: var(--ink-mute);
+  }
+  .layer-empty {
+    margin: 0;
+    font-size: 0.9rem;
+    font-style: italic;
+    opacity: 0.72;
+  }
+  .layer-empty.dark-empty {
+    color: var(--ink-mute);
+  }
+
+  .roof {
+    background: var(--accent-strong);
+    color: #fff;
+    border-radius: 4px 4px 0 0;
+  }
+  .roof-slogan {
+    margin: 0;
+    font-size: 1.16rem;
+    font-weight: 800;
+    line-height: 1.4;
+  }
+  .roof-detail {
+    margin: 7px 0 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.86);
+    line-height: 1.55;
+  }
+  .roof .layer-empty {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .beam {
+    background: var(--accent);
+    color: #fff;
+    margin-top: 3px;
+  }
+  .beam-slogan {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.4;
+  }
+  .beam-detail {
+    margin: 6px 0 0;
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.55;
+  }
+  .beam .layer-empty {
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .big-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 11px;
+  }
+  .big-chip {
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--accent-strong);
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 5px 11px;
+    border-radius: 8px;
+  }
+
+  .pillars-wrap {
+    background: #f1f4ef;
+    margin-top: 3px;
+  }
+  .pillars {
+    display: flex;
+    gap: 9px;
+  }
+  .pillar {
+    flex: 1 1 0;
+    min-width: 0;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent);
+    border-radius: 0 0 9px 9px;
+    padding: 11px 12px 13px;
+  }
+  .pillar.flagged {
+    border-top-color: var(--warn);
+    background: var(--warn-tint);
+  }
+  .pillar-name {
+    margin: 0;
+    font-weight: 800;
+    font-size: 0.96rem;
+    color: var(--ink);
+  }
+  .pillar-def {
+    margin: 5px 0 0;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .pillar-warn {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--warn);
+    background: #fff;
+    border: 1px solid var(--warn-line);
+    padding: 2px 7px;
+    border-radius: 6px;
+  }
+
+  .foundation {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 0 0 12px 12px;
+    margin-top: 3px;
+  }
+  .foundation .layer-tag {
+    color: var(--accent-strong);
+  }
+  .values {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+  .value {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 9px;
+    padding: 10px 11px;
+  }
+  .v-num {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+  }
+  .v-body {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .v-name {
+    margin: 0;
+    font-weight: 800;
+    font-size: 0.96rem;
+    color: var(--ink);
+  }
+  .v-sub {
+    margin: 3px 0 0;
+    font-size: 0.83rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .v-habit {
+    margin: 6px 0 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+
+  .card-tools {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 16px 0 4px;
+  }
+  .btn-line {
+    background: transparent;
+    color: var(--accent-strong);
+    border-color: var(--accent-tint-2);
+    font-size: 0.92rem;
+    padding: 10px 16px;
+  }
+  .btn-line:hover {
+    border-color: var(--accent);
+  }
+
+  /* ---------- diagnostic ---------- */
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 26px 0 12px;
+  }
+  .verdict {
+    border-radius: 14px;
+    padding: 18px 17px;
+    margin-bottom: 16px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-strong {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-mid {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-weak {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-strong .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mid .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-weak .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 6px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #dfe4da;
+  }
+  .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-strong .pip.lit {
+    background: var(--good);
+  }
+  .verdict.tone-mid .pip.lit {
+    background: var(--warn);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  ul.check-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  li.check {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--good);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fcfdfb;
+  }
+  li.check.warn {
+    border-left-color: var(--warn);
+    background: var(--warn-tint);
+  }
+  .check-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 3px;
+  }
+  .check-mark {
+    flex: none;
+    font-size: 0.82rem;
+    font-weight: 800;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: var(--good);
+  }
+  li.check.warn .check-mark {
+    background: var(--warn);
+  }
+  .check-title {
+    font-weight: 800;
+    font-size: 0.98rem;
+    margin: 0;
+  }
+  .check-msg {
+    margin: 0;
+    font-size: 0.89rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    padding-left: 28px;
+  }
+
+  /* ---------- prompt box ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232a28;
+    color: #eef3f1;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(33, 35, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .grid-2 {
+      grid-template-columns: 1fr;
+    }
+    .pillars {
+      flex-direction: column;
+    }
+    .pillar {
+      border-top: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      border-radius: 9px;
+    }
+    .pillar.flagged {
+      border-left-color: var(--warn);
+    }
+    .values {
+      grid-template-columns: 1fr;
+    }
+    .pediment {
+      border-left-width: 110px;
+      border-right-width: 110px;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #basics-panel,
+    #input-panel,
+    .card-tools,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+    .result-block-title,
+    .verdict,
+    .check-list,
+    .prompt-wrap {
+      display: none !important;
+    }
+    .vh-house {
+      max-width: 100%;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">조직 가치체계 · 비전하우스</span>
+    <h1>조직 비전하우스 한장 메이커</h1>
+    <p class="lede">
+      핵심가치·핵심역량·사명·비전을 입력하면, 인쇄 가능한 비전하우스 카드를 즉석에서
+      만들어 드립니다. 동시에 토대·기둥·지붕·들보가 제대로 섰는지 구조를 점검합니다.
+    </p>
+  </header>
+
+  <section class="panel" id="basics-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>기본 정보</h2>
+    </div>
+    <p class="panel-sub">카드 상단과 비전 들보에 표기됩니다.</p>
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label" for="company">조직명<span class="opt">선택</span></label>
+        <input type="text" id="company" placeholder="예) 가인지컨설팅그룹" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="year">비전 시점(연도)<span class="opt">선택</span></label>
+        <input type="text" id="year" placeholder="예) 2030" inputmode="numeric" />
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>가치체계 입력</h2>
+    </div>
+    <p class="panel-sub">
+      비전하우스는 아래에서 위로 짓습니다. 핵심가치(토대)와 핵심역량(기둥)을 먼저 세우고,
+      사명(지붕)과 비전(들보)을 올립니다. 아는 만큼만 채워도 카드는 생성됩니다.
+    </p>
+
+    <div class="field">
+      <label class="field-label" for="values">핵심가치 · 토대<span class="req">권장 5~6개</span></label>
+      <textarea
+        id="values"
+        placeholder="한 줄에 하나씩. 예)&#10;정직  |  헌금 쓰듯이 비용을 쓴다  //  월말 지출 셀프 리뷰&#10;고객집착  |  고객의 성공이 곧 우리의 성공&#10;도전"
+      ></textarea>
+      <p class="field-hint">
+        형식: <code>가치명 | 부제 문장</code> · 핵심습관은 뒤에 <code>// 습관</code> 을 붙이면 함께 새겨집니다.
+      </p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="comps">핵심역량 · 기둥<span class="req">권장 3~5개</span></label>
+      <textarea
+        id="comps"
+        placeholder="한 줄에 하나씩. 예)&#10;현장 진단 노하우  |  5,000개 기업 데이터로 축적한 처방 역량&#10;컨설턴트 양성 시스템  |  표준 방법론과 도제식 훈련"
+      ></textarea>
+      <p class="field-hint">
+        형식: <code>역량명 | 한 줄 정의</code> · 고객가치성·확장성·차별성을 갖춘 '능력'을 적습니다. 현금·부동산 같은 자산은 역량이 아닙니다.
+      </p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="mission">사명 · 지붕<span class="opt">선택</span></label>
+      <textarea
+        id="mission"
+        placeholder="첫 줄은 사명 슬로건, 이어지는 줄은 풀어쓴 설명.&#10;예)&#10;언더백 기업의 성장을 돕는다&#10;우리는 100인 이하 중소기업이 시스템으로 일하도록 만들어, 대표가 없어도 굴러가는 회사를 만든다."
+      ></textarea>
+      <p class="field-hint">우리 조직은 왜 존재하는가. 첫 줄이 한 줄 선언문이 됩니다.</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="vision">비전 · 들보<span class="opt">선택</span></label>
+      <textarea
+        id="vision"
+        placeholder="첫 줄은 비전 선포문, - 로 시작하는 줄은 Big N 목표.&#10;예)&#10;2030년, 언더백 경영의 표준을 만든다&#10;- 회원사 10,000곳&#10;- 매출 500억&#10;- 아시아 5개국 진출"
+      ></textarea>
+      <p class="field-hint">
+        형식: 첫 줄 = 선포문, <code>- 항목</code> 줄 = Big N. 좋은 비전은 구체적이고, 기한(연도)이 있으며, 핵심가치와 이어집니다.
+      </p>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="generate">비전하우스 생성</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>비전하우스 카드</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">&#8962;</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>가치체계를 입력하고 '비전하우스 생성'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 가인지 비전하우스 프레임워크
+      (핵심가치=토대, 핵심역량=기둥, 사명=지붕, 비전=들보). 구조 점검은
+      좋은 비전의 3조건(구체성·기한·핵심가치 연결), 핵심역량의 3조건(고객가치성·확장성·차별성),
+      그리고 "자산·자본은 역량이 아니다"는 원칙을 적용합니다.
+    </p>
+    <p>
+      이 도구는 가치체계를 대신 정해주지 않고, 입력한 재료를 한 장으로 정돈해
+      빈칸을 짚어 주는 사고 보조 도구입니다. 최종 문장과 판단은 경영진의 몫입니다.
+      입력한 내용은 이 브라우저 밖으로 전송되지 않으며, 서버나 외부 API를 호출하지 않습니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------- helpers ----------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  var $ = function (id) {
+    return document.getElementById(id);
+  };
+
+  // ---------- auto-grow textareas ----------
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("textarea"), function (t) {
+    if (t.id === "modal-text") return;
+    t.addEventListener("input", function () {
+      grow(t);
+    });
+  });
+
+  // ---------- parsing ----------
+  // Each core value line: "이름 | 부제  // 습관"
+  function parseValues(raw) {
+    return raw
+      .split(/\n+/)
+      .map(function (l) {
+        return l.trim();
+      })
+      .filter(Boolean)
+      .map(function (line) {
+        var habit = "";
+        var hi = line.indexOf("//");
+        if (hi >= 0) {
+          habit = line.slice(hi + 2).trim();
+          line = line.slice(0, hi).trim();
+        }
+        var name = line,
+          sub = "";
+        var parts = line.split(/\s*(?:\||::)\s*/);
+        if (parts.length > 1) {
+          name = parts[0].trim();
+          sub = parts.slice(1).join(" | ").trim();
+        }
+        return { name: name, sub: sub, habit: habit };
+      })
+      .filter(function (v) {
+        return v.name;
+      });
+  }
+
+  // asset words that are NOT competencies (per value-system-coach)
+  var ASSET_WORDS = ["자본", "자금", "현금", "예금", "부동산", "건물", "토지", "설비", "자산", "돈"];
+
+  function parseComps(raw) {
+    return raw
+      .split(/\n+/)
+      .map(function (l) {
+        return l.trim();
+      })
+      .filter(Boolean)
+      .map(function (line) {
+        var name = line,
+          def = "";
+        var parts = line.split(/\s*(?:\||::)\s*/);
+        if (parts.length > 1) {
+          name = parts[0].trim();
+          def = parts.slice(1).join(" | ").trim();
+        }
+        var isAsset = ASSET_WORDS.some(function (w) {
+          return name.indexOf(w) >= 0;
+        });
+        return { name: name, def: def, isAsset: isAsset };
+      })
+      .filter(function (c) {
+        return c.name;
+      });
+  }
+
+  function parseMission(raw) {
+    var lines = raw
+      .split(/\n+/)
+      .map(function (l) {
+        return l.trim();
+      })
+      .filter(Boolean);
+    if (!lines.length) return { slogan: "", detail: "" };
+    return { slogan: lines[0], detail: lines.slice(1).join(" ") };
+  }
+
+  function parseVision(raw) {
+    var lines = raw
+      .split(/\n+/)
+      .map(function (l) {
+        return l.trim();
+      })
+      .filter(Boolean);
+    var slogan = "",
+      context = [],
+      big = [];
+    lines.forEach(function (l, i) {
+      var m = l.match(/^\s*(?:[-*•·]|\d+[.)])\s+(.*)$/);
+      if (m) {
+        if (m[1].trim()) big.push(m[1].trim());
+      } else if (!slogan && i === 0) {
+        slogan = l;
+      } else if (!slogan) {
+        slogan = l;
+      } else {
+        context.push(l);
+      }
+    });
+    return { slogan: slogan, context: context.join(" "), big: big };
+  }
+
+  function collect() {
+    return {
+      company: $("company").value.trim(),
+      year: $("year").value.trim(),
+      values: parseValues($("values").value),
+      comps: parseComps($("comps").value),
+      mission: parseMission($("mission").value),
+      vision: parseVision($("vision").value),
+    };
+  }
+
+  // ---------- diagnostics (real structural checks) ----------
+  function diagnose(d) {
+    var checks = [];
+    var YEAR_RE = /\b(19|20)\d\d\b/;
+    var NUM_RE = /\d/;
+
+    // 1. 핵심가치 (토대)
+    var vn = d.values.length;
+    if (vn >= 3) {
+      var vmsg = "핵심가치 " + vn + "개로 토대가 놓였습니다.";
+      if (vn < 5) vmsg += " 권장은 5~6개입니다. 한두 개를 더 발견하면 토대가 넓어집니다.";
+      else if (vn > 6) vmsg += " 6개를 넘으면 우선순위가 흐려집니다. 가장 타협 불가능한 것으로 압축해 보세요.";
+      checks.push({ ok: true, title: "핵심가치 · 토대", msg: vmsg });
+    } else {
+      checks.push({
+        ok: false,
+        title: "핵심가치 · 토대",
+        msg:
+          vn === 0
+            ? "핵심가치가 없습니다. 비전하우스의 토대이자 가장 중요한 층입니다. 의사결정에서 절대 타협하지 않는 원칙 3~6개부터 채우세요."
+            : "핵심가치가 " + vn + "개뿐입니다. 토대로 삼기엔 얕습니다. 3~6개까지 발견해 보세요.",
+      });
+    }
+
+    // 2. 핵심역량 (기둥)
+    var cn = d.comps.length;
+    var assets = d.comps.filter(function (c) {
+      return c.isAsset;
+    });
+    if (cn >= 3 && cn <= 5) {
+      var cmsg = "핵심역량 " + cn + "개로 기둥이 섰습니다. 각 역량이 3조건(고객가치성·확장성·차별성)을 통과하는지 확인하세요.";
+      checks.push({ ok: true, title: "핵심역량 · 기둥", msg: cmsg });
+    } else if (cn === 0) {
+      checks.push({
+        ok: false,
+        title: "핵심역량 · 기둥",
+        msg: "핵심역량이 없습니다. 경쟁자가 쉽게 모방하기 어려운 우리만의 능력을 3~5개 세우세요.",
+      });
+    } else if (cn < 3) {
+      checks.push({
+        ok: false,
+        title: "핵심역량 · 기둥",
+        msg: "핵심역량이 " + cn + "개뿐입니다. 기둥이 부족하면 지붕이 흔들립니다. 3개 이상을 권장합니다.",
+      });
+    } else {
+      checks.push({
+        ok: false,
+        title: "핵심역량 · 기둥",
+        msg: "핵심역량이 " + cn + "개로 많습니다. 진짜 차별적 능력 3~5개로 추리면 메시지가 또렷해집니다.",
+      });
+    }
+
+    // 3. 사명 (지붕)
+    if (d.mission.slogan && d.mission.slogan.length >= 6) {
+      checks.push({
+        ok: true,
+        title: "사명 · 지붕",
+        msg: "사명 선언문이 있습니다. '우리가 없어지면 세상에서 무엇이 사라지는가'에 답하는지 다시 읽어 보세요.",
+      });
+    } else {
+      checks.push({
+        ok: false,
+        title: "사명 · 지붕",
+        msg:
+          d.mission.slogan
+            ? "사명이 한 단어에 가깝습니다. 존재 이유를 담은 한 문장으로 풀어 주세요."
+            : "사명이 비어 있습니다. 지붕이 없으면 비전이 어디로 향할지 방향을 잃습니다. 존재 이유를 한 문장으로 적으세요.",
+      });
+    }
+
+    // 4. 비전 (들보) - 구체성 + 기한
+    var vjoin = d.vision.slogan + " " + d.vision.context + " " + d.vision.big.join(" ");
+    var hasYear = !!d.year || YEAR_RE.test(vjoin);
+    var hasNum = NUM_RE.test(vjoin);
+    if (d.vision.slogan && hasYear) {
+      var bmsg = "비전 선포문에 기한이 있습니다.";
+      bmsg += hasNum
+        ? " 숫자가 담겨 구체성도 갖췄습니다. Big N이 '가슴 뛰는' 수준인지 점검하세요."
+        : " 다만 눈에 보이는 결과(숫자·규모)가 약합니다. Big N에 구체적 목표를 넣으면 힘이 붙습니다.";
+      checks.push({ ok: true, title: "비전 · 들보", msg: bmsg });
+    } else if (d.vision.slogan) {
+      checks.push({
+        ok: false,
+        title: "비전 · 들보",
+        msg: "비전에 기한이 없습니다. '언제까지'가 있어야 들보가 사명까지 이어집니다. 비전 시점(연도)을 넣어 주세요.",
+      });
+    } else {
+      checks.push({
+        ok: false,
+        title: "비전 · 들보",
+        msg: "비전이 비어 있습니다. 정해진 시점까지 도달하고 싶은 구체적 목표를 한 문장과 Big N으로 적으세요.",
+      });
+    }
+
+    var score = checks.filter(function (c) {
+      return c.ok;
+    }).length;
+
+    // extra warnings (do not consume a structural slot)
+    var warnings = [];
+    if (assets.length) {
+      warnings.push({
+        title: "자산이 역량에 섞여 있습니다",
+        msg:
+          "'" +
+          assets
+            .map(function (a) {
+              return a.name;
+            })
+            .join(", ") +
+          "'은(는) 역량이 아니라 자산·자본일 수 있습니다. 재무 자원은 수단이지 경쟁우위가 아닙니다. 그 자산으로 '무엇을 해내는 능력'인지로 바꿔 적으세요.",
+      });
+    }
+    var habitCount = d.values.filter(function (v) {
+      return v.habit;
+    }).length;
+    if (d.values.length && habitCount < d.values.length) {
+      warnings.push({
+        title: "핵심습관이 비어 있는 가치가 있습니다",
+        msg:
+          d.values.length +
+          "개 가치 중 " +
+          habitCount +
+          "개에만 핵심습관이 달렸습니다. 가치를 일상 행동으로 바꾸려면 각 가치에 '신호 → 반복행동 → 보상' 한 줄을 붙여 보세요. (선택 사항)",
+      });
+    }
+
+    return { checks: checks, score: score, warnings: warnings };
+  }
+
+  function bandFor(score) {
+    if (score >= 4)
+      return {
+        tone: "strong",
+        label: "구조 4/4 완성",
+        title: "비전하우스가 견고합니다",
+        desc: "토대·기둥·지붕·들보가 모두 섰습니다. 이제 문장의 힘을 다듬고, 각 층이 서로를 강화하는지(일관성) 점검할 차례입니다.",
+      };
+    if (score >= 2)
+      return {
+        tone: "mid",
+        label: "구조 " + score + "/4",
+        title: "비전하우스를 세우는 중입니다",
+        desc: "핵심 골격은 올라왔지만 비어 있는 층이 있습니다. 아래 점검에서 빨간 표시된 층을 채우면 집이 완성됩니다.",
+      };
+    return {
+      tone: "weak",
+      label: "구조 " + score + "/4",
+      title: "아직 뼈대가 부족합니다",
+      desc: "가장 아래층인 핵심가치(토대)부터 세워 올라오세요. 토대 없이 기둥과 지붕을 올릴 수 없습니다.",
+    };
+  }
+
+  // ---------- render: vision house card ----------
+  function houseHTML(d) {
+    var h = "";
+    h += '<div class="vh-house" id="vh-house">';
+    h += '<p class="vh-name">' + esc(d.company || "우리 조직") + "의 비전하우스</p>";
+    h += '<div class="pediment" aria-hidden="true"></div>';
+
+    // roof - 사명
+    h += '<div class="layer roof">';
+    h += '<span class="layer-tag light">사명 · 지붕</span>';
+    if (d.mission.slogan) {
+      h += '<p class="roof-slogan">' + esc(d.mission.slogan) + "</p>";
+      if (d.mission.detail) h += '<p class="roof-detail">' + esc(d.mission.detail) + "</p>";
+    } else {
+      h += '<p class="layer-empty">사명이 아직 없습니다</p>';
+    }
+    h += "</div>";
+
+    // beam - 비전
+    h += '<div class="layer beam">';
+    h += '<span class="layer-tag light">비전 · 들보' + (d.year ? " · " + esc(d.year) : "") + "</span>";
+    if (d.vision.slogan) {
+      h += '<p class="beam-slogan">' + esc(d.vision.slogan) + "</p>";
+      if (d.vision.context) h += '<p class="beam-detail">' + esc(d.vision.context) + "</p>";
+      if (d.vision.big.length) {
+        h += '<div class="big-row">';
+        d.vision.big.forEach(function (b, i) {
+          h += '<span class="big-chip">Big ' + (i + 1) + ". " + esc(b) + "</span>";
+        });
+        h += "</div>";
+      }
+    } else {
+      h += '<p class="layer-empty">비전이 아직 없습니다</p>';
+    }
+    h += "</div>";
+
+    // pillars - 핵심역량
+    h += '<div class="layer pillars-wrap">';
+    h += '<span class="layer-tag dark">핵심역량 · 기둥</span>';
+    if (d.comps.length) {
+      h += '<div class="pillars">';
+      d.comps.forEach(function (c) {
+        h += '<div class="pillar' + (c.isAsset ? " flagged" : "") + '">';
+        h += '<p class="pillar-name">' + esc(c.name) + "</p>";
+        if (c.def) h += '<p class="pillar-def">' + esc(c.def) + "</p>";
+        if (c.isAsset) h += '<span class="pillar-warn">자산일 수 있음</span>';
+        h += "</div>";
+      });
+      h += "</div>";
+    } else {
+      h += '<p class="layer-empty dark-empty">핵심역량이 아직 없습니다</p>';
+    }
+    h += "</div>";
+
+    // foundation - 핵심가치
+    h += '<div class="layer foundation">';
+    h += '<span class="layer-tag">핵심가치 · 토대</span>';
+    if (d.values.length) {
+      h += '<div class="values">';
+      d.values.forEach(function (v, i) {
+        h += '<div class="value">';
+        h += '<span class="v-num">' + (i + 1) + "</span>";
+        h += '<div class="v-body"><p class="v-name">' + esc(v.name) + "</p>";
+        if (v.sub) h += '<p class="v-sub">' + esc(v.sub) + "</p>";
+        if (v.habit) h += '<p class="v-habit">습관 · ' + esc(v.habit) + "</p>";
+        h += "</div></div>";
+      });
+      h += "</div>";
+    } else {
+      h += '<p class="layer-empty">핵심가치가 아직 없습니다</p>';
+    }
+    h += "</div>";
+
+    h += "</div>"; // vh-house
+    return h;
+  }
+
+  // ---------- render: diagnostic ----------
+  function diagHTML(diag) {
+    var band = bandFor(diag.score);
+    var h = "";
+    h += '<div class="result-block-title">구조 점검</div>';
+    h += '<div class="verdict tone-' + band.tone + '">';
+    h += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    h += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    h += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    h += '<div class="meter" role="img" aria-label="4개 구조 중 ' + diag.score + '개 완성">';
+    for (var p = 0; p < 4; p++) {
+      h += '<span class="pip' + (p < diag.score ? " lit" : "") + '"></span>';
+    }
+    h += "</div>";
+    h += '<p class="meter-caption">' + diag.score + " / 4 구조층 완성 (토대·기둥·지붕·들보)</p>";
+    h += "</div>";
+
+    h += '<ul class="check-list">';
+    diag.checks.forEach(function (c) {
+      h += '<li class="check' + (c.ok ? "" : " warn") + '">';
+      h += '<div class="check-head"><span class="check-mark" aria-hidden="true">' + (c.ok ? "✓" : "!") + "</span>";
+      h += '<p class="check-title">' + esc(c.title) + "</p></div>";
+      h += '<p class="check-msg">' + esc(c.msg) + "</p>";
+      h += "</li>";
+    });
+    diag.warnings.forEach(function (w) {
+      h += '<li class="check warn">';
+      h += '<div class="check-head"><span class="check-mark" aria-hidden="true">!</span>';
+      h += '<p class="check-title">' + esc(w.title) + "</p></div>";
+      h += '<p class="check-msg">' + esc(w.msg) + "</p>";
+      h += "</li>";
+    });
+    h += "</ul>";
+    return h;
+  }
+
+  // ---------- plain-text card (for copy) ----------
+  function textCard(d) {
+    var L = [];
+    var name = (d.company || "우리 조직") + "의 비전하우스";
+    L.push(name);
+    L.push("=".length ? new Array(Math.min(name.length, 40) + 1).join("=") : "");
+    L.push("");
+    L.push("[ 사명 · 지붕 ]");
+    L.push(d.mission.slogan || "(미입력)");
+    if (d.mission.detail) L.push(d.mission.detail);
+    L.push("");
+    L.push("[ 비전 · 들보" + (d.year ? " · " + d.year : "") + " ]");
+    L.push(d.vision.slogan || "(미입력)");
+    if (d.vision.context) L.push(d.vision.context);
+    d.vision.big.forEach(function (b, i) {
+      L.push("  Big " + (i + 1) + ". " + b);
+    });
+    L.push("");
+    L.push("[ 핵심역량 · 기둥 ]");
+    if (d.comps.length) {
+      d.comps.forEach(function (c, i) {
+        L.push(
+          "  " + (i + 1) + ". " + c.name + (c.def ? " - " + c.def : "") + (c.isAsset ? "  (!) 자산일 수 있음" : "")
+        );
+      });
+    } else {
+      L.push("  (미입력)");
+    }
+    L.push("");
+    L.push("[ 핵심가치 · 토대 ]");
+    if (d.values.length) {
+      d.values.forEach(function (v, i) {
+        L.push("  " + (i + 1) + ". " + v.name + (v.sub ? " - " + v.sub : ""));
+        if (v.habit) L.push("       습관: " + v.habit);
+      });
+    } else {
+      L.push("  (미입력)");
+    }
+    L.push("");
+    L.push("가치체계가 작동하면, 규정이 줄어든다.");
+    return L.join("\n");
+  }
+
+  // ---------- AI deepening prompt ----------
+  function buildPrompt(d, diag) {
+    var L = [];
+    L.push("당신은 조직의 가치체계(비전하우스)를 코칭으로 다듬는 전문 퍼실리테이터입니다.");
+    L.push("핵심가치(토대) → 핵심역량(기둥) → 사명(지붕) → 비전(들보) 순서로 진단하고, 날카로운 질문으로 생각을 끌어내 주세요.");
+    L.push("");
+    L.push("【현재 비전하우스】");
+    L.push(textCard(d));
+    L.push("");
+    L.push("【자가 구조 점검 결과】 (4개 구조층 중 " + diag.score + "개 완성)");
+    diag.checks.forEach(function (c) {
+      L.push((c.ok ? "[OK] " : "[보강] ") + c.title + " — " + c.msg);
+    });
+    diag.warnings.forEach(function (w) {
+      L.push("[주의] " + w.title + " — " + w.msg);
+    });
+    L.push("");
+    L.push("【요청 사항】");
+    L.push("1. 이 비전하우스가 견고한지 토대·기둥·지붕·들보 네 층 관점에서 진단해 주세요.");
+    L.push("2. 핵심가치: 각 가치가 실제 의사결정 기준으로 작동하는지, 부제가 '행동의 약속'인지 점검하고, 애매한 것은 더 구체적인 표현을 제안해 주세요.");
+    L.push("3. 핵심역량: 각 역량을 3조건(고객가치성·확장성·차별성)으로 검증하고, 자산·자본이 역량으로 잘못 들어갔다면 '능력' 문장으로 바꿔 주세요.");
+    L.push("4. 사명: 피터 드러커의 세 질문(우리 사업은 무엇인가·고객은 누구인가·고객에게 가치 있는 것은 무엇인가)으로 존재 이유가 담겼는지 확인해 주세요.");
+    L.push("5. 비전: 3조건(구체성·기한·핵심가치 연결)을 점검하고, Big N이 '가슴 뛰는' 수준인지 봐 주세요.");
+    L.push("6. 결론을 대신 확정하지 말고, 먼저 질문을 던져 제가 스스로 고르게 한 뒤 당신의 해석을 비교용으로 덧붙여 주세요.");
+    L.push("7. 근거 없는 경영 유행어(시너지·초격차 등)로 빈칸을 덮지 말고, 모르는 사실은 지어내지 말고 저에게 물어봐 주세요.");
+    return L.join("\n");
+  }
+
+  // ---------- generate ----------
+  var resultEl = $("result");
+  var lastPrompt = "";
+
+  function anyInput(d) {
+    return (
+      d.company ||
+      d.year ||
+      d.values.length ||
+      d.comps.length ||
+      d.mission.slogan ||
+      d.vision.slogan
+    );
+  }
+
+  $("generate").addEventListener("click", function () {
+    var d = collect();
+
+    if (!anyInput(d)) {
+      resultEl.innerHTML =
+        '<div class="notice">아직 입력된 내용이 없습니다. 최소한 핵심가치(토대) 한두 개부터 적어 주세요.</div>';
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var diag = diagnose(d);
+    lastPrompt = buildPrompt(d, diag);
+
+    var html = "";
+    html += houseHTML(d);
+
+    // card tools
+    html += '<div class="card-tools no-print">';
+    html += '<button class="btn-line" id="copyCard">카드 텍스트 복사</button>';
+    html += '<button class="btn-line" id="printBtn">인쇄 / PDF 저장</button>';
+    html += '<span class="copy-status" id="cardStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // diagnostics
+    html += diagHTML(diag);
+
+    // prompt
+    html += '<div class="result-block-title">심화: AI 코칭 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 비전하우스를 코칭 관점에서 함께 다듬어 줍니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPrompt">프롬프트 복사</button>';
+    html += '<span class="copy-status" id="promptStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- reset ----------
+  $("reset").addEventListener("click", function () {
+    ["company", "year", "values", "comps", "mission", "vision"].forEach(function (id) {
+      var el = $(id);
+      el.value = "";
+      if (el.tagName === "TEXTAREA") grow(el);
+    });
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">&#8962;</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>가치체계를 입력하고 '비전하우스 생성'을 누르세요.</p></div>";
+    $("basics-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- result buttons ----------
+  function wireResultButtons() {
+    var copyCard = $("copyCard");
+    var copyPrompt = $("copyPrompt");
+    var printBtn = $("printBtn");
+    if (copyCard)
+      copyCard.addEventListener("click", function () {
+        doCopy(textCard(collect()), "cardStatus");
+      });
+    if (copyPrompt)
+      copyPrompt.addEventListener("click", function () {
+        doCopy(lastPrompt, "promptStatus");
+      });
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(id, msg) {
+    var s = $(id);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  // ---------- copy (3-tier fallback) ----------
+  function doCopy(text, statusId) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(statusId, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusId);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusId);
+  }
+
+  function legacyCopy(text, statusId) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(statusId, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = $("modal");
+  var modalText = $("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  $("modal-close").addEventListener("click", closeModal);
+  $("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

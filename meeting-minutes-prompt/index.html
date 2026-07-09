@@ -1,0 +1,1486 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>회의록 자동 정리 프롬프트 빌더</title>
+<meta
+  name="description"
+  content="회의 스크립트를 붙이면 독자(경영진·실무자·팀원·회고)에 맞춰 결정·액션·지식자산까지 뽑는 회의록 프롬프트를 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2b6a63;
+    --accent-strong: #21524d;
+    --accent-tint: #e7f2f0;
+    --accent-tint-2: #d0e6e2;
+    --ink: #1e2422;
+    --ink-soft: #414b48;
+    --ink-mute: #63706c;
+    --paper: #f6f8f7;
+    --card: #ffffff;
+    --line: #e2e9e6;
+    --line-strong: #cfdad6;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #a35a12;
+    --warn-tint: #fff4e6;
+    --warn-line: #f1ddc0;
+    --shadow: 0 1px 2px rgba(30, 36, 34, 0.05), 0 6px 20px rgba(30, 36, 34, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 150px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa8a3;
+  }
+  .field-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 0;
+  }
+  .char-count {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    flex: none;
+  }
+  .btn-sample {
+    background: transparent;
+    color: var(--accent-strong);
+    border: 1px solid var(--accent-tint-2);
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .btn-sample:hover {
+    background: var(--accent-tint);
+  }
+
+  /* ---------- option controls ---------- */
+  .opt-group {
+    margin-top: 18px;
+  }
+  .opt-group:first-child {
+    margin-top: 0;
+  }
+  .opt-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 9px;
+  }
+  .opt-label .opt-note {
+    font-weight: 500;
+    color: var(--ink-mute);
+    font-size: 0.84rem;
+  }
+  .seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .seg button {
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.14s;
+    flex: 1 1 auto;
+    min-width: 88px;
+  }
+  .seg button:hover {
+    border-color: var(--ink-mute);
+  }
+  .seg button[aria-pressed="true"] {
+    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .seg button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .seg .sub {
+    display: block;
+    font-weight: 500;
+    font-size: 0.78rem;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+
+  select.field-select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 13px;
+    cursor: pointer;
+  }
+  select.field-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  .switch-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .switch-row input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .switch-track {
+    flex: none;
+    width: 46px;
+    height: 27px;
+    border-radius: 999px;
+    background: #d5ddd9;
+    border: 1px solid var(--line-strong);
+    position: relative;
+    transition: background 0.15s;
+  }
+  .switch-track::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s;
+  }
+  .switch-row input:checked + .switch-track {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .switch-row input:checked + .switch-track::after {
+    transform: translateX(19px);
+  }
+  .switch-row input:focus-visible + .switch-track {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .switch-text {
+    font-size: 0.94rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .switch-text small {
+    display: block;
+    font-weight: 500;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 22px;
+  }
+  button.act {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button.act:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .result-lead {
+    border-radius: 14px;
+    padding: 18px 18px;
+    margin-bottom: 18px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .result-lead .rl-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .result-lead .rl-title {
+    font-size: 1.28rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin: 0 0 6px;
+    line-height: 1.3;
+  }
+  .result-lead .rl-desc {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+
+  .notice {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 0 0 18px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* scan grid */
+  .scan-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 9px;
+  }
+  .stat {
+    background: #fbfdfc;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    line-height: 1.1;
+  }
+  .stat-lab {
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+    margin-top: 3px;
+    font-weight: 600;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 12px 0 0;
+  }
+  .chip {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .chip.muted {
+    color: var(--ink-mute);
+    background: #f0f3f2;
+    border-color: var(--line);
+  }
+
+  /* snippet blocks */
+  .snip-block {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 15px;
+    background: #fbfdfc;
+    margin-bottom: 11px;
+  }
+  .snip-head {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .snip-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex: none;
+  }
+  .snip-dot.action {
+    background: var(--accent);
+  }
+  .snip-dot.decision {
+    background: var(--good);
+  }
+  .snip-dot.open {
+    background: var(--warn);
+  }
+  .snip-head b {
+    color: var(--ink);
+  }
+  ul.snip-list {
+    margin: 0;
+    padding: 0 0 0 2px;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  ul.snip-list li {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    padding-left: 14px;
+    position: relative;
+  }
+  ul.snip-list li::before {
+    content: "\201C";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--ink-mute);
+    font-weight: 700;
+  }
+  .snip-empty {
+    font-size: 0.88rem;
+    color: var(--ink-mute);
+    margin: 0;
+  }
+  .snip-warn {
+    margin: 9px 0 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 8px;
+    padding: 8px 11px;
+  }
+
+  /* reader guidance */
+  .guide-card {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fbfdfc;
+  }
+  .guide-reader {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin: 0 0 5px;
+  }
+  .guide-card p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23302e;
+    color: #eef4f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 36, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .scan-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .seg button {
+      min-width: calc(50% - 4px);
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #options-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">회의록 · Meeting Minutes</span>
+    <h1>회의록 자동 정리 프롬프트 빌더</h1>
+    <p class="lede">
+      회의 스크립트를 붙여넣으면 화자·결정·액션·리스크를 먼저 스캔하고, 읽을
+      사람(경영진·실무자·팀원·회고)에 맞춰 결정·액션·지식자산까지 뽑아내는
+      회의록 프롬프트를 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>회의 스크립트</h2>
+    </div>
+    <p class="panel-sub">
+      정제된 회의록 초안이든, STT 전사 원문이든 그대로 붙여넣으세요. 화자는
+      <strong>이름:</strong> 형식이면 자동으로 잡힙니다.
+    </p>
+    <label class="field-label" for="script">전사 · 대화 내용</label>
+    <textarea
+      id="script"
+      placeholder="예)&#10;김리더: 지난주 온보딩 이탈률이 32%까지 올라서 이번 스프린트 최우선으로 잡아야 해요.&#10;박PM: 원인부터 봐야죠. 데이터팀에 퍼널 분석 요청해서 다음 주 수요일까지 받기로 하죠.&#10;이개발: 가입 폼이 너무 길어요. 일단 이메일 인증을 마지막으로 미루는 걸로 해봅시다."
+    ></textarea>
+    <div class="field-foot">
+      <p class="field-hint">
+        입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+        없습니다.
+      </p>
+      <span class="char-count" id="charCount" aria-live="polite">0자</span>
+    </div>
+    <div style="margin-top: 6px">
+      <button class="btn-sample" id="sampleBtn" type="button">
+        예시 스크립트 넣어 보기
+      </button>
+    </div>
+  </section>
+
+  <section class="panel" id="options-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>누구를 위한 회의록인가</h2>
+    </div>
+    <p class="panel-sub">
+      독자에 따라 강조할 섹션과 서술 밀도가 달라집니다. 프롬프트가 그에 맞춰
+      구성됩니다.
+    </p>
+
+    <div class="opt-group">
+      <span class="opt-label" id="reader-label">독자 대상</span>
+      <div class="seg" id="readerSeg" role="group" aria-labelledby="reader-label">
+        <button type="button" data-reader="exec">경영진</button>
+        <button type="button" data-reader="handover" aria-pressed="true">
+          인수자·실무자
+        </button>
+        <button type="button" data-reader="team">팀원</button>
+        <button type="button" data-reader="retro">본인 회고</button>
+      </div>
+    </div>
+
+    <div class="opt-group">
+      <span class="opt-label" id="depth-label"
+        >상세 밀도 <span class="opt-note">(원문 보존 정도)</span></span
+      >
+      <div class="seg" id="depthSeg" role="group" aria-labelledby="depth-label">
+        <button type="button" data-depth="ultra" aria-pressed="true">
+          Ultra
+          <span class="sub">맥락·근거·예외까지</span>
+        </button>
+        <button type="button" data-depth="detailed">
+          Detailed
+          <span class="sub">핵심 맥락 위주</span>
+        </button>
+        <button type="button" data-depth="summary">
+          Summary
+          <span class="sub">요점 중심</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="opt-group">
+      <label class="opt-label" for="meetingType"
+        >회의 유형 <span class="opt-note">(선택)</span></label
+      >
+      <select class="field-select" id="meetingType">
+        <option value="">미지정</option>
+        <option value="지식 전수·인수인계">지식 전수·인수인계</option>
+        <option value="정기 회의">정기 회의</option>
+        <option value="킥오프">킥오프</option>
+        <option value="1:1">1:1</option>
+        <option value="브레인스토밍">브레인스토밍</option>
+        <option value="고객 미팅">고객 미팅</option>
+      </select>
+    </div>
+
+    <div class="opt-group">
+      <label class="switch-row" for="quotes">
+        <input type="checkbox" id="quotes" checked />
+        <span class="switch-track" aria-hidden="true"></span>
+        <span class="switch-text"
+          >핵심 발언 인용 포함
+          <small>판단·전환점이 된 발언 2~5개를 짧게 직접 인용</small></span
+        >
+      </label>
+    </div>
+
+    <div class="actions">
+      <button class="act btn-primary" id="build">회의록 프롬프트 만들기</button>
+      <button class="act btn-ghost" id="reset">초기화</button>
+    </div>
+    <span class="sr-only" id="liveStatus" aria-live="polite"></span>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>스캔 결과 &amp; 프롬프트</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▤</div>
+        <p><strong>아직 만들기 전입니다.</strong></p>
+        <p>스크립트를 붙이고 '회의록 프롬프트 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 회의록 추출 원칙은 사내
+      <em>meeting-extractor</em> 스킬(회의록 전문가 &amp; 지식 자산 추출
+      프로토콜)의 8단 출력 형식(개요·논의·진행현황·결정·액션·지식자산·열린질문·인용)과
+      절대 규칙(사실만 추출·의미 보존·요약 과잉 금지·불확실성 표기)을 따릅니다.
+      화자·액션·결정·리스크 스캔은 전사문에서 화자 라벨과 합의·요청·보류 신호어를
+      키워드로 탐지한 <strong>추정값</strong>입니다.
+    </p>
+    <p>
+      이 도구는 회의록 작성을 돕는 보조 도구입니다. 스캔 수치는 참고용이며, 실제
+      결정·담당·기한은 스크립트 원문을 기준으로 확인하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="act btn-primary" id="modal-select">전체 선택</button>
+      <button class="act btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------- reader / depth config (from meeting-extractor 독자 맞춤화) ---------------- */
+  var READERS = {
+    exec: {
+      label: "경영진",
+      guide:
+        "개요·결정 사항·리스크를 중심으로, 기술 용어는 풀어써서 의사결정에 바로 쓰이도록.",
+      emphasis:
+        "경영진 독자 — 1·4·7번(개요·결정·리스크)을 두껍게, 6번(지식 자산)은 요점만. 전문 용어에는 한 줄 풀이를 덧붙이세요.",
+    },
+    handover: {
+      label: "인수자·실무자",
+      guide:
+        "지식 자산을 두껍게 — 단계·설정·명령어·파일 경로·담당 매핑까지 재현 가능하게.",
+      emphasis:
+        "인수자·실무자 독자 — 6번(참고 사항/지식 자산)과 3번(진행 현황)을 가장 두껍게. 절차·설정·경로·담당을 빠짐없이.",
+    },
+    team: {
+      label: "팀원",
+      guide: "액션 아이템과 결정 사항 중심, 배경은 간결하게.",
+      emphasis:
+        "팀원 독자 — 4·5번(결정·액션)을 우선. 배경(2번)은 짧게, 누가 무엇을 언제까지 하는지가 선명하도록.",
+    },
+    retro: {
+      label: "본인 회고",
+      guide: "진행 현황과 열린 질문을 두껍게, 회고 메모는 별도로 허용.",
+      emphasis:
+        "회고 독자 — 3·7번(진행 현황·열린 질문)을 두껍게. 판단 근거와 다음에 다르게 할 점을 별도 메모로 남겨도 좋습니다.",
+    },
+  };
+
+  var DEPTHS = {
+    ultra: {
+      label: "ultra-detailed (맥락·배경·근거·예외까지)",
+      ruleC:
+        '요약 과잉 금지: 맥락·배경·근거·예외까지 ultra-detailed로 기록한다. "중요하지 않아 보여서" 누락하지 않는다.',
+    },
+    detailed: {
+      label: "detailed (핵심 맥락 위주)",
+      ruleC:
+        "밀도: 핵심 맥락과 근거 위주로 기록하되, 판단에 필요한 배경은 남긴다.",
+    },
+    summary: {
+      label: "summary (요점 중심)",
+      ruleC:
+        "밀도: 핵심 결정·액션·열린 질문을 우선해 간결히 정리하되, 사실을 왜곡·생략해 오해를 만들지 않는다.",
+    },
+  };
+
+  /* ---------------- signal vocabularies ---------------- */
+  var ACTION_KW = [
+    "해보자", "해보죠", "해봅시다", "하기로", "할게요", "할게", "하겠습니",
+    "해주세요", "해 주세요", "해주시", "해주면", "부탁", "확인해", "확인 부",
+    "확인 좀", "확인해주", "공유해", "공유 부", "공유하", "정리해", "정리 부",
+    "보내", "전달", "준비", "챙기", "작성", "만들", "진행", "팔로우업",
+    "follow up", "followup", "todo", "to-do", "to do", "액션", "처리",
+    "취합", "점검", "검토해", "반영", "업데이트", "셋업", "세팅", "요청",
+  ];
+  var DECISION_KW = [
+    "하기로 했", "하기로 함", "하기로 하", "기로 결정", "결정", "확정",
+    "합의", "정했", "정하기로", "채택", "승인", "가기로", "고정하", "확정하",
+    "최종", "픽스", "락", "락인",
+  ];
+  var OPEN_KW = [
+    "미정", "확인 필요", "확인이 필요", "확인해봐야", "모르겠", "애매",
+    "리스크", "우려", "이슈", "보류", "검토 필요", "논의 필요", "협의 필요",
+    "tbd", "미결", "불확실", "알아봐야", "확정 안", "정해지지", "숙제",
+  ];
+  var TOPIC_KW = [
+    "그러면", "다음은", "다음으로", "그 다음", "이제", "자,", "자 ", "넘어가",
+    "그럼 이제", "이번엔", "다음 안건",
+  ];
+
+  /* ---------------- helpers ---------------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function splitFrags(t) {
+    try {
+      return t.split(/[\n\r.!?。…]+|(?<=[다요죠함음됨])\s+/);
+    } catch (e) {
+      return t.split(/[\n\r.!?。…]+/);
+    }
+  }
+
+  function hasAny(frag, arr) {
+    var low = frag.toLowerCase();
+    for (var i = 0; i < arr.length; i++) {
+      var k = arr[i];
+      if (frag.indexOf(k) >= 0 || low.indexOf(k.toLowerCase()) >= 0) return true;
+    }
+    return false;
+  }
+
+  function clip(s, n) {
+    s = s.replace(/\s+/g, " ").trim();
+    return s.length > n ? s.slice(0, n - 1) + "…" : s;
+  }
+
+  /* ---------------- the real analyzer ---------------- */
+  function analyze(text) {
+    var t = text || "";
+    var lines = t.split(/\r?\n/);
+
+    // speakers: "Name: content" line prefixes
+    var speakerRe = /^\s*([가-힣A-Za-z][가-힣A-Za-z0-9 ._()\-]{0,17}?)\s*[:：]\s*\S/;
+    var seen = {};
+    var speakers = [];
+    var turns = 0;
+    lines.forEach(function (ln) {
+      var m = ln.match(speakerRe);
+      if (m) {
+        var name = m[1].trim();
+        if (!name || /^\d{1,2}$/.test(name)) return; // skip bare numbers (timecodes)
+        turns++;
+        if (!seen[name]) {
+          seen[name] = true;
+          speakers.push(name);
+        }
+      }
+    });
+
+    // signal scan across fragments
+    var frags = splitFrags(t);
+    var actionN = 0,
+      decisionN = 0,
+      openN = 0,
+      topicN = 0;
+    var actionEx = [],
+      decisionEx = [],
+      openEx = [];
+    frags.forEach(function (raw) {
+      var f = raw.trim();
+      if (f.length < 4) return;
+      if (hasAny(f, TOPIC_KW)) topicN++;
+      if (hasAny(f, ACTION_KW)) {
+        actionN++;
+        if (actionEx.length < 3) actionEx.push(clip(f, 68));
+      }
+      if (hasAny(f, DECISION_KW)) {
+        decisionN++;
+        if (decisionEx.length < 3) decisionEx.push(clip(f, 68));
+      }
+      if (hasAny(f, OPEN_KW)) {
+        openN++;
+        if (openEx.length < 3) openEx.push(clip(f, 68));
+      }
+    });
+
+    // deadline mentions
+    var deadlineRe = /(\d{1,2}\s*월\s*\d{1,2}\s*일|\d{1,2}\/\d{1,2}|\d{1,2}\s*일\s*까지|다음\s?주|이번\s?주|차주|금주|내일|모레|오늘|말일|[월화수목금토일]요일|까지)/g;
+    var deadlineN = (t.match(deadlineRe) || []).length;
+
+    var charCount = t.replace(/\s/g, "").length;
+
+    return {
+      speakers: speakers,
+      turns: turns,
+      charCount: charCount,
+      topicN: topicN,
+      actionN: actionN,
+      decisionN: decisionN,
+      openN: openN,
+      deadlineN: deadlineN,
+      actionEx: actionEx,
+      decisionEx: decisionEx,
+      openEx: openEx,
+      hasText: t.trim().length > 0,
+    };
+  }
+
+  /* ---------------- prompt builder ---------------- */
+  function buildPrompt(a, opt) {
+    var L = [];
+    L.push(
+      '당신은 "회의록 전문가 & 지식 자산 추출 전문가(Meeting Minutes & Knowledge Mining Specialist)"입니다.'
+    );
+    L.push("아래 회의 스크립트를 분석해, 지정된 독자에게 맞춘 회의록으로 정리해 주세요.");
+    L.push("");
+    L.push("【이 회의록의 독자】");
+    L.push("- 대상: " + opt.reader.label);
+    L.push("- 서술 방향: " + opt.reader.guide);
+    L.push("");
+    L.push("【회의 맥락】");
+    L.push("- 유형: " + (opt.meeting || "미지정"));
+    L.push("- 상세 밀도: " + opt.depth.label);
+    L.push(
+      "- 핵심 발언 인용: " +
+        (opt.quotes ? "포함 (판단·전환점 발언 2~5개)" : "제외")
+    );
+    if (a.charCount > 6000) {
+      L.push(
+        "- 분량: 약 " +
+          a.charCount +
+          "자 — 필요하면 주제 단위로 나눠 정리한 뒤 하나로 합쳐도 좋습니다."
+      );
+    }
+    L.push("");
+    L.push("【사전 스캔 · 자동 감지값 (참고용, 실제 내용과 다르면 스크립트를 우선)】");
+    L.push(
+      "- 화자 후보: " + (a.speakers.length ? a.speakers.join(", ") : "라벨 미검출")
+    );
+    L.push("- 발화 턴 " + a.turns + "회 · 주제 전환 신호 " + a.topicN + "회");
+    L.push(
+      "- 액션 신호 " +
+        a.actionN +
+        "건 · 결정 신호 " +
+        a.decisionN +
+        "건 · 열린 질문/리스크 신호 " +
+        a.openN +
+        "건"
+    );
+    L.push(
+      "- 기한 언급: " +
+        (a.deadlineN > 0
+          ? "일부 감지(" + a.deadlineN + ")"
+          : "거의 없음 — 액션의 담당자·기한을 반드시 확인")
+    );
+    L.push("(위 수치는 키워드 기반 추정입니다. 없는 사실을 만들지 말고, 스크립트에 근거하세요.)");
+    L.push("");
+    L.push("【절대 규칙】");
+    L.push(
+      'A) 사실만 추출: 스크립트에 없는 결정·수치·일정·담당자를 추가하지 않는다. 누락은 "미정" 또는 "언급 없음"으로 명시.'
+    );
+    L.push(
+      'B) 의미 보존: 입장·뉘앙스·조건절("일단은","우선은")을 생략하지 않는다. 보류/합의/반대를 구분해 서술.'
+    );
+    L.push("C) " + opt.depth.ruleC);
+    L.push(
+      "D) 불확실성 표기: 화자·담당자·기한·고유명사가 애매하면 ‹? A / B ?› 로 남기고 과추정하지 않는다."
+    );
+    L.push("E) 중립 서술: 평가·감정 단어를 임의로 넣지 않는다. 화자의 평가는 인용으로 처리.");
+    L.push('F) 본문만 출력: "아래는 회의록입니다" 같은 머리말·메타 설명 없이 회의록 본문만.');
+    L.push("");
+    L.push("【출력 형식 · 독자에 맞춰 밀도 조정】");
+    L.push("1. 개요 — 일시·길이·매체·참석자(역할)·목적 1~3줄·한 문장 핵심 메시지");
+    L.push(
+      "2. 주요 논의 사항 — 주제별로 [배경/맥락 → 핵심 논점 → 결론 방향(합의/보류/재논의) → 근거/예시]"
+    );
+    L.push("3. 진행 현황 — 완료 / 진행 중(누가·어디까지) / 대기·블록(사유)");
+    L.push(
+      "4. 결정 사항(표) — | # | 결정 내용 | 근거 | 영향 범위 | 결정 주체 |   ※ 명시적 합의만, 미합의는 7번으로"
+    );
+    L.push(
+      "5. 액션 아이템(표) — | # | 할 일 | 담당자 | 기한 | 상태 | 세부/의존성 |   ※ 없는 값은 미정, 약한 합의도 상태 '대기'로 포함"
+    );
+    L.push("6. 참고 사항 / 지식 자산 — 개념·용어 정의, 절차·설정, 도구·링크·파일명, 사람·조직 매핑");
+    L.push("7. 열린 질문 / 리스크 — 미해결 질문·상충 의견·제약·후속 확인 필요");
+    if (opt.quotes) {
+      L.push("8. 핵심 발언 인용 — 판단·방향·전환점이 된 발언 2~5개(발화자·짧은 직접 인용·맥락)");
+    }
+    L.push("");
+    L.push("[독자 맞춤] " + opt.reader.emphasis);
+    L.push("");
+    L.push("【출력 전 자가 점검】");
+    L.push("- 스크립트에 없는 사실을 만들어 넣지 않았는가?");
+    L.push("- 보류·합의·반대가 혼동 없이 구분되었는가?");
+    L.push('- 모든 액션에 담당자·기한이(있으면) 채워졌고, 없으면 "미정"인가?');
+    L.push("- 재사용 가능한 지식이 빠짐없이 모였는가?");
+    L.push("- 애매한 곳은 ‹? … ?›로 표시했고 과추정은 없는가?");
+    L.push("");
+    L.push("【회의 스크립트】");
+    L.push(
+      opt.script && opt.script.trim()
+        ? opt.script.trim()
+        : "(여기에 회의 스크립트를 붙여넣으세요. STT 원본이면 먼저 오탈자·화자 라벨('이름:')을 정리하면 회의록 품질이 올라갑니다.)"
+    );
+    return L.join("\n");
+  }
+
+  /* ---------------- state + option controls ---------------- */
+  var state = { reader: "handover", depth: "ultra", meeting: "", quotes: true };
+
+  function wireSeg(groupId, key) {
+    var group = document.getElementById(groupId);
+    group.addEventListener("click", function (e) {
+      var btn = e.target.closest("button");
+      if (!btn) return;
+      var val = btn.getAttribute("data-" + key);
+      state[key] = val;
+      Array.prototype.forEach.call(group.querySelectorAll("button"), function (b) {
+        b.setAttribute(
+          "aria-pressed",
+          b === btn ? "true" : "false"
+        );
+      });
+    });
+  }
+  wireSeg("readerSeg", "reader");
+  wireSeg("depthSeg", "depth");
+
+  document.getElementById("meetingType").addEventListener("change", function (e) {
+    state.meeting = e.target.value;
+  });
+  document.getElementById("quotes").addEventListener("change", function (e) {
+    state.quotes = e.target.checked;
+  });
+
+  /* ---------------- textarea auto-grow + counter ---------------- */
+  var scriptEl = document.getElementById("script");
+  var charCountEl = document.getElementById("charCount");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  function updateCount() {
+    charCountEl.textContent = scriptEl.value.length + "자";
+  }
+  scriptEl.addEventListener("input", function () {
+    grow(scriptEl);
+    updateCount();
+  });
+
+  /* ---------------- render result ---------------- */
+  var resultEl = document.getElementById("result");
+  var liveStatus = document.getElementById("liveStatus");
+  var lastPrompt = "";
+
+  function statTile(num, lab) {
+    return (
+      '<div class="stat"><div class="stat-num">' +
+      num +
+      '</div><div class="stat-lab">' +
+      lab +
+      "</div></div>"
+    );
+  }
+
+  function snipBlock(cls, dot, title, n, examples, warn) {
+    var h = '<div class="snip-block">';
+    h +=
+      '<p class="snip-head"><span class="snip-dot ' +
+      dot +
+      '"></span>' +
+      title +
+      " <b>" +
+      n +
+      "건</b></p>";
+    if (examples.length) {
+      h += '<ul class="snip-list">';
+      examples.forEach(function (ex) {
+        h += "<li>" + esc(ex) + "</li>";
+      });
+      h += "</ul>";
+    } else {
+      h += '<p class="snip-empty">감지된 신호가 없습니다.</p>';
+    }
+    if (warn) h += '<p class="snip-warn">' + warn + "</p>";
+    h += "</div>";
+    return h;
+  }
+
+  function render(a, opt) {
+    var html = "";
+
+    // lead
+    html += '<div class="result-lead">';
+    html += '<p class="rl-label">준비 완료</p>';
+    html +=
+      '<p class="rl-title">' +
+      esc(opt.reader.label) +
+      "용 회의록 프롬프트가 만들어졌습니다</p>";
+    html +=
+      '<p class="rl-desc">아래 스캔으로 회의의 뼈대를 먼저 확인하고, 그 아래 프롬프트를 AI에 붙여넣어 완성된 회의록을 받으세요.</p>';
+    html += "</div>";
+
+    if (!a.hasText) {
+      html +=
+        '<p class="notice">스크립트가 비어 있어 자동 스캔은 건너뜁니다. 아래 프롬프트는 형식만 갖춘 템플릿이며, 회의 내용을 붙여넣으면 화자·액션·결정·리스크가 자동으로 분석됩니다.</p>';
+    } else {
+      // scan grid
+      html += '<div class="result-block-title">사전 스캔 (추정)</div>';
+      html += '<div class="scan-grid">';
+      html += statTile(a.speakers.length, "화자");
+      html += statTile(a.turns, "발화 턴");
+      html += statTile(a.charCount, "글자 수");
+      html += statTile(a.topicN, "주제 전환");
+      html += statTile(a.actionN, "액션 신호");
+      html += statTile(a.decisionN, "결정 신호");
+      html += statTile(a.openN, "열린질문");
+      html += statTile(a.deadlineN, "기한 언급");
+      html += "</div>";
+
+      // speaker chips / hint
+      if (a.speakers.length) {
+        html += '<div class="chips">';
+        a.speakers.slice(0, 12).forEach(function (s) {
+          html += '<span class="chip">' + esc(s) + "</span>";
+        });
+        if (a.speakers.length > 12) {
+          html +=
+            '<span class="chip muted">+' +
+            (a.speakers.length - 12) +
+            "명</span>";
+        }
+        html += "</div>";
+      } else {
+        html +=
+          '<div class="chips"><span class="chip muted">화자 라벨 미검출 — \'이름:\' 형식으로 정리하면 화자 구분 품질이 올라갑니다</span></div>';
+      }
+
+      // snippet blocks
+      html += '<div class="result-block-title">감지된 신호</div>';
+      var actionWarn =
+        a.actionN > 0 && a.deadlineN === 0
+          ? "기한 언급이 거의 없습니다 — 액션마다 담당자·기한을 회의에서 확정하거나, 회의록에 '미정'으로 명시하세요."
+          : "";
+      html += snipBlock(
+        "action",
+        "action",
+        "액션 · 요청",
+        a.actionN,
+        a.actionEx,
+        actionWarn
+      );
+      html += snipBlock(
+        "decision",
+        "decision",
+        "결정 · 합의",
+        a.decisionN,
+        a.decisionEx,
+        ""
+      );
+      html += snipBlock(
+        "open",
+        "open",
+        "열린 질문 · 리스크",
+        a.openN,
+        a.openEx,
+        ""
+      );
+    }
+
+    // reader guidance
+    html += '<div class="result-block-title">이 독자에게 맞춘 구성</div>';
+    html += '<div class="guide-card">';
+    html += '<p class="guide-reader">독자: ' + esc(opt.reader.label) + "</p>";
+    html += "<p>" + esc(opt.reader.emphasis) + "</p>";
+    html += "</div>";
+
+    // prompt
+    lastPrompt = buildPrompt(a, opt);
+    html += '<div class="result-block-title">AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 그대로 붙여넣으면, 위 스캔과 독자 설정을 반영한 회의록을 정리해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="act btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    liveStatus.textContent = "회의록 프롬프트가 생성되었습니다.";
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ---------------- build handler ---------------- */
+  document.getElementById("build").addEventListener("click", function () {
+    var opt = {
+      reader: READERS[state.reader],
+      depth: DEPTHS[state.depth],
+      meeting: state.meeting,
+      quotes: state.quotes,
+      script: scriptEl.value,
+    };
+    var a = analyze(scriptEl.value);
+    render(a, opt);
+  });
+
+  /* ---------------- reset ---------------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    scriptEl.value = "";
+    grow(scriptEl);
+    updateCount();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+      "<p><strong>아직 만들기 전입니다.</strong></p>" +
+      "<p>스크립트를 붙이고 '회의록 프롬프트 만들기'를 누르세요.</p></div>";
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------------- sample ---------------- */
+  var SAMPLE =
+    "김리더: 지난주 신규 온보딩 이탈률이 32%까지 올라서, 이번 스프린트 최우선으로 잡아야 할 것 같아요.\n" +
+    "박PM: 원인부터 봐야죠. 데이터팀에 퍼널 분석 요청해서 다음 주 수요일까지 받기로 하죠.\n" +
+    "이개발: 가입 3단계 폼이 너무 길다는 피드백이 많았어요. 일단은 이메일 인증을 마지막 단계로 미루는 걸로 해봅시다.\n" +
+    "김리더: 그럼 이개발님이 폼 순서 개편 프로토타입을 만들고, 박PM님이 데이터 받아서 취합해 주세요.\n" +
+    "박PM: 확정은 데이터 보고 하기로 하고, 리스크는 인증을 미루면 스팸 가입이 늘 수 있다는 점입니다. 이건 더 확인이 필요해요.\n" +
+    "김리더: 좋아요. 그러면 다음 정기회의 때 결과 공유하는 걸로 정리하죠.";
+
+  document.getElementById("sampleBtn").addEventListener("click", function () {
+    scriptEl.value = SAMPLE;
+    grow(scriptEl);
+    updateCount();
+    scriptEl.focus();
+  });
+
+  /* ---------------- copy (3-tier fallback) + print ---------------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------------- manual modal ---------------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

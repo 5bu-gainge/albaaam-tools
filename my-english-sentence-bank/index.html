@@ -1,0 +1,1635 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>나만의 영어 문장은행 (KO-EN)</title>
+<meta
+  name="description"
+  content="원문 구조를 살린 한국어-영어 예문 쌍을 모아 저장하고 Anki/CSV로 내보내는 개인 문장은행"
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2b7a74;
+    --accent-strong: #1f5b56;
+    --accent-tint: #e8f4f2;
+    --accent-tint-2: #d3e9e5;
+    --ink: #1e2422;
+    --ink-soft: #414a47;
+    --ink-mute: #63706c;
+    --paper: #f5f8f7;
+    --card: #ffffff;
+    --line: #e0e7e5;
+    --line-strong: #cdd8d5;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #a35a12;
+    --warn-tint: #fdf1e3;
+    --warn-line: #f0dcc2;
+    --shadow: 0 1px 2px rgba(20, 30, 28, 0.05), 0 6px 20px rgba(20, 30, 28, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+  .count-pill {
+    margin-left: auto;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 999px;
+    padding: 3px 11px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  .field-label .badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 7px;
+    vertical-align: middle;
+  }
+  .badge.ko {
+    color: #7a4d13;
+    background: #f7ecdc;
+    border: 1px solid #ecd9be;
+  }
+  .badge.en {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  textarea,
+  input[type="text"] {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 58px;
+    resize: none;
+    overflow: hidden;
+    display: block;
+  }
+  textarea.source {
+    min-height: 92px;
+  }
+  textarea:focus,
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder,
+  input::placeholder {
+    color: #9aa8a4;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-block {
+    margin-bottom: 15px;
+  }
+  .two-col {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .two-col > div {
+    flex: 1 1 190px;
+    min-width: 0;
+  }
+
+  /* ---------- buttons ---------- */
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 12px 18px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s, color 0.15s;
+    min-height: 44px;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 16px;
+  }
+  .btn-copy:hover:not(:disabled) {
+    background: #000;
+  }
+  .btn-sm {
+    font-size: 0.88rem;
+    padding: 9px 14px;
+    min-height: 40px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .actions .grow {
+    flex: 1 1 auto;
+    min-width: 150px;
+  }
+  .status {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--good);
+    align-self: center;
+  }
+
+  /* ---------- structure chips ---------- */
+  .analysis {
+    margin-top: 15px;
+    border-top: 1px dashed var(--line-strong);
+    padding-top: 15px;
+  }
+  .analysis.hidden {
+    display: none;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 12px;
+  }
+  .chip {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: #fbfdfc;
+    color: var(--ink-soft);
+  }
+  .chip.lang {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .chip.warn {
+    color: var(--warn);
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .chip.ok {
+    color: var(--good);
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  ul.notes {
+    list-style: none;
+    margin: 0 0 4px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  ul.notes li {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    padding-left: 15px;
+    position: relative;
+  }
+  ul.notes li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  ul.notes li.warn::before {
+    background: var(--warn);
+  }
+
+  .result-block-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 20px 0 9px;
+  }
+
+  /* prompt / export box */
+  pre.box {
+    margin: 0;
+    background: #21302d;
+    color: #eef4f2;
+    border-radius: 12px;
+    padding: 15px 15px;
+    font-size: 0.85rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  pre.box.mono {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.8rem;
+    white-space: pre;
+    overflow-x: auto;
+    word-break: normal;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- bank cards ---------- */
+  .bank-toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .bank-toolbar input[type="text"] {
+    flex: 1 1 180px;
+    min-height: 44px;
+  }
+  .tag-filter {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .tag-btn {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: #fbfdfc;
+    color: var(--ink-soft);
+    cursor: pointer;
+    min-height: 34px;
+  }
+  .tag-btn.on {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  ul.bank {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  li.rec {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 14px 15px;
+    background: #fbfdfc;
+  }
+  .rec-ko {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+  .rec-en {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .rec-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 11px;
+  }
+  .rec-tag {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 2px 9px;
+    border-radius: 6px;
+  }
+  .rec-note {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+  .rec-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+  }
+  .icon-btn {
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    color: var(--ink-mute);
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 6px 11px;
+    border-radius: 8px;
+    min-height: 36px;
+  }
+  .icon-btn:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .icon-btn.danger:hover {
+    border-color: #c0392b;
+    color: #c0392b;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .empty-state .actions {
+    justify-content: center;
+  }
+
+  /* ---------- export ---------- */
+  .seg {
+    display: inline-flex;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .seg button {
+    border: none;
+    border-radius: 0;
+    background: #fbfdfc;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    padding: 10px 15px;
+    min-height: 42px;
+  }
+  .seg button + button {
+    border-left: 1px solid var(--line-strong);
+  }
+  .seg button.on {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 30, 28, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 170px;
+    overflow-y: auto;
+    resize: vertical;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .actions .grow {
+      min-width: 100%;
+    }
+    .rec-actions {
+      margin-left: 0;
+      width: 100%;
+    }
+    .rec-actions .icon-btn {
+      flex: 1 1 auto;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #craft-panel,
+    #add-panel,
+    #export-panel,
+    .bank-toolbar,
+    .tag-filter,
+    .rec-actions,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    li.rec {
+      break-inside: avoid;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">영어 학습 · 예문집 · Anki 내보내기</span>
+    <h1>나만의 영어 문장은행 (KO-EN)</h1>
+    <p class="lede">
+      마음에 든 문장을 원문 구조 그대로 한국어-영어 쌍으로 모아 두는 개인
+      문장은행입니다. 구조를 분석해 다듬을 포인트를 짚고, 모은 문장을 Anki 카드나
+      CSV로 내보냅니다.
+    </p>
+  </header>
+
+  <!-- STEP 1 : craft -->
+  <section class="panel" id="craft-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>원문 다듬기 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      한국어든 영어든 원문을 붙여넣으면 언어와 문장 구조를 분석해, 예문집용으로
+      다듬을 때 지켜야 할 포인트를 짚어 드립니다. 바로 카드부터 만들어도 됩니다.
+    </p>
+    <label class="field-label" for="src">원문 (한국어 또는 영어)</label>
+    <textarea
+      id="src"
+      class="source"
+      placeholder="예) Typical queries around search, writing, advice, etc. are not the domain that has made the most dramatic strides."
+    ></textarea>
+    <div class="actions">
+      <button class="btn-primary grow" id="analyzeBtn">구조 분석</button>
+      <button class="btn-ghost" id="clearSrcBtn">지우기</button>
+    </div>
+
+    <div class="analysis hidden" id="analysis" aria-live="polite">
+      <div class="chips" id="chips"></div>
+      <ul class="notes" id="notes"></ul>
+
+      <div class="result-block-title">AI에 붙여넣을 다듬기 프롬프트</div>
+      <p class="panel-sub" style="margin-bottom: 11px">
+        이 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 위 구조를 살린
+        한국어-영어 예문 쌍을 &lt;한국어&gt; 다음 빈 줄 &lt;영어&gt; 형식으로
+        만들어 줍니다. 결과를 아래 STEP 2에 붙여넣어 카드로 저장하세요.
+      </p>
+      <pre class="box" id="prompt"></pre>
+      <div class="copy-row no-print">
+        <button class="btn-copy" id="copyPromptBtn">프롬프트 복사</button>
+        <span class="copy-status" id="promptStatus" role="status" aria-live="polite"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 : add card -->
+  <section class="panel" id="add-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>카드 만들기</h2>
+    </div>
+    <p class="panel-sub">
+      한국어 뜻과 영어 문장을 한 쌍으로 담습니다. AI가 준
+      &lt;한국어&gt;/&lt;영어&gt; 결과가 있으면 아래 붙여넣기 칸에 통째로
+      넣고 '칸 채우기'를 누르세요.
+    </p>
+
+    <div class="field-block">
+      <label class="field-label" for="paste">AI 결과 붙여넣기 (선택)</label>
+      <textarea
+        id="paste"
+        placeholder="한국어 문장&#10;&#10;영어 문장  ← 빈 줄로 구분된 결과를 통째로 붙여넣기"
+      ></textarea>
+      <div class="actions" style="margin-top: 10px">
+        <button class="btn-ghost btn-sm" id="fillBtn">칸 채우기</button>
+        <span class="status" id="fillStatus" role="status" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="field-block">
+      <label class="field-label" for="ko">한국어 뜻<span class="badge ko">KO</span></label>
+      <textarea id="ko" placeholder="예문집용으로 단정하게 끝맺은 한국어 문장"></textarea>
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="en">영어 문장<span class="badge en">EN</span></label>
+      <textarea id="en" placeholder="원어민에게 자연스러운 영어 문장"></textarea>
+    </div>
+
+    <div class="two-col field-block">
+      <div>
+        <label class="field-label" for="tag">태그 (선택)</label>
+        <input type="text" id="tag" placeholder="예) 발표, 이메일, 회의" />
+      </div>
+      <div>
+        <label class="field-label" for="note">출처·메모 (선택)</label>
+        <input type="text" id="note" placeholder="예) 팀 회의 중 들은 표현" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary grow" id="addBtn">문장은행에 추가</button>
+      <span class="status" id="addStatus" role="status" aria-live="polite"></span>
+    </div>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않으며, 이 브라우저에만
+      저장됩니다(localStorage). 서버나 외부 API를 호출하지 않습니다.
+    </p>
+  </section>
+
+  <!-- STEP 3 : bank -->
+  <section class="panel" id="bank-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>내 문장은행</h2>
+      <span class="count-pill" id="countPill" aria-live="polite">0개</span>
+    </div>
+    <div class="bank-toolbar no-print">
+      <input type="text" id="search" placeholder="문장·태그·메모 검색" aria-label="문장은행 검색" />
+      <button class="btn-ghost btn-sm" id="clearAllBtn">전체 비우기</button>
+    </div>
+    <div class="tag-filter no-print" id="tagFilter"></div>
+    <div id="bank"></div>
+  </section>
+
+  <!-- STEP 4 : export -->
+  <section class="panel" id="export-panel">
+    <div class="panel-head">
+      <span class="step">STEP 4</span>
+      <h2>내보내기</h2>
+    </div>
+    <p class="panel-sub">
+      모은 문장을 Anki 카드(탭 구분 텍스트)나 CSV로 내보냅니다. 앞면(질문)에
+      무엇을 둘지 고르세요.
+    </p>
+    <label class="field-label">카드 앞면</label>
+    <div class="seg" id="frontSeg" role="group" aria-label="카드 앞면 선택">
+      <button data-front="ko" class="on">한국어 → 영어</button>
+      <button data-front="en">영어 → 한국어</button>
+    </div>
+
+    <div class="result-block-title">미리보기</div>
+    <pre class="box mono" id="exportPreview" aria-live="polite"></pre>
+    <div class="copy-row no-print">
+      <button class="btn-copy" id="copyAnkiBtn">Anki용 복사</button>
+      <button class="btn-ghost" id="dlAnkiBtn">Anki .txt 저장</button>
+      <button class="btn-ghost" id="dlCsvBtn">CSV 저장</button>
+      <span class="copy-status" id="exportStatus" role="status" aria-live="polite"></span>
+    </div>
+    <p class="field-hint">
+      Anki: 파일 &gt; 가져오기에서 이 .txt를 선택하면 탭 구분·태그 열이 자동
+      인식됩니다. CSV는 RFC 4180 규격(따옴표 이스케이프)이라 Excel·Sheets에서
+      바로 열립니다.
+    </p>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 사내 예문집 작성 원칙
+      (example-sentence-crafter) — ① 원문의 구조와 결 보존(주어·서술·부정·대조·열거·관계절
+      배치 유지), ② 문맥 없이 읽히는 독립 문장으로 완성, ③ 원어민 감각의 자연스러운
+      영어, ④ 예문집에 그대로 붙일 단정한 한국어 종결, ⑤ 편의적 의역보다 정확한
+      보존 우선. 구조 감지는 규칙 기반 휴리스틱이며, 내보내기 형식은 Anki 텍스트
+      가져오기 관례(탭 구분, 태그 열)와 CSV RFC 4180을 따릅니다.
+    </p>
+    <p>
+      이 도구는 문장을 모으고 다듬을 포인트를 짚어 주는 학습 보조 도구입니다.
+      번역·문장의 최종 품질은 사용자와 사용한 AI의 판단에 달려 있습니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* =========================================================
+     나만의 영어 문장은행 — 단일 파일, 서버/외부 API 없음
+     저장: localStorage (versioned)
+     ========================================================= */
+
+  var STORE_KEY = "my-english-sentence-bank/v1";
+
+  // ---------- utilities ----------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+  function $(id) {
+    return document.getElementById(id);
+  }
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  function autoGrow(el) {
+    el.addEventListener("input", function () {
+      grow(el);
+    });
+  }
+  function flash(el, msg, ok) {
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = ok === false ? "var(--warn)" : "var(--good)";
+    setTimeout(function () {
+      if (el) el.textContent = "";
+    }, 2600);
+  }
+  function todayStamp() {
+    var d = new Date();
+    function p(n) {
+      return (n < 10 ? "0" : "") + n;
+    }
+    return "" + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate());
+  }
+
+  // ---------- persistence (defensive) ----------
+  function loadBank() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return [];
+      var data = JSON.parse(raw);
+      if (!Array.isArray(data)) return [];
+      return data
+        .filter(function (r) {
+          return r && typeof r === "object" && (r.ko || r.en);
+        })
+        .map(function (r) {
+          return {
+            id: r.id || genId(),
+            ko: String(r.ko || ""),
+            en: String(r.en || ""),
+            tag: String(r.tag || ""),
+            note: String(r.note || ""),
+            ts: typeof r.ts === "number" ? r.ts : Date.now(),
+          };
+        });
+    } catch (e) {
+      return [];
+    }
+  }
+  function saveBank() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(bank));
+    } catch (e) {
+      /* private mode / quota — bank still lives in memory this session */
+    }
+  }
+  function genId() {
+    return "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  var bank = loadBank();
+  var activeTag = null;
+  var frontSide = "ko"; // ko => front is Korean
+
+  // =========================================================
+  //  STEP 1 — structure analysis + prompt
+  // =========================================================
+  function detectLang(t) {
+    var hangul = (t.match(/[가-힣]/g) || []).length;
+    var latin = (t.match(/[A-Za-z]/g) || []).length;
+    if (hangul === 0 && latin === 0) return "unknown";
+    return hangul >= latin ? "ko" : "en";
+  }
+
+  function splitSentences(t) {
+    var out = [];
+    t.split(/\n+/).forEach(function (line) {
+      line = line.trim();
+      if (!line) return;
+      var re = /[^.!?。？！…]+[.!?。？！…]+|[^.!?。？！…]+$/g;
+      var m,
+        found = false;
+      while ((m = re.exec(line)) !== null) {
+        var s = m[0].trim();
+        if (s) {
+          out.push(s);
+          found = true;
+        }
+      }
+      if (!found) out.push(line);
+    });
+    return out;
+  }
+
+  // Each feature: {label, cls, note, warn}
+  function analyzeStructure(text, lang) {
+    var feats = [];
+    var sentences = splitSentences(text);
+    var lower = text.toLowerCase();
+
+    // language chip
+    feats.push({
+      label: lang === "ko" ? "감지 언어: 한국어" : lang === "en" ? "감지 언어: 영어" : "언어 판별 불가",
+      cls: "lang",
+    });
+
+    // multiple sentences
+    if (sentences.length > 1) {
+      feats.push({
+        label: "여러 문장 " + sentences.length + "개",
+        cls: "warn",
+        note: "여러 문장이 감지되었습니다. 각 문장을 개별 카드로 나눠 담는 편이 예문집에 좋습니다.",
+        warn: true,
+      });
+    }
+
+    // negation
+    var negKo = /(않|없|못\s|못한|못했|아니|말라|마세요|아니다|없다|없이)/;
+    var negEn = /\b(not|no|never|neither|nor|cannot|can't|won't|don't|doesn't|didn't|without|isn't|aren't)\b/i;
+    if ((lang === "ko" && negKo.test(text)) || negEn.test(lower)) {
+      feats.push({
+        label: "부정문",
+        cls: "",
+        note: "부정의 방향을 뒤집지 말 것. 부정문은 부정문으로 옮깁니다. (원칙 1)",
+      });
+    }
+
+    // contrast
+    var conKo = /(하지만|그러나|그렇지만|반면|오히려|~?지만|도리어)/;
+    var conEn = /\b(but|however|though|although|whereas|yet|on the other hand|in contrast)\b/i;
+    if ((lang === "ko" && conKo.test(text)) || conEn.test(lower)) {
+      feats.push({
+        label: "대조 구조",
+        cls: "",
+        note: "대조의 배치(A는 그러나 B)를 그대로 살립니다. (원칙 1)",
+      });
+    }
+
+    // enumeration
+    var commaCount = (text.match(/[,，、]/g) || []).length;
+    var enumKo = /(등등|등\b|및|이나|거나)/;
+    var enumEn = /\b(etc\.?|and so on|and similar|among others|such as)\b/i;
+    if (commaCount >= 2 || (lang === "ko" && enumKo.test(text)) || enumEn.test(lower)) {
+      feats.push({
+        label: "열거",
+        cls: "",
+        note: "나열 항목의 순서와 무게를 축약하지 말 것. (원칙 1·5)",
+      });
+    }
+
+    // 'etc.' non-native trace
+    if (/\betc\.?\b|and etc/i.test(lower)) {
+      feats.push({
+        label: "'etc.' 흔적",
+        cls: "warn",
+        note: "'etc.'는 원어민 감각으로 'and similar tasks/cases' 등으로 자연스럽게 마무리하세요. (원칙 3)",
+        warn: true,
+      });
+    }
+
+    // condition
+    var condKo = /(다면|라면|한다면|하면|경우|일\s?때|았?으면)/;
+    var condEn = /\b(if|unless|provided that|in case|as long as|when(ever)?)\b/i;
+    if ((lang === "ko" && condKo.test(text)) || condEn.test(lower)) {
+      feats.push({
+        label: "조건절",
+        cls: "",
+        note: "조건-귀결 구조를 그대로 유지합니다. (원칙 1)",
+      });
+    }
+
+    // relative / subordinate clause
+    var relEn = /\b(that|which|who|whom|whose|where|when)\b/i;
+    var subKo = /(때문에|위해|위한|도록|면서|는데|은데|므로|어서|아서|는\s?것|은\s?것|던\s?것)/;
+    if ((lang === "en" && relEn.test(lower)) || (lang === "ko" && subKo.test(text))) {
+      feats.push({
+        label: lang === "en" ? "관계절" : "종속·관형절",
+        cls: "",
+        note: "수식·종속 관계를 짧게 뭉뚱그리지 말 것. 주절과 종속절의 무게 배분을 유지합니다. (원칙 1·5)",
+      });
+    }
+
+    // ending type (based on last sentence)
+    var last = sentences[sentences.length - 1] || text;
+    var isQ = /\?|？/.test(text) || /(까|나요|가요|ㅂ니까|을까|니)\s*[?？]?\s*$/.test(last);
+    var isImp =
+      /(하세요|하십시오|해라|하라|하자|합시다|하시오)\s*[.!]?\s*$/.test(last) ||
+      (lang === "en" && /!\s*$/.test(text));
+    if (isQ) {
+      feats.push({
+        label: "종결: 의문문",
+        cls: "",
+        note: "의문문은 의문문으로 종결합니다. (원칙 4)",
+      });
+    } else if (isImp) {
+      feats.push({
+        label: "종결: 명령문",
+        cls: "",
+        note: "명령·청유의 종결 방식을 유지합니다. (원칙 4)",
+      });
+    } else {
+      feats.push({
+        label: "종결: 평서문",
+        cls: "",
+        note: "평서문은 '~이다 / ~이 아니다'처럼 단정하게 끝맺습니다. (원칙 4)",
+      });
+    }
+
+    // context dependency (independence risk)
+    var depKo = /(그것|이것|저것|그거|이거|그런|이런|여기서|거기서|그\s?문제|이\s?문제|앞서|위에서)/;
+    var depEnLead = /^\s*(and|but|so|however|therefore|this|that|these|those|it|they)\b/i;
+    var depKoLead = /^\s*(그리고|그래서|하지만|그러나|또한|게다가|따라서|그런데|이처럼)/;
+    var hasDep =
+      (lang === "ko" && (depKo.test(text) || depKoLead.test(text))) ||
+      (lang === "en" && depEnLead.test(text));
+    if (hasDep) {
+      feats.push({
+        label: "문맥 의존 신호",
+        cls: "warn",
+        note: "지시어·앞뒤 연결(그것/이/it/this 등)이 있습니다. 주어·대상을 한 단어만 보충해 홀로 읽히는 문장으로 만드세요. (원칙 2)",
+        warn: true,
+      });
+    } else if (sentences.length <= 1 && lang !== "unknown") {
+      feats.push({
+        label: "독립 문장",
+        cls: "ok",
+        note: "문맥 없이도 읽히는 독립 문장으로 보입니다. 과도한 풀어쓰기 없이 그대로 옮기세요. (원칙 2)",
+      });
+    }
+
+    return { feats: feats, sentences: sentences };
+  }
+
+  function buildCraftPrompt(source, lang, feats) {
+    var keep = feats
+      .filter(function (f) {
+        return f.note && f.cls !== "lang" && f.cls !== "ok";
+      })
+      .map(function (f) {
+        return "- " + f.label + ": " + f.note;
+      });
+
+    var L = [];
+    L.push("당신은 영어 예문집 문장을 다듬는 전문가입니다. 아래 원문을 예문집에 바로 넣을 수 있는 '한국어-영어 한 쌍'으로 만들어 주세요.");
+    L.push("");
+    L.push("[감지된 언어] " + (lang === "ko" ? "한국어" : lang === "en" ? "영어" : "혼합/불명"));
+    L.push("");
+    L.push("[반드시 지킬 원칙]");
+    L.push("1. 원문의 구조와 결(주어-서술-목적어 배치, 부정/긍정 방향, 관계절·종속절, 대조·열거·조건)을 보존한다.");
+    L.push("2. 문맥 없이 홀로 읽히는 독립 문장으로 만든다. 지시어로 맥락이 필요하면 주어·대상을 한 단어만 보충한다.");
+    L.push("3. 영어는 원어민에게 자연스럽게 다듬되(어색한 전치사·연어 정돈, 'etc.'→'and similar ...'), 구조를 무너뜨리지 않는다.");
+    L.push("4. 한국어는 직역 티 없이 예문집용으로 단정하게 종결한다(평서/의문/명령 종결 방식 유지).");
+    L.push("5. 더 쉬운 표현으로 바꾸는 편의보다 원문의 논리·어조·무게를 우선한다. 어려운 어휘라도 동등한 무게로 옮긴다.");
+    if (keep.length) {
+      L.push("");
+      L.push("[이 문장에서 특히 유지할 구조]");
+      keep.forEach(function (k) {
+        L.push(k);
+      });
+    }
+    L.push("");
+    L.push("[출력 형식] 아래 형식만 출력하세요. 번호·라벨·해설·이모지 금지.");
+    L.push("<한국어 문장>");
+    L.push("");
+    L.push("<영어 문장>");
+    L.push("");
+    L.push("[원문]");
+    L.push(source.trim());
+    return L.join("\n");
+  }
+
+  var lastPrompt = "";
+
+  $("analyzeBtn").addEventListener("click", function () {
+    var src = $("src").value.trim();
+    var box = $("analysis");
+    if (!src) {
+      box.classList.add("hidden");
+      flash($("promptStatus"), "원문을 먼저 입력하세요", false);
+      return;
+    }
+    var lang = detectLang(src);
+    var res = analyzeStructure(src, lang);
+
+    // chips
+    var chipsHtml = res.feats
+      .map(function (f) {
+        return '<span class="chip ' + f.cls + '">' + esc(f.label) + "</span>";
+      })
+      .join("");
+    $("chips").innerHTML = chipsHtml;
+
+    // notes
+    var notesHtml = res.feats
+      .filter(function (f) {
+        return f.note;
+      })
+      .map(function (f) {
+        return '<li class="' + (f.warn ? "warn" : "") + '">' + esc(f.note) + "</li>";
+      })
+      .join("");
+    $("notes").innerHTML = notesHtml;
+
+    // prompt
+    lastPrompt = buildCraftPrompt(src, lang, res.feats);
+    $("prompt").textContent = lastPrompt;
+
+    box.classList.remove("hidden");
+    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+
+  $("clearSrcBtn").addEventListener("click", function () {
+    $("src").value = "";
+    grow($("src"));
+    $("analysis").classList.add("hidden");
+  });
+
+  $("copyPromptBtn").addEventListener("click", function () {
+    copyText(lastPrompt, $("promptStatus"));
+  });
+
+  // =========================================================
+  //  STEP 2 — add card
+  // =========================================================
+  $("fillBtn").addEventListener("click", function () {
+    var raw = $("paste").value;
+    if (!raw.trim()) {
+      flash($("fillStatus"), "붙여넣은 내용이 없습니다", false);
+      return;
+    }
+    // split on the first blank line; fall back to first newline
+    var koPart = "",
+      enPart = "";
+    var blank = raw.split(/\n\s*\n/);
+    if (blank.length >= 2) {
+      koPart = blank[0].trim();
+      enPart = blank.slice(1).join("\n").trim();
+    } else {
+      var lines = raw.split(/\n/).filter(function (l) {
+        return l.trim();
+      });
+      if (lines.length >= 2) {
+        koPart = lines[0].trim();
+        enPart = lines.slice(1).join(" ").trim();
+      } else {
+        koPart = raw.trim();
+      }
+    }
+    // ensure KO/EN land in the right field by language
+    if (koPart && enPart && detectLang(koPart) === "en" && detectLang(enPart) === "ko") {
+      var tmp = koPart;
+      koPart = enPart;
+      enPart = tmp;
+    }
+    $("ko").value = koPart;
+    $("en").value = enPart;
+    grow($("ko"));
+    grow($("en"));
+    flash($("fillStatus"), "칸을 채웠습니다");
+  });
+
+  $("addBtn").addEventListener("click", function () {
+    var ko = $("ko").value.trim();
+    var en = $("en").value.trim();
+    if (!ko && !en) {
+      flash($("addStatus"), "한국어·영어를 입력하세요", false);
+      return;
+    }
+    if (!ko || !en) {
+      flash($("addStatus"), "두 칸을 모두 채워 주세요", false);
+      return;
+    }
+    bank.unshift({
+      id: genId(),
+      ko: ko,
+      en: en,
+      tag: $("tag").value.trim(),
+      note: $("note").value.trim(),
+      ts: Date.now(),
+    });
+    saveBank();
+    // clear card fields (keep tag for streak entry)
+    $("ko").value = "";
+    $("en").value = "";
+    $("note").value = "";
+    $("paste").value = "";
+    grow($("ko"));
+    grow($("en"));
+    grow($("paste"));
+    renderAll();
+    flash($("addStatus"), "추가되었습니다");
+  });
+
+  // =========================================================
+  //  STEP 3 — bank render
+  // =========================================================
+  function uniqueTags() {
+    var set = {};
+    bank.forEach(function (r) {
+      r.tag
+        .split(/[,，]/)
+        .map(function (t) {
+          return t.trim();
+        })
+        .filter(Boolean)
+        .forEach(function (t) {
+          set[t] = true;
+        });
+    });
+    return Object.keys(set);
+  }
+
+  function recordMatches(r, q) {
+    if (!q) return true;
+    q = q.toLowerCase();
+    return (
+      r.ko.toLowerCase().indexOf(q) >= 0 ||
+      r.en.toLowerCase().indexOf(q) >= 0 ||
+      r.tag.toLowerCase().indexOf(q) >= 0 ||
+      r.note.toLowerCase().indexOf(q) >= 0
+    );
+  }
+  function recordHasTag(r, tag) {
+    if (!tag) return true;
+    return r.tag
+      .split(/[,，]/)
+      .map(function (t) {
+        return t.trim();
+      })
+      .indexOf(tag) >= 0;
+  }
+
+  function visibleRecords() {
+    var q = $("search").value.trim();
+    return bank.filter(function (r) {
+      return recordMatches(r, q) && recordHasTag(r, activeTag);
+    });
+  }
+
+  function renderTagFilter() {
+    var tags = uniqueTags();
+    var el = $("tagFilter");
+    if (!tags.length) {
+      el.innerHTML = "";
+      return;
+    }
+    var html = '<button class="tag-btn' + (activeTag === null ? " on" : "") + '" data-tag="">전체</button>';
+    tags.forEach(function (t) {
+      html +=
+        '<button class="tag-btn' +
+        (activeTag === t ? " on" : "") +
+        '" data-tag="' +
+        esc(t) +
+        '">' +
+        esc(t) +
+        "</button>";
+    });
+    el.innerHTML = html;
+  }
+
+  function renderBank() {
+    var el = $("bank");
+    var recs = visibleRecords();
+    $("countPill").textContent = bank.length + "개";
+
+    if (!bank.length) {
+      el.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">✉</div>' +
+        "<p><strong>아직 모은 문장이 없습니다.</strong></p>" +
+        "<p>STEP 2에서 첫 문장을 담아 보세요.</p>" +
+        '<div class="actions"><button class="btn-ghost btn-sm" id="seedBtn">예시 3개 불러오기</button></div></div>';
+      var sb = $("seedBtn");
+      if (sb) sb.addEventListener("click", seedSamples);
+      return;
+    }
+    if (!recs.length) {
+      el.innerHTML =
+        '<div class="empty-state"><p><strong>조건에 맞는 문장이 없습니다.</strong></p><p>검색어나 태그 필터를 바꿔 보세요.</p></div>';
+      return;
+    }
+
+    var html = '<ul class="bank">';
+    recs.forEach(function (r) {
+      html += '<li class="rec" data-id="' + esc(r.id) + '">';
+      html += '<p class="rec-ko">' + esc(r.ko) + "</p>";
+      html += '<p class="rec-en">' + esc(r.en) + "</p>";
+      html += '<div class="rec-meta">';
+      r.tag
+        .split(/[,，]/)
+        .map(function (t) {
+          return t.trim();
+        })
+        .filter(Boolean)
+        .forEach(function (t) {
+          html += '<span class="rec-tag">' + esc(t) + "</span>";
+        });
+      if (r.note) html += '<span class="rec-note">' + esc(r.note) + "</span>";
+      html += '<span class="rec-actions no-print">';
+      html += '<button class="icon-btn" data-act="copy" data-id="' + esc(r.id) + '">복사</button>';
+      html += '<button class="icon-btn" data-act="edit" data-id="' + esc(r.id) + '">수정</button>';
+      html += '<button class="icon-btn danger" data-act="del" data-id="' + esc(r.id) + '">삭제</button>';
+      html += "</span></div></li>";
+    });
+    html += "</ul>";
+    el.innerHTML = html;
+  }
+
+  // bank action delegation
+  $("bank").addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-act]");
+    if (!btn) return;
+    var id = btn.dataset.id;
+    var act = btn.dataset.act;
+    var rec = bank.filter(function (r) {
+      return r.id === id;
+    })[0];
+    if (!rec) return;
+
+    if (act === "del") {
+      bank = bank.filter(function (r) {
+        return r.id !== id;
+      });
+      saveBank();
+      renderAll();
+    } else if (act === "edit") {
+      // load back into the add form, then remove from bank
+      $("ko").value = rec.ko;
+      $("en").value = rec.en;
+      $("tag").value = rec.tag;
+      $("note").value = rec.note;
+      grow($("ko"));
+      grow($("en"));
+      bank = bank.filter(function (r) {
+        return r.id !== id;
+      });
+      saveBank();
+      renderAll();
+      $("add-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+      flash($("addStatus"), "수정할 문장을 STEP 2로 불러왔습니다");
+    } else if (act === "copy") {
+      copyText(rec.ko + "\n\n" + rec.en, null);
+    }
+  });
+
+  $("tagFilter").addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-tag]");
+    if (!btn) return;
+    var t = btn.dataset.tag;
+    activeTag = t === "" ? null : t;
+    renderTagFilter();
+    renderBank();
+  });
+
+  $("search").addEventListener("input", renderBank);
+
+  $("clearAllBtn").addEventListener("click", function () {
+    if (!bank.length) return;
+    if (
+      window.confirm(
+        "문장은행의 " + bank.length + "개 문장을 모두 삭제할까요? 되돌릴 수 없습니다."
+      )
+    ) {
+      bank = [];
+      activeTag = null;
+      saveBank();
+      renderAll();
+    }
+  });
+
+  function seedSamples() {
+    // examples drawn from the example-sentence-crafter skill (sourced, honest)
+    var samples = [
+      {
+        ko: "검색, 글쓰기, 조언 같은 전형적인 과업은 AI의 능력이 가장 두드러지고 극적으로 도약한 영역이 아니다.",
+        en: "Typical queries around search, writing, advice, and similar tasks are not the domain in which AI has made the most noticeable and dramatic strides in capability.",
+        tag: "샘플",
+        note: "구조 보존 예시",
+      },
+      {
+        ko: "이 일에서 가장 어려운 부분은 코드를 쓰는 것이 아니라, 그 코드가 무엇을 해야 하는지 정하는 것이다.",
+        en: "The hardest part of the job isn't writing the code; it's deciding what the code should do.",
+        tag: "샘플",
+        note: "대조 구조 예시",
+      },
+      {
+        ko: "그 기능은 출시되자마자 인기를 얻었다.",
+        en: "The feature gained traction the moment it launched.",
+        tag: "샘플",
+        note: "독립 문장 예시",
+      },
+    ];
+    samples.forEach(function (s) {
+      bank.unshift({
+        id: genId(),
+        ko: s.ko,
+        en: s.en,
+        tag: s.tag,
+        note: s.note,
+        ts: Date.now(),
+      });
+    });
+    saveBank();
+    renderAll();
+  }
+
+  // =========================================================
+  //  STEP 4 — export
+  // =========================================================
+  function tagsForAnki(tag) {
+    return tag
+      .split(/[,，]/)
+      .map(function (t) {
+        return t.trim().replace(/\s+/g, "_");
+      })
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  function buildAnki() {
+    var lines = ["#separator:tab", "#html:false", "#tags column:3"];
+    bank.forEach(function (r) {
+      var front = frontSide === "ko" ? r.ko : r.en;
+      var back = frontSide === "ko" ? r.en : r.ko;
+      // strip tab/newline inside fields so the TSV stays one row per card
+      function clean(s) {
+        return s.replace(/[\t\n\r]+/g, " ").trim();
+      }
+      lines.push(clean(front) + "\t" + clean(back) + "\t" + tagsForAnki(r.tag));
+    });
+    return lines.join("\n");
+  }
+
+  function csvField(s) {
+    s = String(s == null ? "" : s);
+    if (/[",\n\r]/.test(s)) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+  function buildCsv() {
+    var frontLabel = frontSide === "ko" ? "front_ko" : "front_en";
+    var backLabel = frontSide === "ko" ? "back_en" : "back_ko";
+    var rows = [[frontLabel, backLabel, "tags", "note"].join(",")];
+    bank.forEach(function (r) {
+      var front = frontSide === "ko" ? r.ko : r.en;
+      var back = frontSide === "ko" ? r.en : r.ko;
+      rows.push(
+        [csvField(front), csvField(back), csvField(r.tag), csvField(r.note)].join(",")
+      );
+    });
+    return rows.join("\r\n");
+  }
+
+  function renderExport() {
+    var pre = $("exportPreview");
+    if (!bank.length) {
+      pre.textContent = "카드가 없습니다. STEP 2에서 문장을 먼저 담으세요.";
+      $("copyAnkiBtn").disabled = true;
+      $("dlAnkiBtn").disabled = true;
+      $("dlCsvBtn").disabled = true;
+      return;
+    }
+    $("copyAnkiBtn").disabled = false;
+    $("dlAnkiBtn").disabled = false;
+    $("dlCsvBtn").disabled = false;
+    var anki = buildAnki();
+    var preview = anki.split("\n").slice(0, 9).join("\n");
+    if (bank.length + 3 > 9) preview += "\n… (총 " + bank.length + "개 카드)";
+    pre.textContent = preview;
+  }
+
+  Array.prototype.forEach.call($("frontSeg").querySelectorAll("button"), function (b) {
+    b.addEventListener("click", function () {
+      frontSide = b.dataset.front;
+      Array.prototype.forEach.call($("frontSeg").querySelectorAll("button"), function (x) {
+        x.classList.toggle("on", x === b);
+      });
+      renderExport();
+    });
+  });
+
+  $("copyAnkiBtn").addEventListener("click", function () {
+    copyText(buildAnki(), $("exportStatus"));
+  });
+  $("dlAnkiBtn").addEventListener("click", function () {
+    download(buildAnki(), "sentence-bank_anki_" + todayStamp() + ".txt", "text/plain");
+    flash($("exportStatus"), "Anki .txt 저장됨");
+  });
+  $("dlCsvBtn").addEventListener("click", function () {
+    // BOM so Excel reads UTF-8 Korean correctly
+    download("﻿" + buildCsv(), "sentence-bank_" + todayStamp() + ".csv", "text/csv");
+    flash($("exportStatus"), "CSV 저장됨");
+  });
+
+  function download(text, filename, mime) {
+    try {
+      var blob = new Blob([text], { type: mime + ";charset=utf-8" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () {
+        URL.revokeObjectURL(url);
+      }, 1500);
+    } catch (e) {
+      openModal(text);
+    }
+  }
+
+  // =========================================================
+  //  copy — 3-tier fallback
+  // =========================================================
+  function copyText(text, statusEl) {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          if (statusEl) flash(statusEl, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusEl);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusEl);
+  }
+  function legacyCopy(text, statusEl) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      if (statusEl) flash(statusEl, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = $("modal");
+  var modalText = $("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  $("modal-close").addEventListener("click", closeModal);
+  $("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // =========================================================
+  //  init
+  // =========================================================
+  function renderAll() {
+    renderTagFilter();
+    renderBank();
+    renderExport();
+  }
+
+  autoGrow($("src"));
+  autoGrow($("paste"));
+  autoGrow($("ko"));
+  autoGrow($("en"));
+  renderAll();
+</script>

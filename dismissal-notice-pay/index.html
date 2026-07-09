@@ -1,0 +1,1503 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>해고예고수당 계산기</title>
+<meta
+  name="description"
+  content="입사일·해고일·통상임금을 넣으면 예고수당 지급 의무 여부와 30일분 금액을 판정합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3a5a8c;
+    --accent-strong: #2b4570;
+    --accent-tint: #eaf0f8;
+    --accent-tint-2: #d8e2f1;
+    --ink: #20242b;
+    --ink-soft: #454b55;
+    --ink-mute: #697180;
+    --paper: #f7f8fa;
+    --card: #ffffff;
+    --line: #e4e7ec;
+    --line-strong: #d2d8e0;
+    --good: #2f6f4f;
+    --good-strong: #245c40;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #a9691a;
+    --warn-strong: #855210;
+    --warn-tint: #fbf1de;
+    --warn-line: #eeddbc;
+    --danger: #a33a3a;
+    --shadow: 0 1px 2px rgba(32, 36, 43, 0.05), 0 6px 20px rgba(32, 36, 43, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  .field {
+    margin-bottom: 16px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  input[type="date"],
+  input[type="number"],
+  input[type="text"],
+  select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    min-height: 46px;
+    word-break: keep-all;
+  }
+  input:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .field-hint {
+    font-size: 0.83rem;
+    color: var(--ink-mute);
+    margin: 7px 0 0;
+  }
+
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .amt-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .amt-row .amt-input {
+    flex: 2 1 160px;
+  }
+  .amt-row .amt-unit {
+    flex: 1 1 120px;
+  }
+
+  /* ---------- exemption checklist ---------- */
+  ul.exempts {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  li.exempt {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fbfcfd;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  li.exempt.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .exempt-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 14px;
+    cursor: pointer;
+  }
+  .exempt-check {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    margin-top: 1px;
+    border: 2px solid var(--line-strong);
+    border-radius: 7px;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    transition: all 0.15s;
+  }
+  li.exempt.on .exempt-check {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .exempt-check svg {
+    width: 15px;
+    height: 15px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  li.exempt.on .exempt-check svg {
+    opacity: 1;
+  }
+  .exempt-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .exempt-title {
+    font-weight: 700;
+    font-size: 0.97rem;
+    margin: 0 0 3px;
+  }
+  .exempt-sub {
+    margin: 0;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+  }
+  .exempt-row input.native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  li.exempt:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 46px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- disclaimer banner (always visible) ---------- */
+  .disclaimer {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: #fbf7ef;
+    border: 1px solid var(--warn-line);
+    border-radius: 12px;
+    padding: 13px 15px;
+    margin-bottom: 18px;
+    font-size: 0.86rem;
+    color: #6b5a3c;
+    line-height: 1.6;
+  }
+  .disclaimer .di-ico {
+    flex: none;
+    font-weight: 800;
+    color: var(--warn-strong);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .form-error {
+    background: #fbeeee;
+    border: 1px solid #eccccc;
+    color: #8a3030;
+    border-radius: 12px;
+    padding: 14px 15px;
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-liable {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-clear {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-liable .verdict-title {
+    color: var(--warn-strong);
+  }
+  .verdict.tone-clear .verdict-title {
+    color: var(--good-strong);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  /* stat tiles */
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .stat {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    padding: 14px 15px;
+  }
+  .stat .st-label {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    font-weight: 700;
+    margin: 0 0 5px;
+  }
+  .stat .st-value {
+    font-size: 1.16rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0;
+  }
+  .stat .st-note {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    margin: 4px 0 0;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* amount card */
+  .amount-card {
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 14px;
+    background: var(--accent-tint);
+    padding: 18px;
+  }
+  .calc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    margin-bottom: 4px;
+  }
+  .calc-table th,
+  .calc-table td {
+    text-align: left;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--accent-tint-2);
+    vertical-align: top;
+  }
+  .calc-table th {
+    font-weight: 600;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .calc-table td {
+    text-align: right;
+    font-weight: 700;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .calc-table td .u {
+    color: var(--ink-mute);
+    font-weight: 500;
+    font-size: 0.82rem;
+    margin-left: 3px;
+  }
+  .total-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px solid var(--accent-tint-2);
+    flex-wrap: wrap;
+  }
+  .total-row .tr-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+  .total-row .tr-amount {
+    font-size: 1.72rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .calc-note {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin: 12px 0 0;
+    line-height: 1.6;
+  }
+
+  .reason-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .reason-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fbfcfd;
+  }
+  .reason-item.rl-good {
+    border-left-color: var(--good);
+  }
+  .reason-item.rl-warn {
+    border-left-color: var(--warn);
+  }
+  .reason-item .ri-title {
+    font-weight: 700;
+    font-size: 0.97rem;
+    margin: 0 0 4px;
+  }
+  .reason-item .ri-body {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .reason-item .ri-tag {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+
+  .basis {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fbfcfd;
+    padding: 15px 16px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .basis p {
+    margin: 0 0 8px;
+  }
+  .basis p:last-child {
+    margin-bottom: 0;
+  }
+  .basis .law {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .basis .asof {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23282f;
+    color: #eef1f5;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 24, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    resize: vertical;
+    word-break: keep-all;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .grid2,
+    .stats {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-step-1,
+    #input-step-2,
+    #input-step-3,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">노무 판단 보조 · 근로기준법 제26조</span>
+    <h1>해고예고수당 계산기</h1>
+    <p class="lede">
+      입사일·해고일·통상임금을 넣으면 예고수당 지급 의무가 있는지, 있다면
+      30일분 금액이 얼마인지 판정합니다. 30일 전 예고 없이 해고할 때가
+      기준입니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-step-1">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>근로 기간</h2>
+    </div>
+    <p class="panel-sub">
+      입사일과 해고일(근로관계가 끝나는 날)을 입력하세요. 계속근로 3개월
+      미만이면 예고 의무가 면제됩니다.
+    </p>
+    <div class="grid2">
+      <div class="field">
+        <label class="field-label" for="hireDate">입사일</label>
+        <input type="date" id="hireDate" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="fireDate">해고일 (근로관계 종료일)</label>
+        <input type="date" id="fireDate" />
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="input-step-2">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>해고 예고 상황</h2>
+    </div>
+    <p class="panel-sub">
+      해고를 미리 통보한 날을 넣으면 예고일수가 자동 계산됩니다. 예고 없이
+      즉시 해고하는 경우라면 비워 두세요.
+    </p>
+    <div class="field">
+      <label class="field-label" for="noticeDate">해고 예고(통보)일 (선택)</label>
+      <input type="date" id="noticeDate" />
+      <p class="field-hint">
+        비워 두면 '예고 없이 즉시 해고'로 계산합니다. 예고일수가 30일 이상이면
+        예고 의무를 이행한 것으로 봅니다.
+      </p>
+    </div>
+
+    <label class="field-label" style="margin-top: 4px">
+      아래 예고 면제 사유에 해당하나요? (해당 시 선택)
+    </label>
+    <ul class="exempts" id="exempts"></ul>
+  </section>
+
+  <section class="panel" id="input-step-3">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>통상임금 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      예고수당은 30일분 통상임금입니다. 금액과 단위를 넣으면 지급액을
+      계산합니다. 비워 두면 의무 여부만 판정합니다.
+    </p>
+    <div class="field">
+      <label class="field-label" for="wageAmt">통상임금</label>
+      <div class="amt-row">
+        <input
+          type="number"
+          id="wageAmt"
+          class="amt-input"
+          inputmode="numeric"
+          min="0"
+          step="1"
+          placeholder="예) 3000000"
+        />
+        <select id="wageUnit" class="amt-unit" aria-label="통상임금 단위">
+          <option value="month">월급</option>
+          <option value="day">일급</option>
+          <option value="hour">시급</option>
+        </select>
+      </div>
+      <p class="field-hint" id="wageHint">
+        '월급'은 정기·일률적으로 지급되는 통상임금 기준 월액입니다. 상여·초과근로
+        수당 등 통상임금이 아닌 항목은 제외하세요.
+      </p>
+    </div>
+
+    <div id="condHours"></div>
+
+    <div class="actions">
+      <button class="btn-primary" id="judge">판정하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">결과</span>
+      <h2>판정 결과</h2>
+    </div>
+
+    <div class="disclaimer" role="note">
+      <span class="di-ico" aria-hidden="true">i</span>
+      <span>
+        본 도구는 일반 정보 제공용 참고 자료이며 법적 효력이 있는 의견이
+        아닙니다. 개별 사안의 최종 판단은 공인노무사·세무사·변호사 등 전문가
+        상담이 필요합니다.
+      </span>
+    </div>
+
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◔</div>
+        <p><strong>아직 판정 전입니다.</strong></p>
+        <p>입사일과 해고일을 넣고 '판정하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 근로기준법 제26조(해고의 예고)와 동조
+      단서 제1~3호. 사용자는 근로자를 해고하려면 적어도 30일 전에 예고하거나
+      30일분 이상의 통상임금을 지급해야 하며, 계속근로 3개월 미만·천재사변 등
+      부득이한 사유·근로자의 고의 손해(고용노동부령 사유)에는 예고 의무가
+      면제됩니다. 통상임금의 시간급 환산은 주 40시간·월 소정근로시간 209시간을
+      기본값으로 합니다. 기준 시점: 2026년 7월.
+    </p>
+    <p>
+      이 도구는 판단을 돕는 보조 계산기이며, 개별 사안의 최종 판단을 대신하지
+      않습니다. 해고 자체의 정당성(근기법 제23조)과 서면 통지(제27조)는 별개
+      쟁점으로, 실제 통보·지급 전 공인노무사 확인을 권합니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  var AS_OF = "2026년 7월";
+  var DEFAULT_MONTH_HOURS = 209; // 주40시간 기준 월 소정근로시간(유급주휴 포함)
+  var DEFAULT_DAY_HOURS = 8; // 1일 소정근로시간
+
+  // 근로기준법 제26조 단서 제2·3호 (예고 의무 면제 사유)
+  var EXEMPTS = [
+    {
+      id: "disaster",
+      title: "천재·사변 등 부득이한 사유로 사업 계속이 불가능",
+      sub: "근로기준법 제26조 단서 제2호. 실제 인정은 매우 엄격합니다.",
+    },
+    {
+      id: "fault",
+      title: "근로자가 고의로 사업에 막대한 지장/재산상 손해를 끼침",
+      sub: "제26조 단서 제3호(고용노동부령으로 정하는 사유). 열거된 사유에 한합니다.",
+    },
+  ];
+
+  var exemptChecked = {};
+
+  // ---- render exemption checklist ----
+  var exemptsEl = document.getElementById("exempts");
+  var checkSvg =
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 12.5L10 17.5L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  EXEMPTS.forEach(function (x) {
+    var li = document.createElement("li");
+    li.className = "exempt";
+    li.dataset.id = x.id;
+    li.innerHTML =
+      '<label class="exempt-row">' +
+      '<input type="checkbox" class="native" data-id="' +
+      x.id +
+      '" />' +
+      '<span class="exempt-check">' +
+      checkSvg +
+      "</span>" +
+      '<span class="exempt-body">' +
+      '<p class="exempt-title">' +
+      x.title +
+      "</p>" +
+      '<p class="exempt-sub">' +
+      x.sub +
+      "</p>" +
+      "</span>" +
+      "</label>";
+    exemptsEl.appendChild(li);
+  });
+
+  exemptsEl.addEventListener("change", function (e) {
+    var box = e.target;
+    if (!box.classList || !box.classList.contains("native")) return;
+    var id = box.dataset.id;
+    exemptChecked[id] = box.checked;
+    var li = box.closest("li.exempt");
+    if (li) li.classList.toggle("on", box.checked);
+  });
+
+  // ---- conditional hours fields ----
+  var wageUnit = document.getElementById("wageUnit");
+  var condHours = document.getElementById("condHours");
+  var wageHint = document.getElementById("wageHint");
+
+  function renderCondHours() {
+    var u = wageUnit.value;
+    var html = "";
+    if (u === "month") {
+      html +=
+        '<div class="grid2">' +
+        '<div class="field"><label class="field-label" for="monthHours">월 소정근로시간</label>' +
+        '<input type="number" id="monthHours" inputmode="numeric" min="1" step="1" value="' +
+        DEFAULT_MONTH_HOURS +
+        '" /><p class="field-hint">주 40시간 기준 기본값 209시간(유급주휴 포함).</p></div>' +
+        '<div class="field"><label class="field-label" for="dayHours">1일 소정근로시간</label>' +
+        '<input type="number" id="dayHours" inputmode="numeric" min="1" max="24" step="1" value="' +
+        DEFAULT_DAY_HOURS +
+        '" /></div>' +
+        "</div>";
+      wageHint.textContent =
+        "'월급'은 정기·일률적으로 지급되는 통상임금 기준 월액입니다. 상여·초과근로 수당 등 통상임금이 아닌 항목은 제외하세요.";
+    } else if (u === "hour") {
+      html +=
+        '<div class="field"><label class="field-label" for="dayHours">1일 소정근로시간</label>' +
+        '<input type="number" id="dayHours" inputmode="numeric" min="1" max="24" step="1" value="' +
+        DEFAULT_DAY_HOURS +
+        '" /><p class="field-hint">시급 × 1일 소정근로시간 = 1일 통상임금.</p></div>';
+      wageHint.textContent = "시간당 통상임금을 입력하세요.";
+    } else {
+      wageHint.textContent =
+        "이미 하루치로 환산된 1일 통상임금을 입력하세요. (예고수당 = 1일 통상임금 × 30)";
+    }
+    condHours.innerHTML = html;
+  }
+  wageUnit.addEventListener("change", renderCondHours);
+  renderCondHours();
+
+  // ---- helpers ----
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function parseDate(v) {
+    if (!v) return null;
+    var p = String(v).split("-");
+    if (p.length !== 3) return null;
+    var y = +p[0],
+      m = +p[1],
+      d = +p[2];
+    if (!y || !m || !d) return null;
+    var dt = new Date(y, m - 1, d);
+    if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d)
+      return null;
+    return dt;
+  }
+
+  function daysBetween(a, b) {
+    return Math.round((b.getTime() - a.getTime()) / 86400000);
+  }
+
+  function addMonths(dt, n) {
+    var y = dt.getFullYear();
+    var m = dt.getMonth() + n;
+    var d = dt.getDate();
+    var t = new Date(y, m, 1);
+    var last = new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate();
+    t.setDate(Math.min(d, last));
+    return t;
+  }
+
+  function fmtDuration(a, b) {
+    var y = b.getFullYear() - a.getFullYear();
+    var m = b.getMonth() - a.getMonth();
+    var d = b.getDate() - a.getDate();
+    if (d < 0) {
+      m--;
+      var prevMonthDays = new Date(b.getFullYear(), b.getMonth(), 0).getDate();
+      d += prevMonthDays;
+    }
+    if (m < 0) {
+      y--;
+      m += 12;
+    }
+    var parts = [];
+    if (y > 0) parts.push(y + "년");
+    if (m > 0) parts.push(m + "개월");
+    parts.push(d + "일");
+    return parts.join(" ");
+  }
+
+  function num(v) {
+    if (v === null || v === undefined) return NaN;
+    var s = String(v).replace(/,/g, "").trim();
+    if (s === "") return NaN;
+    return Number(s);
+  }
+
+  function won(n) {
+    return Math.round(n).toLocaleString("ko-KR") + "원";
+  }
+
+  // ---- state / judgment ----
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function readState() {
+    return {
+      hire: parseDate(document.getElementById("hireDate").value),
+      fire: parseDate(document.getElementById("fireDate").value),
+      notice: parseDate(document.getElementById("noticeDate").value),
+      wageAmt: num(document.getElementById("wageAmt").value),
+      wageUnit: wageUnit.value,
+      monthHours: (function () {
+        var el = document.getElementById("monthHours");
+        return el ? num(el.value) : DEFAULT_MONTH_HOURS;
+      })(),
+      dayHours: (function () {
+        var el = document.getElementById("dayHours");
+        return el ? num(el.value) : DEFAULT_DAY_HOURS;
+      })(),
+      disaster: !!exemptChecked.disaster,
+      fault: !!exemptChecked.fault,
+    };
+  }
+
+  function computeDayWage(s) {
+    if (!isFinite(s.wageAmt) || s.wageAmt <= 0) return null;
+    var out = { breakdown: [], dayWage: 0 };
+    if (s.wageUnit === "month") {
+      var mh = isFinite(s.monthHours) && s.monthHours > 0 ? s.monthHours : DEFAULT_MONTH_HOURS;
+      var dh = isFinite(s.dayHours) && s.dayHours > 0 ? s.dayHours : DEFAULT_DAY_HOURS;
+      var hourly = s.wageAmt / mh;
+      var dayWage = hourly * dh;
+      out.dayWage = dayWage;
+      out.breakdown.push(["월 통상임금", won(s.wageAmt), ""]);
+      out.breakdown.push([
+        "시간급 환산",
+        won(hourly),
+        "월 " + won(s.wageAmt) + " ÷ " + mh + "시간",
+      ]);
+      out.breakdown.push([
+        "1일 통상임금",
+        won(dayWage),
+        "시간급 × " + dh + "시간",
+      ]);
+    } else if (s.wageUnit === "hour") {
+      var dh2 = isFinite(s.dayHours) && s.dayHours > 0 ? s.dayHours : DEFAULT_DAY_HOURS;
+      out.dayWage = s.wageAmt * dh2;
+      out.breakdown.push(["시간급 통상임금", won(s.wageAmt), ""]);
+      out.breakdown.push([
+        "1일 통상임금",
+        won(out.dayWage),
+        "시급 × " + dh2 + "시간",
+      ]);
+    } else {
+      out.dayWage = s.wageAmt;
+      out.breakdown.push(["1일 통상임금", won(s.wageAmt), "입력값"]);
+    }
+    return out;
+  }
+
+  function buildPrompt(s, verdict, tenureText, noticeDays, wage) {
+    var L = [];
+    L.push(
+      "당신은 대한민국 노동법(근로기준법)에 정통한 공인노무사입니다. 아래 해고예고수당 사안을 검토해 주세요."
+    );
+    L.push("");
+    L.push("【사실관계】");
+    L.push("- 입사일: " + (s.hire ? ymd(s.hire) : "미입력"));
+    L.push("- 해고일(근로관계 종료일): " + (s.fire ? ymd(s.fire) : "미입력"));
+    L.push("- 계속근로기간: " + tenureText);
+    L.push(
+      "- 해고 예고(통보)일: " +
+        (s.notice ? ymd(s.notice) : "예고 없음(즉시 해고)") +
+        " / 예고일수: " +
+        noticeDays +
+        "일"
+    );
+    if (s.disaster) L.push("- 사용자 주장: 천재·사변 등 부득이한 사유로 사업 계속 불가");
+    if (s.fault) L.push("- 사용자 주장: 근로자의 고의로 사업에 막대한 지장/재산 손해 발생");
+    if (wage) {
+      L.push("- 통상임금 정보: 1일 통상임금 약 " + won(wage.dayWage));
+    } else {
+      L.push("- 통상임금 정보: 미입력");
+    }
+    L.push("");
+    L.push("【자가 판정 결과】");
+    L.push("- 예고수당 지급 의무: " + verdict.title);
+    L.push("- 판정 근거: " + verdict.plain);
+    if (verdict.liable && wage) {
+      L.push("- 예상 지급액(30일분 통상임금): " + won(wage.dayWage * 30));
+    }
+    L.push("");
+    L.push("【검토 요청】");
+    L.push(
+      "1. 위 판정이 근로기준법 제26조(해고의 예고)에 비추어 타당한지 확인해 주세요."
+    );
+    L.push(
+      "2. 계속근로기간 산정과 예고일수 계산(적어도 30일 전 예고 여부)이 맞는지 점검해 주세요."
+    );
+    L.push(
+      "3. 30일에 미달한 예고를 한 경우 30일분 전액을 지급해야 하는지 등 실무 쟁점을 알려 주세요."
+    );
+    L.push(
+      "4. 통상임금 산정에 포함/제외해야 할 항목이 맞는지 확인해 주세요."
+    );
+    L.push(
+      "5. 해고 자체의 정당성(제23조)과 서면 통지(제27조) 등 함께 검토할 사항을 짚어 주세요."
+    );
+    L.push(
+      "6. 필요 서류·절차·기한과 위반 시 제재(벌칙/과태료)를 정리해 주세요."
+    );
+    L.push(
+      "7. 확인되지 않은 사실은 추측하지 말고 저에게 되물어 주세요. 조항·수치를 지어내지 마세요."
+    );
+    return L.join("\n");
+  }
+
+  function ymd(dt) {
+    var m = dt.getMonth() + 1;
+    var d = dt.getDate();
+    return dt.getFullYear() + "-" + (m < 10 ? "0" + m : m) + "-" + (d < 10 ? "0" + d : d);
+  }
+
+  // ---- main judge ----
+  document.getElementById("judge").addEventListener("click", function () {
+    var s = readState();
+
+    // validation
+    if (!s.hire || !s.fire) {
+      renderError("입사일과 해고일을 모두 입력해 주세요.");
+      return;
+    }
+    if (s.fire.getTime() < s.hire.getTime()) {
+      renderError("해고일이 입사일보다 앞설 수 없습니다. 날짜를 확인해 주세요.");
+      return;
+    }
+    if (s.notice && s.notice.getTime() > s.fire.getTime()) {
+      renderError(
+        "해고 예고(통보)일이 해고일보다 늦을 수 없습니다. 통보일은 해고일 이전이어야 합니다."
+      );
+      return;
+    }
+
+    var tenureText = fmtDuration(s.hire, s.fire);
+    var threeMonth = addMonths(s.hire, 3);
+    var under3m = s.fire.getTime() < threeMonth.getTime();
+    var noticeDays = s.notice ? daysBetween(s.notice, s.fire) : 0;
+    var noticeMet = noticeDays >= 30;
+    var wage = computeDayWage(s);
+
+    // exemption / liability
+    var reasons = [];
+    var liable;
+    var verdict = {};
+
+    if (under3m || s.disaster || s.fault) {
+      liable = false;
+      if (under3m) {
+        reasons.push({
+          cls: "rl-good",
+          title: "계속근로 3개월 미만 — 예고 의무 면제",
+          body:
+            "입사일부터 해고일까지 계속근로기간이 3개월 미만(" +
+            tenureText +
+            ")입니다. 근로기준법 제26조 단서 제1호에 따라 해고예고 및 예고수당 의무가 면제됩니다.",
+          tag: "제26조 단서 제1호",
+        });
+      }
+      if (s.disaster) {
+        reasons.push({
+          cls: "rl-warn",
+          title: "천재·사변 등 부득이한 사유 (사용자 주장)",
+          body:
+            "천재·사변 그 밖의 부득이한 사유로 사업 계속이 불가능한 경우 예고 의무가 면제됩니다(제26조 단서 제2호). 다만 실제 인정 기준은 매우 엄격하므로 사실관계 확인과 전문가 검토가 필요합니다.",
+          tag: "제26조 단서 제2호",
+        });
+      }
+      if (s.fault) {
+        reasons.push({
+          cls: "rl-warn",
+          title: "근로자의 고의 손해 (사용자 주장)",
+          body:
+            "근로자가 고의로 사업에 막대한 지장을 초래하거나 재산상 손해를 끼친 경우로서 고용노동부령으로 정하는 사유에 해당하면 예고 의무가 면제됩니다(제26조 단서 제3호). 해당 사유는 열거되어 있어 엄격 판단이 필요합니다.",
+          tag: "제26조 단서 제3호",
+        });
+      }
+      verdict = {
+        liable: false,
+        title: "예고수당 지급 의무 없음 (면제 사유)",
+        plain: "근로기준법 제26조 단서의 예고 의무 면제 사유에 해당합니다.",
+      };
+    } else if (noticeMet) {
+      liable = false;
+      reasons.push({
+        cls: "rl-good",
+        title: "해고 30일 이상 전에 예고함 — 예고 의무 이행",
+        body:
+          "해고일 기준 " +
+          noticeDays +
+          "일 전에 예고했으므로(30일 이상), 근로기준법 제26조 본문의 예고 의무를 이행했습니다. 별도의 예고수당은 발생하지 않습니다.",
+        tag: "제26조 본문 (예고 이행)",
+      });
+      verdict = {
+        liable: false,
+        title: "예고수당 지급 의무 없음 (예고 이행)",
+        plain: "해고 30일 이상 전에 예고하여 예고 의무를 이행했습니다.",
+      };
+    } else {
+      liable = true;
+      var noticeBody;
+      if (noticeDays <= 0) {
+        noticeBody =
+          "예고 없이(즉시) 해고하는 경우로 계산했습니다. 계속근로 3개월 이상 근로자를 30일 전 예고 없이 해고하면 30일분 이상의 통상임금을 지급해야 합니다(제26조).";
+      } else {
+        noticeBody =
+          "해고 " +
+          noticeDays +
+          "일 전에 예고했더라도 30일에 미달합니다. 30일 미만의 예고는 예고 의무를 다한 것으로 보지 않아 30일분 전액을 지급해야 한다는 것이 고용노동부 행정해석입니다.";
+      }
+      reasons.push({
+        cls: "rl-warn",
+        title: "30일 전 예고 없이 해고 — 30일분 통상임금 지급 의무",
+        body: noticeBody,
+        tag: "제26조 본문",
+      });
+      verdict = {
+        liable: true,
+        title: "예고수당 지급 의무 있음",
+        plain:
+          "계속근로 3개월 이상 근로자를 30일 전 예고 없이 해고하는 경우로, 30일분 이상의 통상임금 지급 의무가 있습니다.",
+      };
+    }
+
+    var tenureNote = under3m
+      ? "3개월 미만 · 3개월 도달일 " + ymd(threeMonth)
+      : "3개월 이상 (3개월 도달일 " + ymd(threeMonth) + ")";
+    var noticeNote = s.notice
+      ? noticeMet
+        ? "30일 이상 (의무 이행)"
+        : "30일 미만 (부족)"
+      : "예고 없음 (즉시 해고)";
+
+    lastPrompt = buildPrompt(s, verdict, tenureText, noticeDays, wage);
+
+    // ---- render ----
+    var html = "";
+
+    html += '<div class="verdict tone-' + (liable ? "liable" : "clear") + '">';
+    html += '<p class="verdict-label">판정</p>';
+    html += '<p class="verdict-title">' + esc(verdict.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(verdict.plain) + "</p>";
+    html += "</div>";
+
+    html += '<div class="stats">';
+    html +=
+      '<div class="stat"><p class="st-label">계속근로기간</p><p class="st-value">' +
+      esc(tenureText) +
+      '</p><p class="st-note">' +
+      esc(tenureNote) +
+      "</p></div>";
+    html +=
+      '<div class="stat"><p class="st-label">해고 예고일수</p><p class="st-value">' +
+      (s.notice ? esc(noticeDays + "일") : "0일") +
+      '</p><p class="st-note">' +
+      esc(noticeNote) +
+      "</p></div>";
+    html += "</div>";
+
+    // amount
+    if (liable) {
+      html += '<div class="result-block-title">예고수당 (30일분 통상임금)</div>';
+      if (wage) {
+        html += '<div class="amount-card">';
+        html += '<table class="calc-table"><tbody>';
+        wage.breakdown.forEach(function (row) {
+          html +=
+            "<tr><th>" +
+            esc(row[0]) +
+            (row[2] ? '<br><span class="u" style="margin:0">' + esc(row[2]) + "</span>" : "") +
+            "</th><td>" +
+            esc(row[1]) +
+            "</td></tr>";
+        });
+        html +=
+          "<tr><th>× 30일분</th><td>" +
+          esc("1일 통상임금 × 30") +
+          "</td></tr>";
+        html += "</tbody></table>";
+        html +=
+          '<div class="total-row"><span class="tr-label">예고수당(최소 지급액)</span>' +
+          '<span class="tr-amount">' +
+          esc(won(wage.dayWage * 30)) +
+          "</span></div>";
+        html +=
+          '<p class="calc-note">근로기준법 제26조는 <strong>30일분 이상</strong>의 통상임금을 규정하므로 위 금액은 최소 기준입니다. 통상임금에 포함할 항목(정기·일률·고정성)은 사안에 따라 달라질 수 있어 노무사 확인이 필요합니다.</p>';
+        html += "</div>";
+      } else {
+        html +=
+          '<div class="amount-card"><p class="calc-note" style="margin:0">통상임금(STEP 3)을 입력하면 예고수당 금액을 계산합니다. 예고수당 = 1일 통상임금 × 30일.</p></div>';
+      }
+    }
+
+    // reasons
+    html += '<div class="result-block-title">판정 근거</div>';
+    html += '<ul class="reason-list">';
+    reasons.forEach(function (r) {
+      html += '<li class="reason-item ' + r.cls + '">';
+      html += '<p class="ri-title">' + esc(r.title) + "</p>";
+      html += '<p class="ri-body">' + esc(r.body) + "</p>";
+      html += '<span class="ri-tag">' + esc(r.tag) + "</span>";
+      html += "</li>";
+    });
+    html += "</ul>";
+
+    // legal basis
+    html += '<div class="result-block-title">적용 법조항</div>';
+    html += '<div class="basis">';
+    html += '<p class="asof">기준 시점: ' + esc(AS_OF) + "</p>";
+    html +=
+      '<p><span class="law">근로기준법 제26조(해고의 예고)</span> — 사용자는 근로자를 해고하려면 적어도 30일 전에 예고를 하여야 하고, 30일 전에 예고를 하지 아니하였을 때에는 30일분 이상의 통상임금을 지급하여야 한다. 다만 (1호) 계속근로 3개월 미만, (2호) 천재·사변 등 부득이한 사유로 사업 계속이 불가능한 경우, (3호) 근로자의 고의로 인한 막대한 손해(고용노동부령 사유)에는 예고 의무가 면제된다.</p>';
+    html +=
+      '<p>함께 검토: <span class="law">제23조</span>(해고 등의 제한 — 해고의 정당한 이유), <span class="law">제27조</span>(해고 사유·시기의 서면 통지). 예고수당 지급 여부와 해고의 정당성은 별개 쟁점이다.</p>';
+    html += "</div>";
+
+    // AI prompt
+    html += '<div class="result-block-title">노무사 상담용 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면 이 사안을 노무사 관점에서 함께 검토합니다. 실제 자문은 공인노무사에게 받으세요.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function renderError(msg) {
+    resultEl.innerHTML = '<div class="form-error">' + esc(msg) + "</div>";
+  }
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    document.getElementById("hireDate").value = "";
+    document.getElementById("fireDate").value = "";
+    document.getElementById("noticeDate").value = "";
+    document.getElementById("wageAmt").value = "";
+    wageUnit.value = "month";
+    renderCondHours();
+    exemptChecked = {};
+    Array.prototype.forEach.call(
+      exemptsEl.querySelectorAll("input.native"),
+      function (b) {
+        b.checked = false;
+        b.closest("li.exempt").classList.remove("on");
+      }
+    );
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+      "<p><strong>아직 판정 전입니다.</strong></p>" +
+      "<p>입사일과 해고일을 넣고 '판정하기'를 누르세요.</p></div>";
+    document.getElementById("input-step-1").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var st = document.getElementById("copyStatus");
+    if (!st) return;
+    st.textContent = msg;
+    setTimeout(function () {
+      if (st) st.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      ta.setSelectionRange(0, text.length);
+    } catch (e) {}
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      try {
+        modalText.setSelectionRange(0, modalText.value.length);
+      } catch (e) {}
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>
