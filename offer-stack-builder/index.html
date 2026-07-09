@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>오퍼 스택 빌더</title>
+  <meta name="description" content="타깃·고통·약속·구성·보장 요소를 묶어 팔리는 제안 구조로 정리한다" />
+  <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" /></noscript>
+  <style>
+    :root {
+      --accent: #be123c;
+      --accent-2: #0f766e;
+      --bg: #f7f9f7;
+      --surface: #ffffff;
+      --surface-2: #eef7f4;
+      --ink: #17211f;
+      --muted: #53605d;
+      --soft: #73807c;
+      --line: #dce5e1;
+      --danger: #b42318;
+      --danger-bg: #fff2f0;
+      --good: #0f766e;
+      --warn: #b45309;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system, "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.6;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+    a { color: inherit; }
+    .wrap { width: min(1120px, 100%); margin: 0 auto; padding: 24px 16px 56px; }
+    header { display: grid; gap: 10px; margin-bottom: 18px; }
+    .eyebrow { color: var(--accent); font-size: .82rem; font-weight: 800; }
+    h1 { margin: 0; font-size: clamp(1.7rem, 4vw, 2.55rem); line-height: 1.16; letter-spacing: 0; }
+    .lede { margin: 0; color: var(--muted); max-width: 68ch; }
+    .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, .95fr); gap: 16px; align-items: start; }
+    .panel, .result-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(15, 35, 30, .05), 0 12px 30px rgba(15, 35, 30, .07);
+    }
+    .panel { padding: 18px; }
+    .result-card { padding: 18px; margin-bottom: 12px; }
+    .form-grid { display: grid; gap: 12px; }
+    label { display: grid; gap: 6px; font-weight: 750; }
+    .hint { color: var(--soft); font-size: .84rem; font-weight: 500; }
+    .input-wrap { position: relative; }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid #cbd8d4;
+      border-radius: 8px;
+      padding: 12px 13px;
+      color: var(--ink);
+      background: #fff;
+      font: inherit;
+      min-height: 46px;
+      outline: none;
+    }
+    textarea { resize: vertical; min-height: 104px; }
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
+    .suffix { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--soft); font-size: .9rem; pointer-events: none; }
+    .has-suffix input { padding-right: 54px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    button {
+      min-height: 44px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+    }
+    button.secondary { background: #fff; color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, #cbd8d4); }
+    button.ghost { background: transparent; color: var(--muted); border-color: var(--line); }
+    button:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 26%, transparent); outline-offset: 2px; }
+    .notice { border-left: 4px solid var(--accent-2); background: #fff8eb; padding: 12px 14px; border-radius: 8px; color: #4b3521; margin-top: 14px; font-size: .92rem; }
+    .summary { color: var(--muted); margin: 0; }
+    .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .kpi { background: var(--surface-2); border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--line)); border-radius: 8px; padding: 12px; min-height: 94px; }
+    .kpi .label { color: var(--muted); font-size: .82rem; font-weight: 800; }
+    .kpi .value { display: block; margin-top: 6px; font-size: 1.26rem; line-height: 1.24; font-weight: 900; color: var(--accent); }
+    .kpi .meta { display: block; margin-top: 4px; color: var(--soft); font-size: .82rem; }
+    h2 { margin: 0 0 10px; font-size: 1.02rem; }
+    .section-title { margin: 0 0 8px; font-size: .98rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { border-bottom: 1px solid var(--line); padding: 9px 6px; text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-size: .8rem; }
+    ul { margin: 8px 0 0; padding-left: 18px; }
+    .copy-box { width: 100%; min-height: 180px; white-space: pre-wrap; background: #f9fbfa; border: 1px solid var(--line); border-radius: 8px; padding: 12px; color: var(--ink); font: inherit; }
+    .error { background: var(--danger-bg); color: var(--danger); border: 1px solid #ffd0ca; border-radius: 8px; padding: 12px; font-weight: 750; }
+    .empty { color: var(--soft); background: #f9fbfa; border: 1px dashed #cbd8d4; border-radius: 8px; padding: 18px; }
+    footer { color: var(--soft); font-size: .82rem; margin-top: 22px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+      .kpis { grid-template-columns: 1fr; }
+      .wrap { padding: 20px 14px 46px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">오퍼 설계</div>
+      <h1>오퍼 스택 빌더</h1>
+      <p class="lede">타깃·고통·약속·구성·보장 요소를 묶어 팔리는 제안 구조로 정리한다</p>
+    </header>
+    <main class="grid">
+      <section class="panel" aria-labelledby="input-title">
+        <h2 id="input-title">입력</h2>
+        <form id="tool-form" class="form-grid"></form>
+        <div class="actions">
+          <button id="generate" type="button">결과 만들기</button>
+          <button id="reset" class="ghost" type="button">초기화</button>
+        </div>
+        <div class="notice">마케팅 메시지 초안입니다. 실제 성과 보장, 허위 희소성, 과장된 긴급성은 넣지 마십시오.</div>
+      </section>
+      <section aria-live="polite" aria-label="결과" id="result"></section>
+    </main>
+    <footer>
+      <span>v0.1.0 · 2026-07-09</span>
+      <span>제작: marcus@gainge.com</span>
+    </footer>
+  </div>
+  <script>
+    const TOOL = {"slug":"offer-stack-builder","name":"오퍼 스택 빌더","short":"타깃·고통·약속·구성·보장 요소를 묶어 팔리는 제안 구조로 정리한다","theme":"오퍼 설계","accent":"#be123c","accent2":"#0f766e","fields":[{"id":"target","label":"타깃","type":"text","value":"광고는 돌리지만 전환이 낮은 B2B 스타트업"},{"id":"pain","label":"가장 아픈 문제","type":"textarea","rows":3,"value":"트래픽은 있지만 고객이 무엇을 얻는지 5초 안에 이해하지 못한다."},{"id":"promise","label":"핵심 약속","type":"textarea","rows":2,"value":"2주 안에 핵심 메시지와 랜딩 흐름을 재정렬해 상담 전환율을 높인다."},{"id":"core","label":"핵심 구성","type":"textarea","rows":4,"value":"전환 메시지 진단\n랜딩 섹션 구조 재설계\nCTA와 FAQ 문안 정리"},{"id":"bonus","label":"보너스·부가 가치","type":"textarea","rows":3,"value":"광고 소재 훅 10개\n상담 전환 체크리스트"},{"id":"proof","label":"필요한 근거","type":"textarea","rows":3,"value":"기존 전환율 전후 비교\n고객 인터뷰 인용\n실제 화면 개선 예시"},{"id":"risk","label":"리스크 낮추기","type":"text","value":"초안 1회 무료 수정, 적용 전 체크콜 포함"}],"disclaimer":"마케팅 메시지 초안입니다. 실제 성과 보장, 허위 희소성, 과장된 긴급성은 넣지 마십시오."};
+    const computeTool = (form) => {
+      const copy = [
+        "[오퍼 스택]",
+        "대상: " + safe(form.target),
+        "",
+        "문제",
+        safe(form.pain),
+        "",
+        "핵심 약속",
+        safe(form.promise),
+        "",
+        "포함 구성",
+        bulletLines(form.core),
+        "",
+        "보너스",
+        bulletLines(form.bonus),
+        "",
+        "신뢰 근거",
+        bulletLines(form.proof),
+        "",
+        "리스크 낮추기",
+        "- " + safe(form.risk),
+        "",
+        "한 줄 제안",
+        safe(form.target) + "을 위해 " + oneLine(form.promise)
+      ].join("\n");
+      const weak = [];
+      if (safe(form.proof).length < 20) weak.push("근거가 약합니다. 사례, 수치, 전후 비교 중 하나를 넣으십시오.");
+      if (safe(form.risk).length < 10) weak.push("리스크 낮추기 장치가 약합니다. 수정, 샘플, 진단, 환불 조건 중 맞는 것을 정하십시오.");
+      if (lines(form.core).length < 2) weak.push("핵심 구성이 너무 얇습니다. 고객이 받는 산출물을 2개 이상으로 쪼개십시오.");
+      return {
+        summary: "오퍼의 뼈대가 완성됐습니다. 이제 근거와 리스크 낮추기 장치가 충분한지 확인하십시오.",
+        kpis: [
+          { label: "핵심 구성", value: int(lines(form.core).length) + "개", meta: "받는 것" },
+          { label: "보너스", value: int(lines(form.bonus).length) + "개", meta: "추가 가치" },
+          { label: "점검 플래그", value: int(weak.length) + "개", meta: weak.length ? "보완 필요" : "양호" }
+        ],
+        sections: [
+          { title: "오퍼 문안", copy },
+          { title: "보완 체크", items: weak.length ? weak : ["성과를 과장하지 않았는지 확인", "희소성과 마감이 실제인지 확인", "고객이 받는 산출물이 명확한지 확인"] }
+        ]
+      };
+    };
+    const storageKey = "albaaam:" + TOOL.slug + ":v1";
+
+    const formEl = document.getElementById("tool-form");
+    const resultEl = document.getElementById("result");
+    const generateBtn = document.getElementById("generate");
+    const resetBtn = document.getElementById("reset");
+
+    const nf = new Intl.NumberFormat("ko-KR");
+    function num(value) {
+      const n = Number(String(value ?? "").replace(/,/g, "").trim());
+      return Number.isFinite(n) ? n : 0;
+    }
+    function int(value) { return nf.format(Math.round(Number(value) || 0)); }
+    function money(value) { return nf.format(Math.round(Number(value) || 0)) + "원"; }
+    function pct(value) { return ((Number(value) || 0) * 100).toFixed(Math.abs(value) < .1 ? 1 : 0) + "%"; }
+    function safe(value) { return String(value ?? "").trim(); }
+    function oneLine(value) { return safe(value).replace(/\s+/g, " ").replace(/[.。]+$/, ""); }
+    function lines(value) { return safe(value).split(/\r?\n/).map(v => v.trim()).filter(Boolean); }
+    function bulletLines(value) {
+      const arr = lines(value);
+      return arr.length ? arr.map(v => "- " + v.replace(/^[-*]\s*/, "")).join("\n") : "- 미정";
+    }
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    }
+    function errorResult(message) { return { error: message }; }
+
+    function fieldHtml(field, value) {
+      const id = "field-" + field.id;
+      const hint = field.hint ? '<span class="hint">' + escapeHtml(field.hint) + '</span>' : "";
+      if (field.type === "textarea") {
+        return '<label for="' + id + '">' + escapeHtml(field.label) + hint + '<textarea id="' + id + '" name="' + field.id + '" rows="' + (field.rows || 4) + '">' + escapeHtml(value) + '</textarea></label>';
+      }
+      if (field.type === "select") {
+        const options = (field.options || []).map(opt => '<option value="' + escapeHtml(opt) + '"' + (opt === value ? " selected" : "") + '>' + escapeHtml(opt) + '</option>').join("");
+        return '<label for="' + id + '">' + escapeHtml(field.label) + hint + '<select id="' + id + '" name="' + field.id + '">' + options + '</select></label>';
+      }
+      const suffix = field.suffix ? '<span class="suffix">' + escapeHtml(field.suffix) + '</span>' : "";
+      return '<label for="' + id + '">' + escapeHtml(field.label) + hint + '<span class="input-wrap ' + (field.suffix ? "has-suffix" : "") + '"><input id="' + id + '" name="' + field.id + '" inputmode="' + (field.type === "number" ? "decimal" : "text") + '" type="' + (field.type === "number" ? "text" : "text") + '" value="' + escapeHtml(value) + '" />' + suffix + '</span></label>';
+    }
+
+    function readSaved() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(storageKey) || "{}");
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch {
+        return {};
+      }
+    }
+    function readForm() {
+      const data = {};
+      for (const field of TOOL.fields) {
+        const el = document.getElementById("field-" + field.id);
+        data[field.id] = el ? el.value : "";
+      }
+      return data;
+    }
+    function saveForm() {
+      try { localStorage.setItem(storageKey, JSON.stringify(readForm())); } catch {}
+    }
+    function renderForm() {
+      const saved = readSaved();
+      formEl.innerHTML = TOOL.fields.map(field => fieldHtml(field, saved[field.id] ?? field.value ?? "")).join("");
+      formEl.addEventListener("input", () => { saveForm(); renderResult(); });
+    }
+    function renderResult() {
+      let result;
+      try {
+        result = computeTool(readForm());
+      } catch (err) {
+        result = errorResult("계산 중 오류가 발생했습니다. 입력값을 다시 확인하십시오.");
+      }
+      if (!result) {
+        resultEl.innerHTML = '<div class="empty">입력값을 채우면 결과가 표시됩니다.</div>';
+        return;
+      }
+      if (result.error) {
+        resultEl.innerHTML = '<div class="error">' + escapeHtml(result.error) + '</div>';
+        return;
+      }
+      const kpis = (result.kpis || []).map(kpi => '<div class="kpi"><span class="label">' + escapeHtml(kpi.label) + '</span><strong class="value">' + escapeHtml(kpi.value) + '</strong><span class="meta">' + escapeHtml(kpi.meta || "") + '</span></div>').join("");
+      const sections = (result.sections || []).map((section, index) => {
+        let body = "";
+        if (section.table) {
+          body += '<table><thead><tr><th>항목</th><th>값</th><th>메모</th></tr></thead><tbody>' + section.table.map(row => '<tr>' + row.map(cell => '<td>' + escapeHtml(cell) + '</td>').join("") + '</tr>').join("") + '</tbody></table>';
+        }
+        if (section.items) {
+          body += '<ul>' + section.items.map(item => '<li>' + escapeHtml(item) + '</li>').join("") + '</ul>';
+        }
+        if (section.copy) {
+          body += '<textarea class="copy-box" readonly data-copy-source="' + index + '">' + escapeHtml(section.copy) + '</textarea><div class="actions"><button class="secondary" type="button" data-copy-index="' + index + '">복사</button></div>';
+        }
+        if (section.body) body += '<p>' + escapeHtml(section.body) + '</p>';
+        return '<article class="result-card"><h2 class="section-title">' + escapeHtml(section.title) + '</h2>' + body + '</article>';
+      }).join("");
+      resultEl.innerHTML = '<article class="result-card"><p class="summary">' + escapeHtml(result.summary || "") + '</p><div class="kpis">' + kpis + '</div></article>' + sections;
+    }
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {}
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.position = "fixed";
+      area.style.left = "-9999px";
+      document.body.appendChild(area);
+      area.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch {}
+      area.remove();
+      if (!ok) window.prompt("아래 내용을 복사하십시오.", text);
+      return ok;
+    }
+    document.addEventListener("click", async (event) => {
+      const btn = event.target.closest("[data-copy-index]");
+      if (!btn) return;
+      const area = document.querySelector('[data-copy-source="' + btn.getAttribute("data-copy-index") + '"]');
+      if (area) {
+        await copyText(area.value);
+        btn.textContent = "복사됨";
+        window.setTimeout(() => { btn.textContent = "복사"; }, 1200);
+      }
+    });
+    generateBtn.addEventListener("click", () => { saveForm(); renderResult(); resultEl.scrollIntoView({ behavior: "smooth", block: "start" }); });
+    resetBtn.addEventListener("click", () => {
+      try { localStorage.removeItem(storageKey); } catch {}
+      renderForm();
+      renderResult();
+    });
+    renderForm();
+    renderResult();
+  </script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>현금 런웨이 플래너</title>
+  <meta name="description" content="현재 현금과 월 유입·유출을 넣으면 몇 개월 버틸 수 있는지 보수적으로 계산한다" />
+  <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" /></noscript>
+  <style>
+    :root {
+      --accent: #0e7490;
+      --accent-2: #b45309;
+      --bg: #f7f9f7;
+      --surface: #ffffff;
+      --surface-2: #eef7f4;
+      --ink: #17211f;
+      --muted: #53605d;
+      --soft: #73807c;
+      --line: #dce5e1;
+      --danger: #b42318;
+      --danger-bg: #fff2f0;
+      --good: #0f766e;
+      --warn: #b45309;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system, "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.6;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+    a { color: inherit; }
+    .wrap { width: min(1120px, 100%); margin: 0 auto; padding: 24px 16px 56px; }
+    header { display: grid; gap: 10px; margin-bottom: 18px; }
+    .eyebrow { color: var(--accent); font-size: .82rem; font-weight: 800; }
+    h1 { margin: 0; font-size: clamp(1.7rem, 4vw, 2.55rem); line-height: 1.16; letter-spacing: 0; }
+    .lede { margin: 0; color: var(--muted); max-width: 68ch; }
+    .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, .95fr); gap: 16px; align-items: start; }
+    .panel, .result-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(15, 35, 30, .05), 0 12px 30px rgba(15, 35, 30, .07);
+    }
+    .panel { padding: 18px; }
+    .result-card { padding: 18px; margin-bottom: 12px; }
+    .form-grid { display: grid; gap: 12px; }
+    label { display: grid; gap: 6px; font-weight: 750; }
+    .hint { color: var(--soft); font-size: .84rem; font-weight: 500; }
+    .input-wrap { position: relative; }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid #cbd8d4;
+      border-radius: 8px;
+      padding: 12px 13px;
+      color: var(--ink);
+      background: #fff;
+      font: inherit;
+      min-height: 46px;
+      outline: none;
+    }
+    textarea { resize: vertical; min-height: 104px; }
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
+    .suffix { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--soft); font-size: .9rem; pointer-events: none; }
+    .has-suffix input { padding-right: 54px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    button {
+      min-height: 44px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+    }
+    button.secondary { background: #fff; color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, #cbd8d4); }
+    button.ghost { background: transparent; color: var(--muted); border-color: var(--line); }
+    button:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 26%, transparent); outline-offset: 2px; }
+    .notice { border-left: 4px solid var(--accent-2); background: #fff8eb; padding: 12px 14px; border-radius: 8px; color: #4b3521; margin-top: 14px; font-size: .92rem; }
+    .summary { color: var(--muted); margin: 0; }
+    .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .kpi { background: var(--surface-2); border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--line)); border-radius: 8px; padding: 12px; min-height: 94px; }
+    .kpi .label { color: var(--muted); font-size: .82rem; font-weight: 800; }
+    .kpi .value { display: block; margin-top: 6px; font-size: 1.26rem; line-height: 1.24; font-weight: 900; color: var(--accent); }
+    .kpi .meta { display: block; margin-top: 4px; color: var(--soft); font-size: .82rem; }
+    h2 { margin: 0 0 10px; font-size: 1.02rem; }
+    .section-title { margin: 0 0 8px; font-size: .98rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { border-bottom: 1px solid var(--line); padding: 9px 6px; text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-size: .8rem; }
+    ul { margin: 8px 0 0; padding-left: 18px; }
+    .copy-box { width: 100%; min-height: 180px; white-space: pre-wrap; background: #f9fbfa; border: 1px solid var(--line); border-radius: 8px; padding: 12px; color: var(--ink); font: inherit; }
+    .error { background: var(--danger-bg); color: var(--danger); border: 1px solid #ffd0ca; border-radius: 8px; padding: 12px; font-weight: 750; }
+    .empty { color: var(--soft); background: #f9fbfa; border: 1px dashed #cbd8d4; border-radius: 8px; padding: 18px; }
+    footer { color: var(--soft); font-size: .82rem; margin-top: 22px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+      .kpis { grid-template-columns: 1fr; }
+      .wrap { padding: 20px 14px 46px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">현금흐름</div>
+      <h1>현금 런웨이 플래너</h1>
+      <p class="lede">현재 현금과 월 유입·유출을 넣으면 몇 개월 버틸 수 있는지 보수적으로 계산한다</p>
+    </header>
+    <main class="grid">
+      <section class="panel" aria-labelledby="input-title">
+        <h2 id="input-title">입력</h2>
+        <form id="tool-form" class="form-grid"></form>
+        <div class="actions">
+          <button id="generate" type="button">결과 만들기</button>
+          <button id="reset" class="ghost" type="button">초기화</button>
+        </div>
+        <div class="notice">간이 현금흐름 점검용입니다. 세금, 대출 약정, 미수금 회수 가능성, 계절성은 실제 장부 기준으로 다시 확인하십시오.</div>
+      </section>
+      <section aria-live="polite" aria-label="결과" id="result"></section>
+    </main>
+    <footer>
+      <span>v0.1.0 · 2026-07-09</span>
+      <span>제작: marcus@gainge.com</span>
+    </footer>
+  </div>
+  <script>
+    const TOOL = {"slug":"cash-runway-planner","name":"현금 런웨이 플래너","short":"현재 현금과 월 유입·유출을 넣으면 몇 개월 버틸 수 있는지 보수적으로 계산한다","theme":"현금흐름","accent":"#0e7490","accent2":"#b45309","fields":[{"id":"cash","label":"현재 현금 잔액","type":"number","suffix":"원","value":"30000000"},{"id":"revenue","label":"월 현금 매출","type":"number","suffix":"원","value":"12000000"},{"id":"receivable","label":"월 회수 예상 미수금","type":"number","suffix":"원","value":"3000000"},{"id":"cogs","label":"월 직접 원가","type":"number","suffix":"원","value":"4500000"},{"id":"payroll","label":"월 인건비","type":"number","suffix":"원","value":"7000000"},{"id":"opex","label":"월 운영비","type":"number","suffix":"원","value":"5000000"},{"id":"debt","label":"월 대출·리스 상환","type":"number","suffix":"원","value":"1500000"},{"id":"extra","label":"이번 달 추가 지출","type":"number","suffix":"원","value":"2000000"}],"disclaimer":"간이 현금흐름 점검용입니다. 세금, 대출 약정, 미수금 회수 가능성, 계절성은 실제 장부 기준으로 다시 확인하십시오."};
+    const computeTool = (form) => {
+      const cash = num(form.cash), inflow = num(form.revenue) + num(form.receivable);
+      const outflow = num(form.cogs) + num(form.payroll) + num(form.opex) + num(form.debt) + num(form.extra);
+      const burn = outflow - inflow;
+      const runway = burn > 0 ? cash / burn : Infinity;
+      let balance = cash;
+      const rows = [];
+      for (let i = 1; i <= 6; i += 1) {
+        balance += inflow - outflow;
+        rows.push([i + "개월 후", money(balance), balance < 0 ? "현금 부족" : "유지"]);
+      }
+      const summary = burn > 0
+        ? "현재 속도라면 약 " + runway.toFixed(1) + "개월 뒤 현금이 바닥납니다."
+        : "현재 입력값 기준 월 현금흐름이 플러스입니다. 그래도 미수금과 계절성을 따로 점검하십시오.";
+      const copy = [
+        "현금 런웨이 점검",
+        "- 현재 현금: " + money(cash),
+        "- 월 유입: " + money(inflow),
+        "- 월 유출: " + money(outflow),
+        "- 월 순소진액: " + money(Math.max(0, burn)),
+        "- 예상 런웨이: " + (burn > 0 ? runway.toFixed(1) + "개월" : "소진 없음")
+      ].join("\n");
+      return {
+        summary,
+        kpis: [
+          { label: "월 유입", value: money(inflow), meta: "현금 매출+미수 회수" },
+          { label: "월 유출", value: money(outflow), meta: "원가+인건비+운영비" },
+          { label: "런웨이", value: burn > 0 ? runway.toFixed(1) + "개월" : "플러스", meta: burn > 0 ? "현금 소진 기준" : "월 순유입" }
+        ],
+        sections: [
+          { title: "6개월 잔액 시뮬레이션", table: rows },
+          { title: "붙여넣기 요약", copy }
+        ]
+      };
+    };
+    const storageKey = "albaaam:" + TOOL.slug + ":v1";
+
+    const formEl = document.getElementById("tool-form");
+    const resultEl = document.getElementById("result");
+    const generateBtn = document.getElementById("generate");
+    const resetBtn = document.getElementById("reset");
+
+    const nf = new Intl.NumberFormat("ko-KR");
+    function num(value) {
+      const n = Number(String(value ?? "").replace(/,/g, "").trim());
+      return Number.isFinite(n) ? n : 0;
+    }
+    function int(value) { return nf.format(Math.round(Number(value) || 0)); }
+    function money(value) { return nf.format(Math.round(Number(value) || 0)) + "원"; }
+    function pct(value) { return ((Number(value) || 0) * 100).toFixed(Math.abs(value) < .1 ? 1 : 0) + "%"; }
+    function safe(value) { return String(value ?? "").trim(); }
+    function oneLine(value) { return safe(value).replace(/\s+/g, " ").replace(/[.。]+$/, ""); }
+    function lines(value) { return safe(value).split(/\r?\n/).map(v => v.trim()).filter(Boolean); }
+    function bulletLines(value) {
+      const arr = lines(value);
+      return arr.length ? arr.map(v => "- " + v.replace(/^[-*]\s*/, "")).join("\n") : "- 미정";
+    }
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    }
+    function errorResult(message) { return { error: message }; }
+
+    function fieldHtml(field, value) {
+      const id = "field-" + field.id;
+      const hint = field.hint ? '<span class="hint">' + escapeHtml(field.hint) + '</span>' : "";
+      if (field.type === "textarea") {
+        return '<label for="' + id + '">' + escapeHtml(field.label) + hint + '<textarea id="' + id + '" name="' + field.id + '" rows="' + (field.rows || 4) + '">' + escapeHtml(value) + '</textarea></label>';
+      }
+      if (field.type === "select") {
+        const options = (field.options || []).map(opt => '<option value="' + escapeHtml(opt) + '"' + (opt === value ? " selected" : "") + '>' + escapeHtml(opt) + '</option>').join("");
+        return '<label for="' + id + '">' + escapeHtml(field.label) + hint + '<select id="' + id + '" name="' + field.id + '">' + options + '</select></label>';
+      }
+      const suffix = field.suffix ? '<span class="suffix">' + escapeHtml(field.suffix) + '</span>' : "";
+      return '<label for="' + id + '">' + escapeHtml(field.label) + hint + '<span class="input-wrap ' + (field.suffix ? "has-suffix" : "") + '"><input id="' + id + '" name="' + field.id + '" inputmode="' + (field.type === "number" ? "decimal" : "text") + '" type="' + (field.type === "number" ? "text" : "text") + '" value="' + escapeHtml(value) + '" />' + suffix + '</span></label>';
+    }
+
+    function readSaved() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(storageKey) || "{}");
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch {
+        return {};
+      }
+    }
+    function readForm() {
+      const data = {};
+      for (const field of TOOL.fields) {
+        const el = document.getElementById("field-" + field.id);
+        data[field.id] = el ? el.value : "";
+      }
+      return data;
+    }
+    function saveForm() {
+      try { localStorage.setItem(storageKey, JSON.stringify(readForm())); } catch {}
+    }
+    function renderForm() {
+      const saved = readSaved();
+      formEl.innerHTML = TOOL.fields.map(field => fieldHtml(field, saved[field.id] ?? field.value ?? "")).join("");
+      formEl.addEventListener("input", () => { saveForm(); renderResult(); });
+    }
+    function renderResult() {
+      let result;
+      try {
+        result = computeTool(readForm());
+      } catch (err) {
+        result = errorResult("계산 중 오류가 발생했습니다. 입력값을 다시 확인하십시오.");
+      }
+      if (!result) {
+        resultEl.innerHTML = '<div class="empty">입력값을 채우면 결과가 표시됩니다.</div>';
+        return;
+      }
+      if (result.error) {
+        resultEl.innerHTML = '<div class="error">' + escapeHtml(result.error) + '</div>';
+        return;
+      }
+      const kpis = (result.kpis || []).map(kpi => '<div class="kpi"><span class="label">' + escapeHtml(kpi.label) + '</span><strong class="value">' + escapeHtml(kpi.value) + '</strong><span class="meta">' + escapeHtml(kpi.meta || "") + '</span></div>').join("");
+      const sections = (result.sections || []).map((section, index) => {
+        let body = "";
+        if (section.table) {
+          body += '<table><thead><tr><th>항목</th><th>값</th><th>메모</th></tr></thead><tbody>' + section.table.map(row => '<tr>' + row.map(cell => '<td>' + escapeHtml(cell) + '</td>').join("") + '</tr>').join("") + '</tbody></table>';
+        }
+        if (section.items) {
+          body += '<ul>' + section.items.map(item => '<li>' + escapeHtml(item) + '</li>').join("") + '</ul>';
+        }
+        if (section.copy) {
+          body += '<textarea class="copy-box" readonly data-copy-source="' + index + '">' + escapeHtml(section.copy) + '</textarea><div class="actions"><button class="secondary" type="button" data-copy-index="' + index + '">복사</button></div>';
+        }
+        if (section.body) body += '<p>' + escapeHtml(section.body) + '</p>';
+        return '<article class="result-card"><h2 class="section-title">' + escapeHtml(section.title) + '</h2>' + body + '</article>';
+      }).join("");
+      resultEl.innerHTML = '<article class="result-card"><p class="summary">' + escapeHtml(result.summary || "") + '</p><div class="kpis">' + kpis + '</div></article>' + sections;
+    }
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {}
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.position = "fixed";
+      area.style.left = "-9999px";
+      document.body.appendChild(area);
+      area.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch {}
+      area.remove();
+      if (!ok) window.prompt("아래 내용을 복사하십시오.", text);
+      return ok;
+    }
+    document.addEventListener("click", async (event) => {
+      const btn = event.target.closest("[data-copy-index]");
+      if (!btn) return;
+      const area = document.querySelector('[data-copy-source="' + btn.getAttribute("data-copy-index") + '"]');
+      if (area) {
+        await copyText(area.value);
+        btn.textContent = "복사됨";
+        window.setTimeout(() => { btn.textContent = "복사"; }, 1200);
+      }
+    });
+    generateBtn.addEventListener("click", () => { saveForm(); renderResult(); resultEl.scrollIntoView({ behavior: "smooth", block: "start" }); });
+    resetBtn.addEventListener("click", () => {
+      try { localStorage.removeItem(storageKey); } catch {}
+      renderForm();
+      renderResult();
+    });
+    renderForm();
+    renderResult();
+  </script>
+</body>
+</html>
