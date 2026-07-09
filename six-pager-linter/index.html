@@ -1,0 +1,1572 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>6페이저 규율 검사기</title>
+<meta
+  name="description"
+  content="경영 메모를 붙여넣으면 과장 수식어·본문 불릿·빈 숫자를 적발하고 전략 우선순위 비중을 계산합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3d5a80;
+    --accent-strong: #2b4568;
+    --accent-tint: #eef2f8;
+    --accent-tint-2: #dbe4f0;
+    --ink: #23262b;
+    --ink-soft: #464b53;
+    --ink-mute: #6a707a;
+    --paper: #f6f7f9;
+    --card: #ffffff;
+    --line: #e3e6ec;
+    --line-strong: #d2d7e0;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #b04326;
+    --warn-strong: #8f3319;
+    --warn-tint: #fbeee9;
+    --warn-tint-2: #f4d9cd;
+    --amber: #915c0e;
+    --amber-tint: #fdf3e2;
+    --amber-line: #f0dcb8;
+    --shadow: 0 1px 2px rgba(35, 38, 43, 0.05), 0 6px 20px rgba(35, 38, 43, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+  .panel-sub strong {
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 190px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: var(--ink);
+    background: #fcfdfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 14px 15px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a3a9b2;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-hint strong {
+    color: var(--ink-soft);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s,
+      color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-clean {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict.tone-minor {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-major {
+    background: var(--amber-tint);
+    border-color: var(--amber-line);
+  }
+  .verdict.tone-severe {
+    background: var(--warn-tint);
+    border-color: var(--warn-tint-2);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-clean .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-minor .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-major .verdict-title {
+    color: var(--amber);
+  }
+  .verdict.tone-severe .verdict-title {
+    color: var(--warn-strong);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .chip {
+    font-size: 0.86rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    color: var(--ink-soft);
+  }
+  .chip b {
+    color: var(--warn-strong);
+    font-weight: 800;
+  }
+  .chip.zero b {
+    color: var(--good);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .result-block-title .rc {
+    font-size: 0.78rem;
+    color: var(--warn-strong);
+    font-weight: 800;
+  }
+  .result-block-title .rc.ok {
+    color: var(--good);
+  }
+
+  /* ---------- priority share ---------- */
+  .share-card {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fcfdfe;
+    padding: 16px 16px 18px;
+  }
+  .share-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .share-num {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .share-num.pass {
+    color: var(--good);
+  }
+  .share-num.fail {
+    color: var(--warn);
+  }
+  .share-num .unit {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+  }
+  .share-gatecall {
+    font-size: 0.86rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 7px;
+  }
+  .share-gatecall.pass {
+    color: var(--good);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+  }
+  .share-gatecall.fail {
+    color: var(--warn-strong);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-tint-2);
+  }
+  .share-wrap {
+    position: relative;
+    padding-top: 18px;
+    margin: 12px 0 4px;
+  }
+  .share-track {
+    height: 26px;
+    background: #e7eaf0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .share-fill {
+    height: 100%;
+    border-radius: 8px 0 0 8px;
+    transition: width 0.5s ease;
+    min-width: 3px;
+  }
+  .share-fill.pass {
+    background: var(--good);
+  }
+  .share-fill.fail {
+    background: var(--warn);
+  }
+  .share-gate {
+    position: absolute;
+    top: 12px;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: var(--ink-soft);
+  }
+  .share-gate span {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    white-space: nowrap;
+  }
+  .share-note {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin: 10px 0 0;
+  }
+  .share-unknown {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 12px;
+    padding: 14px 15px;
+    margin: 0;
+  }
+
+  /* ---------- section breakdown ---------- */
+  .sec-scroll {
+    overflow-x: auto;
+  }
+  .sec-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    min-width: 420px;
+  }
+  .sec-table th,
+  .sec-table td {
+    padding: 9px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  .sec-table th {
+    background: #f2f4f8;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    letter-spacing: 0.02em;
+  }
+  .sec-table td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-soft);
+  }
+  .sec-table tr:last-child td {
+    border-bottom: none;
+  }
+  .sec-table tr.is-prio td {
+    background: var(--accent-tint);
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+  .sec-table tr.is-appendix td {
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+  .sbar {
+    display: inline-block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--accent);
+    vertical-align: middle;
+    min-width: 2px;
+  }
+  .sec-table tr.is-prio .sbar {
+    background: var(--accent-strong);
+  }
+
+  /* ---------- findings ---------- */
+  ul.finding-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  li.finding-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--warn);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fdfbfa;
+  }
+  li.finding-item.tone-amber {
+    border-left-color: var(--amber);
+    background: #fdfaf3;
+  }
+  .fi-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .fi-ln {
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--ink-mute);
+    font-variant-numeric: tabular-nums;
+    background: #eef0f4;
+    border-radius: 5px;
+    padding: 2px 7px;
+  }
+  .fi-tag {
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: var(--warn-strong);
+    background: var(--warn-tint);
+    border-radius: 5px;
+    padding: 2px 8px;
+  }
+  .fi-tag.amber {
+    color: var(--amber);
+    background: var(--amber-tint);
+  }
+  .fi-sec {
+    font-size: 0.74rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  .fi-snip {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  mark.hit {
+    background: #ffe0b2;
+    color: var(--warn-strong);
+    font-weight: 700;
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+  li.finding-item.tone-amber mark.hit {
+    background: #ffe9c2;
+    color: var(--amber);
+  }
+  .block-guide {
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    margin: 0 0 10px;
+  }
+  .more-note {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 10px 0 0;
+    font-weight: 600;
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 0;
+  }
+
+  /* ---------- prompt box ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #24272c;
+    color: #eef0f3;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(35, 38, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .share-num {
+      font-size: 1.7rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .copy-row,
+    footer.foot .privacy {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">6-Pager 규율 검사 · Amazon Narrative Memo</span>
+    <h1>6페이저 규율 검사기</h1>
+    <p class="lede">
+      '전략 메모'라 부르는 그 문서, 아마존식 6-Pager 규율을 지켰나요? 붙여넣으면
+      과장 수식어와 본문 불릿, 빈 숫자를 짚어 내고, 전략적 우선순위가 본문의
+      절반을 넘는지 계산합니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>검사할 메모 붙여넣기</h2>
+    </div>
+    <p class="panel-sub">
+      6-Pager 본문(소개·목표·신조·현황·교훈·우선순위)을 그대로 붙여넣으세요.
+      <strong>섹션 제목(예: “6. 전략적 우선순위”)을 남겨 두면</strong> 우선순위
+      분량 비중까지 계산합니다.
+    </p>
+    <label class="field-label" for="memo">메모 전문</label>
+    <textarea
+      id="memo"
+      placeholder="예)
+1. 소개
+이 문서는 상반기 실적을 검토하고 하반기 전략을 결정하기 위해 작성했다.
+
+2. 목표
+- 월 활성 사용자 14,200명 → 21,000명 (+6,800, +47.9%, FY25.12)
+
+4. 비즈니스 현황
+매출이 크게 성장했다. 최근 재구매가 늘었다.
+
+6. 전략적 우선순위
+리텐션을 개선한다. ..."
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 <strong>전송되지 않습니다</strong>. 서버
+      호출 없이 브라우저 안에서만 검사합니다.
+    </p>
+    <div class="actions">
+      <button class="btn-primary" id="run">규율 검사하기</button>
+      <button class="btn-ghost" id="sample">예시 메모 넣기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>검사 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◍</div>
+        <p><strong>아직 검사 전입니다.</strong></p>
+        <p>메모를 붙여넣고 '규율 검사하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 아마존식 6-Pager(내러티브 메모)의
+      글쓰기 규율 — 완결형 서술문, 수식어·과장 배제, 데이터·명사·동사 중심,
+      불릿·굵게는 목표(Goals) 섹션에만 허용, 표·그래프는 부록으로, 전략적
+      우선순위가 본문의 50% 이상. (워크스페이스 <em>six-pager</em> 스킬의 글쓰기
+      규율과 50% 게이트를 규칙화)
+    </p>
+    <p class="privacy">
+      이 도구는 규칙 기반 표면 검사이며 문장의 맥락·의미를 판단하지 않습니다.
+      적발 항목은 다시 볼 후보일 뿐, 최종 판단과 수정은 사람이 합니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* =========================================================
+     6-Pager 글쓰기 규율 사전 (six-pager SKILL.md 규율에서 도출)
+     ========================================================= */
+
+  // 1) 과장 수식어 — "획기적/엄청난/혁신적/최고의" 등 주장으로 부풀리는 수식
+  var HYPE = [
+    "획기적", "혁신적", "엄청난", "엄청나", "어마어마", "최고의", "최상의",
+    "압도적", "대단한", "대단히", "놀라운", "놀랍", "눈부신", "눈부시",
+    "폭발적", "기적적", "탁월", "뛰어난", "뛰어나", "우수한", "완벽",
+    "최적의", "강력한", "강력히", "강력하게", "파격적", "전례 없", "전례없",
+    "유례없", "유례 없", "독보적", "차별화", "초격차", "초일류", "세계 최고",
+    "업계 최고", "국내 최고", "최고 수준", "최고 품질", "명실상부", "진정한",
+    "비약적", "혁명적", "게임 체인저", "게임체인저"
+  ];
+
+  // 2) 막연한 정도·수량 표현 — 숫자를 대신하는 빈 강조어 (빈 숫자)
+  var VAGUE = [
+    "매우", "아주", "굉장히", "굉장한", "상당히", "상당한", "상당수",
+    "상당 부분", "대폭", "훨씬", "급격히", "급격한", "급증", "급감",
+    "대부분", "다수", "수많은", "많은", "여러", "일부", "약간", "꽤",
+    "조금", "어느 정도", "대체로", "전반적으로", "빠르게", "빠른", "신속",
+    "느리게", "조만간", "근래", "점차", "점점", "나날이", "크게",
+    "눈에 띄게", "현저히", "현저한"
+  ];
+
+  // 변화 주장 동사 — 숫자 없이 쓰이면 "빈 숫자"
+  var CHANGE_RE =
+    /(성장|증가|감소|하락|상승|개선|향상|급증|급감|확대|축소|둔화|호전|악화|증대|신장|늘었|늘어|줄었|줄어|좋아졌|나빠졌)/g;
+  var DIGIT_RE = /[0-9%]/;
+
+  // 미확정 표시 — 채우지 않은 자리표시
+  var PLACE_RE =
+    /\[[^\]\n]*?(확인\s*필요|가상|가정|미정|미확정|추정|tbd|n\/a|\?)[^\]\n]*?\]/gi;
+  var UNDER_RE = /_{3,}/g;
+
+  // 3) 섹션 헤딩 인식 (앵커 + 경계 + 산문 배제)
+  var SECTIONS = [
+    { key: "intro", label: "1. 소개", kw: /^(소개|introduction)(?=[\s(\[:·\/)]|$)/i },
+    { key: "goals", label: "2. 목표", kw: /^(목표|goals?)(?=[\s(\[:·\/)]|$)/i },
+    { key: "tenets", label: "3. 신조", kw: /^(신조|tenets?)(?=[\s(\[:·\/)]|$)/i },
+    {
+      key: "state",
+      label: "4. 비즈니스 현황",
+      kw: /^(비즈니스\s*현황|현황|state(?:\s*of)?)(?=[\s(\[:·\/)]|$)/i,
+    },
+    {
+      key: "lessons",
+      label: "5. 과거의 교훈",
+      kw: /^(과거의?\s*교훈|교훈|lessons?(?:\s*learned)?)(?=[\s(\[:·\/)]|$)/i,
+    },
+    {
+      key: "priorities",
+      label: "6. 전략적 우선순위",
+      kw: /^(전략(?:적)?\s*우선순위|우선순위|strategic(?:\s*priorities)?|priorities)(?=[\s(\[:·\/)]|$)/i,
+    },
+    { key: "appendix", label: "부록", kw: /^(부록|appendix)(?=[\s(\[:·\/)]|$)/i },
+  ];
+  var SEC_LABEL = {};
+  SECTIONS.forEach(function (s) {
+    SEC_LABEL[s.key] = s.label;
+  });
+  SEC_LABEL.pre = "머리말";
+  var BODY_ORDER = ["intro", "goals", "tenets", "state", "lessons", "priorities"];
+
+  // 불릿 / 번호 머리 / 굵게
+  var BULLET_RE = /^[\s>]*([•·‣◦▪▸►▶●○◆◇■□➤▷✔√\-–—\*\+])\s+\S/;
+  var NUMBERED_RE = /^[\s>]*(\d+\s*[.)、]|\(\d+\)|[①-⑳]|[가-힣]\s*[.)])\s+\S/;
+  var BOLD_RE = /(\*\*[^*\n]+\*\*|__[^_\n]+__)/g;
+
+  /* =========================================================
+     유틸
+     ========================================================= */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function buildRe(list) {
+    var parts = list.map(function (w) {
+      return w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    });
+    return new RegExp("(" + parts.join("|") + ")", "g");
+  }
+  var HYPE_RE = buildRe(HYPE);
+  var VAGUE_RE = buildRe(VAGUE);
+
+  // 매치 위치를 하이라이트한 문맥 스니펫
+  function snippet(line, start, end) {
+    var ctx = 46;
+    var s = Math.max(0, start - ctx);
+    var e = Math.min(line.length, end + ctx);
+    var pre = (s > 0 ? "…" : "") + line.slice(s, start);
+    var mid = line.slice(start, end);
+    var post = line.slice(end, e) + (e < line.length ? "…" : "");
+    return esc(pre) + '<mark class="hit">' + esc(mid) + "</mark>" + esc(post);
+  }
+
+  function detectHeading(line) {
+    var t = line.trim();
+    if (!t || t.length > 40) return null;
+    // 산문 배제: 문장부호/종결어미로 끝나며 어느 정도 길면 헤딩 아님
+    if (/[.!?]$|다$|요$/.test(t) && t.length > 12) return null;
+    var core = t
+      .replace(/^[#>\s]*/, "")
+      .replace(/^[\[(【]?\s*\d+\s*[.)、:]?\s*[\])】]?\s*/, "")
+      .replace(/^[■□▶●○◆◇★☆\-*·]+\s*/, "")
+      .replace(/^\s+/, "");
+    for (var i = 0; i < SECTIONS.length; i++) {
+      if (SECTIONS[i].kw.test(core)) return SECTIONS[i].key;
+    }
+    return null;
+  }
+
+  /* =========================================================
+     핵심: 파싱 + 규율 검사
+     ========================================================= */
+  function analyze(text) {
+    var rawLines = text.split(/\r?\n/);
+    var cur = "pre";
+    var hasHeading = false;
+    var charBySec = {};
+    BODY_ORDER.forEach(function (k) {
+      charBySec[k] = 0;
+    });
+    charBySec.appendix = 0;
+
+    var hype = [];
+    var bullets = [];
+    var empty = []; // 미확정 + 막연한 정도 + 수치 없는 변화
+
+    for (var i = 0; i < rawLines.length; i++) {
+      var raw = rawLines[i];
+      var ln = i + 1;
+      var head = detectHeading(raw);
+      if (head) {
+        cur = head;
+        hasHeading = true;
+        continue; // 헤딩은 구조 요소 — 검사·분량 집계 대상 아님
+      }
+
+      var isBody = cur !== "appendix";
+      var chars = raw.replace(/\s/g, "").length;
+      if (charBySec.hasOwnProperty(cur)) charBySec[cur] += chars;
+
+      if (!isBody || !raw.trim()) continue;
+
+      // --- (2) 본문 불릿·번호 머리·굵게 : 목표(goals) 섹션만 예외 ---
+      if (cur !== "goals") {
+        if (BULLET_RE.test(raw) || NUMBERED_RE.test(raw)) {
+          var m0 = raw.match(/^\s*(\S+)/);
+          var mk = m0 ? m0[1] : raw.slice(0, 3);
+          var idx = raw.indexOf(mk);
+          bullets.push({
+            ln: ln,
+            sec: cur,
+            tag: "불릿·번호",
+            snip: snippet(raw, idx, idx + mk.length),
+          });
+        }
+        BOLD_RE.lastIndex = 0;
+        var bm;
+        while ((bm = BOLD_RE.exec(raw))) {
+          bullets.push({
+            ln: ln,
+            sec: cur,
+            tag: "굵게",
+            snip: snippet(raw, bm.index, bm.index + bm[0].length),
+          });
+          if (bm.index === BOLD_RE.lastIndex) BOLD_RE.lastIndex++;
+        }
+      }
+
+      // --- (1) 과장 수식어 (모든 본문 산문에 적용) ---
+      HYPE_RE.lastIndex = 0;
+      var hm;
+      while ((hm = HYPE_RE.exec(raw))) {
+        hype.push({
+          ln: ln,
+          sec: cur,
+          tag: hm[0],
+          snip: snippet(raw, hm.index, hm.index + hm[0].length),
+        });
+        if (hm.index === HYPE_RE.lastIndex) HYPE_RE.lastIndex++;
+      }
+
+      // --- (3a) 미확정 표시 ---
+      PLACE_RE.lastIndex = 0;
+      var pm;
+      while ((pm = PLACE_RE.exec(raw))) {
+        empty.push({
+          ln: ln,
+          sec: cur,
+          tag: "미확정 표시",
+          amber: false,
+          snip: snippet(raw, pm.index, pm.index + pm[0].length),
+        });
+        if (pm.index === PLACE_RE.lastIndex) PLACE_RE.lastIndex++;
+      }
+      UNDER_RE.lastIndex = 0;
+      var um;
+      while ((um = UNDER_RE.exec(raw))) {
+        empty.push({
+          ln: ln,
+          sec: cur,
+          tag: "빈 칸(밑줄)",
+          amber: false,
+          snip: snippet(raw, um.index, um.index + um[0].length),
+        });
+        if (um.index === UNDER_RE.lastIndex) UNDER_RE.lastIndex++;
+      }
+
+      // --- (3b) 막연한 정도·수량 표현 ---
+      VAGUE_RE.lastIndex = 0;
+      var vm;
+      while ((vm = VAGUE_RE.exec(raw))) {
+        empty.push({
+          ln: ln,
+          sec: cur,
+          tag: "막연한 정도",
+          amber: true,
+          snip: snippet(raw, vm.index, vm.index + vm[0].length),
+        });
+        if (vm.index === VAGUE_RE.lastIndex) VAGUE_RE.lastIndex++;
+      }
+
+      // --- (3c) 수치 없는 변화 주장 (문장 단위) ---
+      var SENT_RE = /[^.!?。]*[.!?。]|[^.!?。]+$/g;
+      SENT_RE.lastIndex = 0;
+      var sm;
+      while ((sm = SENT_RE.exec(raw))) {
+        var sent = sm[0];
+        if (sent && sent.trim()) {
+          CHANGE_RE.lastIndex = 0;
+          var cm = CHANGE_RE.exec(sent);
+          if (cm && !DIGIT_RE.test(sent)) {
+            var g = sm.index + cm.index;
+            empty.push({
+              ln: ln,
+              sec: cur,
+              tag: "수치 없는 변화",
+              amber: true,
+              snip: snippet(raw, g, g + cm[0].length),
+            });
+          }
+        }
+        if (sm.index === SENT_RE.lastIndex) SENT_RE.lastIndex++;
+      }
+    }
+
+    // 전략적 우선순위 비중
+    var bodyTotal = 0;
+    BODY_ORDER.forEach(function (k) {
+      bodyTotal += charBySec[k];
+    });
+    var share = null,
+      sharePct = null;
+    if (hasHeading && charBySec.priorities > 0 && bodyTotal > 0) {
+      share = charBySec.priorities / bodyTotal;
+      sharePct = Math.round(share * 100);
+    }
+
+    return {
+      hype: hype,
+      bullets: bullets,
+      empty: empty,
+      charBySec: charBySec,
+      bodyTotal: bodyTotal,
+      hasHeading: hasHeading,
+      share: share,
+      sharePct: sharePct,
+    };
+  }
+
+  /* =========================================================
+     밴드(종합 판정)
+     ========================================================= */
+  function verdictBand(res) {
+    var total = res.hype.length + res.bullets.length + res.empty.length;
+    var prioFail = res.sharePct != null && res.sharePct < 50;
+    if (total === 0 && !prioFail) {
+      return {
+        tone: "clean",
+        label: "종합 판정",
+        title: "규율 위반 신호가 잡히지 않았습니다",
+        desc:
+          "표면 검사에서 과장 수식어·본문 불릿·빈 숫자가 걸리지 않았습니다. 규칙 기반 검사이니, 문장의 의미와 논리 비약은 사람이 한 번 더 읽어 확인하세요.",
+      };
+    }
+    if (total <= 5) {
+      return {
+        tone: "minor",
+        label: "종합 판정",
+        title: "경미한 손질이 필요합니다",
+        desc:
+          "골격은 서 있으나 몇 군데 규율에서 벗어난 표현이 있습니다. 아래 적발 항목만 다듬으면 6-Pager 규율에 가까워집니다." +
+          (prioFail ? " 다만 전략적 우선순위 분량이 50%에 못 미칩니다." : ""),
+      };
+    }
+    if (total <= 15) {
+      return {
+        tone: "major",
+        label: "종합 판정",
+        title: "상당한 손질이 필요합니다",
+        desc:
+          "주장(수식어)과 빈 숫자가 여러 곳에 남아 있습니다. 사실·수치 문장으로 바꾸고 불릿을 완결문으로 풀어야 합니다." +
+          (prioFail ? " 전략적 우선순위도 본문의 절반에 미치지 못합니다." : ""),
+      };
+    }
+    return {
+      tone: "severe",
+      label: "종합 판정",
+      title: "전면 재작성을 권장합니다",
+      desc:
+        "규율 위반이 많습니다. 지금 문서는 '할 일 목록에 수식어를 입힌' 상태에 가깝습니다. 현재 숫자부터 다시 잡고 완결형 산문으로 새로 쓰는 편이 빠릅니다." +
+        (prioFail ? " 전략적 우선순위 분량도 크게 부족합니다." : ""),
+    };
+  }
+
+  /* =========================================================
+     AI 프롬프트 생성
+     ========================================================= */
+  function buildPrompt(res, text) {
+    var L = [];
+    L.push(
+      "당신은 아마존식 6-Pager 내러티브 메모의 글쓰기 규율에 정통한 전략 에디터입니다."
+    );
+    L.push("아래 경영 메모를 6-Pager 규율에 맞게 교정하도록 도와주세요. 규율은 다음과 같습니다.");
+    L.push("- 완결형 서술문으로 쓴다. 불릿과 굵게는 '목표(Goals)' 섹션에서만 허용된다.");
+    L.push("- '획기적·엄청난·최고의' 같은 과장 수식어를 빼고 사실과 수치로 말한다.");
+    L.push(
+      "- 막연한 정도('크게 성장')를 구체 수치('전월 대비 12%, 4.2억→4.7억')로 바꾼다. 모르는 숫자는 지어내지 말고 [확인 필요]로 두고 나에게 되묻는다."
+    );
+    L.push("- 표·그래프는 본문에서 빼고 부록으로 보낸다.");
+    L.push("- 전략적 우선순위(6번)가 본문 분량의 50% 이상이 되도록 가장 깊게 쓴다.");
+    L.push("");
+    L.push("【자동 검사 결과】");
+    L.push(
+      "- 과장 수식어 " +
+        res.hype.length +
+        "건, 본문 불릿·굵게 " +
+        res.bullets.length +
+        "건, 빈 숫자 " +
+        res.empty.length +
+        "건 감지."
+    );
+    if (res.sharePct != null) {
+      L.push(
+        "- 전략적 우선순위 비중 " +
+          res.sharePct +
+          "% (" +
+          (res.sharePct >= 50 ? "50% 게이트 통과" : "50% 게이트 미달, 심화 필요") +
+          ")."
+      );
+    } else {
+      L.push("- 섹션 구분을 찾지 못해 우선순위 비중은 계산하지 못했습니다.");
+    }
+    if (res.hype.length) {
+      L.push(
+        "- 대표 과장 수식어: " +
+          res.hype
+            .slice(0, 8)
+            .map(function (f) {
+              return f.tag;
+            })
+            .join(", ")
+      );
+    }
+    L.push("");
+    L.push("【메모 원문】");
+    L.push(
+      text.trim()
+        ? text.trim()
+        : "(사용자가 이어서 붙여넣습니다. 먼저 원문을 요청하세요.)"
+    );
+    L.push("");
+    L.push("【요청】");
+    L.push("1. 감지된 각 위반을 어디를 어떻게 고칠지 구체적으로 지적해 주세요.");
+    L.push("2. 과장 수식어는 사실·수치 문장으로 바꾼 예시를 함께 제시해 주세요.");
+    L.push("3. 본문 불릿은 완결형 서술문으로 다시 써 주세요(불릿은 목표 섹션만).");
+    L.push("4. 빈 숫자는 지어내지 말고, 제가 채워야 할 '확인 질문' 목록으로 정리해 주세요.");
+    L.push(
+      "5. 전략적 우선순위가 50%에 못 미치면, 어떤 베팅을 어떻게 더 깊게 쓸지 방향을 제안해 주세요(격차 기여를 정량으로)."
+    );
+    L.push("6. 시너지·초격차 같은 근거 없는 전략어로 빈칸을 덮지 마세요.");
+    return L.join("\n");
+  }
+
+  /* =========================================================
+     렌더
+     ========================================================= */
+  var CAP = 15;
+
+  function renderFindingBlock(title, guide, findings, emptyMsg) {
+    var html = "";
+    html +=
+      '<div class="result-block-title">' +
+      esc(title) +
+      ' <span class="rc' +
+      (findings.length === 0 ? " ok" : "") +
+      '">' +
+      findings.length +
+      "건</span></div>";
+    if (findings.length === 0) {
+      html += '<p class="clean-note">' + esc(emptyMsg) + "</p>";
+      return html;
+    }
+    html += '<p class="block-guide">' + esc(guide) + "</p>";
+    html += '<ul class="finding-list">';
+    findings.slice(0, CAP).forEach(function (f) {
+      var amber = f.amber ? " tone-amber" : "";
+      var tagAmber = f.amber ? " amber" : "";
+      html += '<li class="finding-item' + amber + '">';
+      html += '<div class="fi-top">';
+      html += '<span class="fi-ln">L' + f.ln + "</span>";
+      html += '<span class="fi-tag' + tagAmber + '">' + esc(f.tag) + "</span>";
+      html += '<span class="fi-sec">' + esc(SEC_LABEL[f.sec] || f.sec) + "</span>";
+      html += "</div>";
+      html += '<p class="fi-snip">' + f.snip + "</p>";
+      html += "</li>";
+    });
+    html += "</ul>";
+    if (findings.length > CAP) {
+      html +=
+        '<p class="more-note">외 ' +
+        (findings.length - CAP) +
+        "건이 더 있습니다. 위 항목부터 정리하세요.</p>";
+    }
+    return html;
+  }
+
+  function renderShare(res) {
+    var html =
+      '<div class="result-block-title">전략적 우선순위 비중 (50% 게이트)</div>';
+    if (res.sharePct == null) {
+      html +=
+        '<p class="share-unknown">섹션 제목을 찾지 못해 비중을 계산하지 못했습니다. ' +
+        "메모에 “6. 전략적 우선순위”, “4. 비즈니스 현황” 같은 섹션 제목을 남겨 두면 " +
+        "우선순위가 본문 분량의 몇 %인지 계산합니다.</p>";
+      return html;
+    }
+    var pass = res.sharePct >= 50;
+    var cls = pass ? "pass" : "fail";
+    html += '<div class="share-card">';
+    html += '<div class="share-top">';
+    html +=
+      '<span class="share-num ' +
+      cls +
+      '">' +
+      res.sharePct +
+      '%<span class="unit"> · 본문 대비</span></span>';
+    html +=
+      '<span class="share-gatecall ' +
+      cls +
+      '">' +
+      (pass ? "50% 게이트 통과" : "50% 게이트 미달") +
+      "</span>";
+    html += "</div>";
+    html += '<div class="share-wrap">';
+    html +=
+      '<div class="share-track"><div class="share-fill ' +
+      cls +
+      '" style="width:' +
+      Math.min(100, res.sharePct) +
+      '%"></div></div>';
+    html += '<div class="share-gate"><span>50% 게이트</span></div>';
+    html += "</div>";
+    html +=
+      '<p class="share-note">' +
+      (pass
+        ? "전략적 우선순위가 본문의 절반 이상을 차지합니다. 미래에 가장 많은 종이를 쓴다는 규율을 지켰습니다. 분량뿐 아니라 각 베팅에 '격차 기여'가 정량으로 담겼는지 확인하세요."
+        : "전략적 우선순위가 본문의 " +
+          res.sharePct +
+          "%에 그칩니다. 과거 분석(현황·교훈)은 디딤돌이지 목적이 아닙니다. 우선순위를 축소가 아니라 심화해 절반을 넘기세요.") +
+      "</p>";
+    html += "</div>";
+    return html;
+  }
+
+  function renderBreakdown(res) {
+    if (!res.hasHeading || res.bodyTotal === 0) return "";
+    var html = '<div class="result-block-title">섹션별 분량</div>';
+    html += '<div class="sec-scroll"><table class="sec-table"><thead><tr>';
+    html +=
+      '<th>섹션</th><th style="text-align:right">글자수</th><th style="text-align:right">본문 비중</th><th>분포</th>';
+    html += "</tr></thead><tbody>";
+    BODY_ORDER.forEach(function (k) {
+      var chars = res.charBySec[k];
+      if (chars === 0) return;
+      var pct = Math.round((chars / res.bodyTotal) * 100);
+      var isP = k === "priorities";
+      html +=
+        '<tr class="' +
+        (isP ? "is-prio" : "") +
+        '"><td>' +
+        esc(SEC_LABEL[k]) +
+        '</td><td class="num">' +
+        chars.toLocaleString() +
+        '</td><td class="num">' +
+        pct +
+        '%</td><td><span class="sbar" style="width:' +
+        Math.max(2, pct * 1.6) +
+        'px"></span></td></tr>';
+    });
+    if (res.charBySec.appendix > 0) {
+      html +=
+        '<tr class="is-appendix"><td>부록</td><td class="num">' +
+        res.charBySec.appendix.toLocaleString() +
+        '</td><td class="num">제외</td><td>본문 분량에서 제외</td></tr>';
+    }
+    html += "</tbody></table></div>";
+    return html;
+  }
+
+  var lastPrompt = "";
+  var resultEl = document.getElementById("result");
+  var memo = document.getElementById("memo");
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  memo.addEventListener("input", function () {
+    grow(memo);
+  });
+
+  function emptyStateHTML() {
+    return (
+      '<div class="empty-state"><div class="big" aria-hidden="true">◍</div>' +
+      "<p><strong>아직 검사 전입니다.</strong></p>" +
+      "<p>메모를 붙여넣고 '규율 검사하기'를 누르세요.</p></div>"
+    );
+  }
+
+  function run() {
+    var text = memo.value;
+    if (!text.trim()) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">◍</div>' +
+        "<p><strong>검사할 내용이 없습니다.</strong></p>" +
+        "<p>메모를 붙여넣은 뒤 다시 눌러 주세요.</p></div>";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var res = analyze(text);
+    var band = verdictBand(res);
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html += '<div class="chips">';
+    html +=
+      '<span class="chip' +
+      (res.hype.length === 0 ? " zero" : "") +
+      '">과장 수식어 <b>' +
+      res.hype.length +
+      "</b></span>";
+    html +=
+      '<span class="chip' +
+      (res.bullets.length === 0 ? " zero" : "") +
+      '">본문 불릿 <b>' +
+      res.bullets.length +
+      "</b></span>";
+    html +=
+      '<span class="chip' +
+      (res.empty.length === 0 ? " zero" : "") +
+      '">빈 숫자 <b>' +
+      res.empty.length +
+      "</b></span>";
+    html += "</div>";
+    html += "</div>";
+
+    // priority share
+    html += renderShare(res);
+
+    // section breakdown
+    html += renderBreakdown(res);
+
+    // findings
+    html += renderFindingBlock(
+      "과장 수식어",
+      "주장으로 부풀리는 수식입니다. 빼고 사실·수치로 바꾸세요. (예: “획기적인 성장” → “전월 대비 12% 성장, 4.2억→4.7억”)",
+      res.hype,
+      "과장 수식어가 걸리지 않았습니다. 사실로 말하는 규율을 지켰습니다."
+    );
+
+    html += renderFindingBlock(
+      "본문 불릿·굵게",
+      "6-Pager 본문은 완결형 서술문입니다. 불릿·번호·굵게는 목표(Goals) 섹션에서만 허용됩니다. 아래 항목을 완결문으로 풀어 쓰세요.",
+      res.bullets,
+      "본문에서 불릿·굵게가 발견되지 않았습니다. (목표 섹션의 불릿은 허용되어 제외했습니다.)"
+    );
+
+    html += renderFindingBlock(
+      "빈 숫자",
+      "숫자가 들어갈 자리를 막연한 표현·미확정 표시가 대신하고 있습니다. 구체 수치와 기준일로 채우고, 모르면 지어내지 말고 [확인 필요]로 남기세요.",
+      res.empty,
+      "빈 숫자가 걸리지 않았습니다. 변화 주장에 수치가 붙어 있는지 마지막으로 눈으로 확인하세요."
+    );
+
+    // prompt
+    lastPrompt = buildPrompt(res, text);
+    html +=
+      '<div class="result-block-title">심화: AI에 붙여넣을 교정 프롬프트</div>';
+    html +=
+      '<p class="block-guide">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 검사 결과를 근거로 문서를 6-Pager 규율에 맞게 함께 고쳐 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("run").addEventListener("click", run);
+
+  /* ---- sample ---- */
+  var SAMPLE =
+    "제목: 데일리빈 2025 상반기 비즈니스 리뷰\n" +
+    "작성자: 홍길동 · 데이터 기준일 2025-06-30\n\n" +
+    "1. 소개\n" +
+    "이 문서는 상반기 실적을 검토하고 하반기 전략을 결정하기 위해 작성했다. 우리는 획기적인 성장을 이뤘다.\n\n" +
+    "2. 목표\n" +
+    "- 월 활성 사용자 14,200명 → 21,000명 (+6,800, +47.9%, FY25.12)\n" +
+    "- 유료 전환율 3.1% → 5.0% (+1.9%p, 상대 +61%, FY25.12)\n\n" +
+    "3. 신조\n" +
+    "고객 신뢰를 단기 매출보다 우선한다.\n\n" +
+    "4. 비즈니스 현황\n" +
+    "매출이 크게 성장했다. 최근 재구매가 늘었다.\n" +
+    "- 신규 채널에서 매우 우수한 반응이 있었다.\n\n" +
+    "5. 과거의 교훈\n" +
+    "작년 프로모션은 목표 대비 [확인 필요]만큼 부진했다.\n\n" +
+    "6. 전략적 우선순위\n" +
+    "리텐션을 개선한다.";
+
+  document.getElementById("sample").addEventListener("click", function () {
+    memo.value = SAMPLE;
+    grow(memo);
+    run();
+  });
+
+  /* ---- reset ---- */
+  document.getElementById("reset").addEventListener("click", function () {
+    memo.value = "";
+    grow(memo);
+    lastPrompt = "";
+    resultEl.innerHTML = emptyStateHTML();
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    memo.focus();
+  });
+
+  /* ---- copy (3-tier fallback) + print ---- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---- manual modal ---- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

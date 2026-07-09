@@ -1,0 +1,1618 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>원자화 체인 플래너</title>
+<meta
+  name="description"
+  content="하나의 필러 소스를 링크드인·X·인스타·블로그 등 8~10개 네이티브 자산으로 재커팅하는 발행 캘린더를 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #4b5aa6;
+    --accent-strong: #3a4886;
+    --accent-tint: #eef0fb;
+    --accent-tint-2: #dfe3f6;
+    --ink: #201f26;
+    --ink-soft: #464452;
+    --ink-mute: #6b6878;
+    --paper: #f8f8fb;
+    --card: #ffffff;
+    --line: #e5e4ee;
+    --line-strong: #d5d3e2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #a35a12;
+    --warn-tint: #fff6ec;
+    --warn-line: #f2ddc4;
+    --shadow: 0 1px 2px rgba(32, 31, 38, 0.05), 0 6px 20px rgba(32, 31, 38, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field {
+    margin-bottom: 18px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  input[type="text"],
+  textarea,
+  select,
+  input[type="date"] {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input[type="text"],
+  select,
+  input[type="date"] {
+    min-height: 48px;
+  }
+  textarea {
+    min-height: 84px;
+    resize: none;
+    overflow: hidden;
+  }
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  ::placeholder {
+    color: #a5a2b3;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  legend {
+    padding: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+
+  /* ---------- source type radio cards ---------- */
+  .opt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .opt-card {
+    position: relative;
+    display: block;
+    border: 1px solid var(--line-strong);
+    border-radius: 13px;
+    background: #fcfcfe;
+    padding: 13px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+  .opt-card:hover {
+    border-color: var(--ink-mute);
+  }
+  .opt-card input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .opt-card .oc-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .opt-card .oc-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--line-strong);
+    flex: none;
+    transition: all 0.15s;
+  }
+  .opt-card .oc-sub {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+  .opt-card input:checked ~ .oc-title .oc-dot {
+    border-color: var(--accent);
+    background: var(--accent);
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .opt-card:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .opt-card input:focus-visible ~ .oc-title .oc-dot {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  /* ---------- cadence pills ---------- */
+  .pill-row {
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 96px;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    background: #fcfcfe;
+    padding: 11px 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .pill input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .pill .p-name {
+    font-weight: 800;
+    font-size: 0.92rem;
+    color: var(--ink);
+  }
+  .pill .p-desc {
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+    margin-top: 3px;
+  }
+  .pill:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .pill:has(input:checked) .p-name {
+    color: var(--accent-strong);
+  }
+  .pill input:focus-visible ~ .p-name {
+    text-decoration: underline;
+  }
+
+  /* ---------- toggles ---------- */
+  .toggle-row {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fcfcfe;
+    padding: 11px 14px;
+    cursor: pointer;
+    min-height: 48px;
+  }
+  .toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .toggle .tg-box {
+    flex: none;
+    width: 42px;
+    height: 24px;
+    border-radius: 999px;
+    background: #d3d1df;
+    position: relative;
+    transition: background 0.15s;
+  }
+  .toggle .tg-box::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s;
+  }
+  .toggle input:checked ~ .tg-box {
+    background: var(--accent);
+  }
+  .toggle input:checked ~ .tg-box::after {
+    transform: translateX(18px);
+  }
+  .toggle input:focus-visible ~ .tg-box {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .toggle .tg-text {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .toggle .tg-text small {
+    display: block;
+    font-weight: 400;
+    color: var(--ink-mute);
+    font-size: 0.8rem;
+    margin-top: 1px;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* pillar + gate banners */
+  .pillar-tag {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 12px;
+    padding: 13px 15px;
+    margin-bottom: 14px;
+  }
+  .pillar-tag .pt-key {
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: #fff;
+    background: var(--accent);
+    padding: 3px 9px;
+    border-radius: 6px;
+    flex: none;
+  }
+  .pillar-tag .pt-name {
+    font-weight: 700;
+    font-size: 0.96rem;
+    color: var(--accent-strong);
+  }
+
+  .gate {
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-left: 3px solid #d98b2b;
+    border-radius: 12px;
+    padding: 13px 15px;
+    margin-bottom: 16px;
+  }
+  .gate .g-title {
+    font-weight: 800;
+    color: var(--warn);
+    margin: 0 0 4px;
+    font-size: 0.96rem;
+  }
+  .gate p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+
+  /* stat grid */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 4px 0 8px;
+  }
+  .stat {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 10px;
+    text-align: center;
+  }
+  .stat .num {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    line-height: 1.05;
+  }
+  .stat .lab {
+    font-size: 0.74rem;
+    color: var(--ink-mute);
+    margin-top: 4px;
+    line-height: 1.35;
+  }
+  .lang-line {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    background: #fbfbfe;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 14px;
+    margin: 0 0 4px;
+  }
+  .lang-line strong {
+    color: var(--accent-strong);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+  .block-note {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin: -4px 0 12px;
+  }
+
+  /* calendar / asset cards */
+  ul.cal-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  li.asset {
+    display: flex;
+    gap: 13px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    background: #fff;
+    padding: 13px 14px;
+  }
+  li.asset.banked {
+    border-left-color: var(--line-strong);
+    background: #faf9fc;
+  }
+  .asset-when {
+    flex: none;
+    width: 62px;
+    text-align: center;
+    padding-top: 2px;
+  }
+  .asset-when .d-day {
+    display: block;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--accent-strong);
+    line-height: 1.2;
+  }
+  .asset-when .d-dow {
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+  }
+  .asset-when .banktag {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--ink-mute);
+    line-height: 1.3;
+  }
+  .asset-when .step-n {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    margin-top: 3px;
+  }
+  .asset-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .asset-head {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 7px;
+    color: var(--ink);
+  }
+  .asset-head .fmt {
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    font-size: 0.73rem;
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+  .chip.lang {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .chip.lang.en {
+    background: var(--good-tint);
+    color: var(--good);
+  }
+  .chip.count {
+    background: #f0eff5;
+    color: var(--ink-soft);
+  }
+  .chip.gate {
+    background: #fbe6cf;
+    color: var(--warn);
+  }
+  .chip.anchor {
+    background: #e7ecfb;
+    color: var(--accent-strong);
+  }
+  .asset-recut {
+    margin: 8px 0 0;
+    font-size: 0.87rem;
+    color: var(--ink-soft);
+  }
+
+  .why-note {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin: 12px 0 0;
+  }
+  .evergreen-note {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin: 12px 0 0;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #26252e;
+    color: #f1eef5;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 31, 38, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .opt-grid {
+      grid-template-columns: 1fr;
+    }
+    .two-col {
+      grid-template-columns: 1fr;
+    }
+    .stat-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #config-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">원자화 체인 · content-ops</span>
+    <h1>원자화 체인 플래너</h1>
+    <p class="lede">
+      한 개의 필러 소스를 링크드인·X·인스타·블로그 등 8~10개 네이티브 자산으로
+      <strong>재커팅</strong>합니다. 새로 쓰지 않고 하나의 원자재를 다시 자른
+      뒤, 골든아워가 겹치지 않게 벌린 발행 캘린더로 내드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>소스 한 개</h2>
+    </div>
+    <p class="panel-sub">
+      원자화의 출발은 하나의 필러 피스입니다. 종류를 고르면 그에 맞는 체인과
+      필러 태그가 준비됩니다.
+    </p>
+
+    <div class="field">
+      <fieldset>
+        <legend>소스 종류</legend>
+        <div class="opt-grid" id="type-grid"></div>
+      </fieldset>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="title">소스 한 줄 (핵심 인사이트)</label>
+      <input
+        type="text"
+        id="title"
+        placeholder="예) 언더백 대표가 회의를 줄이면 오히려 실행이 빨라지는 이유"
+      />
+      <p class="field-hint">
+        자산 이름과 아래 AI 프롬프트 머리에 쓰입니다. 비워도 계획은 생성됩니다.
+      </p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="raw"
+        >핵심 원자재 · raw material (선택)</label
+      >
+      <textarea
+        id="raw"
+        placeholder="원본 인사이트의 뼈대를 붙여넣으세요. 주장 · 근거 · 사례 · 대상 · CTA. 이 내용이 프롬프트에 함께 담겨, 각 자산을 '재커팅'할 원천이 됩니다."
+      ></textarea>
+      <p class="field-hint">
+        입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+        없습니다.
+      </p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="pillar">필러 태그</label>
+      <select id="pillar"></select>
+      <p class="field-hint">
+        모든 자산은 정확히 하나의 필러로 태깅됩니다. 태깅 없이는 만들지 않습니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="panel" id="config-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>발행 설정</h2>
+    </div>
+    <p class="panel-sub">
+      케이던스가 이번 사이클에 실제로 발행할 자산 수를 정합니다. FLOOR만 하드
+      약속이고, 나머지는 버퍼로 예치됩니다.
+    </p>
+
+    <div class="field">
+      <fieldset>
+        <legend>케이던스</legend>
+        <div class="pill-row" id="cadence-row"></div>
+      </fieldset>
+    </div>
+
+    <div class="field two-col">
+      <div>
+        <label class="field-label" for="start">발행 시작일</label>
+        <input type="date" id="start" />
+      </div>
+      <div>
+        <span class="field-label" style="display: block">언어</span>
+        <div class="toggle-row" style="margin-top: 0">
+          <label class="toggle">
+            <input type="checkbox" id="en" checked />
+            <span class="tg-box" aria-hidden="true"></span>
+            <span class="tg-text"
+              >EN 리보이싱 포함<small>브로드캐스트는 KO/EN 별도</small></span
+            >
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="toggle-row">
+        <label class="toggle">
+          <input type="checkbox" id="footage" />
+          <span class="tg-box" aria-hidden="true"></span>
+          <span class="tg-text"
+            >영상 풋티지 있음<small>Reel · YouTube 롱폼/Shorts 자산 추가</small></span
+          >
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="weekday" checked />
+          <span class="tg-box" aria-hidden="true"></span>
+          <span class="tg-text"
+            >주말 건너뛰기<small>B2B 표면은 평일 발행 (휴리스틱)</small></span
+          >
+        </label>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="generate">체인 생성하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>원자화 체인 &amp; 발행 캘린더</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◧</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>소스와 설정을 정하고 '체인 생성하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> social-content 스위트의 운영 모델
+      스킬(<em>content-ops</em>) 원자화 체인 정의 — 하나의 필러를 약 8~10개
+      네이티브 자산으로 재커팅(재작성 아님)하고, 원천은 렌더러가 만든 raw
+      material bank. KO+EN 카운팅(브로드캐스트 표면 X·Threads·YouTube Shorts는
+      KO/EN 별도 2개, LinkedIn·IG 이중언어는 1개), FLOOR/TARGET/PEAK 케이던스,
+      현장노트 익명화 게이트(field_note_review), 골든아워 60~90분 스태거는 모두
+      그 스킬과 platform-specs-2026 문서를 근거로 합니다.
+    </p>
+    <p>
+      이 도구는 발행 계획을 짜 주는 보조 도구입니다. 실제 포스트 문안은 각
+      플랫폼 렌더러가, 최종 톤·사실 검증은 사람이 맡습니다. 포맷 수치와 알고리즘
+      신호는 발행 시점에 현행 스펙으로 다시 확인하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------- domain data (grounded in content-ops SKILL.md §원자화 체인) ----------
+  var PILLARS = {
+    p1: "언더백 경영 현장 인사이트",
+    p2: "AI·자동화 빌드 인 퍼블릭",
+    p3: "컨설팅 프레임워크 & 사고법",
+    p4: "1인 운영 + 지식 시스템",
+    p5: "소트리더십 / 관점 (선택 로테이션)",
+  };
+
+  var TYPES = [
+    {
+      id: "field",
+      label: "현장 인사이트",
+      sub: "매일의 컨설팅 작업에서 나온 관찰. 복제 불가능한 해자.",
+      pillar: "p1",
+      gate: true,
+    },
+    {
+      id: "build",
+      label: "AI 빌드 로그",
+      sub: "라이브로 출시한 스킬·에이전트·웹앱. 고빈도 저생산 연료.",
+      pillar: "p2",
+      gate: false,
+    },
+    {
+      id: "lecture",
+      label: "강의·세미나",
+      sub: "강연·세미나 녹화/자료. 순 신규 글쓰기 거의 0.",
+      pillar: "p3",
+      gate: false,
+    },
+    {
+      id: "framework",
+      label: "프레임워크·사고도구",
+      sub: "비전하우스·OKR·가치체계 등 이전 가능한 IP. 저장형 캐러셀.",
+      pillar: "p3",
+      gate: false,
+    },
+  ];
+
+  // lang: 'bi' = 단일 이중언어(LinkedIn/IG, 1개) | 'broadcast' = KO/EN 별도(X/Threads/Shorts, 2개)
+  //       'ko' = KO 전용(Naver/brunch, 1개) | 'en' = EN 전용 크로스포스트(Medium, EN 켤 때만)
+  // anchor: FLOOR에서 실제 발행되는 앵커 자산(블로그 + LinkedIn)
+  // footage: 영상 풋티지가 있어야 생성되는 자산
+  var CHAINS = {
+    field: [
+      { platform: "LinkedIn", format: "캐러셀 (PDF, 6~10슬라이드)", lang: "bi", anchor: true, recut: "현장 인사이트를 6~10슬라이드 덱으로. html-deck/korean-pptx로 1회 제작 후 IG용 세로로도 리스타일." },
+      { platform: "LinkedIn", format: "텍스트 포스트", lang: "bi", anchor: true, recut: "캐러셀의 핵심 주장을 훅 1줄 + 3포인트 텍스트로 재커팅." },
+      { platform: "brunch", format: "롱폼 에세이", lang: "ko", anchor: true, recut: "현장 관찰의 완본. 블로그 FLOOR 자산 (blog-amp-router)." },
+      { platform: "X", format: "스레드 (5~7개)", lang: "broadcast", recut: "롱폼 논지를 5~7개 트윗으로 압축. KO/EN은 별도 네이티브 포스트." },
+      { platform: "Instagram", format: "캐러셀 (4:5 저장형)", lang: "bi", recut: "LinkedIn 덱을 세로로 리스타일. 새로 쓰지 않고 같은 덱 재사용." },
+      { platform: "Threads", format: "마이크로 포스트", lang: "broadcast", recut: "한 문장 훅으로 대화 유도. KO/EN 별도." },
+      { platform: "Medium", format: "크로스포스트 (rel=canonical)", lang: "en", recut: "brunch 원본을 정본(rel=canonical)으로 두고 글로벌 도달용 영문." },
+    ],
+    build: [
+      { platform: "Threads/IG", format: "Reel (빌드 순간 클립)", lang: "bi", footage: true, recut: "작업 화면 녹화 1회에서 30~60초 클립 추출. 고빈도 저생산 연료." },
+      { platform: "X", format: "싱글 포스트", lang: "broadcast", recut: "무엇을 왜 만들었나 한 컷. KO/EN 별도." },
+      { platform: "LinkedIn", format: "빌드 인 퍼블릭 포스트", lang: "bi", anchor: true, recut: "출시 결과 + 배운 것을 텍스트로. '실제로 출시하는 실무자' 신뢰성." },
+      { platform: "brunch", format: "티어다운 (단계별 해설)", lang: "ko", anchor: true, recut: "어떻게 만들었나 단계별로. 블로그 FLOOR 자산." },
+      { platform: "YouTube", format: "Shorts (세로 60초)", lang: "broadcast", footage: true, recut: "녹화 클립을 세로 숏폼으로. KO/EN 제목·자막 별도." },
+      { platform: "X", format: "스레드", lang: "broadcast", recut: "티어다운 핵심을 스레드로 확장. KO/EN 별도." },
+      { platform: "Medium", format: "크로스포스트 (rel=canonical)", lang: "en", recut: "티어다운을 영문 크로스포스트로. rel=canonical." },
+    ],
+    lecture: [
+      { platform: "Naver", format: "블로그 (위임)", lang: "ko", anchor: true, recut: "STT 전사 → seminar-article-writer 아티클 → Naver 표면 (naver-blog-post-builder 위임)." },
+      { platform: "LinkedIn", format: "캐러셀", lang: "bi", anchor: true, recut: "강의 핵심 프레임을 덱으로. 1회 제작 후 IG 세로 리스타일." },
+      { platform: "LinkedIn", format: "텍스트 포스트", lang: "bi", anchor: true, recut: "캐러셀 요지를 텍스트로 재커팅." },
+      { platform: "X", format: "스레드", lang: "broadcast", recut: "강의 논지를 스레드로. KO/EN 별도." },
+      { platform: "brunch", format: "에세이", lang: "ko", recut: "아티클을 완독형 에세이 보이스로 (blog-amp-router)." },
+      { platform: "Instagram", format: "Reel 클립", lang: "bi", footage: true, recut: "강의 영상에서 하이라이트 클립. 같은 소스 재사용." },
+      { platform: "YouTube", format: "롱폼 패키지", lang: "bi", footage: true, recut: "강의 풀영상 + 챕터·설명. KO 기본 + EN 제목/설명 변형." },
+      { platform: "YouTube", format: "Shorts", lang: "broadcast", footage: true, recut: "롱폼 하이라이트를 세로 컷으로. KO/EN 별도." },
+    ],
+    framework: [
+      { platform: "Instagram", format: "캐러셀 (저장형)", lang: "bi", recut: "프레임워크를 세로 저장형 카드로. 덱 1회 제작." },
+      { platform: "LinkedIn", format: "캐러셀 (PDF)", lang: "bi", anchor: true, recut: "같은 덱을 LinkedIn PDF로 리스타일. 새로 쓰지 않음." },
+      { platform: "LinkedIn", format: "텍스트 포스트", lang: "bi", anchor: true, recut: "프레임워크 한 문단 요약 + 캐러셀로 유도." },
+      { platform: "X", format: "스레드", lang: "broadcast", recut: "프레임워크 단계를 스레드로. KO/EN 별도." },
+      { platform: "Threads", format: "마이크로 포스트", lang: "broadcast", recut: "핵심 원칙 하나를 짧게. KO/EN 별도." },
+      { platform: "brunch", format: "설명 롱폼", lang: "ko", anchor: true, recut: "프레임워크 사용법 롱폼. 블로그 FLOOR 자산." },
+      { platform: "Medium", format: "크로스포스트 (rel=canonical)", lang: "en", recut: "설명을 영문 크로스포스트로. rel=canonical." },
+    ],
+  };
+
+  var CADENCES = [
+    { id: "FLOOR", name: "FLOOR", desc: "앵커만 · 나머지 버퍼" },
+    { id: "TARGET", name: "TARGET", desc: "전체 체인 · 2주 분산" },
+    { id: "PEAK", name: "PEAK", desc: "전체 + 에버그린" },
+  ];
+
+  var DOW = ["일", "월", "화", "수", "목", "금", "토"];
+
+  // ---------- state ----------
+  var state = {
+    type: "field",
+    pillar: "p1",
+    cadence: "TARGET",
+    en: true,
+    footage: false,
+    weekday: true,
+  };
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // ---------- build input UI ----------
+  var typeGrid = document.getElementById("type-grid");
+  TYPES.forEach(function (t) {
+    var lab = document.createElement("label");
+    lab.className = "opt-card";
+    lab.innerHTML =
+      '<input type="radio" name="stype" value="' + t.id + '"' +
+      (t.id === state.type ? " checked" : "") + " />" +
+      '<span class="oc-title"><span class="oc-dot" aria-hidden="true"></span>' +
+      esc(t.label) + "</span>" +
+      '<span class="oc-sub">' + esc(t.sub) + "</span>";
+    typeGrid.appendChild(lab);
+  });
+
+  var pillarSel = document.getElementById("pillar");
+  Object.keys(PILLARS).forEach(function (k) {
+    var op = document.createElement("option");
+    op.value = k;
+    op.textContent = PILLARS[k];
+    pillarSel.appendChild(op);
+  });
+  pillarSel.value = state.pillar;
+
+  var cadenceRow = document.getElementById("cadence-row");
+  CADENCES.forEach(function (c) {
+    var lab = document.createElement("label");
+    lab.className = "pill";
+    lab.innerHTML =
+      '<input type="radio" name="cad" value="' + c.id + '"' +
+      (c.id === state.cadence ? " checked" : "") + " />" +
+      '<span class="p-name">' + esc(c.name) + "</span>" +
+      '<span class="p-desc">' + esc(c.desc) + "</span>";
+    cadenceRow.appendChild(lab);
+  });
+
+  // default start date = today
+  var startEl = document.getElementById("start");
+  (function () {
+    var t = new Date();
+    var mm = String(t.getMonth() + 1).padStart(2, "0");
+    var dd = String(t.getDate()).padStart(2, "0");
+    startEl.value = t.getFullYear() + "-" + mm + "-" + dd;
+  })();
+
+  // ---------- wiring ----------
+  typeGrid.addEventListener("change", function (e) {
+    if (e.target.name !== "stype") return;
+    state.type = e.target.value;
+    var t = TYPES.filter(function (x) { return x.id === state.type; })[0];
+    if (t) {
+      state.pillar = t.pillar;
+      pillarSel.value = t.pillar;
+    }
+  });
+  pillarSel.addEventListener("change", function () {
+    state.pillar = pillarSel.value;
+  });
+  cadenceRow.addEventListener("change", function (e) {
+    if (e.target.name === "cad") state.cadence = e.target.value;
+  });
+  document.getElementById("en").addEventListener("change", function (e) {
+    state.en = e.target.checked;
+  });
+  document.getElementById("footage").addEventListener("change", function (e) {
+    state.footage = e.target.checked;
+  });
+  document.getElementById("weekday").addEventListener("change", function (e) {
+    state.weekday = e.target.checked;
+  });
+
+  var rawEl = document.getElementById("raw");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  rawEl.addEventListener("input", function () {
+    grow(rawEl);
+  });
+
+  // ---------- core logic: expand chain into native assets ----------
+  function buildAssets() {
+    var raw = CHAINS[state.type];
+    var out = [];
+    raw.forEach(function (a) {
+      if (a.footage && !state.footage) return;
+      if (a.lang === "en" && !state.en) return;
+
+      if (a.lang === "broadcast") {
+        out.push(mk(a, state.en ? "KO" : "KO", "broadcast"));
+        if (state.en) out.push(mk(a, "EN", "broadcast"));
+      } else if (a.lang === "bi") {
+        out.push(mk(a, state.en ? "KO+EN" : "KO", "bi"));
+      } else if (a.lang === "ko") {
+        out.push(mk(a, "KO", "ko"));
+      } else if (a.lang === "en") {
+        out.push(mk(a, "EN", "en"));
+      }
+    });
+    return out;
+  }
+
+  function mk(a, langChip, kind) {
+    return {
+      platform: a.platform,
+      format: a.format,
+      recut: a.recut,
+      anchor: !!a.anchor,
+      footage: !!a.footage,
+      langChip: langChip,
+      kind: kind,
+      date: null,
+      banked: false,
+    };
+  }
+
+  // ---------- scheduling: stagger so no platform repeats same day (golden hour) ----------
+  function keyOf(d) {
+    return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  }
+  function weekendFix(d, skip) {
+    if (!skip) return;
+    var w = d.getDay();
+    if (w === 6) d.setDate(d.getDate() + 2);
+    else if (w === 0) d.setDate(d.getDate() + 1);
+  }
+  function planDates(assets) {
+    // FLOOR schedules only anchors over ~1 week; TARGET/PEAK spread the full chain ~1 day apart.
+    var gap = state.cadence === "FLOOR" ? 2 : 1;
+    var used = {};
+    var cursor = null;
+    var first = true;
+    assets.forEach(function (a) {
+      if (state.cadence === "FLOOR" && !a.anchor) {
+        a.banked = true;
+        return;
+      }
+      var d;
+      if (first) {
+        d = parseStart();
+        first = false;
+      } else {
+        d = new Date(cursor);
+        d.setDate(d.getDate() + gap);
+      }
+      weekendFix(d, state.weekday);
+      while (used[a.platform + "|" + keyOf(d)]) {
+        d.setDate(d.getDate() + 1);
+        weekendFix(d, state.weekday);
+      }
+      used[a.platform + "|" + keyOf(d)] = true;
+      a.date = d;
+      cursor = new Date(d);
+    });
+  }
+  function parseStart() {
+    var v = startEl.value;
+    if (v) {
+      var p = v.split("-");
+      return new Date(+p[0], +p[1] - 1, +p[2]);
+    }
+    var t = new Date();
+    return new Date(t.getFullYear(), t.getMonth(), t.getDate());
+  }
+
+  // ---------- counting ----------
+  function tally(assets) {
+    var t = { total: assets.length, ko: 0, en: 0, bi: 0, bcast: 0 };
+    assets.forEach(function (a) {
+      if (a.langChip === "KO+EN") t.bi++;
+      else if (a.langChip === "EN") t.en++;
+      else t.ko++;
+      if (a.kind === "broadcast") t.bcast++;
+    });
+    return t;
+  }
+
+  // ---------- render ----------
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function langChipHtml(a) {
+    var cls = a.langChip === "EN" ? "chip lang en" : "chip lang";
+    return '<span class="' + cls + '">' + a.langChip + "</span>";
+  }
+  function countChip(a) {
+    if (a.kind === "broadcast")
+      return '<span class="chip count">브로드캐스트 · ' + a.langChip + "</span>";
+    if (a.langChip === "KO+EN")
+      return '<span class="chip count">이중언어 1개</span>';
+    return '<span class="chip count">단일 1개</span>';
+  }
+
+  function assetCard(a, idx, scheduled) {
+    var when;
+    if (scheduled && a.date) {
+      when =
+        '<div class="asset-when"><span class="d-day">' +
+        (a.date.getMonth() + 1) + "월 " + a.date.getDate() + "일</span>" +
+        '<span class="d-dow">(' + DOW[a.date.getDay()] + ")</span>" +
+        '<span class="step-n">#' + idx + "</span></div>";
+    } else {
+      when = '<div class="asset-when"><span class="banktag">버퍼<br />예치</span></div>';
+    }
+    var chips = langChipHtml(a) + countChip(a);
+    if (a.anchor) chips += '<span class="chip anchor">앵커</span>';
+    if (state.type === "field")
+      chips += '<span class="chip gate">익명화 검토</span>';
+    return (
+      '<li class="asset' + (scheduled ? "" : " banked") + '">' +
+      when +
+      '<div class="asset-body">' +
+      '<p class="asset-head"><span class="pf">' + esc(a.platform) +
+      '</span> · <span class="fmt">' + esc(a.format) + "</span></p>" +
+      '<div class="chips">' + chips + "</div>" +
+      '<p class="asset-recut">재커팅: ' + esc(a.recut) + "</p>" +
+      "</div></li>"
+    );
+  }
+
+  function render() {
+    var assets = buildAssets();
+    planDates(assets);
+    var scheduled = assets.filter(function (a) { return !a.banked; });
+    var banked = assets.filter(function (a) { return a.banked; });
+    var t = tally(assets);
+    var typeObj = TYPES.filter(function (x) { return x.id === state.type; })[0];
+
+    // span in weeks
+    var weeks = 1;
+    var dated = scheduled.filter(function (a) { return a.date; });
+    if (dated.length > 1) {
+      var min = dated[0].date, max = dated[0].date;
+      dated.forEach(function (a) {
+        if (a.date < min) min = a.date;
+        if (a.date > max) max = a.date;
+      });
+      var days = Math.round((max - min) / 86400000) + 1;
+      weeks = Math.max(1, Math.ceil(days / 7));
+    }
+
+    var html = "";
+
+    // pillar tag
+    html +=
+      '<div class="pillar-tag"><span class="pt-key">필러</span>' +
+      '<span class="pt-name">' + esc(PILLARS[state.pillar]) + "</span></div>";
+
+    // field-note anonymization gate
+    if (typeObj && typeObj.gate) {
+      html +=
+        '<div class="gate"><p class="g-title">현장노트 익명화 게이트 (예약 차단)</p>' +
+        "<p>이 소스는 현장 인사이트입니다. 업종·규모대·시점·수치 등 식별 디테일이 " +
+        "평문으로 노출될 수 있어, 익명화 검토가 클리어되기 전에는 어떤 자산도 " +
+        "예약 상태로 넘기지 마세요. 노출 후보를 먼저 뽑아 go/no-go를 확정하세요.</p></div>";
+    }
+
+    // stat grid
+    html += '<div class="stat-grid">';
+    html += stat(t.total, "네이티브 자산");
+    html += stat(scheduled.length, "이번 사이클 발행");
+    html += stat(banked.length, "버퍼 예치");
+    html += stat("~" + weeks + "주", "예상 발행 기간");
+    html += "</div>";
+
+    // lang line
+    html +=
+      '<p class="lang-line">언어 구성 · <strong>KO+EN 이중언어 ' + t.bi +
+      "개</strong> · KO 전용 " + t.ko + "개" +
+      (t.en ? " · EN 전용 " + t.en + "개" : "") +
+      " · 그중 브로드캐스트(KO/EN 별도) " + t.bcast + "개. " +
+      (t.total >= 8 && t.total <= 10
+        ? "원자화 밀도 적정(8~10)."
+        : t.total < 8
+        ? "체인이 압축됨 — EN·풋티지를 켜면 8~10개에 가까워집니다."
+        : "체인이 넉넉함(10 초과).") +
+      "</p>";
+
+    // scheduled calendar
+    html += '<div class="result-block-title">발행 캘린더</div>';
+    if (state.cadence === "FLOOR") {
+      html +=
+        '<p class="block-note">FLOOR는 유일한 하드 약속입니다. 앵커(블로그 + LinkedIn)만 이번 주기에 발행하고, ' +
+        "나머지는 아래 버퍼로 예치됩니다. 주간 FLOOR 목표(블로그 1 + LinkedIn 2)는 버퍼·다른 소스와 함께 채웁니다.</p>";
+    } else {
+      html +=
+        '<p class="block-note">각 자산은 발행 후 첫 60~90분(골든아워) 반응이 도달을 좌우한다는 관측에 따라, ' +
+        "같은 플랫폼이 같은 날 겹치지 않도록 하루씩 벌려 배치했습니다.</p>";
+    }
+    html += '<ul class="cal-list">';
+    scheduled.forEach(function (a, i) {
+      html += assetCard(a, i + 1, true);
+    });
+    html += "</ul>";
+
+    // banked (FLOOR)
+    if (banked.length) {
+      html += '<div class="result-block-title">버퍼로 예치 (이번 사이클 미발행)</div>';
+      html +=
+        '<p class="block-note">완성해 두고 다음 주차·버퍼로 넘기는 자산입니다. 버퍼 깊이가 2주 미만이면 그 주 임무는 발행이 아니라 리필입니다.</p>';
+      html += '<ul class="cal-list">';
+      banked.forEach(function (a, i) {
+        html += assetCard(a, i + 1, false);
+      });
+      html += "</ul>";
+    }
+
+    // peak evergreen note
+    if (state.cadence === "PEAK") {
+      html +=
+        '<p class="evergreen-note">PEAK 주간: 필러 중앙값(win-metric)을 넘긴 자산은 60~90일 뒤 ' +
+        "새 훅·갱신 예시로 <strong>재커팅 리포스트</strong>할 에버그린 후보입니다(바이트 동일 복제는 금지).</p>";
+    } else {
+      html +=
+        '<p class="why-note">모든 자산은 새 초안이 아니라 하나의 원자재를 다시 자른 <strong>재커팅</strong>입니다. ' +
+        "덱·녹화는 한 번 만들어 리스타일하고, 텍스트 파생은 한 패스로 KO+EN 함께 뽑습니다.</p>";
+    }
+
+    // AI prompt
+    lastPrompt = buildPrompt(scheduled, banked, t, typeObj);
+    html += '<div class="result-block-title">AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="block-note">아래를 ChatGPT·Claude 등 렌더러 역할로 붙여넣으면, 이 체인을 그대로 각 플랫폼 네이티브 자산으로 재커팅해 초안을 만들어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function stat(num, lab) {
+    return (
+      '<div class="stat"><div class="num">' + num +
+      '</div><div class="lab">' + lab + "</div></div>"
+    );
+  }
+
+  function buildPrompt(scheduled, banked, t, typeObj) {
+    var title = document.getElementById("title").value.trim();
+    var raw = rawEl.value.trim();
+    var L = [];
+    L.push(
+      "당신은 social-content 스위트의 멀티플랫폼 렌더러입니다. 하나의 필러 소스를 각 플랫폼 네이티브 자산으로 '재커팅'합니다(재작성·새 초안 금지)."
+    );
+    L.push("");
+    L.push("【소스】");
+    L.push("- 종류: " + (typeObj ? typeObj.label : state.type));
+    L.push(
+      "- 필러 태그: " + PILLARS[state.pillar] +
+      " (모든 자산은 이 필러 하나로 태깅. 태깅 없이는 만들지 않음)"
+    );
+    L.push("- 한 줄 인사이트: " + (title || "(입력 필요 — 먼저 저에게 물어보세요)"));
+    if (raw) {
+      L.push("- 핵심 원자재(raw material bank):");
+      L.push(raw);
+    }
+    L.push("");
+    L.push("【원자화 체인 — 발행 순서】");
+    scheduled.forEach(function (a, i) {
+      var when = a.date
+        ? " — " + (a.date.getMonth() + 1) + "월 " + a.date.getDate() + "일(" + DOW[a.date.getDay()] + ")"
+        : "";
+      L.push(
+        i + 1 + ". [" + a.langChip + "] " + a.platform + " · " + a.format + when
+      );
+      L.push("   재커팅: " + a.recut);
+    });
+    if (banked.length) {
+      L.push("");
+      L.push("[버퍼 예치 — 이번 사이클 미발행, 다음 주차용]");
+      banked.forEach(function (a) {
+        L.push("- [" + a.langChip + "] " + a.platform + " · " + a.format);
+      });
+    }
+    L.push("");
+    L.push("【하우스 규칙 (반드시 준수)】");
+    L.push("1. 재커팅만: 하나의 raw material bank에서 자른다. 자산마다 새로 쓰지 않는다.");
+    L.push(
+      "2. KO+EN 리보이싱: 기계번역 금지, 네이티브처럼 다시 쓴다(native-en-relay). 브로드캐스트 표면(X·Threads·YouTube Shorts)은 KO와 EN이 별도 포스트다."
+    );
+    L.push(
+      "3. 무날조: 고객명·수치·날짜·인용을 지어내지 않는다. 없으면 [플레이스홀더]로 두고 나에게 사실을 묻는다."
+    );
+    var n = 4;
+    if (typeObj && typeObj.gate) {
+      L.push(
+        "4. 현장노트 익명화 게이트: 업종·규모대·시점·수치 등 식별 디테일을 평문으로 노출하기 전, 노출 후보를 먼저 목록으로 뽑아 나에게 go/no-go를 물어라. 클리어 전에는 예약 문구를 확정하지 않는다."
+      );
+      n = 5;
+    }
+    L.push(
+      n + ". 포맷 수치(글자수·해시태그·종횡비)는 발행 시점 현행 스펙으로 재확인하고, 알고리즘 주장은 사실이 아니라 휴리스틱으로만 표현한다."
+    );
+    L.push(
+      n + 1 + ". 이모지는 기본 끔. IG/Threads만 포스트당 소수의 기능적 이모지 허용."
+    );
+    L.push("");
+    L.push(
+      "【요청】 위 순서대로 각 자산의 초안을 플랫폼 네이티브 형식으로 작성해 주세요. 자산 머리마다 필러 태그·언어를 명시하고, 같은 덱·녹화를 리스타일하는 자산은 원본 자산을 함께 표시하세요. 각 자산 뒤에는 '무엇을 물어야 완성되는지' 한 줄을 덧붙이세요."
+    );
+    return L.join("\n");
+  }
+
+  // ---------- generate / reset ----------
+  document.getElementById("generate").addEventListener("click", render);
+
+  document.getElementById("reset").addEventListener("click", function () {
+    state.type = "field";
+    state.pillar = "p1";
+    state.cadence = "TARGET";
+    state.en = true;
+    state.footage = false;
+    state.weekday = true;
+    var r = document.querySelector('input[name="stype"][value="field"]');
+    if (r) r.checked = true;
+    var c = document.querySelector('input[name="cad"][value="TARGET"]');
+    if (c) c.checked = true;
+    pillarSel.value = "p1";
+    document.getElementById("en").checked = true;
+    document.getElementById("footage").checked = false;
+    document.getElementById("weekday").checked = true;
+    document.getElementById("title").value = "";
+    rawEl.value = "";
+    grow(rawEl);
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◧</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>소스와 설정을 정하고 '체인 생성하기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

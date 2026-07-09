@@ -1,0 +1,1274 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>목표 격차 계산기</title>
+<meta name="description" content="지표별 현재값과 목표값을 넣으면 절대 격차와 변화율을, 비율 지표는 %p와 상대%까지 산출합니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2f6d7a;
+    --accent-strong: #245862;
+    --accent-tint: #e7f2f3;
+    --accent-tint-2: #d3e6e8;
+    --ink: #1f2426;
+    --ink-soft: #43494c;
+    --ink-mute: #676e71;
+    --paper: #f6f8f8;
+    --card: #ffffff;
+    --line: #e2e7e7;
+    --line-strong: #cdd5d5;
+    --good: #2f6f4f;
+    --good-tint: #e7f2ec;
+    --warn: #9a5a15;
+    --warn-tint: #fbf1e3;
+    --shadow: 0 1px 2px rgba(24, 32, 34, 0.05), 0 6px 20px rgba(24, 32, 34, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- metric rows ---------- */
+  .metric-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .metric-row {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfdfd;
+    padding: 14px 14px 15px;
+  }
+  .mr-top {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .mr-index {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-size: 0.82rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+  }
+  input.m-name {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .mr-del {
+    flex: none;
+    background: transparent;
+    color: var(--ink-mute);
+    border: 1px solid var(--line-strong);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 9px 12px;
+    min-height: 40px;
+  }
+  .mr-del:hover {
+    border-color: #c76a5a;
+    color: #b1503f;
+  }
+  .mr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 11px 12px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .field > span {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  input[type="text"],
+  input.txt,
+  select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 12px;
+    min-height: 44px;
+  }
+  select {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23676e71' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input::placeholder {
+    color: #a6afb0;
+  }
+  .field.unit-hidden {
+    display: none;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 76px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea::placeholder {
+    color: #a6afb0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  .add-row {
+    margin-top: 14px;
+  }
+  .btn-add {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border: 1px dashed var(--accent-tint-2);
+    width: 100%;
+    font-size: 0.95rem;
+  }
+  .btn-add:hover {
+    border-color: var(--accent);
+    background: #ddecee;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+    min-height: 44px;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .summary {
+    border-radius: 14px;
+    padding: 18px 18px;
+    margin-bottom: 18px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .summary-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .summary-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+    color: var(--accent-strong);
+  }
+  .summary-desc {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+  .summary-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 13px;
+  }
+  .chip {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 8px;
+    padding: 6px 11px;
+  }
+  .chip b {
+    color: var(--accent-strong);
+    font-weight: 800;
+  }
+  .chip.warn {
+    background: var(--warn-tint);
+    border-color: #eeddc2;
+    color: var(--warn);
+  }
+
+  .metric-card {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 15px 16px;
+    background: #fbfdfd;
+    margin-bottom: 12px;
+  }
+  .mc-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .mc-name {
+    font-weight: 800;
+    font-size: 1.04rem;
+    color: var(--ink);
+  }
+  .mc-badge {
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .mc-badge.rate {
+    background: #eae7f2;
+    color: #4a4370;
+  }
+  .mc-dir {
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: #eef1f1;
+    color: var(--ink-mute);
+    margin-left: auto;
+  }
+  .mc-flow {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+    font-weight: 600;
+  }
+  .mc-flow .arrow {
+    color: var(--accent);
+    margin: 0 6px;
+    font-weight: 800;
+  }
+  .mc-flow .deadline {
+    color: var(--ink-mute);
+    font-weight: 500;
+    font-size: 0.86rem;
+  }
+  .mc-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 13px;
+  }
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .stat-value {
+    font-size: 1.28rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .stat-value.muted {
+    font-size: 1rem;
+    color: var(--ink-mute);
+    font-weight: 700;
+  }
+  .stat-value .u {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin-left: 2px;
+  }
+  .mc-note {
+    margin: 11px 0 0;
+    font-size: 0.86rem;
+    color: var(--warn);
+    background: var(--warn-tint);
+    border-radius: 8px;
+    padding: 8px 11px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #212a2c;
+    color: #eef2f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 32, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .mr-grid {
+      grid-template-columns: 1fr;
+    }
+    .mc-stats {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #context-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">목표 정량화 · Amazon 6-Pager</span>
+    <h1>목표 격차 계산기</h1>
+    <p class="lede">
+      "많이 성장했다" 대신 정확한 숫자로. 지표별 현재값과 목표값을 넣으면 절대
+      격차와 변화율을 계산하고, 비율 지표는 %p(절대)와 상대%까지 함께
+      산출합니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>지표 입력</h2>
+    </div>
+    <p class="panel-sub">
+      격차를 잴 핵심 지표를 3~5개 넣으세요. 금액·수량은 '일반', 전환율·이탈률처럼
+      %로 표현되는 값은 '비율(%)'을 고르면 %p와 상대%를 함께 계산합니다.
+    </p>
+
+    <div class="metric-list" id="metricList"></div>
+
+    <div class="add-row">
+      <button class="btn-add" id="addRow" type="button">+ 지표 추가</button>
+    </div>
+
+    <p class="field-hint">
+      입력한 값은 이 브라우저 안에서만 계산되며, 밖으로 전송되지 않습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="context-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>배경 메모 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      이 지표들의 맥락(기준일·데이터 출처·상황)을 적으면 아래 AI 프롬프트에 함께
+      담깁니다. 비워 두어도 격차 계산은 됩니다.
+    </p>
+    <label class="field-label" for="ctx">맥락 / 기준일 / 출처</label>
+    <textarea
+      id="ctx"
+      placeholder="예) 데이터 기준일 2026-06-30, 사내 대시보드 기준. 상반기 신규 채널 확대 이후 수치."
+    ></textarea>
+  </section>
+
+  <section class="panel" id="calc-panel">
+    <div class="actions">
+      <button class="btn-primary" id="calc" type="button">격차 계산하기</button>
+      <button class="btn-ghost" id="sample" type="button">예시로 채우기</button>
+      <button class="btn-ghost" id="reset" type="button">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>격차 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◎</div>
+        <p><strong>아직 계산 전입니다.</strong></p>
+        <p>지표의 현재값과 목표값을 넣고 '격차 계산하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 아마존식 6-Pager(전략·비즈니스 리뷰
+      내러티브 메모)의 목표 정량화 규율. 격차는 추정하지 않고
+      <em>목표값 − 현재값</em>으로 계산하며, 변화율은 그 격차를 현재값으로 나눈
+      값(소수 첫째 자리)입니다. 전환율·이탈률 같은 비율 지표는 %p(절대 포인트
+      차이)와 상대%(그 지표 대비 변화율)를 함께 적는 것이 규율이고, 현재값이 0
+      이하이면 변화율 대신 '신규 진입'으로 표시합니다.
+    </p>
+    <p>
+      이 도구는 목표를 숫자로 또렷하게 만드는 계산 보조 도구이며, 목표나 전략을
+      대신 정해 주지 않습니다. 격차를 직면할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select" type="button">전체 선택</button>
+      <button class="btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------- utilities ----------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // parse a user-entered number: strip commas, spaces, a trailing %
+  function parseNum(raw) {
+    if (raw == null) return NaN;
+    var s = String(raw).trim().replace(/,/g, "").replace(/\s/g, "").replace(/%$/, "");
+    if (s === "") return NaN;
+    var n = Number(s);
+    return isFinite(n) ? n : NaN;
+  }
+
+  // group-format a number, up to 2 decimals, ko-KR grouping
+  function fmt(n) {
+    if (!isFinite(n)) return "-";
+    var r = Math.round(n * 100) / 100;
+    return r.toLocaleString("ko-KR", { maximumFractionDigits: 2 });
+  }
+  function sign(n) {
+    return n > 0 ? "+" : n < 0 ? "-" : "";
+  }
+  function fmtSigned(n) {
+    return sign(n) + fmt(Math.abs(n));
+  }
+  function fmtRate(n) {
+    // one decimal, signed
+    return sign(n) + Math.abs(n).toFixed(1);
+  }
+
+  // ---------- metric rows ----------
+  var metricList = document.getElementById("metricList");
+  var MAX_ROWS = 10;
+
+  var selArrow = ""; // arrow handled by CSS bg
+
+  function rowTemplate() {
+    var f = document.createElement("div");
+    f.className = "metric-row";
+    f.innerHTML =
+      '<div class="mr-top">' +
+      '<span class="mr-index" aria-hidden="true">1</span>' +
+      '<input type="text" class="txt m-name" placeholder="지표명 (예: 월 매출)" aria-label="지표명" />' +
+      '<button type="button" class="mr-del" aria-label="이 지표 삭제">삭제</button>' +
+      "</div>" +
+      '<div class="mr-grid">' +
+      '<label class="field"><span>유형</span>' +
+      '<select class="m-type" aria-label="지표 유형">' +
+      '<option value="normal">일반 (수량·금액)</option>' +
+      '<option value="rate">비율 (%)</option>' +
+      "</select></label>" +
+      '<label class="field"><span>현재값</span>' +
+      '<input type="text" inputmode="decimal" class="txt m-current" placeholder="예: 14,200" aria-label="현재값" /></label>' +
+      '<label class="field"><span>목표값</span>' +
+      '<input type="text" inputmode="decimal" class="txt m-target" placeholder="예: 21,000" aria-label="목표값" /></label>' +
+      '<label class="field m-unit-wrap"><span>단위</span>' +
+      '<input type="text" class="txt m-unit" placeholder="예: 명 / 원 / 건" aria-label="단위" /></label>' +
+      '<label class="field"><span>기한 (선택)</span>' +
+      '<input type="text" class="txt m-deadline" placeholder="예: FY26.12" aria-label="기한" /></label>' +
+      "</div>";
+    return f;
+  }
+
+  function renumber() {
+    var rows = metricList.querySelectorAll(".metric-row");
+    Array.prototype.forEach.call(rows, function (r, i) {
+      r.querySelector(".mr-index").textContent = i + 1;
+    });
+    // disable delete when only one row remains
+    var only = rows.length <= 1;
+    Array.prototype.forEach.call(rows, function (r) {
+      r.querySelector(".mr-del").disabled = only;
+      r.querySelector(".mr-del").style.opacity = only ? "0.4" : "1";
+    });
+  }
+
+  function toggleUnit(row) {
+    var type = row.querySelector(".m-type").value;
+    var unitWrap = row.querySelector(".m-unit-wrap");
+    if (type === "rate") unitWrap.classList.add("unit-hidden");
+    else unitWrap.classList.remove("unit-hidden");
+  }
+
+  function addRow(data) {
+    if (metricList.querySelectorAll(".metric-row").length >= MAX_ROWS) return null;
+    var row = rowTemplate();
+    metricList.appendChild(row);
+    if (data) {
+      row.querySelector(".m-name").value = data.name || "";
+      row.querySelector(".m-type").value = data.type || "normal";
+      row.querySelector(".m-current").value = data.current || "";
+      row.querySelector(".m-target").value = data.target || "";
+      row.querySelector(".m-unit").value = data.unit || "";
+      row.querySelector(".m-deadline").value = data.deadline || "";
+    }
+    toggleUnit(row);
+    renumber();
+    return row;
+  }
+
+  // event delegation: delete + type change
+  metricList.addEventListener("click", function (e) {
+    var del = e.target.closest(".mr-del");
+    if (!del) return;
+    var rows = metricList.querySelectorAll(".metric-row");
+    if (rows.length <= 1) return;
+    del.closest(".metric-row").remove();
+    renumber();
+  });
+  metricList.addEventListener("change", function (e) {
+    if (e.target.classList.contains("m-type")) {
+      toggleUnit(e.target.closest(".metric-row"));
+    }
+  });
+
+  document.getElementById("addRow").addEventListener("click", function () {
+    var r = addRow();
+    if (r) r.querySelector(".m-name").focus();
+  });
+
+  // ---------- context textarea auto-grow ----------
+  var ctx = document.getElementById("ctx");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  ctx.addEventListener("input", function () {
+    grow(ctx);
+  });
+
+  // ---------- read + analyze ----------
+  function readRows() {
+    var out = [];
+    Array.prototype.forEach.call(
+      metricList.querySelectorAll(".metric-row"),
+      function (el) {
+        out.push({
+          name: el.querySelector(".m-name").value.trim(),
+          type: el.querySelector(".m-type").value,
+          currentRaw: el.querySelector(".m-current").value,
+          targetRaw: el.querySelector(".m-target").value,
+          unit: el.querySelector(".m-unit").value.trim(),
+          deadline: el.querySelector(".m-deadline").value.trim(),
+        });
+      }
+    );
+    return out;
+  }
+
+  function analyze(rows) {
+    var results = [];
+    var incomplete = 0;
+    rows.forEach(function (r, i) {
+      var cur = parseNum(r.currentRaw);
+      var tgt = parseNum(r.targetRaw);
+      if (isNaN(cur) || isNaN(tgt)) {
+        // only flag rows the user actually touched
+        if (r.name || r.currentRaw.trim() || r.targetRaw.trim()) incomplete++;
+        return;
+      }
+      var isRate = r.type === "rate";
+      var absGap = tgt - cur; // for rate this is %p
+      var dir = absGap > 0 ? "up" : absGap < 0 ? "down" : "flat";
+      // gap arithmetic rule: current 0 or negative => "신규 진입", no rate
+      var newEntry = cur <= 0;
+      var rel = newEntry ? null : (absGap / Math.abs(cur)) * 100;
+      results.push({
+        name: r.name || "지표 " + (i + 1),
+        isRate: isRate,
+        unit: isRate ? "%p" : r.unit,
+        dispUnit: isRate ? "%" : r.unit,
+        deadline: r.deadline,
+        cur: cur,
+        tgt: tgt,
+        absGap: absGap,
+        dir: dir,
+        rel: rel,
+        newEntry: newEntry,
+      });
+    });
+    return { results: results, incomplete: incomplete };
+  }
+
+  function dirLabel(m) {
+    if (m.dir === "up") return "증가 목표";
+    if (m.dir === "down") return "감소 목표";
+    return "변화 없음";
+  }
+
+  // ---------- render ----------
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function unitSpan(u) {
+    return u ? ' <span class="u">' + esc(u) + "</span>" : "";
+  }
+
+  function renderMetric(m) {
+    var h = '<div class="metric-card">';
+    h += '<div class="mc-head">';
+    h += '<span class="mc-name">' + esc(m.name) + "</span>";
+    h +=
+      '<span class="mc-badge' +
+      (m.isRate ? " rate" : "") +
+      '">' +
+      (m.isRate ? "비율 %" : "일반") +
+      "</span>";
+    h += '<span class="mc-dir">' + dirLabel(m) + "</span>";
+    h += "</div>";
+
+    // flow: current -> target
+    var cu = m.isRate ? "%" : m.dispUnit;
+    h += '<p class="mc-flow">현재 ' + fmt(m.cur) + esc(cu);
+    h += ' <span class="arrow" aria-hidden="true">&rarr;</span> ';
+    h += "목표 " + fmt(m.tgt) + esc(cu);
+    if (m.deadline)
+      h += ' <span class="deadline">· 기한 ' + esc(m.deadline) + "</span>";
+    h += "</p>";
+
+    // two stat tiles
+    h += '<div class="mc-stats">';
+    // tile 1: absolute gap
+    var gapUnit = m.isRate ? "%p" : m.unit;
+    h += '<div class="stat">';
+    h +=
+      '<div class="stat-label">' +
+      (m.isRate ? "절대 격차 (%p)" : "절대 격차") +
+      "</div>";
+    h +=
+      '<div class="stat-value">' +
+      fmtSigned(m.absGap) +
+      (gapUnit ? '<span class="u">' + esc(gapUnit) + "</span>" : "") +
+      "</div>";
+    h += "</div>";
+    // tile 2: change rate (relative %)
+    h += '<div class="stat">';
+    h +=
+      '<div class="stat-label">' +
+      (m.isRate ? "상대 변화율" : "변화율") +
+      "</div>";
+    if (m.newEntry) {
+      h += '<div class="stat-value muted">신규 진입</div>';
+    } else {
+      h +=
+        '<div class="stat-value">' +
+        fmtRate(m.rel) +
+        '<span class="u">%</span></div>';
+    }
+    h += "</div>";
+    h += "</div>"; // mc-stats
+
+    if (m.newEntry) {
+      h +=
+        '<p class="mc-note">현재값이 ' +
+        fmt(m.cur) +
+        (m.isRate ? "%" : esc(m.dispUnit)) +
+        "(0 이하)이라 변화율(분모 나눗셈)을 낼 수 없어 '신규 진입'으로 표시합니다. 절대 격차만 유효합니다.</p>";
+    }
+    h += "</div>"; // metric-card
+    return h;
+  }
+
+  function buildPrompt(results, ctxText) {
+    var L = [];
+    L.push(
+      "당신은 아마존식 6-Pager 전략·비즈니스 리뷰 메모 코치입니다. 아래는 제가 현재값과 목표값으로 정량화한 '목표 격차' 표입니다."
+    );
+    L.push("");
+    L.push("【목표 격차】");
+    results.forEach(function (m, i) {
+      var cu = m.isRate ? "%" : m.dispUnit;
+      var line =
+        i +
+        1 +
+        ". " +
+        m.name +
+        " (" +
+        (m.isRate ? "비율" : "일반") +
+        "): 현재 " +
+        fmt(m.cur) +
+        cu +
+        " → 목표 " +
+        fmt(m.tgt) +
+        cu +
+        " | 절대 격차 " +
+        fmtSigned(m.absGap) +
+        (m.isRate ? "%p" : m.unit ? m.unit : "");
+      if (m.newEntry) {
+        line += ", 변화율 산출 불가(현재 0 이하, 신규 진입)";
+      } else {
+        line +=
+          ", " + (m.isRate ? "상대 변화율 " : "변화율 ") + fmtRate(m.rel) + "%";
+      }
+      if (m.deadline) line += ", 기한 " + m.deadline;
+      L.push(line);
+    });
+    L.push("");
+    if (ctxText && ctxText.trim()) {
+      L.push("【배경 메모】");
+      L.push(ctxText.trim());
+      L.push("");
+    }
+    L.push("【요청】");
+    L.push(
+      "1. 이 격차 표를 근거로, 격차를 메울 전략적 우선순위(베팅)를 3~4개 세우도록 도와주세요."
+    );
+    L.push(
+      "2. 각 베팅은 [무엇을 / 왜(어느 지표의 격차를 메우나) / 어떻게(액션·오너) / 언제(분기 마일스톤) / 얼마나(그 격차의 몇 %를 메우나) / 판정 지표 / 리스크와 대응]를 담아 주세요."
+    );
+    L.push(
+      "3. 마지막에 베팅들의 격차 기여 합을 각 목표 격차와 대조해, 닿지 않는 빈틈을 그대로 보여 주세요. 그럴듯한 베팅으로 빈틈을 덮지 마세요."
+    );
+    L.push(
+      "4. 결론을 대신 내리기 전에, 먼저 제게 확인이 필요한 숫자나 가정을 질문해 주세요. 모르는 값을 지어내지 마세요."
+    );
+    return L.join("\n");
+  }
+
+  function render(analysis, ctxText) {
+    var results = analysis.results;
+    var incomplete = analysis.incomplete;
+
+    if (results.length === 0) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">◎</div>' +
+        "<p><strong>계산할 지표가 없습니다.</strong></p>" +
+        "<p>현재값과 목표값을 모두 채운 지표가 최소 1개 필요합니다." +
+        (incomplete > 0
+          ? " (숫자가 비어 있는 지표 " + incomplete + "개는 건너뛰었습니다.)"
+          : "") +
+        "</p></div>";
+      return;
+    }
+
+    var h = "";
+
+    // summary banner
+    h += '<div class="summary">';
+    h += '<p class="summary-label">계산 완료</p>';
+    h +=
+      '<p class="summary-title">' +
+      results.length +
+      "개 지표의 목표 격차를 계산했습니다</p>";
+    h +=
+      '<p class="summary-desc">각 지표의 절대 격차와 변화율을 아래에 정리했습니다. 격차는 목표값에서 현재값을 뺀 값이며, 추정이 아니라 계산된 값입니다.</p>';
+
+    // chips: farthest / closest by |relative change|, plus incomplete note
+    var withRel = results.filter(function (m) {
+      return m.rel !== null;
+    });
+    h += '<div class="summary-chips">';
+    if (withRel.length >= 2) {
+      var far = withRel.slice().sort(function (a, b) {
+        return Math.abs(b.rel) - Math.abs(a.rel);
+      })[0];
+      var near = withRel.slice().sort(function (a, b) {
+        return Math.abs(a.rel) - Math.abs(b.rel);
+      })[0];
+      h +=
+        '<span class="chip">가장 먼 목표 · <b>' +
+        esc(far.name) +
+        "</b> " +
+        fmtRate(far.rel) +
+        "%</span>";
+      h +=
+        '<span class="chip">가장 가까운 목표 · <b>' +
+        esc(near.name) +
+        "</b> " +
+        fmtRate(near.rel) +
+        "%</span>";
+    }
+    if (incomplete > 0) {
+      h +=
+        '<span class="chip warn">숫자 미입력 ' +
+        incomplete +
+        "개 건너뜀</span>";
+    }
+    h += "</div>"; // chips
+    h += "</div>"; // summary
+
+    // per-metric cards
+    results.forEach(function (m) {
+      h += renderMetric(m);
+    });
+
+    // AI prompt
+    lastPrompt = buildPrompt(results, ctxText);
+    h += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    h +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 격차 표를 근거로 격차를 메울 전략적 우선순위를 함께 세워 줍니다.</p>';
+    h += '<div class="prompt-wrap">';
+    h += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    h += "</div>";
+    h += '<div class="copy-row no-print">';
+    h += '<button class="btn-copy" id="copyBtn" type="button">프롬프트 복사</button>';
+    h += '<button class="btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+    h +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    h += "</div>";
+
+    resultEl.innerHTML = h;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // ---------- calculate ----------
+  document.getElementById("calc").addEventListener("click", function () {
+    var analysis = analyze(readRows());
+    render(analysis, ctx.value);
+  });
+
+  // ---------- sample ----------
+  document.getElementById("sample").addEventListener("click", function () {
+    metricList.innerHTML = "";
+    addRow({ name: "유료 회원 수", type: "normal", current: "14,200", target: "21,000", unit: "명", deadline: "FY26.12" });
+    addRow({ name: "결제 전환율", type: "rate", current: "3.2", target: "5.0", deadline: "FY26.Q4" });
+    addRow({ name: "월 이탈률", type: "rate", current: "12", target: "8", deadline: "FY26.Q2" });
+    renumber();
+    ctx.value =
+      "데이터 기준일 2026-06-30, 사내 대시보드 기준. 상반기 신규 채널 확대 이후 수치입니다.";
+    grow(ctx);
+    var analysis = analyze(readRows());
+    render(analysis, ctx.value);
+  });
+
+  // ---------- reset ----------
+  document.getElementById("reset").addEventListener("click", function () {
+    metricList.innerHTML = "";
+    addRow();
+    addRow();
+    ctx.value = "";
+    grow(ctx);
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◎</div>' +
+      "<p><strong>아직 계산 전입니다.</strong></p>" +
+      "<p>지표의 현재값과 목표값을 넣고 '격차 계산하기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) flashStatus("복사되었습니다");
+    else openModal(text);
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // ---------- init: start with two empty rows ----------
+  addRow();
+  addRow();
+</script>

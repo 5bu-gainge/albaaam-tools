@@ -1,0 +1,1361 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>가격 책정 계산기 (원가+마진/가치)</title>
+<meta
+  name="description"
+  content="원가·목표마진·경쟁가를 넣으면 권장 가격 범위와 손익분기 판매량을 계산합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3d5a80;
+    --accent-strong: #2f4763;
+    --accent-tint: #eaeff6;
+    --accent-tint-2: #d9e3ef;
+    --ink: #1f2733;
+    --ink-soft: #45505f;
+    --ink-mute: #6b7686;
+    --paper: #f5f7fa;
+    --card: #ffffff;
+    --line: #e3e7ee;
+    --line-strong: #d3d9e3;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #b0611c;
+    --warn-tint: #fdf0e4;
+    --warn-line: #f3d9bf;
+    --comp: #c07f34;
+    --shadow: 0 1px 2px rgba(31, 39, 51, 0.05), 0 6px 20px rgba(31, 39, 51, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- inputs ---------- */
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 16px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+  }
+  .field.full {
+    grid-column: 1 / -1;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  label .opt {
+    font-weight: 600;
+    color: var(--ink-mute);
+    font-size: 0.84rem;
+  }
+  .input-shell {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .input-shell .unit {
+    position: absolute;
+    right: 13px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    pointer-events: none;
+  }
+  input.num {
+    width: 100%;
+    height: 48px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: #fcfdfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 0 40px 0 14px;
+    text-align: right;
+    -moz-appearance: textfield;
+  }
+  input.num::-webkit-outer-spin-button,
+  input.num::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input.num:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input.num::placeholder {
+    color: #a9b1bd;
+    font-weight: 500;
+  }
+  .field-hint {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 7px 0 0;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 74px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfdfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a9b1bd;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+    font-weight: 800;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-good {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict.tone-mixed {
+    background: #fff6ec;
+    border-color: #f2ddc4;
+  }
+  .verdict.tone-warn {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-neutral {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.9rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  .verdict.tone-good .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: #a35a12;
+  }
+  .verdict.tone-warn .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-neutral .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    flex: 1 1 0;
+    min-width: 98px;
+    background: rgba(255, 255, 255, 0.66);
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 11px 12px;
+  }
+  .stat .k {
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin: 0 0 3px;
+  }
+  .stat .v {
+    font-size: 1.06rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 11px;
+  }
+
+  /* ---------- positioning bars ---------- */
+  .bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 2px 0 0;
+  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+  .bar-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    line-height: 1.3;
+  }
+  .bar-track {
+    background: #eceff4;
+    border-radius: 7px;
+    height: 30px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 7px 0 0 7px;
+    min-width: 4px;
+    flex: none;
+  }
+  .bar-fill.cost {
+    background: var(--line-strong);
+  }
+  .bar-fill.rec {
+    background: var(--accent);
+  }
+  .bar-fill.comp {
+    background: var(--comp);
+  }
+  .bar-val {
+    position: absolute;
+    right: 10px;
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--ink);
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+  }
+  .band-note {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 14px 0 0;
+  }
+  .band-note strong {
+    color: var(--accent-strong);
+  }
+
+  /* ---------- scenario table ---------- */
+  .tbl-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  table.scn {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 480px;
+    font-size: 0.9rem;
+  }
+  table.scn th,
+  table.scn td {
+    padding: 11px 13px;
+    text-align: right;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  table.scn thead th {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-weight: 700;
+    font-size: 0.82rem;
+    position: sticky;
+    top: 0;
+  }
+  table.scn th:first-child,
+  table.scn td:first-child {
+    text-align: left;
+    white-space: normal;
+  }
+  table.scn tbody tr:last-child td {
+    border-bottom: none;
+  }
+  table.scn tr.rec-row td {
+    background: var(--accent-tint);
+    font-weight: 700;
+  }
+  table.scn td.pos {
+    color: var(--good);
+    font-weight: 700;
+  }
+  table.scn td.neg {
+    color: var(--warn);
+    font-weight: 700;
+  }
+  .scn-caption {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 9px 0 0;
+  }
+
+  /* ---------- break-even ---------- */
+  .be-card {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 12px;
+    padding: 16px 17px;
+  }
+  .be-card .be-lead {
+    font-size: 0.88rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin: 0 0 2px;
+  }
+  .be-card .be-big {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .be-card .be-sub {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .hint-card {
+    background: #fbfcfd;
+    border: 1px dashed var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 15px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* ---------- prompt ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232b36;
+    color: #eef2f7;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 39, 51, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .field-grid {
+      grid-template-columns: 1fr;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .bar-row {
+      grid-template-columns: 78px 1fr;
+    }
+    .verdict-title {
+      font-size: 1.6rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">가격 책정 · 원가+마진 / 가치</span>
+    <h1>가격 책정 계산기</h1>
+    <p class="lede">
+      원가와 목표 마진을 넣으면 권장 판매가가 나오고, 경쟁가와 견주어 가격 위치를
+      보여 드립니다. 고정비를 더하면 손익분기 판매량까지 계산합니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>숫자 입력</h2>
+    </div>
+    <p class="panel-sub">
+      필수는 원가와 목표 마진율입니다. 경쟁가·고정비·설명은 넣으면 결과가 더
+      풍부해집니다. 입력값은 이 브라우저 밖으로 전송되지 않습니다.
+    </p>
+
+    <div class="field-grid">
+      <div class="field">
+        <label class="field-label" for="cost">단위 원가 (변동비)</label>
+        <div class="input-shell">
+          <input
+            class="num money"
+            id="cost"
+            type="text"
+            inputmode="numeric"
+            placeholder="예) 4,000"
+            aria-describedby="cost-hint"
+          />
+          <span class="unit">원</span>
+        </div>
+        <p class="field-hint" id="cost-hint">1개(또는 1건) 만들 때 드는 재료·직접비</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="margin">목표 마진율 <span class="opt">(가격 대비 %)</span></label>
+        <div class="input-shell">
+          <input
+            class="num pct"
+            id="margin"
+            type="text"
+            inputmode="decimal"
+            placeholder="예) 40"
+            aria-describedby="margin-hint"
+          />
+          <span class="unit">%</span>
+        </div>
+        <p class="field-hint" id="margin-hint">판매가에서 마진이 차지하는 비율 (0 이상 100 미만)</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="comp">경쟁가 <span class="opt">(선택)</span></label>
+        <div class="input-shell">
+          <input
+            class="num money"
+            id="comp"
+            type="text"
+            inputmode="numeric"
+            placeholder="예) 9,000"
+          />
+          <span class="unit">원</span>
+        </div>
+        <p class="field-hint">비슷한 제품의 시장 가격</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="fixed">월 고정비 <span class="opt">(선택)</span></label>
+        <div class="input-shell">
+          <input
+            class="num money"
+            id="fixed"
+            type="text"
+            inputmode="numeric"
+            placeholder="예) 1,500,000"
+          />
+          <span class="unit">원</span>
+        </div>
+        <p class="field-hint">임대료·인건비 등 판매량과 무관하게 매달 나가는 비용</p>
+      </div>
+
+      <div class="field full">
+        <label class="field-label" for="desc">제품 / 서비스 설명 <span class="opt">(선택)</span></label>
+        <textarea
+          id="desc"
+          placeholder="예) 수제 드립백 커피 10개입 세트. 산지 직거래 원두, 소량 로스팅, 선물 포장 강점."
+        ></textarea>
+        <p class="field-hint">아래 AI 프롬프트에 맥락으로 담겨 가치 기반 조언을 도와줍니다.</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="calc">가격 계산하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>계산 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">&#8361;</div>
+        <p><strong>아직 계산 전입니다.</strong></p>
+        <p>원가와 목표 마진율을 넣고 '가격 계산하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">계산 근거:</span> 원가가산(cost-plus) 가격 =
+      원가 &divide; (1 &minus; 목표마진율), 손익분기 판매량 = 고정비 &divide;
+      (판매가 &minus; 단위변동비). 가격 위치는 원가가격·경쟁가·가치가격을 잇는
+      일반적인 프라이싱 삼각 구도로 해석합니다. 특정 업종의 표준 마진율이나
+      법정 수치를 전제하지 않으며, 입력값만으로 계산합니다.
+    </p>
+    <p>
+      이 도구는 가격 판단을 돕는 보조 계산기이며, 최종 가격을 대신 결정하지
+      않습니다. 실제 지불의사와 시장 반응은 스스로 확인해 결정하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------- element refs ----------
+  var costEl = document.getElementById("cost");
+  var marginEl = document.getElementById("margin");
+  var compEl = document.getElementById("comp");
+  var fixedEl = document.getElementById("fixed");
+  var descEl = document.getElementById("desc");
+  var resultEl = document.getElementById("result");
+
+  // ---------- helpers ----------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // parse an input's numeric value (strips commas / stray chars)
+  function num(el) {
+    var s = String(el.value || "").replace(/[^0-9.\-]/g, "");
+    if (s === "" || s === "-" || s === ".") return NaN;
+    return parseFloat(s);
+  }
+
+  function grouped(n) {
+    return Math.round(n).toLocaleString("en-US");
+  }
+  function won(n) {
+    return grouped(n) + "원";
+  }
+  function signWon(n) {
+    var sign = n > 0 ? "+" : n < 0 ? "−" : "";
+    return sign + grouped(Math.abs(n)) + "원";
+  }
+  // fraction -> percent string, 1 decimal, trimmed
+  function pct(x) {
+    var v = Math.round(x * 1000) / 10;
+    return (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)) + "%";
+  }
+  function trimNum(x) {
+    var v = Math.round(x * 100) / 100;
+    return v % 1 === 0 ? String(v) : String(v);
+  }
+
+  // break-even units: fixed / contribution, rounded up
+  function bepUnits(fixed, contrib) {
+    if (!(fixed > 0) || !(contrib > 0)) return null;
+    return Math.ceil(fixed / contrib);
+  }
+
+  // ---------- money input formatting (blur = commas, focus = raw) ----------
+  Array.prototype.forEach.call(
+    document.querySelectorAll("input.money"),
+    function (el) {
+      el.addEventListener("input", function () {
+        el.value = el.value.replace(/[^0-9]/g, "");
+      });
+      el.addEventListener("blur", function () {
+        var d = el.value.replace(/[^0-9]/g, "");
+        el.value = d ? Number(d).toLocaleString("en-US") : "";
+      });
+      el.addEventListener("focus", function () {
+        el.value = el.value.replace(/,/g, "");
+      });
+    }
+  );
+  marginEl.addEventListener("input", function () {
+    marginEl.value = marginEl.value.replace(/[^0-9.]/g, "");
+  });
+
+  // Enter on any numeric field triggers calculation
+  [costEl, marginEl, compEl, fixedEl].forEach(function (el) {
+    el.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        el.blur();
+        calculate();
+      }
+    });
+  });
+
+  // ---------- auto-grow textarea ----------
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  descEl.addEventListener("input", function () {
+    grow(descEl);
+  });
+
+  // ---------- prompt builder ----------
+  var lastPrompt = "";
+
+  function buildPrompt(d) {
+    var L = [];
+    L.push(
+      "당신은 소상공인·1인창업가·프리랜서의 가격 책정을 돕는 실전 프라이싱 코치입니다."
+    );
+    L.push(
+      "아래 계산 결과를 바탕으로, 원가에 마진만 얹은 가격을 '고객이 느끼는 가치에 맞춘 가격'으로 끌어올릴 수 있게 도와주세요."
+    );
+    L.push("");
+    L.push("【내 숫자】");
+    L.push("- 단위 원가(변동비): " + won(d.cost));
+    L.push("- 목표 마진율(가격 대비): " + trimNum(d.marginPct) + "%");
+    L.push(
+      "- 원가+목표마진 권장가: " +
+        won(d.price) +
+        " (단위당 마진 " +
+        won(d.unitMargin) +
+        ")"
+    );
+    if (d.hasComp) {
+      L.push(
+        "- 경쟁가: " +
+          won(d.comp) +
+          " (권장가와 차이 " +
+          signWon(d.price - d.comp) +
+          ", 경쟁가로 팔면 마진율 " +
+          pct(d.compMargin) +
+          ")"
+      );
+    }
+    if (d.hasFixed) {
+      L.push("- 월 고정비: " + won(d.fixed));
+      if (d.bep) {
+        L.push(
+          "- 권장가 기준 손익분기: 월 " +
+            grouped(d.bep) +
+            "개 (손익분기 매출 " +
+            won(d.bepRev) +
+            ")"
+        );
+      }
+    }
+    if (d.desc) {
+      L.push("");
+      L.push("【제품 / 서비스 설명】");
+      L.push(d.desc);
+    }
+    L.push("");
+    L.push("【요청】");
+    L.push(
+      "1. 이 가격이 '원가에 마진만 얹은 가격'에 머물러 있는지, 고객이 느끼는 가치에 비해 낮거나 높은지 진단해 주세요."
+    );
+    L.push(
+      "2. 고객의 지불의사(willingness to pay)를 끌어올리는 가치 요소 3가지를 제 제품 맥락에서 구체적으로 제안해 주세요."
+    );
+    L.push(
+      "3. 원가가격·경쟁가·가치가격 사이에서 어떤 포지션을 택할지, 각 선택의 리스크와 함께 정리해 주세요."
+    );
+    L.push(
+      "4. 지금 당장 시험해 볼 수 있는 가장 싸고 빠른 가격 실험 1가지를 제안해 주세요."
+    );
+    L.push(
+      "5. 근거 없는 숫자를 지어내지 말고, 판단에 필요한 정보가 부족하면 저에게 먼저 물어봐 주세요."
+    );
+    return L.join("\n");
+  }
+
+  // ---------- error render ----------
+  function showError(msg) {
+    resultEl.innerHTML =
+      '<div class="verdict tone-warn">' +
+      '<p class="verdict-label">입력 확인</p>' +
+      '<p class="verdict-title" style="font-size:1.2rem">계산할 수 없습니다</p>' +
+      '<p class="verdict-desc">' +
+      esc(msg) +
+      "</p></div>";
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // ---------- main calculation ----------
+  function calculate() {
+    var cost = num(costEl);
+    var marginPct = num(marginEl);
+    var comp = num(compEl);
+    var fixed = num(fixedEl);
+    var desc = (descEl.value || "").trim();
+
+    // validation
+    if (isNaN(cost) || cost <= 0) {
+      showError("단위 원가를 0보다 큰 값으로 입력하세요.");
+      return;
+    }
+    if (isNaN(marginPct)) {
+      showError("목표 마진율을 입력하세요. (예: 40)");
+      return;
+    }
+    if (marginPct < 0 || marginPct >= 100) {
+      showError(
+        "목표 마진율은 0 이상 100 미만이어야 합니다. 마진율이 100%면 가격이 무한대가 됩니다."
+      );
+      return;
+    }
+
+    var margin = marginPct / 100;
+    var price = cost / (1 - margin); // cost-plus / markup price
+    var unitMargin = price - cost;
+
+    var hasComp = !isNaN(comp) && comp > 0;
+    var hasFixed = !isNaN(fixed) && fixed > 0;
+
+    var compMargin = hasComp ? (comp - cost) / comp : 0;
+    var bep = hasFixed ? bepUnits(fixed, unitMargin) : null;
+    var bepRev = bep ? bep * price : null;
+
+    var promptData = {
+      cost: cost,
+      marginPct: marginPct,
+      price: price,
+      unitMargin: unitMargin,
+      hasComp: hasComp,
+      comp: comp,
+      compMargin: compMargin,
+      hasFixed: hasFixed,
+      fixed: fixed,
+      bep: bep,
+      bepRev: bepRev,
+      desc: desc,
+    };
+
+    // ----- tone + positioning read -----
+    var tone, verdictTitle, verdictDesc;
+    verdictTitle = won(price);
+    if (hasComp) {
+      if (price < comp * 0.97) {
+        tone = "good";
+        verdictDesc =
+          "권장가가 경쟁가(" +
+          won(comp) +
+          ")보다 낮습니다. 가격 경쟁력이 있고, 경쟁가와의 차이(" +
+          won(comp - price) +
+          ")만큼 마진을 더 얹거나 가치를 강화할 여지가 있습니다.";
+      } else if (price <= comp * 1.03) {
+        tone = "mixed";
+        verdictDesc =
+          "권장가가 경쟁가(" +
+          won(comp) +
+          ")와 거의 같습니다. 가격만으로는 갈리지 않으니, 가격 외 차별화(품질·경험·신뢰)로 선택 이유를 만들어야 합니다.";
+      } else {
+        tone = "warn";
+        verdictDesc =
+          "권장가가 경쟁가(" +
+          won(comp) +
+          ")보다 " +
+          won(price - comp) +
+          " 높습니다. 원가를 줄여 마진을 확보하거나, 더 높은 값을 정당화할 가치를 고객에게 입증해야 합니다.";
+      }
+    } else {
+      tone = "neutral";
+      verdictDesc =
+        "원가에 목표 마진 " +
+        trimNum(marginPct) +
+        "%를 얹은 가격입니다. 경쟁가를 입력하면 시장에서 이 가격이 높은지 낮은지까지 짚어 드립니다.";
+    }
+
+    // ----- third stat (adaptive) -----
+    var stat3;
+    if (hasFixed && bep) {
+      stat3 = { k: "손익분기 (월)", v: grouped(bep) + "개" };
+    } else if (hasComp) {
+      stat3 = { k: "경쟁가 대비", v: signWon(price - comp) };
+    } else {
+      stat3 = { k: "단위 원가", v: won(cost) };
+    }
+
+    // ================= build HTML =================
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + tone + '">';
+    html +=
+      '<p class="verdict-label">권장 판매가 (원가 + 목표마진 ' +
+      esc(trimNum(marginPct)) +
+      "%)</p>";
+    html += '<p class="verdict-title">' + esc(verdictTitle) + "</p>";
+    html += '<p class="verdict-desc">' + esc(verdictDesc) + "</p>";
+    html += '<div class="stat-row">';
+    html +=
+      '<div class="stat"><p class="k">단위당 마진</p><p class="v">' +
+      esc(won(unitMargin)) +
+      "</p></div>";
+    html +=
+      '<div class="stat"><p class="k">실효 마진율</p><p class="v">' +
+      esc(pct(margin)) +
+      "</p></div>";
+    html +=
+      '<div class="stat"><p class="k">' +
+      esc(stat3.k) +
+      '</p><p class="v">' +
+      esc(stat3.v) +
+      "</p></div>";
+    html += "</div>";
+    html += "</div>";
+
+    // positioning bars
+    html += '<div class="result-block-title">가격 포지셔닝</div>';
+    var maxVal = Math.max(cost, price, hasComp ? comp : 0);
+    function bar(cls, label, val) {
+      var w = Math.max(4, (val / maxVal) * 100);
+      return (
+        '<div class="bar-row"><div class="bar-label">' +
+        label +
+        '</div><div class="bar-track"><div class="bar-fill ' +
+        cls +
+        '" style="width:' +
+        w.toFixed(1) +
+        '%"></div><span class="bar-val">' +
+        esc(won(val)) +
+        "</span></div></div>"
+      );
+    }
+    html += '<div class="bars">';
+    html += bar("cost", "원가<br>(변동비)", cost);
+    html += bar("rec", "권장가", price);
+    if (hasComp) html += bar("comp", "경쟁가", comp);
+    html += "</div>";
+
+    // band note (recommended range)
+    if (hasComp) {
+      var lo = Math.min(price, comp);
+      var hi = Math.max(price, comp);
+      if (hi - lo < 1) {
+        html +=
+          '<p class="band-note">권장가와 경쟁가가 사실상 같습니다. 가격 폭이 좁으니 <strong>가치·경험 차별화</strong>로 승부하세요.</p>';
+      } else {
+        html +=
+          '<p class="band-note">현실적인 가격 범위는 <strong>' +
+          esc(won(lo)) +
+          " ~ " +
+          esc(won(hi)) +
+          "</strong> 입니다. 낮게 가면 물량(판매량) 전략, 높게 가면 마진·가치 전략입니다. 원가 " +
+          esc(won(cost)) +
+          " 아래로는 팔수록 손해입니다.</p>";
+      }
+    } else {
+      html +=
+        '<p class="band-note">가격의 <strong>바닥은 원가 ' +
+        esc(won(cost)) +
+        "</strong>, 출발점은 권장가 " +
+        esc(won(price)) +
+        " 입니다. 상한(가치가격)은 고객의 지불의사에 달려 있으니 경쟁가·반응을 확인해 정하세요.</p>";
+    }
+
+    // scenario table
+    var rows = [{ name: "원가 + 목표마진 (권장)", price: price, rec: true }];
+    if (hasComp) rows.push({ name: "경쟁가에 맞출 때", price: comp, rec: false });
+
+    html += '<div class="result-block-title">가격 시나리오 비교</div>';
+    html += '<div class="tbl-wrap"><table class="scn">';
+    html +=
+      "<thead><tr><th>전략</th><th>판매가</th><th>단위 마진</th><th>마진율</th><th>손익분기" +
+      (hasFixed ? " (월)" : "") +
+      "</th></tr></thead><tbody>";
+    rows.forEach(function (r) {
+      var contrib = r.price - cost;
+      var mr = r.price > 0 ? contrib / r.price : 0;
+      var be = hasFixed ? bepUnits(fixed, contrib) : null;
+      var mc = contrib >= 0 ? "pos" : "neg";
+      var beCell = !hasFixed
+        ? '<span style="color:var(--ink-mute)">-</span>'
+        : be
+        ? grouped(be) + "개"
+        : '<span class="neg">불가</span>';
+      html += "<tr" + (r.rec ? ' class="rec-row"' : "") + ">";
+      html += "<td>" + esc(r.name) + "</td>";
+      html += "<td>" + esc(won(r.price)) + "</td>";
+      html += '<td class="' + mc + '">' + esc(signWon(contrib)) + "</td>";
+      html += '<td class="' + mc + '">' + esc(pct(mr)) + "</td>";
+      html += "<td>" + beCell + "</td>";
+      html += "</tr>";
+    });
+    html += "</tbody></table></div>";
+    if (hasComp && comp <= cost) {
+      html +=
+        '<p class="scn-caption">경쟁가가 원가 이하라, 경쟁가에 맞추면 팔수록 손해입니다. 원가 절감이 먼저입니다.</p>';
+    } else if (!hasFixed) {
+      html +=
+        '<p class="scn-caption">월 고정비를 입력하면 각 가격의 손익분기 판매량도 채워집니다.</p>';
+    }
+
+    // break-even section
+    html += '<div class="result-block-title">손익분기 판매량</div>';
+    if (hasFixed && bep) {
+      html += '<div class="be-card">';
+      html +=
+        '<p class="be-lead">권장가 ' +
+        esc(won(price)) +
+        " 기준, 월 고정비 " +
+        esc(won(fixed)) +
+        "을 회수하려면</p>";
+      html += '<p class="be-big">월 ' + esc(grouped(bep)) + "개</p>";
+      html +=
+        '<p class="be-sub">이때 손익분기 매출은 ' +
+        esc(won(bepRev)) +
+        " 입니다. 이 수량을 넘기는 순간부터 개당 " +
+        esc(won(unitMargin)) +
+        "씩 이익이 쌓입니다.</p>";
+      html += "</div>";
+    } else if (hasFixed && !bep) {
+      html +=
+        '<p class="hint-card">단위 마진이 0 이하라 손익분기 판매량을 계산할 수 없습니다. 가격을 올리거나 원가를 낮춰야 합니다.</p>';
+    } else {
+      html +=
+        '<p class="hint-card">월 고정비(임대료·인건비 등)를 입력하면, 이 가격으로 매달 몇 개를 팔아야 본전인지 계산해 드립니다.</p>';
+    }
+
+    // AI prompt
+    lastPrompt = buildPrompt(promptData);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 계산을 바탕으로 가치 기반 가격 전략을 함께 짜 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html +=
+      '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("calc").addEventListener("click", calculate);
+
+  // ---------- reset ----------
+  document.getElementById("reset").addEventListener("click", function () {
+    costEl.value = "";
+    marginEl.value = "";
+    compEl.value = "";
+    fixedEl.value = "";
+    descEl.value = "";
+    grow(descEl);
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">&#8361;</div>' +
+      "<p><strong>아직 계산 전입니다.</strong></p>" +
+      "<p>원가와 목표 마진율을 넣고 '가격 계산하기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    costEl.focus();
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      // tier 3: manual modal
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

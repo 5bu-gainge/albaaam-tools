@@ -1,0 +1,1457 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KO/EN 해시태그 믹서</title>
+<meta name="description" content="주제에서 해시태그를 뽑아 총 3~5개로 한국어와 영어를 섞되, 같은 뜻을 쌍으로 두 배 부풀리지 않게 정리합니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2c7a73; /* teal — 한국어 / primary */
+    --accent-strong: #1f5f59;
+    --accent-tint: #e4f1ef;
+    --accent-tint-2: #cfe6e2;
+    --en: #3f5c99; /* indigo — 영어 */
+    --en-strong: #324b80;
+    --en-tint: #e9edf7;
+    --en-tint-2: #d7ddef;
+    --ink: #1f2422;
+    --ink-soft: #454b48;
+    --ink-mute: #6a716d;
+    --paper: #f6f8f7;
+    --card: #ffffff;
+    --line: #e2e7e4;
+    --line-strong: #cfd6d2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --amber: #a35a12;
+    --amber-tint: #fff6ec;
+    --amber-line: #f2ddc4;
+    --shadow: 0 1px 2px rgba(31, 36, 34, 0.05), 0 6px 20px rgba(31, 36, 34, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 92px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa39e;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-actions {
+    margin-top: 12px;
+  }
+  .btn-tiny {
+    background: transparent;
+    color: var(--accent-strong);
+    border: 1px solid var(--accent-tint-2);
+    font-size: 0.86rem;
+    font-weight: 700;
+    padding: 8px 13px;
+    border-radius: 9px;
+  }
+  .btn-tiny:hover {
+    background: var(--accent-tint);
+  }
+
+  /* ---------- option controls ---------- */
+  .control-group {
+    margin-bottom: 16px;
+  }
+  .control-group:last-child {
+    margin-bottom: 0;
+  }
+  .control-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .seg-btn {
+    flex: 1 1 auto;
+    min-width: 88px;
+    min-height: 44px;
+    background: #fbfdfc;
+    color: var(--ink-soft);
+    border: 1px solid var(--line-strong);
+    font-size: 0.92rem;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .seg-btn:hover {
+    border-color: var(--ink-mute);
+  }
+  .seg-btn[aria-pressed="true"] {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* ---------- buttons ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+    min-height: 44px;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-good {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict.tone-mixed {
+    background: var(--amber-tint);
+    border-color: var(--amber-line);
+  }
+  .verdict.tone-warn {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-good .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: var(--amber);
+  }
+  .verdict.tone-warn .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  /* mix split bar */
+  .split-bar {
+    display: flex;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 15px 0 8px;
+    background: #e5eae7;
+  }
+  .split-seg {
+    height: 100%;
+  }
+  .split-seg.ko {
+    background: var(--accent);
+  }
+  .split-seg.en {
+    background: var(--en);
+  }
+  .split-seg.other {
+    background: #b7bdb9;
+  }
+  .mix-caption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin: 0;
+  }
+  .mix-caption .key {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .dot.ko {
+    background: var(--accent);
+  }
+  .dot.en {
+    background: var(--en);
+  }
+  .dot.other {
+    background: #b7bdb9;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* final hashtag line */
+  .final-line {
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 15px 16px;
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    line-height: 1.7;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    -webkit-user-select: all;
+    user-select: all;
+  }
+
+  /* tag cards */
+  ul.taglist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  li.tag-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    padding: 13px 15px;
+  }
+  .tag-idx {
+    flex: none;
+    width: 22px;
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--ink-mute);
+    margin-top: 3px;
+  }
+  .tag-main {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .tag-hash-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  .tag-hash {
+    font-size: 1.06rem;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .badge {
+    font-size: 0.74rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+    flex: none;
+  }
+  .badge.ko {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .badge.en {
+    color: var(--en-strong);
+    background: var(--en-tint);
+    border: 1px solid var(--en-tint-2);
+  }
+  .badge.other {
+    color: var(--ink-soft);
+    background: #eef1ef;
+    border: 1px solid var(--line);
+  }
+  .tag-alt {
+    margin: 6px 0 0;
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+  }
+  .tag-alt code {
+    font-family: inherit;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  /* note cards */
+  .note {
+    border-radius: 11px;
+    padding: 13px 15px;
+    margin: 0 0 10px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    border: 1px solid var(--line);
+  }
+  .note:last-of-type {
+    margin-bottom: 0;
+  }
+  .note strong {
+    font-weight: 800;
+  }
+  .note.merge {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+    color: var(--ink-soft);
+  }
+  .note.warn {
+    background: var(--amber-tint);
+    border-color: var(--amber-line);
+    color: #7d4a12;
+  }
+  .note.info {
+    background: #eef2f0;
+    color: var(--ink-soft);
+  }
+  .note ul {
+    margin: 7px 0 0;
+    padding-left: 18px;
+  }
+  .note li {
+    margin: 3px 0;
+  }
+  .note code {
+    font-family: inherit;
+    font-weight: 700;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232826;
+    color: #eef2ef;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .btn-copy.alt {
+    background: var(--accent);
+  }
+  .btn-copy.alt:hover {
+    background: var(--accent-strong);
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 36, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .seg-btn {
+      min-width: calc(50% - 4px);
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #option-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">SNS 해시태그 · KO/EN 믹싱</span>
+    <h1>KO/EN 해시태그 믹서</h1>
+    <p class="lede">
+      주제에서 해시태그를 뽑아 총 3~5개로 한국어와 영어를 섞습니다. 단,
+      <strong>#마케팅</strong>과 <strong>#marketing</strong>처럼 같은 뜻을 쌍으로
+      넣어 개수만 두 배로 부풀리는 일은 하지 않도록 하나로 정리합니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>주제 · 키워드</h2>
+    </div>
+    <p class="panel-sub">
+      게시물의 주제나 키워드를 적어 주세요. 쉼표·띄어쓰기·해시태그(#) 무엇으로
+      구분해도 됩니다. 한국어와 영어를 섞어 넣어도 좋습니다.
+    </p>
+    <label class="field-label" for="topic">주제 / 키워드</label>
+    <textarea
+      id="topic"
+      placeholder="예) 제주도 여행 카페 추천, 감성 사진, marketing"
+      aria-describedby="topic-hint"
+    ></textarea>
+    <p class="field-hint" id="topic-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버나 외부 API를
+      호출하지 않고 이 페이지 안에서만 처리됩니다.
+    </p>
+    <div class="field-actions">
+      <button type="button" class="btn-tiny" id="sample">예시로 채우기</button>
+    </div>
+  </section>
+
+  <section class="panel" id="option-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>믹싱 설정</h2>
+    </div>
+    <p class="panel-sub">
+      최종 개수와 언어 비중을 정하세요. 같은 뜻을 두 언어로 중복해 넣지 않는
+      원칙은 어떤 설정에서도 지켜집니다.
+    </p>
+
+    <div class="control-group">
+      <span class="control-label" id="lbl-max">최대 개수</span>
+      <div class="seg" id="seg-max" role="group" aria-labelledby="lbl-max">
+        <button type="button" class="seg-btn" data-max="3" aria-pressed="false">
+          3개
+        </button>
+        <button type="button" class="seg-btn" data-max="4" aria-pressed="false">
+          4개
+        </button>
+        <button type="button" class="seg-btn" data-max="5" aria-pressed="true">
+          5개
+        </button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label" id="lbl-bias">언어 비중</span>
+      <div class="seg" id="seg-bias" role="group" aria-labelledby="lbl-bias">
+        <button
+          type="button"
+          class="seg-btn"
+          data-bias="balance"
+          aria-pressed="true"
+        >
+          균형
+        </button>
+        <button
+          type="button"
+          class="seg-btn"
+          data-bias="ko"
+          aria-pressed="false"
+        >
+          한국어 많게
+        </button>
+        <button
+          type="button"
+          class="seg-btn"
+          data-bias="en"
+          aria-pressed="false"
+        >
+          영어 많게
+        </button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="mix">해시태그 만들기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>정리된 해시태그</h2>
+    </div>
+    <div id="result" role="region" aria-label="정리된 해시태그 결과">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">#</div>
+        <p><strong>아직 만들기 전입니다.</strong></p>
+        <p>주제를 적고 '해시태그 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 널리 통용되는 SNS 해시태그 운영 원칙에
+      따릅니다. 소수의 관련성 높은 태그가 무분별한 태그 나열보다 낫고, 같은 뜻을
+      한국어와 영어로 중복해 다는 것은 실제 도달을 늘리지 못한 채 개수만
+      부풀립니다. 이 도구는 개념 단위로 중복을 합쳐, 한 뜻당 한 언어만 남기는
+      방식으로 KO/EN을 섞습니다. 내장 대역어 사전은 마케팅·SNS에서 흔히 쓰이는
+      일반 용어를 담았습니다.
+    </p>
+    <p>
+      이 도구는 태그 후보를 정리해 주는 보조 도구이며, 최종 태그 선택과 플랫폼별
+      적합성 판단은 사용자의 몫입니다. 결과는 그대로 쓰기보다 다듬을 재료로
+      활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* -------------------------------------------------------------
+     Bilingual concept dictionary (common SNS / marketing terms).
+     Each entry groups Korean and English surface forms that mean
+     the same thing. Synonyms within a language are also grouped,
+     so redundant surfaces collapse to one concept.
+     ------------------------------------------------------------- */
+  var DICT = [
+    { ko: ["마케팅"], en: ["marketing"] },
+    { ko: ["브랜딩"], en: ["branding"] },
+    { ko: ["브랜드"], en: ["brand"] },
+    { ko: ["광고"], en: ["ad", "advertising"] },
+    { ko: ["홍보"], en: ["pr"] },
+    { ko: ["이벤트"], en: ["event"] },
+    { ko: ["프로모션"], en: ["promotion"] },
+    { ko: ["할인", "세일"], en: ["sale"] },
+    { ko: ["신제품"], en: ["newproduct"] },
+    { ko: ["소상공인"], en: ["smallbusiness"] },
+    { ko: ["스타트업"], en: ["startup"] },
+    { ko: ["쇼핑"], en: ["shopping"] },
+    { ko: ["온라인쇼핑"], en: ["onlineshopping"] },
+    { ko: ["리뷰", "후기"], en: ["review"] },
+    { ko: ["소통"], en: ["communication"] },
+    { ko: ["일상", "데일리"], en: ["daily"] },
+    { ko: ["여행"], en: ["travel"] },
+    { ko: ["맛집"], en: ["foodie"] },
+    { ko: ["음식"], en: ["food"] },
+    { ko: ["카페"], en: ["cafe"] },
+    { ko: ["커피"], en: ["coffee"] },
+    { ko: ["디저트"], en: ["dessert"] },
+    { ko: ["베이킹"], en: ["baking"] },
+    { ko: ["요리"], en: ["cooking"] },
+    { ko: ["레시피"], en: ["recipe"] },
+    { ko: ["운동"], en: ["workout"] },
+    { ko: ["헬스"], en: ["fitness"] },
+    { ko: ["요가"], en: ["yoga"] },
+    { ko: ["다이어트"], en: ["diet"] },
+    { ko: ["패션"], en: ["fashion"] },
+    { ko: ["뷰티"], en: ["beauty"] },
+    { ko: ["화장품"], en: ["cosmetics"] },
+    { ko: ["메이크업"], en: ["makeup"] },
+    { ko: ["스킨케어"], en: ["skincare"] },
+    { ko: ["네일"], en: ["nail"] },
+    { ko: ["헤어"], en: ["hair"] },
+    { ko: ["인테리어"], en: ["interior"] },
+    { ko: ["홈카페"], en: ["homecafe"] },
+    { ko: ["육아"], en: ["parenting"] },
+    { ko: ["아기", "베이비"], en: ["baby"] },
+    { ko: ["강아지", "댕댕이", "반려견"], en: ["dog", "puppy"] },
+    { ko: ["고양이", "냥이"], en: ["cat"] },
+    { ko: ["반려동물"], en: ["pet"] },
+    { ko: ["독서"], en: ["reading"] },
+    { ko: ["책"], en: ["book"] },
+    { ko: ["공부"], en: ["study"] },
+    { ko: ["사진"], en: ["photo", "photography"] },
+    { ko: ["영화"], en: ["movie"] },
+    { ko: ["음악"], en: ["music"] },
+    { ko: ["게임"], en: ["game"] },
+    { ko: ["캠핑"], en: ["camping"] },
+    { ko: ["등산"], en: ["hiking"] },
+    { ko: ["골프"], en: ["golf"] },
+    { ko: ["자기계발"], en: ["selfdevelopment"] },
+    { ko: ["동기부여"], en: ["motivation"] },
+    { ko: ["명상"], en: ["meditation"] },
+    { ko: ["감성"], en: ["mood"] },
+    { ko: ["선물"], en: ["gift"] },
+    { ko: ["꽃"], en: ["flower"] },
+    { ko: ["결혼"], en: ["wedding"] },
+    { ko: ["제주도", "제주"], en: ["jeju"] },
+    { ko: ["서울"], en: ["seoul"] },
+    { ko: ["부산"], en: ["busan"] }
+  ];
+
+  // Lookup maps built from DICT.
+  var koToEn = {}; // korean surface -> canonical english
+  var enToCanon = {}; // english surface -> canonical english
+  var enToKo = {}; // english surface -> canonical korean
+  (function buildMaps() {
+    DICT.forEach(function (e) {
+      var pk = e.ko[0];
+      var pe = e.en[0];
+      e.ko.forEach(function (k) {
+        koToEn[k] = pe;
+      });
+      e.en.forEach(function (x) {
+        enToCanon[x] = pe;
+        enToKo[x] = pk;
+      });
+    });
+  })();
+
+  // Minimal stopwords (connectors only — avoid dropping real tags).
+  var STOP = {
+    "및": 1,
+    "그리고": 1,
+    "또는": 1,
+    the: 1,
+    a: 1,
+    an: 1,
+    and: 1,
+    or: 1,
+    for: 1,
+    with: 1,
+    of: 1,
+    to: 1,
+    in: 1,
+    on: 1
+  };
+
+  var MAX_TOKENS = 40;
+
+  // ---- helpers ----
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function langOf(s) {
+    if (/[가-힣]/.test(s)) return "ko";
+    if (/[a-zA-Z]/.test(s)) return "en";
+    return "other";
+  }
+
+  // hashtag-safe surface: strip '#', spaces, punctuation; keep letters/digits/hangul/_
+  function tagify(s) {
+    return s
+      .replace(/[#\s]/g, "")
+      .replace(/[^0-9A-Za-z가-힣_]/g, "");
+  }
+  function koLookup(s) {
+    return tagify(s).replace(/[^0-9가-힣]/g, "");
+  }
+  function enLookup(s) {
+    return tagify(s).toLowerCase().replace(/[^0-9a-z]/g, "");
+  }
+
+  /* Turn one raw token into a concept descriptor, or null if empty. */
+  function toConcept(raw) {
+    var surface = tagify(raw);
+    if (!surface) return null;
+    var lang = langOf(surface);
+
+    if (lang === "ko") {
+      var kl = koLookup(surface);
+      if (kl && koToEn[kl]) {
+        var ce = koToEn[kl];
+        return {
+          key: "c:" + ce,
+          koForm: surface,
+          enForm: ce,
+          sourceLang: "ko",
+          surface: surface
+        };
+      }
+      return {
+        key: "k:" + surface,
+        koForm: surface,
+        enForm: null,
+        sourceLang: "ko",
+        surface: surface
+      };
+    }
+
+    if (lang === "en") {
+      var el = enLookup(surface);
+      if (el && enToCanon[el]) {
+        return {
+          key: "c:" + enToCanon[el],
+          koForm: enToKo[el],
+          enForm: enToCanon[el],
+          sourceLang: "en",
+          surface: surface
+        };
+      }
+      return {
+        key: "e:" + el,
+        koForm: null,
+        enForm: el,
+        sourceLang: "en",
+        surface: surface
+      };
+    }
+
+    // other (numbers, symbols only)
+    return {
+      key: "o:" + surface,
+      koForm: null,
+      enForm: null,
+      otherForm: surface,
+      sourceLang: "other",
+      surface: surface
+    };
+  }
+
+  /* Parse input -> { concepts:[], merges:[] } (deduped, order-preserving). */
+  function parseInput(input) {
+    var rawTokens = input
+      .replace(/#/g, " ")
+      .split(/[\s,;/|·・、，\n\r\t]+/);
+    var concepts = [];
+    var byKey = {};
+    var merges = [];
+    var seen = 0;
+
+    for (var i = 0; i < rawTokens.length; i++) {
+      var t = rawTokens[i].trim();
+      if (!t) continue;
+      if (STOP[t.toLowerCase()]) continue;
+      if (seen >= MAX_TOKENS) break;
+      var c = toConcept(t);
+      if (!c) continue;
+      seen++;
+      if (byKey[c.key]) {
+        // same concept already present -> redundant surface, fold it in
+        var kept = byKey[c.key];
+        if (c.surface !== kept.surface) {
+          merges.push({ into: kept, surface: c.surface });
+        }
+        continue;
+      }
+      byKey[c.key] = c;
+      concepts.push(c);
+    }
+    return { concepts: concepts, merges: merges };
+  }
+
+  /* Assign a display language to each concept given a bias. */
+  function assignLangs(concepts, bias) {
+    var koCount = 0;
+    var enCount = 0;
+    var otherCount = 0;
+
+    // forced (single-language) concepts first
+    concepts.forEach(function (c) {
+      c.bilingual = !!(c.koForm && c.enForm);
+      if (c.bilingual) return;
+      if (c.koForm) {
+        c.lang = "ko";
+        koCount++;
+      } else if (c.enForm) {
+        c.lang = "en";
+        enCount++;
+      } else {
+        c.lang = "other";
+        otherCount++;
+      }
+    });
+
+    // flexible (bilingual) concepts, balanced toward the target
+    concepts.forEach(function (c) {
+      if (!c.bilingual) return;
+      var choose;
+      if (bias === "ko") choose = "ko";
+      else if (bias === "en") choose = "en";
+      else {
+        if (koCount < enCount) choose = "ko";
+        else if (enCount < koCount) choose = "en";
+        else choose = c.sourceLang === "en" ? "en" : "ko";
+      }
+      c.lang = choose;
+      if (choose === "ko") koCount++;
+      else enCount++;
+    });
+
+    return { ko: koCount, en: enCount, other: otherCount };
+  }
+
+  function formOf(c) {
+    if (c.lang === "ko") return c.koForm;
+    if (c.lang === "en") return c.enForm;
+    return c.otherForm;
+  }
+  function altOf(c) {
+    // the not-chosen form for a bilingual concept
+    if (!c.bilingual) return null;
+    if (c.lang === "ko") return { form: c.enForm, lang: "en" };
+    return { form: c.koForm, lang: "ko" };
+  }
+
+  function bandFor(count, koN, enN) {
+    if (count < 3) {
+      return {
+        tone: "warn",
+        label: "해시태그 " + count + "개",
+        title: "키워드가 조금 부족해요",
+        desc:
+          "권장 최소치인 3개에 못 미칩니다. 서로 다른 주제어를 더 넣으면 3~5개로 채워집니다. (같은 뜻을 두 언어로 넣어 개수를 늘리지는 않습니다.)"
+      };
+    }
+    if (koN > 0 && enN > 0) {
+      return {
+        tone: "good",
+        label: "해시태그 " + count + "개",
+        title: "한국어·영어가 잘 섞였어요",
+        desc:
+          "한 뜻당 한 언어만 남겨 총 " +
+          count +
+          "개로 정리했습니다. 아래에서 각 태그의 언어와, 중복을 피해 뺀 반대 언어형을 확인하세요."
+      };
+    }
+    return {
+      tone: "mixed",
+      label: "해시태그 " + count + "개",
+      title: "한 언어로만 구성됐어요",
+      desc:
+        (koN > 0 ? "영어" : "한국어") +
+        " 대역어를 찾지 못해 " +
+        (koN > 0 ? "한국어" : "영어") +
+        "로만 묶었습니다. 반대 언어 키워드를 몇 개 더 넣으면 자연스럽게 섞입니다."
+    };
+  }
+
+  function buildPrompt(topic, tags, koN, enN) {
+    var L = [];
+    L.push(
+      "당신은 SNS 해시태그 전략에 밝은 카피라이터입니다. 아래 주제와 1차 정리된 해시태그를 바탕으로 태그를 다듬어 주세요."
+    );
+    L.push("");
+    L.push("【주제 / 키워드】");
+    L.push(topic && topic.trim() ? topic.trim() : "(사용자가 이어서 알려줄 예정입니다. 먼저 주제를 물어봐 주세요.)");
+    L.push("");
+    L.push(
+      "【1차 정리 결과】 총 " + tags.length + "개 · 한국어 " + koN + " · 영어 " + enN
+    );
+    L.push(tags.length ? tags.join(" ") : "(없음)");
+    L.push("");
+    L.push("【요청】");
+    L.push("1. 위 태그가 주제를 잘 대표하는지 점검하고, 더 적합한 태그가 있으면 교체해 제안해 주세요.");
+    L.push("2. 총 3~5개를 유지하세요. 한국어와 영어를 자연스럽게 섞되, '#마케팅'과 '#marketing'처럼 같은 뜻을 두 언어로 중복해 넣지 마세요(한 뜻당 한 언어).");
+    L.push("3. 도달이 넓은 일반 태그와 정확도가 높은 구체 태그를 적절히 섞어 주세요.");
+    L.push("4. 인스타그램·스레드·링크드인 등 플랫폼에 따라 달라질 점이 있으면 짧게 알려 주세요.");
+    L.push("5. 사실이나 지표를 지어내지 말고, 주제가 모호하면 저에게 먼저 되물어 주세요.");
+    return L.join("\n");
+  }
+
+  // ---- state / elements ----
+  var topicEl = document.getElementById("topic");
+  var resultEl = document.getElementById("result");
+  var maxSeg = document.getElementById("seg-max");
+  var biasSeg = document.getElementById("seg-bias");
+
+  var state = { max: 5, bias: "balance" };
+  var lastTags = "";
+  var lastPrompt = "";
+
+  // ---- segmented controls ----
+  function wireSeg(seg, attr, apply) {
+    seg.addEventListener("click", function (e) {
+      var btn = e.target.closest(".seg-btn");
+      if (!btn) return;
+      Array.prototype.forEach.call(seg.querySelectorAll(".seg-btn"), function (b) {
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+      });
+      apply(btn.getAttribute(attr));
+    });
+  }
+  wireSeg(maxSeg, "data-max", function (v) {
+    state.max = parseInt(v, 10) || 5;
+  });
+  wireSeg(biasSeg, "data-bias", function (v) {
+    state.bias = v;
+  });
+
+  // ---- auto-grow textarea ----
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  topicEl.addEventListener("input", function () {
+    grow(topicEl);
+  });
+
+  // ---- sample ----
+  document.getElementById("sample").addEventListener("click", function () {
+    topicEl.value = "카페 마케팅 marketing 감성 사진, 제주도 여행";
+    grow(topicEl);
+    topicEl.focus();
+  });
+
+  // ---- main: mix ----
+  document.getElementById("mix").addEventListener("click", function () {
+    var topic = topicEl.value;
+    var parsed = parseInput(topic);
+    var concepts = parsed.concepts;
+
+    if (concepts.length === 0) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">#</div>' +
+        "<p><strong>인식된 키워드가 없습니다.</strong></p>" +
+        "<p>주제나 키워드를 한두 개 이상 입력해 주세요.</p></div>";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    // trim to max, keep order; record dropped
+    var dropped = concepts.slice(state.max);
+    var kept = concepts.slice(0, state.max);
+
+    var counts = assignLangs(kept, state.bias);
+    var tags = kept.map(function (c) {
+      return "#" + formOf(c);
+    });
+    lastTags = tags.join(" ");
+
+    var band = bandFor(kept.length, counts.ko, counts.en);
+    lastPrompt = buildPrompt(topic, tags, counts.ko, counts.en);
+
+    var html = "";
+
+    // verdict + mix bar
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+
+    var total = kept.length;
+    var koPct = total ? (counts.ko / total) * 100 : 0;
+    var enPct = total ? (counts.en / total) * 100 : 0;
+    var otPct = total ? (counts.other / total) * 100 : 0;
+    html += '<div class="split-bar" role="img" aria-label="한국어 ' +
+      counts.ko + '개, 영어 ' + counts.en + '개, 기타 ' + counts.other + '개">';
+    if (koPct) html += '<span class="split-seg ko" style="width:' + koPct + '%"></span>';
+    if (enPct) html += '<span class="split-seg en" style="width:' + enPct + '%"></span>';
+    if (otPct) html += '<span class="split-seg other" style="width:' + otPct + '%"></span>';
+    html += "</div>";
+    html += '<p class="mix-caption">';
+    html += '<span class="key"><span class="dot ko"></span>한국어 ' + counts.ko + "</span>";
+    html += '<span class="key"><span class="dot en"></span>영어 ' + counts.en + "</span>";
+    if (counts.other) html += '<span class="key"><span class="dot other"></span>기타 ' + counts.other + "</span>";
+    html += "</p>";
+    html += "</div>";
+
+    // final hashtag line
+    html += '<div class="result-block-title">최종 해시태그</div>';
+    html += '<p class="final-line">' + esc(lastTags) + "</p>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy alt" data-copy="tags">해시태그 복사</button>';
+    html += '<span class="copy-status" id="copyStatusTags" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // per-tag breakdown
+    html += '<div class="result-block-title">태그별 언어 · 중복 처리</div>';
+    html += '<ul class="taglist">';
+    kept.forEach(function (c, i) {
+      var lang = c.lang;
+      var badgeText = lang === "ko" ? "한국어" : lang === "en" ? "영어" : "기타";
+      html += '<li class="tag-card">';
+      html += '<span class="tag-idx">' + (i + 1) + "</span>";
+      html += '<div class="tag-main">';
+      html += '<div class="tag-hash-row">';
+      html += '<span class="tag-hash">#' + esc(formOf(c)) + "</span>";
+      html += '<span class="badge ' + lang + '">' + badgeText + "</span>";
+      html += "</div>";
+      var alt = altOf(c);
+      if (alt) {
+        html +=
+          '<p class="tag-alt">같은 뜻 짝 <code>#' +
+          esc(alt.form) +
+          "</code> · 중복 방지로 제외했습니다.</p>";
+      } else if (lang === "ko") {
+        html += '<p class="tag-alt">영어 대역어가 사전에 없어 한국어로 뒀습니다.</p>';
+      } else if (lang === "en") {
+        html += '<p class="tag-alt">한국어 대역어가 사전에 없어 영어로 뒀습니다.</p>';
+      }
+      html += "</div></li>";
+    });
+    html += "</ul>";
+
+    // notes: merges (the anti-doubling evidence)
+    if (parsed.merges.length) {
+      html += '<div class="note merge">';
+      html +=
+        "<strong>중복 정리</strong> — 같은 뜻이라 하나로 합쳤습니다. 개수만 늘리는 KO/EN 쌍은 넣지 않았습니다.";
+      html += "<ul>";
+      parsed.merges.forEach(function (m) {
+        html +=
+          "<li><code>#" +
+          esc(m.surface) +
+          "</code> ≈ <code>#" +
+          esc(m.into.surface) +
+          "</code></li>";
+      });
+      html += "</ul></div>";
+    }
+
+    // notes: dropped over max
+    if (dropped.length) {
+      html += '<div class="note info">';
+      html +=
+        "<strong>개수 조정</strong> — 최대 " +
+        state.max +
+        "개 설정에 맞춰 뒤쪽 개념을 제외했습니다:";
+      html += "<ul>";
+      dropped.forEach(function (c) {
+        html += "<li><code>#" + esc(c.surface) + "</code></li>";
+      });
+      html += "</ul></div>";
+    }
+
+    // note: below-3 hint
+    if (kept.length < 3) {
+      html += '<div class="note warn">';
+      html +=
+        "<strong>키워드 더 넣기</strong> — 서로 다른 주제어를 추가하면 3~5개로 채워집니다. 같은 뜻의 반대 언어형을 더해 개수를 늘리지는 않습니다.";
+      html += "</div>";
+    }
+
+    // AI prompt
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 정리를 바탕으로 태그를 더 다듬어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" data-copy="prompt">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatusPrompt" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    topicEl.value = "";
+    grow(topicEl);
+    lastTags = "";
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">#</div>' +
+      "<p><strong>아직 만들기 전입니다.</strong></p>" +
+      "<p>주제를 적고 '해시태그 만들기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+    topicEl.focus();
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    Array.prototype.forEach.call(
+      resultEl.querySelectorAll("[data-copy]"),
+      function (btn) {
+        btn.addEventListener("click", function () {
+          var which = btn.getAttribute("data-copy");
+          var text = which === "tags" ? lastTags : lastPrompt;
+          var statusId =
+            which === "tags" ? "copyStatusTags" : "copyStatusPrompt";
+          copyText(text, statusId);
+        });
+      }
+    );
+    var printBtn = document.getElementById("printBtn");
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(id, msg) {
+    var s = document.getElementById(id);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function copyText(text, statusId) {
+    if (!text) return;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(statusId, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusId);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusId);
+  }
+
+  function legacyCopy(text, statusId) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(statusId, "복사되었습니다");
+    } else {
+      // tier 3: manual modal
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

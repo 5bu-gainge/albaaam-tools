@@ -1,0 +1,1925 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>브랜드 컬러 역할 시스템 시트</title>
+<meta
+  name="description"
+  content="primary·accent·neutral·배경·텍스트에 역할과 사용 비율·hex를 부여하고, WCAG 대비까지 진단해 브랜드 컬러 시스템 시트를 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    /* calm slate-indigo accent, suited to a color/brand system tool */
+    --accent: #47598c;
+    --accent-strong: #374771;
+    --accent-tint: #eef1f8;
+    --accent-tint-2: #dee3f1;
+    --ink: #202128;
+    --ink-soft: #474954;
+    --ink-mute: #6b6d78;
+    --paper: #f7f8fb;
+    --card: #ffffff;
+    --line: #e5e7ef;
+    --line-strong: #d3d6e2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #9a6412;
+    --warn-tint: #fbf1df;
+    --bad: #b23124;
+    --bad-tint: #fbecea;
+    --shadow: 0 1px 2px rgba(32, 33, 40, 0.05), 0 6px 20px rgba(32, 33, 40, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- text fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .field + .field {
+    margin-top: 15px;
+  }
+  input.text,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 76px;
+    resize: none;
+    overflow: hidden;
+  }
+  input.text:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input.text::placeholder,
+  textarea::placeholder {
+    color: #a2a5b3;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- color role inputs ---------- */
+  ul.roles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+  li.role {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fcfcfe;
+    padding: 13px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+  }
+  li.role.invalid {
+    border-color: var(--bad);
+    background: var(--bad-tint);
+  }
+  .role-pick {
+    flex: none;
+    position: relative;
+  }
+  input[type="color"] {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    background: none;
+    cursor: pointer;
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 3px;
+  }
+  input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 8px;
+  }
+  input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: 8px;
+  }
+  .role-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .role-name {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 2px;
+  }
+  .role-name .en {
+    color: var(--accent-strong);
+  }
+  .role-name .ko {
+    color: var(--ink-mute);
+    font-weight: 600;
+    font-size: 0.86rem;
+    margin-left: 6px;
+  }
+  .role-job {
+    margin: 0 0 9px;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+  .hex-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  input.hex {
+    width: 130px;
+    font-family: "Pretendard", ui-monospace, monospace;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 9px;
+    padding: 9px 11px;
+  }
+  input.hex:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .role-ratio-tag {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border-radius: 6px;
+    padding: 4px 9px;
+  }
+  .role-err {
+    display: none;
+    font-size: 0.8rem;
+    color: var(--bad);
+    font-weight: 600;
+    margin: 7px 0 0;
+  }
+  li.role.invalid .role-err {
+    display: block;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 170px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-good {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-mixed {
+    background: var(--warn-tint);
+    border-color: #f0e0c2;
+  }
+  .verdict.tone-risk {
+    background: var(--bad-tint);
+    border-color: #f2cfca;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.36rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-good .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-risk .verdict-title {
+    color: var(--bad);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #e2e4ee;
+  }
+  .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-good .pip.lit {
+    background: var(--good);
+  }
+  .verdict.tone-mixed .pip.lit {
+    background: var(--warn);
+  }
+  .verdict.tone-risk .pip.lit {
+    background: var(--bad);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 11px;
+  }
+
+  /* ratio bar */
+  .ratio-bar {
+    display: flex;
+    width: 100%;
+    height: 34px;
+    border-radius: 9px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .ratio-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ratio-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 10px 0 0;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+  .ratio-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    flex: none;
+  }
+
+  /* role cards */
+  .role-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .role-card {
+    display: flex;
+    gap: 13px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px;
+    background: #fff;
+  }
+  .rc-swatch {
+    flex: none;
+    width: 58px;
+    height: 58px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  .rc-main {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .rc-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 2px;
+  }
+  .rc-name {
+    font-weight: 800;
+    font-size: 0.98rem;
+  }
+  .rc-ko {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  .rc-hex {
+    font-family: "Pretendard", ui-monospace, monospace;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+    margin-left: auto;
+  }
+  .rc-meta {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 0 0 5px;
+  }
+  .rc-job {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .rc-ratio {
+    display: inline-block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-top: 6px;
+  }
+
+  /* check list */
+  .check-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .check-item {
+    display: flex;
+    gap: 11px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 12px 13px;
+    background: #fff;
+    align-items: flex-start;
+  }
+  .check-item.st-warn {
+    border-left: 3px solid var(--warn);
+  }
+  .check-item.st-fail {
+    border-left: 3px solid var(--bad);
+  }
+  .check-item.st-pass {
+    border-left: 3px solid var(--good);
+  }
+  .ci-badge {
+    flex: none;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 999px;
+    margin-top: 1px;
+    letter-spacing: 0.02em;
+  }
+  .ci-badge.st-pass {
+    color: var(--good);
+    background: var(--good-tint);
+  }
+  .ci-badge.st-warn {
+    color: var(--warn);
+    background: var(--warn-tint);
+  }
+  .ci-badge.st-fail {
+    color: var(--bad);
+    background: var(--bad-tint);
+  }
+  .ci-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .ci-title {
+    font-weight: 700;
+    font-size: 0.94rem;
+    margin: 0 0 2px;
+  }
+  .ci-detail {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* live preview */
+  .preview-shell {
+    border: 1px dashed var(--line-strong);
+    border-radius: 12px;
+    padding: 14px;
+    background: #fafafc;
+  }
+  .preview-card {
+    border-radius: 12px;
+    padding: 20px 18px;
+    border: 1px solid;
+  }
+  .pv-brand {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    margin: 0 0 10px;
+  }
+  .pv-title {
+    font-size: 1.18rem;
+    font-weight: 800;
+    margin: 0 0 7px;
+    line-height: 1.3;
+  }
+  .pv-body {
+    font-size: 0.9rem;
+    margin: 0 0 15px;
+  }
+  .pv-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .pv-btn {
+    font-size: 0.86rem;
+    font-weight: 700;
+    padding: 9px 16px;
+    border-radius: 9px;
+    border: none;
+  }
+  .pv-tag {
+    font-size: 0.74rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .preview-note {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    margin: 10px 0 0;
+    text-align: center;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #24252d;
+    color: #eef0f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .btn-copy.alt {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-copy.alt:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 33, 40, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 170px;
+    overflow-y: auto;
+    resize: vertical;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .rc-hex {
+      margin-left: 0;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #brand-panel,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">브랜드 컬러 시스템 · Visual Brand Alignment</span>
+    <h1>브랜드 컬러 역할 시스템 시트</h1>
+    <p class="lede">
+      예쁜 색을 고르는 게 아니라, 색마다 <strong>역할</strong>을 정하는
+      일입니다. primary·accent·neutral·배경·텍스트에 역할과 사용 비율을 부여하고,
+      WCAG 대비까지 진단해 바로 쓰는 컬러 시스템 시트를 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="brand-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>브랜드 맥락 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      색은 고객과 인상에 맞아야 '역할'이 섭니다. 적어두면 아래 AI 프롬프트에 함께
+      담겨 더 정확한 제안을 받습니다. 비워도 진단·시트는 생성됩니다.
+    </p>
+    <div class="field">
+      <label class="field-label" for="brand">브랜드 / 제품 이름</label>
+      <input class="text" id="brand" type="text" placeholder="예) 밭 유기농 반찬" />
+    </div>
+    <div class="field">
+      <label class="field-label" for="customer">핵심 고객</label>
+      <input
+        class="text"
+        id="customer"
+        type="text"
+        placeholder="예) 건강을 챙기는 30~40대 맞벌이 부모"
+      />
+    </div>
+    <div class="field">
+      <label class="field-label" for="impression">주고 싶은 인상</label>
+      <textarea
+        id="impression"
+        placeholder="예) 믿을 수 있고 정갈하되, 차갑지 않고 따뜻한 식탁의 느낌"
+      ></textarea>
+    </div>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>다섯 가지 색 정하기</h2>
+    </div>
+    <p class="panel-sub">
+      각 색의 hex를 넣으세요. 색상 칩을 눌러 고르거나 코드를 직접 입력해도
+      됩니다. 다섯 역할은 브랜드 컬러 시스템의 최소 골격입니다.
+    </p>
+    <ul class="roles" id="roles"></ul>
+
+    <div class="actions">
+      <button class="btn-primary" id="generate">시트 생성하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>컬러 역할 시스템 시트</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◑</div>
+        <p><strong>아직 시트가 없습니다.</strong></p>
+        <p>다섯 가지 색을 정하고 '시트 생성하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 색을 장식이 아니라 역할(인식·강조·구조·바탕·읽기)로
+      다루는
+      <em>visual-brand-alignment</em> 컬러 시스템 원칙과, 면적 배분의 고전
+      <em>60·30·10 법칙</em>. 대비 판정은
+      <em>WCAG 2.1</em> 상대 휘도 기준(본문 4.5:1, 큰 텍스트 3:1, 작은·보조
+      텍스트 권장 7:1)을 그대로 계산합니다.
+    </p>
+    <p>
+      이 도구는 컬러 시스템을 <strong>세우도록 돕는 보조 도구</strong>이며, 브랜드에
+      맞는 최종 색을 대신 확정해 주지는 않습니다. 진단 수치와 시트는 스스로
+      판단할 재료로 쓰세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------------------------------------------------------
+   * Color role model — sourced from visual-brand-alignment SKILL.md
+   * (Color section): primary=recognition, accent=emphasis, neutral,
+   * background, text; each gets a role, a usage ratio, and a hex.
+   * Area ratios follow the 60/30/10 principle across the 4 surface
+   * roles (bg 60 / neutral 25 / primary 10 / accent 5). Text is
+   * applied on content, not an area share.
+   * --------------------------------------------------------------- */
+  var ROLES = [
+    {
+      key: "primary",
+      en: "Primary",
+      ko: "주조색",
+      role: "인식 (Recognition)",
+      job: "브랜드를 각인시키는 대표 색. 로고·주요 버튼·핵심 브랜드 요소에.",
+      ratio: 10,
+      def: "#2563EB",
+    },
+    {
+      key: "accent",
+      en: "Accent",
+      ko: "강조색",
+      role: "강조 (Emphasis)",
+      job: "시선을 끌고 행동을 유도하는 희소한 강조. 전환 버튼·배지·하이라이트에.",
+      ratio: 5,
+      def: "#F59E0B",
+    },
+    {
+      key: "neutral",
+      en: "Neutral",
+      ko: "중립색",
+      role: "구조 (Structure)",
+      job: "구조를 잡는 회색 계열. 구분선·카드·보조 텍스트·비활성 요소에.",
+      ratio: 25,
+      def: "#64748B",
+    },
+    {
+      key: "bg",
+      en: "Background",
+      ko: "배경색",
+      role: "바탕 (Canvas)",
+      job: "화면 대부분을 덮는 바탕. 시스템 전체의 캔버스.",
+      ratio: 60,
+      def: "#FFFFFF",
+    },
+    {
+      key: "text",
+      en: "Text",
+      ko: "본문색",
+      role: "읽기 (Reading)",
+      job: "읽기 위한 색. 배경 위에서 편안히 읽혀야 한다.",
+      ratio: null,
+      def: "#1E293B",
+    },
+  ];
+
+  var ROLE_BY_KEY = {};
+  ROLES.forEach(function (r) {
+    ROLE_BY_KEY[r.key] = r;
+  });
+
+  /* -------------------- color math (WCAG + HSL) -------------------- */
+  function parseHex(str) {
+    if (typeof str !== "string") return null;
+    var s = str.trim().replace(/^#/, "");
+    if (/^[0-9a-fA-F]{3}$/.test(s)) {
+      s = s
+        .split("")
+        .map(function (c) {
+          return c + c;
+        })
+        .join("");
+    }
+    if (!/^[0-9a-fA-F]{6}$/.test(s)) return null;
+    return {
+      r: parseInt(s.slice(0, 2), 16),
+      g: parseInt(s.slice(2, 4), 16),
+      b: parseInt(s.slice(4, 6), 16),
+      hex: "#" + s.toUpperCase(),
+    };
+  }
+
+  function srgbToLin(c) {
+    c = c / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  }
+  function relLum(c) {
+    return (
+      0.2126 * srgbToLin(c.r) + 0.7152 * srgbToLin(c.g) + 0.0722 * srgbToLin(c.b)
+    );
+  }
+  function contrast(a, b) {
+    var L1 = relLum(a),
+      L2 = relLum(b);
+    var hi = Math.max(L1, L2),
+      lo = Math.min(L1, L2);
+    return (hi + 0.05) / (lo + 0.05);
+  }
+  function rgbToHsl(c) {
+    var r = c.r / 255,
+      g = c.g / 255,
+      b = c.b / 255;
+    var max = Math.max(r, g, b),
+      min = Math.min(r, g, b);
+    var h = 0,
+      s = 0,
+      l = (max + min) / 2;
+    if (max !== min) {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0);
+          break;
+        case g:
+          h = (b - r) / d + 2;
+          break;
+        default:
+          h = (r - g) / d + 4;
+      }
+      h /= 6;
+    }
+    return { h: h * 360, s: s * 100, l: l * 100 };
+  }
+  function hueDist(a, b) {
+    var d = Math.abs(a - b) % 360;
+    return d > 180 ? 360 - d : d;
+  }
+
+  function tempLabel(hsl) {
+    if (hsl.s < 8) return "무채색에 가까운 중립 톤";
+    var h = hsl.h;
+    if (h < 20 || h >= 330) return "따뜻한 레드 계열";
+    if (h < 45) return "따뜻한 오렌지 계열";
+    if (h < 70) return "밝고 따뜻한 옐로 계열";
+    if (h < 160) return "차분한 그린 계열";
+    if (h < 200) return "시원한 틸 계열";
+    if (h < 260) return "시원한 블루 계열";
+    if (h < 300) return "깊은 퍼플 계열";
+    return "화사한 마젠타 계열";
+  }
+  function toneLabel(l) {
+    if (l < 22) return "매우 어두움";
+    if (l < 42) return "어두움";
+    if (l < 62) return "중간 밝기";
+    if (l < 82) return "밝음";
+    return "매우 밝음";
+  }
+  function bestLabel(bg) {
+    var white = { r: 255, g: 255, b: 255 };
+    var dark = { r: 17, g: 24, b: 39 };
+    var cw = contrast(white, bg),
+      cd = contrast(dark, bg);
+    return cw >= cd
+      ? { color: "#FFFFFF", name: "흰색", ratio: cw }
+      : { color: "#111827", name: "짙은 회색", ratio: cd };
+  }
+  function fmt(n) {
+    return n.toFixed(2);
+  }
+
+  /* -------------------- render color role inputs -------------------- */
+  var rolesEl = document.getElementById("roles");
+  ROLES.forEach(function (r) {
+    var li = document.createElement("li");
+    li.className = "role";
+    li.dataset.key = r.key;
+    var ratioTag =
+      r.ratio != null
+        ? '<span class="role-ratio-tag">목표 비율 ' + r.ratio + "%</span>"
+        : '<span class="role-ratio-tag">본문 전반</span>';
+    li.innerHTML =
+      '<div class="role-pick">' +
+      '<input type="color" id="pick-' +
+      r.key +
+      '" value="' +
+      r.def.toLowerCase() +
+      '" aria-label="' +
+      r.ko +
+      ' 색상 선택" />' +
+      "</div>" +
+      '<div class="role-body">' +
+      '<p class="role-name"><span class="en">' +
+      r.en +
+      '</span><span class="ko">' +
+      r.ko +
+      " · " +
+      r.role +
+      "</span></p>" +
+      '<p class="role-job">' +
+      r.job +
+      "</p>" +
+      '<div class="hex-row">' +
+      '<input type="text" class="hex" id="hex-' +
+      r.key +
+      '" value="' +
+      r.def +
+      '" maxlength="7" spellcheck="false" inputmode="text" aria-label="' +
+      r.ko +
+      ' hex 코드" />' +
+      ratioTag +
+      "</div>" +
+      '<p class="role-err" id="err-' +
+      r.key +
+      '">올바른 hex 코드가 아닙니다 (예: #2563EB).</p>' +
+      "</div>";
+    rolesEl.appendChild(li);
+  });
+
+  // sync color picker <-> hex text
+  ROLES.forEach(function (r) {
+    var pick = document.getElementById("pick-" + r.key);
+    var hex = document.getElementById("hex-" + r.key);
+    var li = rolesEl.querySelector('li.role[data-key="' + r.key + '"]');
+    pick.addEventListener("input", function () {
+      hex.value = pick.value.toUpperCase();
+      li.classList.remove("invalid");
+    });
+    hex.addEventListener("input", function () {
+      var p = parseHex(hex.value);
+      if (p) {
+        pick.value = p.hex.toLowerCase();
+        li.classList.remove("invalid");
+      }
+    });
+    hex.addEventListener("blur", function () {
+      var p = parseHex(hex.value);
+      if (p) hex.value = p.hex;
+    });
+  });
+
+  /* -------------------- auto-grow textarea -------------------- */
+  var impression = document.getElementById("impression");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  impression.addEventListener("input", function () {
+    grow(impression);
+  });
+
+  /* -------------------- html escape -------------------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* -------------------- diagnostic checks (real) -------------------- */
+  function buildChecks(c) {
+    // c = { primary, accent, neutral, bg, text } parsed rgb objects (+hsl)
+    var checks = [];
+
+    // 1. body readability: text on background
+    var cTB = contrast(c.text, c.bg);
+    (function () {
+      var st, title, detail;
+      title = "본문 가독성 · 텍스트 위 배경";
+      if (cTB < 4.5) {
+        st = "fail";
+        detail =
+          "대비 " +
+          fmt(cTB) +
+          ":1 — WCAG AA(본문 4.5:1) 미달. 본문이 읽기 어렵습니다. 텍스트를 더 어둡게 하거나 배경을 더 밝게 하세요.";
+      } else if (cTB < 7) {
+        st = "warn";
+        detail =
+          "대비 " +
+          fmt(cTB) +
+          ":1 — 본문 AA는 통과. 다만 작은·보조 텍스트에는 7:1을 권장합니다.";
+      } else {
+        st = "pass";
+        detail = "대비 " + fmt(cTB) + ":1 — AAA(7:1)까지 통과. 넉넉합니다.";
+      }
+      checks.push({ id: "text-bg", st: st, title: title, detail: detail });
+    })();
+
+    // 2. primary as button fill: best label color
+    (function () {
+      var b = bestLabel(c.primary);
+      var st, detail;
+      if (b.ratio < 3) {
+        st = "fail";
+        detail =
+          "라벨을 어떤 색으로 얹어도 대비가 " +
+          fmt(b.ratio) +
+          ":1뿐입니다. 버튼 배경으로 쓰기엔 명도가 애매합니다.";
+      } else if (b.ratio < 4.5) {
+        st = "warn";
+        detail =
+          "라벨은 " +
+          b.name +
+          " 권장(" +
+          fmt(b.ratio) +
+          ":1). 큰 텍스트만 AA 통과 — 작은 글씨 버튼은 피하세요.";
+      } else {
+        st = "pass";
+        detail =
+          "라벨은 " + b.name + " 권장(" + fmt(b.ratio) + ":1). 버튼 텍스트가 또렷합니다.";
+      }
+      checks.push({
+        id: "primary-btn",
+        st: st,
+        title: "Primary 버튼 라벨 대비",
+        detail: detail,
+      });
+    })();
+
+    // 3. accent as button fill
+    (function () {
+      var b = bestLabel(c.accent);
+      var st, detail;
+      if (b.ratio < 3) {
+        st = "fail";
+        detail =
+          "라벨 대비가 " +
+          fmt(b.ratio) +
+          ":1뿐입니다. 강조 버튼 배경으로는 글자가 묻힙니다.";
+      } else if (b.ratio < 4.5) {
+        st = "warn";
+        detail =
+          "라벨은 " +
+          b.name +
+          " 권장(" +
+          fmt(b.ratio) +
+          ":1). 큰 텍스트 위주로 쓰세요.";
+      } else {
+        st = "pass";
+        detail = "라벨은 " + b.name + " 권장(" + fmt(b.ratio) + ":1). 또렷합니다.";
+      }
+      checks.push({
+        id: "accent-btn",
+        st: st,
+        title: "Accent 버튼 라벨 대비",
+        detail: detail,
+      });
+    })();
+
+    // 4. accent distinctiveness vs primary
+    (function () {
+      var cAP = contrast(c.accent, c.primary);
+      var hd = hueDist(c.accentHsl.h, c.primaryHsl.h);
+      var chromatic = c.accentHsl.s >= 12 && c.primaryHsl.s >= 12;
+      var similarHue = chromatic ? hd < 22 : true;
+      var st, detail;
+      if (cAP < 1.25 && similarHue) {
+        st = "fail";
+        detail =
+          "Accent와 Primary가 거의 같은 색입니다(색상차 " +
+          Math.round(hd) +
+          "°). 강조색이 강조 역할을 못 합니다. 색상·명도를 확실히 벌리세요.";
+      } else if (similarHue && cAP < 1.9) {
+        st = "warn";
+        detail =
+          "Accent가 Primary와 구분이 약합니다(색상차 " +
+          Math.round(hd) +
+          "°, 대비 " +
+          fmt(cAP) +
+          ":1). 강조가 눈에 덜 띕니다 — 보색 방향이나 명도차를 키우면 좋습니다.";
+      } else {
+        st = "pass";
+        detail =
+          "Primary와 뚜렷이 구분됩니다(색상차 " +
+          Math.round(hd) +
+          "°, 대비 " +
+          fmt(cAP) +
+          ":1). 강조가 살아납니다.";
+      }
+      checks.push({
+        id: "accent-distinct",
+        st: st,
+        title: "Accent 식별성 (Primary와 구분)",
+        detail: detail,
+      });
+    })();
+
+    // 5. accent visible on background
+    (function () {
+      var cAB = contrast(c.accent, c.bg);
+      var st, detail;
+      if (cAB < 3) {
+        st = "warn";
+        detail =
+          "배경 대비가 " +
+          fmt(cAB) +
+          ":1 — 강조 요소로 쓰기엔 배경에 묻힙니다(UI 요소 권장 3:1).";
+      } else {
+        st = "pass";
+        detail = "배경 대비 " + fmt(cAB) + ":1 — 강조가 배경 위에서 잘 보입니다.";
+      }
+      checks.push({
+        id: "accent-bg",
+        st: st,
+        title: "Accent 배경 대비 (강조가 보이는가)",
+        detail: detail,
+      });
+    })();
+
+    // 6. neutral purity (should be low saturation)
+    (function () {
+      var s = c.neutralHsl.s;
+      var st, detail;
+      if (s <= 18) {
+        st = "pass";
+        detail =
+          "채도 " +
+          Math.round(s) +
+          "% — 충분히 중립적입니다. 구조·보조 역할에 방해가 없습니다.";
+      } else if (s <= 38) {
+        st = "warn";
+        detail =
+          "채도 " +
+          Math.round(s) +
+          "% — 살짝 색이 돕니다. 넓게 깔면 브랜드색과 경쟁할 수 있어요.";
+      } else {
+        st = "warn";
+        detail =
+          "채도 " +
+          Math.round(s) +
+          "% — 중립색이라기엔 색이 강합니다. 회색에 가깝게 채도를 낮추는 편이 안전합니다.";
+      }
+      checks.push({
+        id: "neutral-purity",
+        st: st,
+        title: "Neutral 순도 (진짜 중립인가)",
+        detail: detail,
+      });
+    })();
+
+    // 7. primary separable from background
+    (function () {
+      var cPB = contrast(c.primary, c.bg);
+      var st, detail;
+      if (cPB < 3) {
+        st = "warn";
+        detail =
+          "배경 대비 " +
+          fmt(cPB) +
+          ":1 — Primary가 배경과 잘 분리되지 않습니다. 배경 위 브랜드 요소가 흐릿해집니다.";
+      } else {
+        st = "pass";
+        detail = "배경 대비 " + fmt(cPB) + ":1 — 배경 위에서 또렷이 구분됩니다.";
+      }
+      checks.push({
+        id: "primary-bg",
+        st: st,
+        title: "Primary 배경 대비 (배경과 분리)",
+        detail: detail,
+      });
+    })();
+
+    return { checks: checks, textBg: cTB };
+  }
+
+  function bandFor(checks, textBg) {
+    var passes = 0,
+      fails = 0;
+    checks.forEach(function (c) {
+      if (c.st === "pass") passes++;
+      if (c.st === "fail") fails++;
+    });
+    var total = checks.length;
+    var band;
+    if (textBg < 4.5) {
+      band = {
+        tone: "risk",
+        title: "가독성부터 고쳐야 합니다",
+        desc:
+          "본문 대비가 WCAG 기준에 못 미칩니다. 색 시스템의 다른 판단보다 읽히는 것이 먼저입니다. 텍스트·배경 대비부터 잡으세요.",
+      };
+    } else if (fails > 0) {
+      band = {
+        tone: "mixed",
+        title: "역할은 섰고, 급한 결함이 있습니다",
+        desc:
+          "읽기는 되지만 강조·버튼 쪽에 명확한 결함이 있습니다. 아래 빨강 항목을 먼저 교정하세요.",
+      };
+    } else if (passes === total) {
+      band = {
+        tone: "good",
+        title: "탄탄한 컬러 시스템입니다",
+        desc:
+          "모든 역할 점검을 통과했습니다. 이제 이 색들이 고객과 인상에 맞는 '신호'를 주는지, 실제 화면에서 한 번 더 확인하세요.",
+      };
+    } else {
+      band = {
+        tone: "mixed",
+        title: "역할은 섰고, 다듬을 곳이 있습니다",
+        desc:
+          "치명적 문제는 없지만 강조·중립 쪽에 손볼 여지가 있습니다. 아래 경고 항목을 확인하세요.",
+      };
+    }
+    band.passes = passes;
+    band.total = total;
+    return band;
+  }
+
+  /* -------------------- AI prompt -------------------- */
+  function buildPrompt(ctx, c, res) {
+    var L = [];
+    L.push(
+      "당신은 '비주얼 브랜드 정렬(visual brand alignment)' 원칙과 WCAG 접근성에 정통한 브랜드 컬러 전략가입니다."
+    );
+    L.push(
+      "아래는 한 브랜드의 컬러 역할 시스템 초안과 자가 진단 결과입니다. 색을 '예쁘게'가 아니라 '역할이 맞게' 다듬어 주세요."
+    );
+    L.push("");
+    L.push("【브랜드 맥락】");
+    L.push("- 브랜드/제품: " + (ctx.brand || "(미입력)"));
+    L.push("- 핵심 고객: " + (ctx.customer || "(미입력)"));
+    L.push("- 주고 싶은 인상: " + (ctx.impression || "(미입력)"));
+    if (!ctx.brand && !ctx.customer && !ctx.impression) {
+      L.push("  (맥락이 비어 있습니다. 색을 제안하기 전에 고객·업종·인상을 먼저 물어봐 주세요.)");
+    }
+    L.push("");
+    L.push("【현재 컬러 역할 시스템】");
+    ROLES.forEach(function (r) {
+      var col = c[r.key];
+      var hsl = c[r.key + "Hsl"];
+      var ratio = r.ratio != null ? "목표 비율 " + r.ratio + "%" : "본문 전반(면적 밖)";
+      L.push(
+        "- " +
+          r.en +
+          "(" +
+          r.ko +
+          ", " +
+          r.role +
+          ") " +
+          col.hex +
+          " · HSL(" +
+          Math.round(hsl.h) +
+          "°, " +
+          Math.round(hsl.s) +
+          "%, " +
+          Math.round(hsl.l) +
+          "%) · " +
+          tempLabel(hsl) +
+          " · " +
+          ratio
+      );
+    });
+    L.push("");
+    L.push("【자가 진단 (WCAG · 색 역할 기준)】");
+    res.checks.forEach(function (ch) {
+      var mark =
+        ch.st === "pass" ? "[통과]" : ch.st === "warn" ? "[경고]" : "[결함]";
+      L.push("- " + mark + " " + ch.title + ": " + ch.detail);
+    });
+    L.push("");
+    L.push("【요청】");
+    L.push(
+      "1. 위 진단의 [결함]·[경고] 항목을 우선 교정할 hex 대안을 제시하고, 각 변경이 어떤 역할과 대비를 개선하는지 한 줄씩 설명해 주세요."
+    );
+    L.push(
+      "2. 각 색이 이 고객과 인상에 맞는 '신호'를 주는지 평가하고, 어긋나면 방향(색 온도·명도·채도)을 제안해 주세요."
+    );
+    L.push(
+      "3. 60·30·10 면적 비율(배경60·중립25·주조10·강조5)을 이 브랜드에 맞게 조정할 필요가 있으면 근거와 함께 제안해 주세요."
+    );
+    L.push(
+      "4. 본문 대비는 최소 4.5:1(작은·보조 텍스트는 7:1)을 지키는 선에서 다듬어 주세요."
+    );
+    L.push(
+      "5. 확신이 없으면 지어내지 말고, 시너지·고급 같은 빈말로 덮지 말고 저에게 사실(고객·업종·경쟁 브랜드)을 먼저 물어봐 주세요."
+    );
+    return L.join("\n");
+  }
+
+  /* -------------------- text sheet (markdown) -------------------- */
+  function buildSheet(ctx, c, res, band) {
+    var L = [];
+    L.push("# 브랜드 컬러 역할 시스템 시트");
+    L.push("");
+    if (ctx.brand) L.push("- 브랜드: " + ctx.brand);
+    if (ctx.customer) L.push("- 고객: " + ctx.customer);
+    if (ctx.impression) L.push("- 인상: " + ctx.impression);
+    if (ctx.brand || ctx.customer || ctx.impression) L.push("");
+    L.push("## 역할 표");
+    L.push("| 역할 | 이름 | HEX | HSL | 온도/톤 | 목표 비율 | 쓰임 |");
+    L.push("|---|---|---|---|---|---|---|");
+    ROLES.forEach(function (r) {
+      var col = c[r.key];
+      var hsl = c[r.key + "Hsl"];
+      var ratio = r.ratio != null ? r.ratio + "%" : "본문 전반";
+      L.push(
+        "| " +
+          r.role +
+          " | " +
+          r.en +
+          "(" +
+          r.ko +
+          ") | " +
+          col.hex +
+          " | " +
+          Math.round(hsl.h) +
+          "/" +
+          Math.round(hsl.s) +
+          "/" +
+          Math.round(hsl.l) +
+          " | " +
+          tempLabel(hsl) +
+          "·" +
+          toneLabel(hsl.l) +
+          " | " +
+          ratio +
+          " | " +
+          r.job +
+          " |"
+      );
+    });
+    L.push("");
+    L.push("## 자가 진단 (" + band.passes + "/" + band.total + " 통과)");
+    res.checks.forEach(function (ch) {
+      var mark =
+        ch.st === "pass" ? "통과" : ch.st === "warn" ? "경고" : "결함";
+      L.push("- [" + mark + "] " + ch.title + ": " + ch.detail);
+    });
+    L.push("");
+    L.push("생성: 브랜드 컬러 역할 시스템 시트 · albaaam.com");
+    return L.join("\n");
+  }
+
+  /* -------------------- ratio bar -------------------- */
+  function ratioBarHtml(c) {
+    var order = ["bg", "neutral", "primary", "accent"];
+    var seg = "";
+    var legend = "";
+    order.forEach(function (k) {
+      var r = ROLE_BY_KEY[k];
+      var col = c[k];
+      var label = bestLabel(col);
+      seg +=
+        '<div class="ratio-seg" style="flex-grow:' +
+        r.ratio +
+        ";background:" +
+        col.hex +
+        ";color:" +
+        label.color +
+        '">' +
+        r.ratio +
+        "%</div>";
+      legend +=
+        '<span><span class="dot" style="background:' +
+        col.hex +
+        '"></span>' +
+        r.en +
+        " " +
+        r.ratio +
+        "%</span>";
+    });
+    return (
+      '<div class="ratio-bar" role="img" aria-label="면적 비율 배경 60, 중립 25, 주조 10, 강조 5">' +
+      seg +
+      "</div>" +
+      '<div class="ratio-legend">' +
+      legend +
+      "</div>"
+    );
+  }
+
+  /* -------------------- role cards -------------------- */
+  function roleCardsHtml(c) {
+    var html = '<div class="role-cards">';
+    ROLES.forEach(function (r) {
+      var col = c[r.key];
+      var hsl = c[r.key + "Hsl"];
+      var ratioBadge =
+        r.ratio != null
+          ? '<span class="rc-ratio">목표 비율 ' + r.ratio + "%</span>"
+          : '<span class="rc-ratio">본문 전반</span>';
+      html +=
+        '<div class="role-card">' +
+        '<div class="rc-swatch" style="background:' +
+        col.hex +
+        '"></div>' +
+        '<div class="rc-main">' +
+        '<div class="rc-head">' +
+        '<span class="rc-name">' +
+        r.en +
+        '</span><span class="rc-ko">' +
+        r.ko +
+        " · " +
+        r.role +
+        '</span><span class="rc-hex">' +
+        col.hex +
+        "</span>" +
+        "</div>" +
+        '<p class="rc-meta">HSL ' +
+        Math.round(hsl.h) +
+        "°, " +
+        Math.round(hsl.s) +
+        "%, " +
+        Math.round(hsl.l) +
+        "% · " +
+        tempLabel(hsl) +
+        " · " +
+        toneLabel(hsl.l) +
+        "</p>" +
+        '<p class="rc-job">' +
+        r.job +
+        "</p>" +
+        ratioBadge +
+        "</div>" +
+        "</div>";
+    });
+    html += "</div>";
+    return html;
+  }
+
+  /* -------------------- live preview -------------------- */
+  function previewHtml(ctx, c) {
+    var pLabel = bestLabel(c.primary);
+    var aLabel = bestLabel(c.accent);
+    var brand = ctx.brand ? esc(ctx.brand) : "브랜드";
+    return (
+      '<div class="preview-shell">' +
+      '<div class="preview-card" style="background:' +
+      c.bg.hex +
+      ";border-color:" +
+      c.neutral.hex +
+      '">' +
+      '<p class="pv-brand" style="color:' +
+      c.primary.hex +
+      '">' +
+      brand.toUpperCase() +
+      "</p>" +
+      '<p class="pv-title" style="color:' +
+      c.text.hex +
+      '">색마다 역할이 있는 화면</p>' +
+      '<p class="pv-body" style="color:' +
+      c.neutral.hex +
+      '">본문은 텍스트색, 보조 설명은 중립색으로. 바탕은 배경색이 넓게 깔립니다.</p>' +
+      '<div class="pv-actions">' +
+      '<button class="pv-btn" style="background:' +
+      c.primary.hex +
+      ";color:" +
+      pLabel.color +
+      '">주요 버튼</button>' +
+      '<button class="pv-btn" style="background:' +
+      c.accent.hex +
+      ";color:" +
+      aLabel.color +
+      '">강조 · 전환</button>' +
+      '<span class="pv-tag" style="background:' +
+      c.accent.hex +
+      ";color:" +
+      aLabel.color +
+      '">NEW</span>' +
+      "</div>" +
+      "</div>" +
+      '<p class="preview-note">실제 입력한 다섯 색을 그대로 적용한 미리보기입니다.</p>' +
+      "</div>"
+    );
+  }
+
+  /* -------------------- generate -------------------- */
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+  var lastSheet = "";
+
+  function readColors() {
+    var c = {};
+    var invalid = [];
+    ROLES.forEach(function (r) {
+      var el = document.getElementById("hex-" + r.key);
+      var li = rolesEl.querySelector('li.role[data-key="' + r.key + '"]');
+      var p = parseHex(el.value);
+      if (!p) {
+        invalid.push(r.key);
+        li.classList.add("invalid");
+      } else {
+        li.classList.remove("invalid");
+        el.value = p.hex;
+        c[r.key] = p;
+        c[r.key + "Hsl"] = rgbToHsl(p);
+      }
+    });
+    return { colors: c, invalid: invalid };
+  }
+
+  document.getElementById("generate").addEventListener("click", function () {
+    var read = readColors();
+    if (read.invalid.length) {
+      resultEl.innerHTML =
+        '<div class="verdict tone-risk">' +
+        '<p class="verdict-label">입력 확인</p>' +
+        '<p class="verdict-title">hex 코드를 확인해 주세요</p>' +
+        '<p class="verdict-desc">' +
+        read.invalid.length +
+        "개 색의 코드가 올바르지 않습니다(빨갛게 표시된 칸). #RRGGBB 또는 #RGB 형식으로 입력하세요.</p>" +
+        "</div>";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var c = read.colors;
+    var ctx = {
+      brand: document.getElementById("brand").value.trim(),
+      customer: document.getElementById("customer").value.trim(),
+      impression: document.getElementById("impression").value.trim(),
+    };
+    var res = buildChecks(c);
+    var band = bandFor(res.checks, res.textBg);
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html +=
+      '<p class="verdict-label">역할 점검 ' +
+      band.passes +
+      " / " +
+      band.total +
+      " 통과</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html +=
+      '<div class="meter" role="img" aria-label="' +
+      band.total +
+      "개 중 " +
+      band.passes +
+      '개 통과">';
+    for (var p = 0; p < band.total; p++) {
+      html += '<span class="pip' + (p < band.passes ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html +=
+      '<p class="meter-caption">' +
+      band.passes +
+      " / " +
+      band.total +
+      " 항목 통과</p>";
+    html += "</div>";
+
+    // ratio bar
+    html += '<div class="result-block-title">사용 비율 (60·30·10 골격)</div>';
+    html += ratioBarHtml(c);
+
+    // role cards
+    html += '<div class="result-block-title">역할 시트</div>';
+    html += roleCardsHtml(c);
+
+    // checks
+    html += '<div class="result-block-title">대비 · 역할 진단</div>';
+    html += '<ul class="check-list">';
+    res.checks.forEach(function (ch) {
+      var badge =
+        ch.st === "pass" ? "통과" : ch.st === "warn" ? "경고" : "결함";
+      html += '<li class="check-item st-' + ch.st + '">';
+      html += '<span class="ci-badge st-' + ch.st + '">' + badge + "</span>";
+      html += '<div class="ci-body">';
+      html += '<p class="ci-title">' + esc(ch.title) + "</p>";
+      html += '<p class="ci-detail">' + esc(ch.detail) + "</p>";
+      html += "</div></li>";
+    });
+    html += "</ul>";
+
+    // live preview
+    html += '<div class="result-block-title">실제 적용 미리보기</div>';
+    html += previewHtml(ctx, c);
+
+    // prompt
+    lastPrompt = buildPrompt(ctx, c, res);
+    lastSheet = buildSheet(ctx, c, res, band);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 시트와 진단을 근거로 색을 함께 다듬어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPrompt">프롬프트 복사</button>';
+    html +=
+      '<button class="btn-copy alt" id="copySheet">역할 시트(표) 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* -------------------- reset -------------------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    ROLES.forEach(function (r) {
+      var hex = document.getElementById("hex-" + r.key);
+      var pick = document.getElementById("pick-" + r.key);
+      var li = rolesEl.querySelector('li.role[data-key="' + r.key + '"]');
+      hex.value = r.def;
+      pick.value = r.def.toLowerCase();
+      li.classList.remove("invalid");
+    });
+    document.getElementById("brand").value = "";
+    document.getElementById("customer").value = "";
+    impression.value = "";
+    grow(impression);
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◑</div>' +
+      "<p><strong>아직 시트가 없습니다.</strong></p>" +
+      "<p>다섯 가지 색을 정하고 '시트 생성하기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* -------------------- copy (3-tier) + print -------------------- */
+  function wireResultButtons() {
+    var cp = document.getElementById("copyPrompt");
+    var cs = document.getElementById("copySheet");
+    var pb = document.getElementById("printBtn");
+    if (cp)
+      cp.addEventListener("click", function () {
+        doCopy(lastPrompt);
+      });
+    if (cs)
+      cs.addEventListener("click", function () {
+        doCopy(lastSheet);
+      });
+    if (pb)
+      pb.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      ta.setSelectionRange(0, text.length);
+    } catch (e) {}
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* -------------------- manual modal -------------------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      try {
+        modalText.setSelectionRange(0, modalText.value.length);
+      } catch (e) {}
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

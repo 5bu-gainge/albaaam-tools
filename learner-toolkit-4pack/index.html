@@ -1,0 +1,1536 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>강의·워크샵 학습자 산출물 4종 빌더</title>
+<meta name="description" content="강의 주제·핵심 메시지를 넣으면 토크시트·1페이저·사후 적용 체크리스트·사내 공유 요약 4종 프롬프트를 만든다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2f6d6a;
+    --accent-strong: #214f4d;
+    --accent-tint: #e9f3f2;
+    --accent-tint-2: #d3e7e5;
+    --ink: #1e2523;
+    --ink-soft: #45504d;
+    --ink-mute: #69726e;
+    --paper: #f5f8f7;
+    --card: #ffffff;
+    --line: #e3e9e7;
+    --line-strong: #d1d9d6;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #a4611a;
+    --warn-tint: #fbf1e3;
+    --warn-tint-2: #f0ddc2;
+    --shadow: 0 1px 2px rgba(30, 37, 35, 0.05), 0 6px 20px rgba(30, 37, 35, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.68rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.01rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field {
+    margin-bottom: 16px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  label.field-label .req {
+    color: var(--accent);
+    margin-left: 3px;
+  }
+  label.field-label .opt {
+    font-weight: 600;
+    color: var(--ink-mute);
+    margin-left: 5px;
+    font-size: 0.82rem;
+  }
+  input.text,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfefe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input.text {
+    height: 48px;
+  }
+  textarea {
+    min-height: 76px;
+    resize: none;
+    overflow: hidden;
+    display: block;
+  }
+  input.text:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input.text::placeholder,
+  textarea::placeholder {
+    color: #9aa4a0;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 7px 0 0;
+  }
+  .field-err {
+    font-size: 0.86rem;
+    color: #b23b3b;
+    font-weight: 700;
+    margin: 7px 0 0;
+    display: none;
+  }
+  .field-err.show {
+    display: block;
+  }
+
+  /* ---------- segmented (lecture character) ---------- */
+  fieldset.seg {
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+  fieldset.seg legend {
+    padding: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  .seg-opts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .seg-opt {
+    position: relative;
+    flex: 1 1 180px;
+  }
+  .seg-opt input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .seg-opt label {
+    display: block;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 11px 13px;
+    cursor: pointer;
+    background: #fcfefe;
+    transition: border-color 0.15s, background 0.15s;
+    height: 100%;
+  }
+  .seg-opt label .so-t {
+    display: block;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+  .seg-opt label .so-d {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+  .seg-opt input:checked + label {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .seg-opt input:focus-visible + label {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- output picker ---------- */
+  ul.picks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  li.pick {
+    position: relative;
+  }
+  li.pick input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  li.pick label {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fcfefe;
+    padding: 13px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    height: 100%;
+  }
+  li.pick input:checked + label {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  li.pick input:focus-visible + label {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+  .pick-check {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    border: 2px solid var(--line-strong);
+    border-radius: 6px;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    transition: all 0.15s;
+  }
+  li.pick input:checked + label .pick-check {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .pick-check svg {
+    width: 13px;
+    height: 13px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  li.pick input:checked + label .pick-check svg {
+    opacity: 1;
+  }
+  .pick-body .pk-t {
+    font-weight: 700;
+    font-size: 0.96rem;
+    margin: 0 0 2px;
+  }
+  .pick-body .pk-d {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* verdict (message sharpness) */
+  .verdict {
+    border-radius: 14px;
+    padding: 18px 17px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-sharp {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-weak {
+    background: var(--warn-tint);
+    border-color: var(--warn-tint-2);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.28rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    line-height: 1.32;
+  }
+  .verdict.tone-sharp .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-weak .verdict-title {
+    color: var(--warn);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .verdict-msg {
+    margin: 12px 0 0;
+    padding: 11px 13px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+    font-size: 0.95rem;
+  }
+  .verdict-msg .vm-k {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    display: block;
+    margin-bottom: 3px;
+  }
+  .verdict-msg .vm-v {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 13px 0 5px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 8px;
+    border-radius: 5px;
+    background: #dde4e1;
+  }
+  .verdict.tone-sharp .pip.lit {
+    background: var(--good);
+  }
+  .verdict.tone-weak .pip.lit {
+    background: var(--warn);
+  }
+  .flag-list {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .flag-item {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .flag-item .fi-t {
+    font-weight: 700;
+    font-size: 0.92rem;
+    margin: 0 0 2px;
+    color: var(--ink);
+  }
+  .flag-item .fi-d {
+    margin: 0;
+    font-size: 0.87rem;
+    color: var(--ink-soft);
+  }
+
+  .top-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  /* prompt cards */
+  .prompt-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--card);
+    padding: 16px 15px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .prompt-card.lead {
+    border-color: var(--warn-tint-2);
+    background: var(--warn-tint);
+  }
+  .pc-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .pc-badge {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.92rem;
+    display: grid;
+    place-items: center;
+  }
+  .prompt-card.lead .pc-badge {
+    background: var(--warn);
+  }
+  .pc-head h3 {
+    margin: 0;
+    font-size: 1.06rem;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+  .pc-one {
+    margin: 3px 0 0;
+    font-size: 0.87rem;
+    color: var(--ink-mute);
+  }
+  ul.pc-rules {
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  ul.pc-rules li {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #24302e;
+    color: #eef4f2;
+    border-radius: 12px;
+    padding: 15px 14px;
+    font-size: 0.85rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.92rem;
+    padding: 10px 17px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.87rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 37, 35, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 180px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    ul.picks {
+      grid-template-columns: 1fr;
+    }
+    .seg-opt {
+      flex: 1 1 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-topic,
+    #input-context,
+    #input-picks,
+    .actions,
+    .top-actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    .prompt-card,
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">강의 학습자 산출물 · 4-Pack</span>
+    <h1>강의·워크샵 학습자 산출물 4종 빌더</h1>
+    <p class="lede">
+      강의 주제와 핵심 메시지를 넣으면, 청중이 강의 후 가져갈 4종 산출물
+      (학습자 토크시트 · 핵심 정리 1페이저 · 사후 적용 체크리스트 · 사내 공유
+      요약)을 만들어 줄 AI 프롬프트를 한 번에 뽑아 드립니다. 먼저 핵심 메시지가
+      한 문장으로 선명한지부터 점검합니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-topic">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>강의의 핵심</h2>
+    </div>
+    <p class="panel-sub">
+      4종 산출물은 모두 이 '핵심 메시지' 하나를 축으로 정렬됩니다. 그래서 이
+      한 문장이 흐릿하면 무엇을 만들어도 청중에게 남지 않습니다.
+    </p>
+
+    <div class="field">
+      <label class="field-label" for="topic"
+        >강의 주제<span class="req" aria-hidden="true">*</span></label
+      >
+      <input
+        type="text"
+        id="topic"
+        class="text"
+        placeholder="예) 관리자를 위한 코칭 리더십 워크샵"
+      />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="message"
+        >핵심 메시지 (딱 한 문장)<span class="req" aria-hidden="true">*</span></label
+      >
+      <textarea
+        id="message"
+        placeholder="예) 리더의 일은 답을 주는 것이 아니라 좋은 질문을 던지는 것이다"
+      ></textarea>
+      <p class="field-hint">
+        청중이 강의 후 딱 한 문장만 기억한다면? 명사구('~의 중요성')가 아니라
+        주장이 담긴 문장으로 쓰세요.
+      </p>
+      <p class="field-err" id="err-core">강의 주제나 핵심 메시지 중 하나는 입력해 주세요.</p>
+    </div>
+
+    <div class="field">
+      <fieldset class="seg">
+        <legend>강의 성격</legend>
+        <div class="seg-opts">
+          <div class="seg-opt">
+            <input type="radio" name="kind" id="kind-workshop" value="workshop" checked />
+            <label for="kind-workshop">
+              <span class="so-t">체험형 워크샵</span>
+              <span class="so-d">한 줄 원메시지</span>
+            </label>
+          </div>
+          <div class="seg-opt">
+            <input type="radio" name="kind" id="kind-concept" value="concept" />
+            <label for="kind-concept">
+              <span class="so-t">개념·프레임워크 소개</span>
+              <span class="so-d">이해(인식) 목표</span>
+            </label>
+          </div>
+          <div class="seg-opt">
+            <input type="radio" name="kind" id="kind-skill" value="skill" />
+            <label for="kind-skill">
+              <span class="so-t">실무 스킬·방법 전수</span>
+              <span class="so-d">적용(수행) 목표</span>
+            </label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  </section>
+
+  <section class="panel" id="input-context">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>맥락 보강 <span style="font-weight:600;color:var(--ink-mute);font-size:0.86rem">(선택)</span></h2>
+    </div>
+    <p class="panel-sub">
+      넣을수록 산출물이 구체화됩니다. 청중·조직 정보는 체크리스트를 실제 실행
+      항목으로, 강의 흐름은 토크시트를 흐름에 맞게, 근거·사례는 1페이저를
+      단단하게 만듭니다.
+    </p>
+
+    <div class="field">
+      <label class="field-label" for="audience"
+        >청중·조직 맥락<span class="opt">선택</span></label
+      >
+      <textarea
+        id="audience"
+        placeholder="예) 30~50명 규모 제조업의 팀장급. 상명하달 문화가 강하고 1:1 면담 경험이 적음"
+      ></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="flow"
+        >강의 흐름<span class="opt">선택</span></label
+      >
+      <textarea
+        id="flow"
+        placeholder="예) 1) 지시형 리더의 한계 2) 코칭 대화 3단계 실습 3) 우리 팀 적용 계획"
+      ></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="evidence"
+        >뒷받침 근거·사례<span class="opt">선택</span></label
+      >
+      <textarea
+        id="evidence"
+        placeholder="예) 구글 옥시전 프로젝트, 실습 중 나온 팀장들의 사례, 관련 데이터 등"
+      ></textarea>
+    </div>
+  </section>
+
+  <section class="panel" id="input-picks">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>만들 산출물 고르기</h2>
+    </div>
+    <p class="panel-sub">필요한 것만 선택하세요. 선택한 만큼 프롬프트가 생성됩니다.</p>
+    <ul class="picks" id="picks"></ul>
+
+    <div class="actions">
+      <button class="btn-primary" id="generate">4종 프롬프트 만들기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">결과</span>
+      <h2>생성된 프롬프트</h2>
+    </div>
+    <div id="result" role="region" aria-label="생성된 프롬프트 결과">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◑</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>강의의 핵심을 채우고 '4종 프롬프트 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 강의 학습자 산출물 4종 설계 원칙 —
+      모든 산출물을 하나의 핵심 메시지(인식 목표)를 축으로 정렬한다.
+      토크시트는 강의 흐름을 따라 순차(시작 노출 → 본문 강화 → 마무리 재진입),
+      1페이저는 정말 한 장(메시지 → 근거 3~5개 → 다음 액션 1줄), 체크리스트는
+      1~2주 내 명시적·검증 가능한 행동 5~7개, 공유 요약은 첫 문장이 곧 메시지.
+      핵심 메시지가 흐릿하면 산출물보다 메시지 다듬기가 먼저다.
+    </p>
+    <p>
+      이 도구는 프롬프트를 구조화해 주는 사고 보조 도구입니다. 무엇이 핵심
+      메시지인지에 대한 최종 판단과 산출물의 사실 검증은 강사 본인의 몫입니다.
+      입력한 내용은 이 브라우저 밖으로 전송되지 않으며, 외부 서버·API 호출도
+      없습니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------- data ---------------- */
+
+  // Lecture-character -> how the "core message" is framed.
+  // From lecture-learner-toolkit: 체험형=원메시지(한 줄), 프레임워크형=인식 목표.
+  var KINDS = {
+    workshop: {
+      label: "체험형 워크샵",
+      msgLabel: "원메시지(한 줄 임팩트)",
+    },
+    concept: {
+      label: "개념·프레임워크 소개",
+      msgLabel: "인식 목표(무엇을 이해하게 할 것인가)",
+    },
+    skill: {
+      label: "실무 스킬·방법 전수",
+      msgLabel: "적용 목표(무엇을 할 수 있게 할 것인가)",
+    },
+  };
+
+  // The 4 learner outputs. Each carries its own authoring rules and a
+  // prompt builder that embeds the user's real inputs.
+  var OUTPUTS = [
+    {
+      id: "talksheet",
+      name: "학습자 토크시트 (워크북)",
+      oneLine: "청중이 강의를 들으며 직접 채워 가는 워크북",
+      rules: ["강의 흐름 순차", "빈칸·질문형", "시작·마무리에 메시지"],
+      build: function (c) {
+        var flowRule = c.flow
+          ? "- 위 '강의 흐름'의 섹션 구분을 그대로 따라 각 구간에 채우기 칸을 배치하라."
+          : "- 강의 흐름 정보가 없으니 시작 · 중간 · 마무리 3부로 나눠 구성하라.";
+        return join([
+          "당신은 강의 학습자용 '토크시트(워크북)'를 설계하는 교육 콘텐츠 디자이너입니다.",
+          "청중이 강의를 들으며 손으로 직접 채워 가는 워크북 한 부를 만들어 주세요.",
+          "",
+          ctxBlock(c),
+          "【토크시트 설계 규칙】",
+          "- 강의 흐름을 따라 순차로 구성하라(랜덤 배치 금지).",
+          "  · 시작: 핵심 " + c.msgLabel + "을(를) 처음 노출하고, 청중이 이 주제에 대한 '지금 내 생각'을 적게 하는 질문.",
+          "  · 본문: 근거·사례가 나올 때마다 빈칸·생각거리·'내 상황에 대입하면?' 질문.",
+          "  · 마무리: 핵심 메시지를 다시 만나고, '내 일에서 무엇을 바꿀지'를 적게 하는 칸.",
+          flowRule,
+          "- 모든 칸은 청중이 '듣기만' 하지 않고 '쓰게' 만드는 개방형 질문·빈칸이어야 한다.",
+          "- 분량은 A4 2~3장 내외.",
+          "",
+          "【출력 형식】 섹션 제목 → 각 칸(질문/빈칸) → (강사용) 채우기 힌트 한 줄. 목록 또는 표로.",
+          disciplineBlock(c),
+        ]);
+      },
+    },
+    {
+      id: "onepager",
+      name: "핵심 정리 1페이저",
+      oneLine: "강의 후 청중이 지갑에 넣어 다닐 한 장 요약",
+      rules: ["정말 한 장", "메시지=가장 큰 활자", "근거 3~5개 → 액션 1줄"],
+      build: function (c) {
+        return join([
+          "당신은 강의의 핵심을 한 장으로 압축하는 편집자입니다.",
+          "강의가 끝난 뒤 청중이 곁에 두고 볼 '핵심 정리 1페이저'를 만들어 주세요.",
+          "",
+          ctxBlock(c),
+          "【1페이저 설계 규칙】",
+          "- 정말 '한 장'이다. 두 장을 넘기면 메시지가 흐려진 신호이니 덜어내라.",
+          "- 지면 구조:",
+          "  · (맨 위, 가장 큰 활자) 핵심 " + c.msgLabel + " 한 문장.",
+          "  · (가운데) 그 메시지를 뒷받침하는 근거·포인트 3~5개.",
+          "  · (맨 아래) 지금 당장 실행할 다음 액션 딱 1줄.",
+          "- 근거는 강의의 사례·연구·데이터에서 가져오되, 자료에 없으면 [보강 필요]로 남겨라.",
+          "",
+          "【출력 형식】 지면 레이아웃이 눈에 그려지도록 제목(대) / 본문 근거 / 하단 액션을 위치와 함께 기술.",
+          disciplineBlock(c),
+        ]);
+      },
+    },
+    {
+      id: "checklist",
+      name: "사후 적용 체크리스트",
+      oneLine: "1~2주 안에 실행할 명시적 행동 5~7개",
+      rules: ["1~2주 내 실행", "명시적·검증 가능", "메시지의 실행"],
+      build: function (c) {
+        var audRule = c.audience
+          ? "- 위 '청중·조직 맥락'에 맞춰 그 회사 상황에서 바로 실행할 수 있게 구체화하라."
+          : "- 청중 정보가 없으니 어느 조직에서도 적용 가능하되 여전히 구체적인 행동으로 쓰라.";
+        return join([
+          "당신은 학습을 현장 실행으로 옮기는 실행 코치입니다.",
+          "청중이 강의 후 1~2주 안에 실행할 '사후 적용 체크리스트'를 만들어 주세요.",
+          "",
+          ctxBlock(c),
+          "【체크리스트 설계 규칙】",
+          "- 항목 5~7개, 모두 1~2주 안에 끝낼 수 있는 크기로.",
+          "- 모든 항목은 핵심 " + c.msgLabel + "의 '실행'이어야 한다. 메시지와 무관한 일반 팁 금지.",
+          "- 각 항목은 명시적 행동 + 시점 + 완료 판단 기준을 갖춰라.",
+          "  '고민해 본다', '검토한다' 같은 모호 항목은 금지.",
+          "  예) \"다음 주 팀 회의에서 X를 제안한다\", \"이번 주 안에 Y 주제로 1:1 미팅을 잡는다\".",
+          audRule,
+          "",
+          "【출력 형식】 [ ] 체크박스 + 행동 + 기한 + 완료 판단 기준. 표로 정리.",
+          disciplineBlock(c),
+        ]);
+      },
+    },
+    {
+      id: "share",
+      name: "사내 공유용 요약",
+      oneLine: "강의를 못 들은 동료가 1분에 이해할 요약",
+      rules: ["1~2단락", "첫 문장이 메시지", "결론부터"],
+      build: function (c) {
+        return join([
+          "당신은 사내 지식 공유 글을 쓰는 에디터입니다.",
+          "강의를 못 들은 동료가 1분 안에 핵심을 이해할 '사내 공유용 요약'을 써 주세요.",
+          "",
+          ctxBlock(c),
+          "【공유 요약 설계 규칙】",
+          "- 1~2단락, 짧게. 동료가 첫 문장만 읽고 닫아도 메시지가 전달되도록 첫 문장이 곧 핵심 " + c.msgLabel + "이어야 한다.",
+          "- 배경 설명으로 시작하지 마라. 결론(메시지)부터 던져라.",
+          "- 전문 용어는 풀어 쓰고, 강의를 안 들은 사람 기준으로 이해되게 하라.",
+          "- 마지막 한 줄은 '더 알고 싶으면 무엇을 보면 되는지'(자료·후속 액션)로 닫아라.",
+          "",
+          "【출력 형식】 제목 한 줄 + 본문 1~2단락 + 후속 안내 한 줄.",
+          disciplineBlock(c),
+        ]);
+      },
+    },
+  ];
+
+  /* ---------------- helpers ---------------- */
+
+  function join(arr) {
+    return arr.join("\n");
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function ctxBlock(c) {
+    return join([
+      "【강의 정보】",
+      "- 강의 주제: " + (c.topic || "(미입력)"),
+      "- 강의 성격: " + c.kindLabel,
+      "- 핵심 " +
+        c.msgLabel +
+        ": " +
+        (c.message || "(아직 미확정 — 먼저 청중이 기억할 한 문장으로 확정할 것)"),
+      "- 청중·조직 맥락: " + (c.audience || "(미입력)"),
+      "- 강의 흐름: " + (c.flow || "(미입력)"),
+      "- 뒷받침 근거·사례: " + (c.evidence || "(미입력)"),
+      "",
+    ]);
+  }
+
+  function disciplineBlock(c) {
+    return join([
+      "",
+      "【지켜야 할 것】",
+      "- 위 핵심 " + c.msgLabel + "을(를) 산출물 전체의 축으로 삼고, 모든 요소가 이 하나로 수렴하게 하라.",
+      "- 사실·사례·수치를 지어내지 마라. 자료에 없으면 [보강 필요]로 표시하고 나에게 물어라.",
+      "- 시너지·혁신 같은 공허한 표어로 빈칸을 덮지 마라.",
+    ]);
+  }
+
+  // Real detection: is the core message a sharp one-sentence claim,
+  // or a blurry topic label / list / buzzword?
+  function assessMessage(raw) {
+    var m = (raw || "").trim();
+    var flags = [];
+    var hard = false; // a hard signal alone forces the "weak" verdict
+
+    if (!m) {
+      return {
+        level: "weak",
+        flags: [
+          {
+            t: "핵심 메시지가 비어 있습니다",
+            d: "청중이 강의 후 딱 한 문장만 기억한다면 무엇일지, 먼저 그 문장을 적어 주세요.",
+          },
+        ],
+      };
+    }
+    if (m.length < 6) {
+      flags.push({
+        t: "너무 짧습니다",
+        d: "한 문장으로 주장을 담기엔 짧습니다. '무엇을 어떻게 하자'는 것인지 담아 보세요.",
+      });
+    }
+
+    var listMarks = (m.match(/[,·]|및|그리고/g) || []).length;
+    if (listMarks >= 2) {
+      hard = true;
+      flags.push({
+        t: "여러 개를 나열하고 있습니다",
+        d: "항목의 나열은 계획이지 하나의 메시지가 아닙니다. 그 항목들이 결국 말하려는 하나로 좁히세요.",
+      });
+    }
+
+    if (m.length > 70) {
+      hard = true;
+      flags.push({
+        t: "한 줄 메시지로는 깁니다",
+        d: "70자를 넘습니다. 핵심 주장만 남기고 부연은 근거로 내려 보내세요.",
+      });
+    }
+
+    var predicate = /(다|요|자|죠|까|라|된다|한다|이다|아니다|없다|있다|하라|해라|합시다|합니다|입니다|이라|리라)$/;
+    var labelNoun = /(중요성|필요성|이해|방법|전략|개요|소개|개념|원리|사례|현황|동향|트렌드|비전|가치|역량|스킬)$/;
+
+    if (labelNoun.test(m) && !/[.!?]/.test(m)) {
+      flags.push({
+        t: "주제 라벨에 가깝습니다",
+        d: '명사구가 아니라 주장이 담긴 문장으로. 예) "리더십의 중요성" → "리더의 일은 답이 아니라 질문이다".',
+      });
+    } else if (!predicate.test(m) && m.length <= 42 && listMarks < 2) {
+      flags.push({
+        t: "문장이 아니라 구(句)로 끝납니다",
+        d: '서술어로 닫아 하나의 주장으로 만드세요. 청중의 "그래서 뭘 하라는 거지?"에 답할 수 있게.',
+      });
+    }
+
+    var buzz = [
+      "시너지",
+      "혁신",
+      "최적화",
+      "효율화",
+      "패러다임",
+      "극대화",
+      "활성화",
+      "고도화",
+      "경쟁력",
+      "솔루션",
+      "밸류업",
+    ];
+    var hitBuzz = buzz.filter(function (w) {
+      return m.indexOf(w) >= 0;
+    });
+    if (hitBuzz.length && m.length < 30 && !/\d/.test(m)) {
+      flags.push({
+        t: "추상적 표어에 가깝습니다",
+        d:
+          '"' +
+          hitBuzz[0] +
+          '" 같은 말은 청중마다 다르게 읽힙니다. 구체적 장면·행동으로 바꾸세요.',
+      });
+    }
+
+    var level =
+      flags.length === 0
+        ? "sharp"
+        : hard || flags.length >= 2
+        ? "weak"
+        : "minor";
+    return { level: level, flags: flags };
+  }
+
+  function leadPrompt(c) {
+    return join([
+      "당신은 강의의 핵심 메시지를 벼리는 코치입니다.",
+      "아래 강의가 끝났을 때 청중이 딱 한 문장만 기억한다면 무엇이어야 하는지,",
+      "서로 다른 각도의 후보 3개를 제안하고 각 후보의 강점·약점을 짚어 주세요.",
+      "각 후보는 명사구가 아니라 '주장이 담긴 완결된 한 문장'이어야 합니다.",
+      "",
+      "- 강의 주제: " + (c.topic || "(미입력)"),
+      "- 강의 성격: " + c.kindLabel,
+      "- 현재 메시지 초안: " + (c.message || "(없음)"),
+      "",
+      "한 문장으로 압축될 때까지 저에게 되물어 주세요.",
+      "결론을 대신 확정하지 말고, 후보와 판단 기준을 먼저 주어 제가 고르게 하세요.",
+    ]);
+  }
+
+  /* ---------------- render output picker ---------------- */
+
+  var checkSvg =
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 12.5L10 17.5L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  var picksEl = document.getElementById("picks");
+  OUTPUTS.forEach(function (o) {
+    var li = document.createElement("li");
+    li.className = "pick";
+    li.innerHTML =
+      '<input type="checkbox" id="pick-' +
+      o.id +
+      '" data-id="' +
+      o.id +
+      '" checked />' +
+      '<label for="pick-' +
+      o.id +
+      '">' +
+      '<span class="pick-check">' +
+      checkSvg +
+      "</span>" +
+      '<span class="pick-body">' +
+      '<p class="pk-t">' +
+      esc(o.name) +
+      "</p>" +
+      '<p class="pk-d">' +
+      esc(o.oneLine) +
+      "</p>" +
+      "</span>" +
+      "</label>";
+    picksEl.appendChild(li);
+  });
+
+  /* ---------------- auto-grow textareas ---------------- */
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  var growers = ["message", "audience", "flow", "evidence"];
+  growers.forEach(function (id) {
+    var el = document.getElementById(id);
+    el.addEventListener("input", function () {
+      grow(el);
+    });
+  });
+
+  /* ---------------- generate ---------------- */
+
+  var resultEl = document.getElementById("result");
+  var promptStore = {};
+
+  function readCtx() {
+    var kindEl = document.querySelector('input[name="kind"]:checked');
+    var kindKey = kindEl ? kindEl.value : "workshop";
+    var kind = KINDS[kindKey];
+    return {
+      topic: document.getElementById("topic").value.trim(),
+      message: document.getElementById("message").value.trim(),
+      audience: document.getElementById("audience").value.trim(),
+      flow: document.getElementById("flow").value.trim(),
+      evidence: document.getElementById("evidence").value.trim(),
+      kindLabel: kind.label,
+      msgLabel: kind.msgLabel,
+    };
+  }
+
+  function selectedOutputs() {
+    return OUTPUTS.filter(function (o) {
+      var box = document.getElementById("pick-" + o.id);
+      return box && box.checked;
+    });
+  }
+
+  document.getElementById("generate").addEventListener("click", function () {
+    var c = readCtx();
+    var errEl = document.getElementById("err-core");
+
+    if (!c.topic && !c.message) {
+      errEl.classList.add("show");
+      document.getElementById("message").focus();
+      return;
+    }
+    errEl.classList.remove("show");
+
+    var picks = selectedOutputs();
+    if (picks.length === 0) {
+      // nothing selected: nudge, keep it simple
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+        "<p><strong>만들 산출물을 하나 이상 선택하세요.</strong></p>" +
+        "<p>STEP 3에서 원하는 산출물을 체크해 주세요.</p></div>";
+      document.getElementById("input-picks").scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      return;
+    }
+
+    promptStore = {};
+    var assess = assessMessage(c.message);
+    var weak = assess.level === "weak";
+    var html = "";
+
+    /* verdict card */
+    var tone = weak ? "weak" : "sharp";
+    var vTitle, vDesc;
+    if (assess.level === "sharp") {
+      vTitle = "핵심 메시지가 선명합니다";
+      vDesc =
+        "한 문장으로 잘 좁혀졌습니다. 아래 4종 산출물은 모두 이 메시지를 축으로 정렬됩니다.";
+    } else if (assess.level === "minor") {
+      vTitle = "대체로 선명합니다";
+      vDesc =
+        "메시지의 골격은 있습니다. 아래 한 가지만 다듬으면 산출물이 더 또렷해집니다.";
+    } else {
+      vTitle = "메시지부터 한 문장으로 다듬으세요";
+      vDesc =
+        "핵심 메시지가 흐릿하면 무엇을 만들어도 청중에게 남지 않습니다. 그래서 첫 산출물로 '메시지 다듬기' 프롬프트를 함께 넣었습니다.";
+    }
+
+    var lit = assess.level === "sharp" ? 3 : assess.level === "minor" ? 2 : 1;
+
+    html += '<div class="verdict tone-' + tone + '">';
+    html += '<p class="verdict-label">메시지 선명도 점검</p>';
+    html += '<p class="verdict-title">' + esc(vTitle) + "</p>";
+    html += '<p class="verdict-desc">' + esc(vDesc) + "</p>";
+    html += '<div class="meter" role="img" aria-label="선명도 ' + lit + '/3">';
+    for (var p = 0; p < 3; p++) {
+      html += '<span class="pip' + (p < lit ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    if (c.message) {
+      html +=
+        '<div class="verdict-msg"><span class="vm-k">현재 핵심 ' +
+        esc(c.msgLabel) +
+        '</span><span class="vm-v">' +
+        esc(c.message) +
+        "</span></div>";
+    }
+    if (assess.flags.length) {
+      html += '<ul class="flag-list">';
+      assess.flags.forEach(function (f) {
+        html +=
+          '<li class="flag-item"><p class="fi-t">' +
+          esc(f.t) +
+          '</p><p class="fi-d">' +
+          esc(f.d) +
+          "</p></li>";
+      });
+      html += "</ul>";
+    }
+    html += "</div>";
+
+    /* top actions */
+    html += '<div class="top-actions no-print">';
+    html += '<button class="btn-primary" id="copyAll">전체 프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="allStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    var order = [];
+
+    /* lead card if message is weak */
+    if (weak) {
+      var lp = leadPrompt(c);
+      promptStore["lead"] = lp;
+      order.push({ id: "lead", name: "0. 메시지 먼저 다듬기" });
+      html += promptCard(
+        "lead",
+        "메시지 먼저 다듬기",
+        "산출물보다 먼저: 청중이 기억할 한 문장을 확정",
+        ["선행 단계", "후보 3개 제안", "AI가 되묻게"],
+        lp,
+        "!",
+        true
+      );
+    }
+
+    /* the selected output cards */
+    picks.forEach(function (o, i) {
+      var text = o.build(c);
+      promptStore[o.id] = text;
+      order.push({ id: o.id, name: o.name });
+      html += promptCard(
+        o.id,
+        o.name,
+        o.oneLine,
+        o.rules,
+        text,
+        String(i + 1),
+        false
+      );
+    });
+
+    resultEl.innerHTML = html;
+    resultEl.__order = order;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function promptCard(id, name, oneLine, rules, text, badge, isLead) {
+    var chips = rules
+      .map(function (r) {
+        return "<li>" + esc(r) + "</li>";
+      })
+      .join("");
+    var h = "";
+    h += '<section class="prompt-card' + (isLead ? " lead" : "") + '">';
+    h += '<div class="pc-head">';
+    h += '<span class="pc-badge" aria-hidden="true">' + esc(badge) + "</span>";
+    h += "<div>";
+    h += "<h3>" + esc(name) + "</h3>";
+    h += '<p class="pc-one">' + esc(oneLine) + "</p>";
+    h += "</div></div>";
+    h += '<ul class="pc-rules">' + chips + "</ul>";
+    h += '<div class="prompt-wrap"><pre class="prompt">' + esc(text) + "</pre></div>";
+    h += '<div class="copy-row no-print">';
+    h += '<button class="btn-copy" data-pid="' + id + '">프롬프트 복사</button>';
+    h +=
+      '<span class="copy-status" role="status" aria-live="polite"></span>';
+    h += "</div>";
+    h += "</section>";
+    return h;
+  }
+
+  /* ---------------- reset ---------------- */
+
+  document.getElementById("reset").addEventListener("click", function () {
+    ["topic", "message", "audience", "flow", "evidence"].forEach(function (id) {
+      document.getElementById(id).value = "";
+    });
+    growers.forEach(function (id) {
+      grow(document.getElementById(id));
+    });
+    document.getElementById("kind-workshop").checked = true;
+    OUTPUTS.forEach(function (o) {
+      document.getElementById("pick-" + o.id).checked = true;
+    });
+    document.getElementById("err-core").classList.remove("show");
+    promptStore = {};
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◑</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>강의의 핵심을 채우고 '4종 프롬프트 만들기'를 누르세요.</p></div>";
+    document.getElementById("input-topic").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ---------------- copy (3-tier) ---------------- */
+
+  function flashStatus(el, msg) {
+    if (!el) return;
+    el.textContent = msg;
+    setTimeout(function () {
+      if (el) el.textContent = "";
+    }, 2600);
+  }
+
+  function copyText(text, statusEl) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(statusEl, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusEl);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusEl);
+  }
+
+  function legacyCopy(text, statusEl) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(statusEl, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  function buildAllText() {
+    var order = resultEl.__order || [];
+    var parts = [];
+    order.forEach(function (o) {
+      var t = promptStore[o.id];
+      if (!t) return;
+      parts.push(
+        "==================================================\n" +
+          o.name +
+          "\n==================================================\n" +
+          t
+      );
+    });
+    return parts.join("\n\n\n");
+  }
+
+  function wireResultButtons() {
+    var copyAll = document.getElementById("copyAll");
+    if (copyAll) {
+      copyAll.addEventListener("click", function () {
+        copyText(buildAllText(), document.getElementById("allStatus"));
+      });
+    }
+    var printBtn = document.getElementById("printBtn");
+    if (printBtn) {
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+    }
+  }
+
+  // per-card copy via delegation
+  resultEl.addEventListener("click", function (e) {
+    var btn = e.target;
+    if (!btn || !btn.classList || !btn.classList.contains("btn-copy")) return;
+    var pid = btn.getAttribute("data-pid");
+    var text = promptStore[pid];
+    if (!text) return;
+    var row = btn.closest(".copy-row");
+    var statusEl = row ? row.querySelector(".copy-status") : null;
+    copyText(text, statusEl);
+  });
+
+  /* ---------------- manual modal ---------------- */
+
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

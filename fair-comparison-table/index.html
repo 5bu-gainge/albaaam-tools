@@ -1,0 +1,1750 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>공정 비교표 빌더</title>
+<meta
+  name="description"
+  content="고객이 실제 저울질하는 대안(경쟁사·수작업·현상유지)과 우리를 공정하게 비교해, 이길 곳과 양보할 곳을 표시합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #337a72;
+    --accent-strong: #245b55;
+    --accent-tint: #e7f2f0;
+    --accent-tint-2: #d3e7e3;
+    --ink: #20211f;
+    --ink-soft: #474a47;
+    --ink-mute: #6a6d69;
+    --paper: #f7f6f3;
+    --card: #ffffff;
+    --line: #e6e3dc;
+    --line-strong: #d6d2c8;
+    --win: #2f6f4f;
+    --win-tint: #e7f2ec;
+    --win-line: #cfe4d8;
+    --tie: #6a6d69;
+    --tie-tint: #edeae4;
+    --tie-line: #dedad2;
+    --lose: #9c4820;
+    --lose-tint: #f8ece1;
+    --lose-line: #ecd6c2;
+    --good: #2f6f4f;
+    --good-tint: #e7f2ec;
+    --warn: #8f5d10;
+    --warn-tint: #fbf1da;
+    --warn-line: #efdcb4;
+    --bad: #a23a2a;
+    --bad-tint: #f8e6e1;
+    --bad-line: #eeccc3;
+    --shadow: 0 1px 2px rgba(32, 33, 31, 0.05), 0 6px 20px rgba(32, 33, 31, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- text fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  input[type="text"],
+  textarea,
+  select {
+    font-family: inherit;
+    color: var(--ink);
+    background: #fdfcfa;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input[type="text"] {
+    width: 100%;
+    font-size: 0.98rem;
+    padding: 12px 13px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 62px;
+    resize: none;
+    overflow: hidden;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    padding: 12px 13px;
+  }
+  select {
+    font-size: 0.92rem;
+    padding: 10px 30px 10px 12px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236a6d69' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 11px center;
+    cursor: pointer;
+  }
+  input[type="text"]:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  ::placeholder {
+    color: #a7a29a;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field + .field {
+    margin-top: 16px;
+  }
+
+  /* ---------- editable rows (alternatives) ---------- */
+  .row-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .alt-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .alt-row .alt-type {
+    flex: none;
+    width: 104px;
+  }
+  .alt-row .alt-name {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .mini-x {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink-mute);
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: all 0.14s;
+  }
+  .mini-x:hover {
+    border-color: var(--lose-line);
+    color: var(--lose);
+    background: var(--lose-tint);
+  }
+
+  .add-btn {
+    margin-top: 12px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px dashed var(--accent-tint-2);
+    border-radius: 11px;
+    padding: 11px 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.14s, border-color 0.14s;
+  }
+  .add-btn:hover {
+    background: var(--accent-tint-2);
+    border-color: var(--accent);
+  }
+
+  .type-legend {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 12px 0 0;
+    line-height: 1.7;
+  }
+  .type-legend b {
+    color: var(--ink-soft);
+  }
+
+  /* ---------- criterion cards + verdict grid ---------- */
+  .crit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .crit-card {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fdfcfa;
+    padding: 14px 14px 6px;
+  }
+  .crit-head {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .crit-head .crit-name {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .crit-head .crit-imp {
+    flex: none;
+    width: 118px;
+  }
+  .verdict-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding-bottom: 8px;
+  }
+  .vg-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px 12px;
+    align-items: center;
+  }
+  .alt-label {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+    min-width: 0;
+  }
+  .seg {
+    display: inline-flex;
+    border: 1px solid var(--line-strong);
+    border-radius: 9px;
+    overflow: hidden;
+    background: #fff;
+    flex: none;
+  }
+  .seg-btn {
+    position: relative;
+    cursor: pointer;
+  }
+  .seg-btn + .seg-btn {
+    border-left: 1px solid var(--line);
+  }
+  .seg-btn input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .seg-btn span {
+    display: block;
+    min-width: 52px;
+    text-align: center;
+    padding: 9px 10px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    transition: background 0.12s, color 0.12s;
+  }
+  .seg-btn.win input:checked + span {
+    background: var(--win-tint);
+    color: var(--win);
+  }
+  .seg-btn.tie input:checked + span {
+    background: var(--tie-tint);
+    color: var(--ink);
+  }
+  .seg-btn.lose input:checked + span {
+    background: var(--lose-tint);
+    color: var(--lose);
+  }
+  .seg-btn input:focus-visible + span {
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button.act {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button.act:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-good {
+    background: var(--good-tint);
+    border-color: var(--win-line);
+  }
+  .verdict.tone-warn {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-bad {
+    background: var(--bad-tint);
+    border-color: var(--bad-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.34rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.32;
+  }
+  .verdict.tone-good .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-warn .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-bad .verdict-title {
+    color: var(--bad);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .tally {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .tally .t-chip {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid;
+  }
+  .t-chip.tw {
+    color: var(--win);
+    background: var(--win-tint);
+    border-color: var(--win-line);
+  }
+  .t-chip.tt {
+    color: var(--ink);
+    background: var(--tie-tint);
+    border-color: var(--tie-line);
+  }
+  .t-chip.tl {
+    color: var(--lose);
+    background: var(--lose-tint);
+    border-color: var(--lose-line);
+  }
+
+  .notes {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .note-item {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--warn);
+    border-radius: 9px;
+    padding: 10px 13px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* rendered comparison table */
+  .table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+  table.cmp {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 460px;
+    font-size: 0.9rem;
+  }
+  table.cmp th,
+  table.cmp td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+  }
+  table.cmp tr:last-child td {
+    border-bottom: none;
+  }
+  table.cmp th:last-child,
+  table.cmp td:last-child {
+    border-right: none;
+  }
+  table.cmp thead th {
+    background: #f2efe9;
+    font-weight: 800;
+    color: var(--ink);
+    font-size: 0.86rem;
+    position: sticky;
+    top: 0;
+  }
+  table.cmp thead th.us-col {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+  }
+  table.cmp tbody th {
+    text-align: left;
+    font-weight: 700;
+    color: var(--ink);
+    background: #faf8f5;
+    min-width: 132px;
+  }
+  .imp-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .imp-상 {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+  }
+  .imp-중 {
+    color: var(--ink-soft);
+    background: var(--tie-tint);
+  }
+  .imp-하 {
+    color: var(--ink-mute);
+    background: #f0eee9;
+  }
+  .cell-chip {
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+  .cc-win {
+    color: var(--win);
+    background: var(--win-tint);
+  }
+  .cc-tie {
+    color: var(--tie);
+    background: var(--tie-tint);
+  }
+  .cc-lose {
+    color: var(--lose);
+    background: var(--lose-tint);
+  }
+  .cc-us {
+    color: var(--accent-strong);
+    font-weight: 800;
+  }
+  .table-caption {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 8px 2px 0;
+  }
+
+  /* win / concede lists */
+  .find-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .find-item {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 13px 15px;
+    background: #fff;
+  }
+  .find-item.win {
+    border-left: 3px solid var(--win);
+  }
+  .find-item.lose {
+    border-left: 3px solid var(--lose);
+  }
+  .fi-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 0 0 4px;
+  }
+  .fi-title {
+    font-weight: 800;
+    font-size: 0.98rem;
+    margin: 0;
+  }
+  .fi-tag {
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .fi-tag.lead {
+    color: #fff;
+    background: var(--win);
+  }
+  .fi-note {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--win-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #262a29;
+    color: #eef2f0;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+    font-weight: 700;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 33, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .crit-head {
+      flex-wrap: wrap;
+    }
+    .crit-head .crit-name {
+      flex: 1 1 100%;
+    }
+    .crit-head .crit-imp {
+      flex: 1 1 auto;
+      width: auto;
+    }
+    .vg-row {
+      grid-template-columns: 1fr;
+      gap: 5px;
+    }
+    .seg {
+      width: 100%;
+    }
+    .seg-btn {
+      flex: 1 1 0;
+    }
+    .seg-btn span {
+      min-width: 0;
+    }
+    .alt-row .alt-type {
+      width: 92px;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-offering,
+    #input-alts,
+    #input-crits,
+    .actions {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+    .table-scroll {
+      overflow: visible;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">비교 메시지 · Message Architecture</span>
+    <h1>공정 비교표 빌더</h1>
+    <p class="lede">
+      고객은 언제나 우리를 무언가와 견줍니다. 경쟁사, 직접 하기, 그리고 아무것도
+      안 하기. 그 실제 대안들과 우리를 공정하게 비교해 <strong>이길 곳</strong>과
+      <strong>양보할 곳</strong>을 짚고, 신뢰받는 비교표인지 감사합니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-offering">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>우리 (비교 기준점)</h2>
+    </div>
+    <p class="panel-sub">비교표에서 기준이 될 우리 제품·서비스입니다.</p>
+    <div class="field">
+      <label class="field-label" for="offering">우리 제품 / 서비스 이름</label>
+      <input type="text" id="offering" placeholder="예) 우리 채용 솔루션" />
+    </div>
+    <div class="field">
+      <label class="field-label" for="value">한 줄 가치 (선택)</label>
+      <textarea
+        id="value"
+        placeholder="예) 2주 안에 검증된 후보를 자신 있게 채용한다"
+      ></textarea>
+      <p class="field-hint">
+        입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+        없습니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="panel" id="input-alts">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>고객이 저울질하는 대안</h2>
+    </div>
+    <p class="panel-sub">
+      고객이 우리 대신 실제로 고려하는 선택지입니다. 경쟁사만이 아니라
+      <b>직접·수작업</b>과 <b>현상유지(아무것도 안 함)</b>가 가장 흔한 대안입니다.
+    </p>
+    <div class="row-list" id="alts"></div>
+    <button class="add-btn" id="add-alt" type="button">+ 대안 추가</button>
+    <p class="type-legend">
+      <b>유형:</b> 현상유지 = 지금 방식 유지 · 수작업 = 사람이 직접 처리 · 경쟁사 =
+      경합 제품 · 대체재 = 다른 방식의 해결책
+    </p>
+  </section>
+
+  <section class="panel" id="input-crits">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>비교 기준과 우열</h2>
+    </div>
+    <p class="panel-sub">
+      고객이 결정할 때 따지는 축(기준)마다, 각 대안 대비 우리의 우열을 표시하세요.
+      <b>중요도</b>는 고객에게 그 축이 얼마나 결정적인지입니다.
+    </p>
+    <div class="crit-list" id="crits"></div>
+    <button class="add-btn" id="add-crit" type="button">+ 기준 추가</button>
+
+    <div class="actions">
+      <button class="act btn-primary" id="build" type="button">
+        공정 비교표 만들기
+      </button>
+      <button class="act btn-ghost" id="reset" type="button">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 4</span>
+      <h2>비교표 · 공정성 감사</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">⚖</div>
+        <p><strong>아직 만들기 전입니다.</strong></p>
+        <p>대안과 기준을 채우고 '공정 비교표 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 마케팅 메시지 아키텍처의 비교 로직 —
+      고객이 실제 저울질하는 대안(현상유지·수작업·경쟁사)과 견주고, 양보할 곳은
+      정직하게 양보하며 중요한 곳에서 이긴다. 모든 것을 이기도록 조작한 비교표는
+      오히려 신뢰를 잃고 역효과를 낸다. 주장 옆에는 근거를 두고, 의미는 이미지가
+      아니라 텍스트에 담아 사람·검색·AI가 모두 읽게 한다.
+    </p>
+    <p>
+      이 도구는 판단을 돕는 보조 도구이며, 비교 전략을 대신 확정해 주지 않습니다.
+      우열·중요도는 여러분이 아는 고객 사실로 채우고, 결과는 스스로 판단할 재료로
+      쓰세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="act btn-primary" id="modal-select" type="button">
+        전체 선택
+      </button>
+      <button class="act btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  var uid = 0;
+  function nid(p) {
+    uid += 1;
+    return p + uid;
+  }
+
+  var TYPES = ["현상유지", "수작업", "경쟁사", "대체재"];
+  var IMPS = ["상", "중", "하"];
+  var IMP_RANK = { 상: 3, 중: 2, 하: 1 };
+
+  // Seed values are editable examples, not fixed output; verdicts start at 대등
+  // so the first computed result reflects the user's real choices, not a canned win.
+  var state = {
+    alternatives: [
+      { id: nid("a"), name: "현상유지 (아무것도 안 함)", type: "현상유지" },
+      { id: nid("a"), name: "직접 / 수작업", type: "수작업" },
+      { id: nid("a"), name: "경쟁사 A", type: "경쟁사" },
+    ],
+    criteria: [
+      { id: nid("c"), name: "원하는 결과 (핵심 성과)", importance: "상", verdicts: {} },
+      { id: nid("c"), name: "도입·전환 비용", importance: "중", verdicts: {} },
+      { id: nid("c"), name: "걸리는 시간·속도", importance: "중", verdicts: {} },
+    ],
+  };
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function verdictOf(crit, altId) {
+    var v = crit.verdicts[altId];
+    return v === "win" || v === "lose" ? v : "tie";
+  }
+
+  // ---------- auto-grow textarea ----------
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  var valueEl = document.getElementById("value");
+  valueEl.addEventListener("input", function () {
+    grow(valueEl);
+  });
+
+  // ---------- render alternatives ----------
+  var altsEl = document.getElementById("alts");
+
+  function optionsHtml(list, sel) {
+    return list
+      .map(function (o) {
+        return (
+          '<option value="' +
+          esc(o) +
+          '"' +
+          (o === sel ? " selected" : "") +
+          ">" +
+          esc(o) +
+          "</option>"
+        );
+      })
+      .join("");
+  }
+
+  function renderAlts() {
+    altsEl.innerHTML = "";
+    state.alternatives.forEach(function (a) {
+      var row = document.createElement("div");
+      row.className = "alt-row";
+      row.dataset.id = a.id;
+      row.innerHTML =
+        '<select class="alt-type" data-id="' +
+        a.id +
+        '" aria-label="대안 유형">' +
+        optionsHtml(TYPES, a.type) +
+        "</select>" +
+        '<input type="text" class="alt-name" data-id="' +
+        a.id +
+        '" value="' +
+        esc(a.name) +
+        '" placeholder="대안 이름" aria-label="대안 이름" />' +
+        '<button class="mini-x" type="button" data-act="del-alt" data-id="' +
+        a.id +
+        '" aria-label="이 대안 삭제">&times;</button>';
+      altsEl.appendChild(row);
+    });
+  }
+
+  altsEl.addEventListener("input", function (e) {
+    var t = e.target;
+    if (t.classList.contains("alt-name")) {
+      var a = findAlt(t.dataset.id);
+      if (a) {
+        a.name = t.value;
+        // live-update matrix labels without re-render (keeps focus)
+        var labels = document.querySelectorAll(
+          '.alt-label[data-id="' + t.dataset.id + '"]'
+        );
+        Array.prototype.forEach.call(labels, function (el) {
+          el.textContent = t.value || "(이름 없음)";
+        });
+      }
+    }
+  });
+  altsEl.addEventListener("change", function (e) {
+    var t = e.target;
+    if (t.classList.contains("alt-type")) {
+      var a = findAlt(t.dataset.id);
+      if (a) a.type = t.value;
+    }
+  });
+  altsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-act='del-alt']");
+    if (!btn) return;
+    var id = btn.dataset.id;
+    state.alternatives = state.alternatives.filter(function (a) {
+      return a.id !== id;
+    });
+    state.criteria.forEach(function (c) {
+      delete c.verdicts[id];
+    });
+    renderAlts();
+    renderCrits();
+  });
+
+  document.getElementById("add-alt").addEventListener("click", function () {
+    state.alternatives.push({ id: nid("a"), name: "", type: "경쟁사" });
+    renderAlts();
+    renderCrits();
+  });
+
+  function findAlt(id) {
+    for (var i = 0; i < state.alternatives.length; i++)
+      if (state.alternatives[i].id === id) return state.alternatives[i];
+    return null;
+  }
+  function findCrit(id) {
+    for (var i = 0; i < state.criteria.length; i++)
+      if (state.criteria[i].id === id) return state.criteria[i];
+    return null;
+  }
+
+  // ---------- render criteria + verdict matrix ----------
+  var critsEl = document.getElementById("crits");
+  var SEG = [
+    { v: "win", label: "우위" },
+    { v: "tie", label: "대등" },
+    { v: "lose", label: "열위" },
+  ];
+
+  function renderCrits() {
+    critsEl.innerHTML = "";
+    state.criteria.forEach(function (c) {
+      var card = document.createElement("div");
+      card.className = "crit-card";
+      card.dataset.id = c.id;
+
+      var rows = state.alternatives
+        .map(function (a) {
+          var name = "v_" + c.id + "_" + a.id;
+          var cur = verdictOf(c, a.id);
+          var seg = SEG.map(function (s) {
+            return (
+              '<label class="seg-btn ' +
+              s.v +
+              '"><input type="radio" name="' +
+              name +
+              '" value="' +
+              s.v +
+              '" data-crit="' +
+              c.id +
+              '" data-alt="' +
+              a.id +
+              '"' +
+              (cur === s.v ? " checked" : "") +
+              ' /><span>' +
+              s.label +
+              "</span></label>"
+            );
+          }).join("");
+          return (
+            '<div class="vg-row">' +
+            '<span class="alt-label" data-id="' +
+            a.id +
+            '">' +
+            esc(a.name || "(이름 없음)") +
+            "</span>" +
+            '<span class="seg" role="radiogroup" aria-label="' +
+            esc(a.name || "대안") +
+            ' 대비 우열">' +
+            seg +
+            "</span>" +
+            "</div>"
+          );
+        })
+        .join("");
+
+      card.innerHTML =
+        '<div class="crit-head">' +
+        '<input type="text" class="crit-name" data-id="' +
+        c.id +
+        '" value="' +
+        esc(c.name) +
+        '" placeholder="비교 기준 (고객이 따지는 축)" aria-label="비교 기준" />' +
+        '<select class="crit-imp" data-id="' +
+        c.id +
+        '" aria-label="고객 중요도">' +
+        IMPS.map(function (i) {
+          return (
+            '<option value="' +
+            i +
+            '"' +
+            (i === c.importance ? " selected" : "") +
+            ">중요도 " +
+            i +
+            "</option>"
+          );
+        }).join("") +
+        "</select>" +
+        '<button class="mini-x" type="button" data-act="del-crit" data-id="' +
+        c.id +
+        '" aria-label="이 기준 삭제">&times;</button>' +
+        "</div>" +
+        '<div class="verdict-grid">' +
+        (rows ||
+          '<p class="fi-note">대안을 먼저 추가하세요.</p>') +
+        "</div>";
+      critsEl.appendChild(card);
+    });
+  }
+
+  critsEl.addEventListener("input", function (e) {
+    var t = e.target;
+    if (t.classList.contains("crit-name")) {
+      var c = findCrit(t.dataset.id);
+      if (c) c.name = t.value;
+    }
+  });
+  critsEl.addEventListener("change", function (e) {
+    var t = e.target;
+    if (t.classList.contains("crit-imp")) {
+      var c = findCrit(t.dataset.id);
+      if (c) c.importance = t.value;
+    } else if (t.type === "radio" && t.dataset.crit) {
+      var cc = findCrit(t.dataset.crit);
+      if (cc) cc.verdicts[t.dataset.alt] = t.value;
+    }
+  });
+  critsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-act='del-crit']");
+    if (!btn) return;
+    var id = btn.dataset.id;
+    state.criteria = state.criteria.filter(function (c) {
+      return c.id !== id;
+    });
+    renderCrits();
+  });
+
+  document.getElementById("add-crit").addEventListener("click", function () {
+    state.criteria.push({ id: nid("c"), name: "", importance: "중", verdicts: {} });
+    renderCrits();
+  });
+
+  // ---------- compute + render result ----------
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function activeAlts() {
+    return state.alternatives.filter(function (a) {
+      return a.name.trim();
+    });
+  }
+  function activeCrits() {
+    return state.criteria.filter(function (c) {
+      return c.name.trim();
+    });
+  }
+
+  function analyze() {
+    var alts = activeAlts();
+    var crits = activeCrits();
+    var wins = 0,
+      ties = 0,
+      loses = 0;
+    var winAllCrits = []; // criteria where we beat ALL alternatives
+    var concedeCells = []; // {crit, alt}
+    var anyWinCrits = [];
+
+    crits.forEach(function (c) {
+      var allWin = alts.length > 0;
+      var someWin = false;
+      alts.forEach(function (a) {
+        var v = verdictOf(c, a.id);
+        if (v === "win") {
+          wins += 1;
+          someWin = true;
+        } else if (v === "lose") {
+          loses += 1;
+          concedeCells.push({ crit: c, alt: a });
+          allWin = false;
+        } else {
+          ties += 1;
+          allWin = false;
+        }
+      });
+      if (allWin) winAllCrits.push(c);
+      if (someWin) anyWinCrits.push(c);
+    });
+
+    var highCrits = crits.filter(function (c) {
+      return c.importance === "상";
+    });
+    var winsOnHigh = winAllCrits.filter(function (c) {
+      return c.importance === "상";
+    });
+    var losesOnHigh = concedeCells.filter(function (x) {
+      return x.crit.importance === "상";
+    });
+
+    var hasStatusQuo = alts.some(function (a) {
+      return a.type === "현상유지";
+    });
+    var hasManual = alts.some(function (a) {
+      return a.type === "수작업";
+    });
+
+    return {
+      alts: alts,
+      crits: crits,
+      wins: wins,
+      ties: ties,
+      loses: loses,
+      cells: wins + ties + loses,
+      winAllCrits: winAllCrits,
+      anyWinCrits: anyWinCrits,
+      concedeCells: concedeCells,
+      highCrits: highCrits,
+      winsOnHigh: winsOnHigh,
+      losesOnHigh: losesOnHigh,
+      hasStatusQuo: hasStatusQuo,
+      hasManual: hasManual,
+    };
+  }
+
+  function auditVerdict(A) {
+    // returns {tone, label, title, desc}
+    if (A.wins === 0) {
+      return {
+        tone: "bad",
+        label: "공정성 감사",
+        title: "이길 곳이 표에 없습니다",
+        desc: "어느 축에서도 우위가 없습니다. 이대로면 고객이 우리를 선택할 이유가 비교표에 드러나지 않습니다. 진짜 강점이 드러나는 축을 새로 정의하거나, 이기는 지점을 찾아 다시 표시하세요.",
+      };
+    }
+    if (A.loses === 0) {
+      return {
+        tone: "bad",
+        label: "공정성 감사 · 리깅 경보",
+        title: "전부 이긴 비교표는 신뢰를 잃습니다",
+        desc: "모든 칸에서 우리가 이깁니다. 고객은 이런 표를 광고로 읽고 오히려 의심합니다. 덜 중요한 축 한두 곳은 정직하게 '열위'로 인정하세요. 양보가 있는 비교표가 이기는 곳의 주장까지 믿게 만듭니다.",
+      };
+    }
+    if (A.winsOnHigh.length === 0 && A.losesOnHigh.length > 0) {
+      return {
+        tone: "warn",
+        label: "공정성 감사",
+        title: "덜 중요한 축에서만 이기고 있습니다",
+        desc: "정작 고객이 가장 중시하는 축(중요도 상)에서 밀리고, 덜 중요한 곳에서만 우위입니다. 기본기(table stakes)가 아니라 중요한 축에서 이겨야 합니다. 이 축을 재정의하거나, 그 손해를 상쇄할 더 강한 가치를 세우세요.",
+      };
+    }
+    if (A.winsOnHigh.length === 0 && A.highCrits.length > 0) {
+      return {
+        tone: "warn",
+        label: "공정성 감사",
+        title: "중요한 축에서 확실히 이기지 못했습니다",
+        desc: "고객이 중시하는 축에서 우위가 대등에 그칩니다. 그 축에서 확실히 앞서거나, 무엇으로 결정을 이끌지 다시 정하세요.",
+      };
+    }
+    return {
+      tone: "good",
+      label: "공정성 감사",
+      title: "신뢰할 수 있는 공정 비교표입니다",
+      desc: "고객이 중시하는 축에서 이기고, 일부는 정직하게 양보했습니다. 이길 곳을 앞세우고 양보할 곳을 인정하는 이 구조가 비교표의 신뢰를 만듭니다. 아래 프롬프트로 메시지 카피까지 이어가세요.",
+    };
+  }
+
+  function collectNotes(A) {
+    var notes = [];
+    if (!A.hasStatusQuo)
+      notes.push(
+        "고객의 가장 흔한 대안인 <b>현상유지(아무것도 안 함)</b> 열이 없습니다. 대부분의 거래는 경쟁사가 아니라 '그냥 지금대로'에게 집니다. 이 대안을 추가하세요."
+      );
+    if (!A.hasManual)
+      notes.push(
+        "<b>직접·수작업</b> 대안이 없습니다. 고객이 스스로 해결하는 방식과의 비교가 도입 이유를 가장 선명하게 만듭니다."
+      );
+    if (A.highCrits.length === 0)
+      notes.push(
+        "<b>중요도 '상'</b>인 축이 없습니다. 어떤 기준이 결정적인지 표시해야, 이겨야 할 곳에서 이기고 있는지 판단할 수 있습니다."
+      );
+    if (A.concedeCells.length === 0 && A.wins > 0)
+      notes.push(
+        "양보하는 칸이 하나도 없습니다. 덜 중요한 축에서의 정직한 인정이 표 전체의 신뢰를 올립니다."
+      );
+    return notes;
+  }
+
+  function cellChip(v) {
+    if (v === "win") return '<span class="cell-chip cc-win">▲ 우위</span>';
+    if (v === "lose") return '<span class="cell-chip cc-lose">▼ 열위</span>';
+    return '<span class="cell-chip cc-tie">= 대등</span>';
+  }
+
+  function buildTable(A, offering) {
+    var html = '<div class="table-scroll"><table class="cmp">';
+    html += "<thead><tr>";
+    html += "<th>비교 기준</th>";
+    html += '<th class="us-col">' + esc(offering || "우리") + "</th>";
+    A.alts.forEach(function (a) {
+      html += "<th>" + esc(a.name) + "</th>";
+    });
+    html += "</tr></thead><tbody>";
+    A.crits.forEach(function (c) {
+      html += "<tr>";
+      html +=
+        "<th>" +
+        esc(c.name) +
+        '<span class="imp-badge imp-' +
+        c.importance +
+        '">중요도 ' +
+        c.importance +
+        "</span></th>";
+      html += '<td class="cc-us">기준</td>';
+      A.alts.forEach(function (a) {
+        html += "<td>" + cellChip(verdictOf(c, a.id)) + "</td>";
+      });
+      html += "</tr>";
+    });
+    html += "</tbody></table></div>";
+    html +=
+      '<p class="table-caption">각 칸은 그 대안 대비 <b>우리(' +
+      esc(offering || "우리") +
+      ")</b>의 우열입니다. ▲우위 = 우리가 낫다 · =대등 · ▼열위 = 그 대안이 낫다.</p>";
+    return html;
+  }
+
+  function winList(A) {
+    if (A.winAllCrits.length === 0) {
+      return '<p class="clean-note">모든 대안을 이긴 축이 아직 없습니다. 한 대안에게라도 지는 축은 아래 \'양보할 곳\'에서 확인하세요. 고객을 이끌 확실한 우위 축을 하나는 만드세요.</p>';
+    }
+    var sorted = A.winAllCrits.slice().sort(function (x, y) {
+      return IMP_RANK[y.importance] - IMP_RANK[x.importance];
+    });
+    var html = '<ul class="find-list">';
+    sorted.forEach(function (c, i) {
+      var lead = i === 0 && c.importance === "상";
+      html += '<li class="find-item win">';
+      html += '<div class="fi-head"><p class="fi-title">' + esc(c.name) + "</p>";
+      html +=
+        '<span class="imp-badge imp-' +
+        c.importance +
+        '">중요도 ' +
+        c.importance +
+        "</span>";
+      if (lead) html += '<span class="fi-tag lead">리드 가치</span>';
+      html += "</div>";
+      var note = lead
+        ? "모든 대안을 이기고, 고객이 가장 중시하는 축입니다. 헤드라인과 핵심 메시지를 이 가치로 이끄세요."
+        : "모든 대안 대비 우위입니다. 이길 곳의 주장 옆에는 반드시 근거(숫자·사례)를 붙이세요.";
+      html += '<p class="fi-note">' + note + "</p></li>";
+    });
+    html += "</ul>";
+    return html;
+  }
+
+  function concedeList(A) {
+    if (A.concedeCells.length === 0) {
+      return '<p class="clean-note">양보하는 칸이 없습니다. 다만 전부 이긴 표는 신뢰를 잃습니다. 덜 중요한 축 하나는 정직하게 인정할 곳이 있는지 살펴보세요.</p>';
+    }
+    // group by criterion
+    var byCrit = {};
+    var order = [];
+    A.concedeCells.forEach(function (x) {
+      if (!byCrit[x.crit.id]) {
+        byCrit[x.crit.id] = { crit: x.crit, alts: [] };
+        order.push(x.crit.id);
+      }
+      byCrit[x.crit.id].alts.push(x.alt.name);
+    });
+    var html = '<ul class="find-list">';
+    order.forEach(function (id) {
+      var g = byCrit[id];
+      html += '<li class="find-item lose">';
+      html += '<div class="fi-head"><p class="fi-title">' + esc(g.crit.name) + "</p>";
+      html +=
+        '<span class="imp-badge imp-' +
+        g.crit.importance +
+        '">중요도 ' +
+        g.crit.importance +
+        "</span></div>";
+      var who = g.alts
+        .map(function (n) {
+          return esc(n);
+        })
+        .join(", ");
+      var advice =
+        g.crit.importance === "상"
+          ? "고객이 중시하는 축에서 <b>" +
+            who +
+            "</b>에게 밀립니다. 숨기지 말고, 이 축을 재정의하거나 더 강한 다른 가치로 상쇄하세요."
+          : "<b>" +
+            who +
+            "</b>에게 밀리지만 중요도가 낮은 축입니다. 솔직히 인정하면 표 전체의 신뢰가 오히려 올라갑니다.";
+      html += '<p class="fi-note">' + advice + "</p></li>";
+    });
+    html += "</ul>";
+    return html;
+  }
+
+  function buildPrompt(A, offering, value) {
+    var L = [];
+    L.push(
+      "당신은 시장에서 통하는 비교 메시지를 쓰는 카피라이터입니다. 아래 자가 진단한 공정 비교표를, 고객이 믿고 행동하게 만드는 비교 메시지로 다듬어 주세요."
+    );
+    L.push("");
+    L.push("【우리】");
+    L.push("- 제품/서비스: " + (offering || "(미입력)"));
+    if (value && value.trim()) L.push("- 한 줄 가치: " + value.trim());
+    L.push("");
+    L.push("【고객이 저울질하는 대안】");
+    A.alts.forEach(function (a) {
+      L.push("- " + a.name + " (" + a.type + ")");
+    });
+    L.push("");
+    L.push("【비교 기준별 우열 (우리 기준)】");
+    A.crits.forEach(function (c) {
+      var parts = A.alts.map(function (a) {
+        var v = verdictOf(c, a.id);
+        var word = v === "win" ? "우위" : v === "lose" ? "열위" : "대등";
+        return a.name + "→" + word;
+      });
+      L.push("- [중요도 " + c.importance + "] " + c.name + ": " + parts.join(" / "));
+    });
+    L.push("");
+    L.push("【자가 진단 요약】");
+    L.push(
+      "- 우위 " + A.wins + " · 대등 " + A.ties + " · 열위 " + A.loses + " (총 " + A.cells + "칸)"
+    );
+    if (A.winAllCrits.length)
+      L.push(
+        "- 이길 곳(모든 대안 우위): " +
+          A.winAllCrits
+            .map(function (c) {
+              return c.name + "[" + c.importance + "]";
+            })
+            .join(", ")
+      );
+    if (A.concedeCells.length)
+      L.push(
+        "- 양보할 곳: " +
+          A.concedeCells
+            .map(function (x) {
+              return x.crit.name + "→" + x.alt.name;
+            })
+            .join(", ")
+      );
+    if (!A.hasStatusQuo) L.push("- 주의: '현상유지' 대안이 누락됨");
+    L.push("");
+    L.push("【작성 지침】");
+    L.push(
+      "1. 이길 곳(특히 중요도 '상')을 헤드라인과 핵심 메시지로 앞세우세요. 덜 중요한 우위로 리드하지 마세요."
+    );
+    L.push(
+      "2. 양보할 곳은 숨기지 말고 공정하게 인정하세요. 중요도 낮은 축은 솔직히 양보해 신뢰를 얻고, 중요도 높은 열위는 축을 재정의하거나 다른 가치로 상쇄하세요."
+    );
+    L.push(
+      "3. '현상유지'와 '수작업' 대비, 왜 지금 바꿔야 하는가(변화의 이유)를 분명히 하세요."
+    );
+    L.push("4. 모든 강한 주장 옆에는 근거(숫자·사례·증거)를 바로 붙이세요.");
+    L.push(
+      "5. 의미는 이미지가 아니라 텍스트에 담으세요. 사람·검색엔진·AI 답변엔진이 모두 읽고 인용할 수 있어야 합니다."
+    );
+    L.push(
+      "6. 이기려고 기준을 왜곡하지 마세요. 전부 이긴 비교표는 신뢰를 잃고 역효과를 냅니다."
+    );
+    L.push("7. 명확한 CTA 하나로 마무리하세요. 여러 행동을 경쟁시키지 마세요.");
+    L.push(
+      "8. 근거가 없으면 지어내지 말고, 저에게 필요한 사실을 먼저 물어봐 주세요."
+    );
+    return L.join("\n");
+  }
+
+  document.getElementById("build").addEventListener("click", function () {
+    var offering = document.getElementById("offering").value.trim();
+    var value = valueEl.value;
+    var A = analyze();
+
+    if (A.alts.length === 0 || A.crits.length === 0) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">⚖</div>' +
+        "<p><strong>아직 만들 수 없습니다.</strong></p>" +
+        "<p>이름이 있는 대안과 비교 기준을 각각 하나 이상 입력하세요.</p></div>";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var v = auditVerdict(A);
+    var notes = collectNotes(A);
+    var html = "";
+
+    // audit banner
+    html += '<div class="verdict tone-' + v.tone + '">';
+    html += '<p class="verdict-label">' + esc(v.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(v.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(v.desc) + "</p>";
+    html += '<div class="tally">';
+    html += '<span class="t-chip tw">우위 ' + A.wins + "</span>";
+    html += '<span class="t-chip tt">대등 ' + A.ties + "</span>";
+    html += '<span class="t-chip tl">열위 ' + A.loses + "</span>";
+    html += "</div>";
+    if (notes.length) {
+      html += '<ul class="notes">';
+      notes.forEach(function (n) {
+        html += '<li class="note-item">' + n + "</li>";
+      });
+      html += "</ul>";
+    }
+    html += "</div>";
+
+    // table
+    html += '<div class="result-block-title">공정 비교표</div>';
+    html += buildTable(A, offering);
+
+    // wins
+    html += '<div class="result-block-title">이길 곳 · 앞세울 가치</div>';
+    html += winList(A);
+
+    // concessions
+    html += '<div class="result-block-title">양보할 곳 · 정직하게 인정</div>';
+    html += concedeList(A);
+
+    // prompt
+    lastPrompt = buildPrompt(A, offering, value);
+    html += '<div class="result-block-title">심화 · AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">이 진단을 ChatGPT·Claude 등에 붙여넣으면, 이길 곳을 앞세우고 양보할 곳을 정직하게 다룬 비교 메시지 카피로 이어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn" type="button">프롬프트 복사</button>';
+    html +=
+      '<button class="act btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- reset ----------
+  document.getElementById("reset").addEventListener("click", function () {
+    document.getElementById("offering").value = "";
+    valueEl.value = "";
+    grow(valueEl);
+    uid = 0;
+    state.alternatives = [
+      { id: nid("a"), name: "현상유지 (아무것도 안 함)", type: "현상유지" },
+      { id: nid("a"), name: "직접 / 수작업", type: "수작업" },
+      { id: nid("a"), name: "경쟁사 A", type: "경쟁사" },
+    ];
+    state.criteria = [
+      { id: nid("c"), name: "원하는 결과 (핵심 성과)", importance: "상", verdicts: {} },
+      { id: nid("c"), name: "도입·전환 비용", importance: "중", verdicts: {} },
+      { id: nid("c"), name: "걸리는 시간·속도", importance: "중", verdicts: {} },
+    ];
+    renderAlts();
+    renderCrits();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">⚖</div>' +
+      "<p><strong>아직 만들기 전입니다.</strong></p>" +
+      "<p>대안과 기준을 채우고 '공정 비교표 만들기'를 누르세요.</p></div>";
+    document
+      .getElementById("input-offering")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // ---------- init ----------
+  renderAlts();
+  renderCrits();
+</script>

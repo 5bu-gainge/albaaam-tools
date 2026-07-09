@@ -1,0 +1,1250 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>사명 문장 빌더 (드러커 5문답)</title>
+<meta
+  name="description"
+  content="드러커의 다섯 질문에 답하면 사명 슬로건과 5요소(파급·방법·목표·연결·정착)를 조립합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3d5a80;
+    --accent-strong: #2c435f;
+    --accent-tint: #eef2f8;
+    --accent-tint-2: #dde5f0;
+    --ink: #1f2937;
+    --ink-soft: #43505f;
+    --ink-mute: #6a7686;
+    --paper: #f7f8fb;
+    --card: #ffffff;
+    --line: #e3e7ee;
+    --line-strong: #cfd6e1;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #9a6b1a;
+    --warn-tint: #fff7ec;
+    --warn-line: #f1ddc0;
+    --shadow: 0 1px 2px rgba(31, 41, 55, 0.05), 0 6px 20px rgba(31, 41, 55, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- question fields ---------- */
+  .qfield {
+    margin-bottom: 18px;
+  }
+  .qfield:last-of-type {
+    margin-bottom: 6px;
+  }
+  .q-head {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    margin-bottom: 4px;
+  }
+  .q-num {
+    flex: none;
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 6px;
+    padding: 2px 7px;
+    letter-spacing: 0.02em;
+  }
+  .q-drucker {
+    font-weight: 800;
+    font-size: 1.02rem;
+    color: var(--ink);
+  }
+  .q-sub {
+    margin: 0 0 9px;
+    font-size: 0.88rem;
+    color: var(--ink-mute);
+  }
+  textarea {
+    width: 100%;
+    min-height: 60px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfdff;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa4b2;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-low {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-mid {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-high {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.36rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-low .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-mid .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-high .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #dce1ea;
+  }
+  .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-high .pip.lit {
+    background: var(--good);
+  }
+  .verdict.tone-low .pip.lit {
+    background: #c9962f;
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* slogan cards */
+  .slogan-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .slogan {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 11px;
+    background: #fcfdff;
+    padding: 13px 15px;
+  }
+  .slogan .s-tag {
+    display: inline-block;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin-bottom: 7px;
+  }
+  .slogan .s-text {
+    margin: 0;
+    font-size: 1.14rem;
+    font-weight: 800;
+    line-height: 1.4;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  /* 5-element list */
+  .elem-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .elem {
+    display: flex;
+    gap: 13px;
+    align-items: flex-start;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fcfdff;
+    padding: 12px 14px;
+  }
+  .elem .e-name {
+    flex: none;
+    width: 74px;
+    font-weight: 800;
+    font-size: 0.94rem;
+    color: var(--accent-strong);
+  }
+  .elem .e-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .elem .e-mean {
+    margin: 0 0 3px;
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+  }
+  .elem .e-val {
+    margin: 0;
+    font-size: 0.98rem;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .elem .e-val.empty {
+    color: #a7b0bd;
+    font-weight: 500;
+  }
+  .map-note {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 10px 0 0;
+  }
+
+  /* prose statement */
+  .statement {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fcfdff;
+    padding: 15px 16px;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.72;
+    color: var(--ink-soft);
+  }
+  .statement.empty {
+    color: #a7b0bd;
+    font-size: 0.94rem;
+  }
+
+  /* blanks to improve */
+  .blank-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .blank-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid #c9962f;
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: var(--warn-tint);
+  }
+  .blank-item .bi-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+  .blank-item .bi-fix {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+  .guide-note {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232d3a;
+    color: #eef2f8;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 41, 55, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .elem {
+      flex-direction: column;
+      gap: 4px;
+    }
+    .elem .e-name {
+      width: auto;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">사명 수립 · 피터 드러커의 다섯 질문</span>
+    <h1>사명 문장 빌더 (드러커 5문답)</h1>
+    <p class="lede">
+      드러커의 다섯 질문에 답하면, 그 답을 재료로 사명 슬로건 후보와 사명
+      5요소(파급·방법·목표·연결·정착), 그리고 사명 기술문 초안을 조립해 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>드러커의 다섯 질문</h2>
+    </div>
+    <p class="panel-sub">
+      한 질문에 한두 문장이면 충분합니다. 완벽한 문장이 아니어도 좋습니다. 지금
+      떠오르는 대로 적으면, 문장은 아래에서 조립합니다. 비워 둔 칸도 표시해
+      드립니다.
+    </p>
+    <div id="questions"></div>
+
+    <div class="actions">
+      <button class="btn-primary" id="assemble">사명 조립하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+    <p class="panel-sub" style="margin: 14px 0 0">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버나 외부 AI로
+      보내지 않고, 이 페이지 안에서만 조립합니다.
+    </p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>조립 결과</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◑</div>
+        <p><strong>아직 조립 전입니다.</strong></p>
+        <p>다섯 질문에 답하고 '사명 조립하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 피터 드러커(Peter Drucker)의 '가장
+      중요한 다섯 질문'(The Five Most Important Questions) &mdash; 사명, 고객,
+      고객 가치, 결과, 계획 &mdash; 과, 가인지 비전하우스(가치체계) 프레임워크의
+      사명 5요소(파급효과 · 방법 · 목표 · 연결 · 정착)를 대응시켜 구성합니다.
+      슬로건과 기술문은 입력한 답만을 재료로 조립하며, 없는 사실을 만들어내지
+      않습니다.
+    </p>
+    <p>
+      이 도구는 사명을 대신 확정해 주지 않습니다. 스스로 다듬을 초안과 질문을
+      건네는 사고 보조 도구이며, 최종 사명은 경영자 본인이 판단합니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- Drucker's five questions (sourced: value-system-coach SKILL.md §5 사명, §Drucker) ---------- */
+  var QUESTIONS = [
+    {
+      id: "q1",
+      tag: "Q1",
+      drucker: "우리의 사명은 무엇인가?",
+      sub: "우리 회사가 없어진다면 세상에서 무엇이 사라집니까? 돈 때문이 아니라 계속 하고 있는 일은 무엇입니까?",
+      ph: "예) 작은 가게도 대기업처럼 잘 팔 수 있게 돕는다",
+      fixTitle: "사명(존재 이유)이 비어 있습니다",
+      fix: "돈이 아니라 계속하는 이유, 사라지면 세상이 잃는 것을 한 문장으로 좁혀보세요.",
+    },
+    {
+      id: "q2",
+      tag: "Q2",
+      drucker: "우리의 고객은 누구인가?",
+      sub: "반드시 만족시켜야 할 1차 고객은 누구입니까? '모두'는 고객이 아닙니다. 하나로 좁혀보세요.",
+      ph: "예) 직원 5~20명 규모의 동네 소상공인",
+      fixTitle: "고객이 비어 있습니다",
+      fix: "'모두'는 고객이 아닙니다. 반드시 만족시켜야 할 1차 고객 하나로 좁혀보세요.",
+    },
+    {
+      id: "q3",
+      tag: "Q3",
+      drucker: "고객은 무엇을 가치있게 여기는가?",
+      sub: "고객이 진짜로 사는 것은 제품이 아니라 무엇입니까? (그것으로 얻는 변화 · 감정 · 결과)",
+      ph: "예) 큰 회사와 겨뤄도 밀리지 않는다는 자신감",
+      fixTitle: "고객 가치가 비어 있습니다",
+      fix: "제품 이름 말고, 고객이 그것으로 얻는 변화 · 감정 · 결과로 적어보세요.",
+    },
+    {
+      id: "q4",
+      tag: "Q4",
+      drucker: "우리의 결과는 무엇인가?",
+      sub: "성공했다면 세상에 어떤 변화 · 결과가 남습니까? 무엇으로 그것을 압니까?",
+      ph: "예) 폐업률이 낮아지고 단골이 늘어난다",
+      fixTitle: "결과가 비어 있습니다",
+      fix: "성공했을 때 남는 눈에 보이는 변화와, 그것을 가늠할 지표를 적어보세요.",
+    },
+    {
+      id: "q5",
+      tag: "Q5",
+      drucker: "우리의 계획(방법)은 무엇인가?",
+      sub: "그 사명을 이루는 우리만의 방법 · 방식은 무엇입니까? 경쟁자와 다른 점은?",
+      ph: "예) 데이터를 숨기지 않고 사장님 눈높이로 번역해 전한다",
+      fixTitle: "방법(계획)이 비어 있습니다",
+      fix: "경쟁자와 다른, 우리만의 방식 한 가지를 구체적으로 적어보세요.",
+    },
+  ];
+
+  /* 사명 5요소 <- 드러커 답 매핑 (SKILL.md §5 사명 5요소 박스) */
+  var ELEMS = [
+    { name: "파급효과", mean: "우리가 세상에 남기는 변화", from: 3 }, // Q4 결과
+    { name: "방법", mean: "그 변화를 이루는 우리만의 방식", from: 4 }, // Q5 계획
+    { name: "목표", mean: "고객에게 전하려는 핵심 가치", from: 2 }, // Q3 고객 가치
+    { name: "연결", mean: "우리가 함께하고 섬기는 대상", from: 1 }, // Q2 고객
+    { name: "정착", mean: "조직에 뿌리내릴 존재 이유", from: 0 }, // Q1 사명
+  ];
+
+  /* ---------- render question fields ---------- */
+  var qWrap = document.getElementById("questions");
+  QUESTIONS.forEach(function (q) {
+    var div = document.createElement("div");
+    div.className = "qfield";
+    div.innerHTML =
+      '<div class="q-head"><span class="q-num">' +
+      q.tag +
+      '</span><span class="q-drucker">' +
+      q.drucker +
+      "</span></div>" +
+      '<p class="q-sub">' +
+      q.sub +
+      "</p>" +
+      '<textarea id="' +
+      q.id +
+      '" aria-label="' +
+      q.tag +
+      " " +
+      q.drucker +
+      '" placeholder="' +
+      q.ph +
+      '"></textarea>';
+    qWrap.appendChild(div);
+  });
+
+  /* ---------- auto-grow (delegated) ---------- */
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  qWrap.addEventListener("input", function (e) {
+    if (e.target && e.target.tagName === "TEXTAREA") grow(e.target);
+  });
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function clean(s) {
+    return String(s == null ? "" : s).replace(/\s+/g, " ").trim();
+  }
+  function stripEnd(s) {
+    return clean(s).replace(/[\s.,·;:!?。…]+$/, "");
+  }
+  function extractCore(s) {
+    var t = clean(s);
+    if (!t) return "";
+    var m = t.split(/[\n.,·;:!?。…]/)[0].trim();
+    if (!m) m = t;
+    if (m.length > 28) m = m.slice(0, 28).trim();
+    return m;
+  }
+
+  /* Korean josa selection — real grammar logic, not cosmetic */
+  function lastHangul(w) {
+    if (!w) return -1;
+    var code = w.charCodeAt(w.length - 1);
+    if (code < 0xac00 || code > 0xd7a3) return -1;
+    return (code - 0xac00) % 28; // jongseong index (0 = no batchim)
+  }
+  function eul(w) {
+    // 을 / 를
+    if (!w) return w;
+    var j = lastHangul(w);
+    if (j < 0) return w + "를"; // non-hangul default
+    return w + (j !== 0 ? "을" : "를");
+  }
+  function euro(w) {
+    // 으로 / 로  (ㄹ 받침(8)은 '로')
+    if (!w) return w;
+    var j = lastHangul(w);
+    if (j < 0) return w + "로";
+    return w + (j === 0 || j === 8 ? "로" : "으로");
+  }
+  function iRaneun(w) {
+    // 이라는 / 라는
+    if (!w) return w;
+    var j = lastHangul(w);
+    if (j < 0) return w + "라는";
+    return w + (j !== 0 ? "이라는" : "라는");
+  }
+
+  /* ---------- state ---------- */
+  var lastPrompt = "";
+  var lastDraft = "";
+
+  var resultEl = document.getElementById("result");
+
+  /* ---------- readiness band ---------- */
+  function bandFor(sCount) {
+    if (sCount === 5)
+      return {
+        tone: "high",
+        label: "충실도 5 / 5",
+        title: "사명을 조립할 재료가 충분합니다",
+        desc: "다섯 질문이 모두 채워졌습니다. 아래 슬로건 후보와 기술문 초안을 골라 다듬으세요. 마지막으로 AI 정련 프롬프트로 문장을 더 날카롭게 만들 수 있습니다.",
+      };
+    if (sCount >= 3)
+      return {
+        tone: "mid",
+        label: "충실도 " + sCount + " / 5",
+        title: "골격은 섰습니다. 몇 칸을 더 채우면 단단해집니다",
+        desc: "사명의 뼈대가 보입니다. 아래 '더 채우면 좋은 칸'을 메우면 슬로건과 기술문이 훨씬 또렷해집니다.",
+      };
+    if (sCount >= 1)
+      return {
+        tone: "low",
+        label: "충실도 " + sCount + " / 5",
+        title: "재료가 아직 얇습니다",
+        desc: "지금 답만으로도 초안은 나오지만, 사명의 방향이 흐립니다. 특히 사명(Q1) · 고객(Q2) · 고객 가치(Q3)를 채우면 문장이 살아납니다.",
+      };
+    return {
+      tone: "low",
+      label: "충실도 0 / 5",
+      title: "아직 재료가 없습니다",
+      desc: "다섯 질문에 한두 문장씩만 답해도 사명 문장을 조립할 수 있습니다. 아래 질문을 하나씩 채워보세요.",
+    };
+  }
+
+  /* ---------- slogan candidates (composition with josa) ---------- */
+  function buildSlogans(core) {
+    // core = [q1..q5] extractCore'd
+    var out = [];
+    if (core[0])
+      out.push({ tag: "존재 선언형", text: core[0] });
+    if (core[1] && core[2])
+      out.push({
+        tag: "고객 가치형",
+        text: core[1] + "에게 " + eul(core[2]) + " 전합니다",
+      });
+    if (core[4] && core[3])
+      out.push({
+        tag: "방법 · 결과형",
+        text: euro(core[4]) + " " + eul(core[3]) + " 만듭니다",
+      });
+    return out;
+  }
+
+  /* ---------- prose statement (5~7 sentences) ---------- */
+  function buildStatement(c) {
+    // c = [q1..q5] stripEnd'd
+    var out = [];
+    if (c[0]) out.push("우리는 " + iRaneun(c[0]) + " 이유로 존재합니다.");
+    if (c[1]) out.push("우리가 반드시 섬겨야 할 고객은 " + c[1] + "입니다.");
+    if (c[2]) out.push("그들이 우리에게서 진짜로 원하는 것은 " + c[2] + "입니다.");
+    if (c[4]) out.push("우리는 " + euro(c[4]) + " 이 사명을 실행합니다.");
+    if (c[3]) out.push("그리하여 우리는 " + eul(c[3]) + " 세상에 남깁니다.");
+    if (out.length) out.push("이 사명이 우리의 모든 의사결정의 기준이 됩니다.");
+    return out.join(" ");
+  }
+
+  /* ---------- AI refinement prompt ---------- */
+  function buildPrompt(raw, core, elemVals, statement) {
+    var L = [];
+    L.push(
+      "당신은 피터 드러커의 '가장 중요한 다섯 질문'과 비전하우스(가치체계) 프레임워크에 정통한 사명 코치입니다."
+    );
+    L.push(
+      "아래는 한 경영자가 드러커의 다섯 질문에 답한 내용입니다. 이를 바탕으로 조직의 '사명 문장(미션)'을 다듬어 주세요."
+    );
+    L.push("");
+    L.push("【드러커 5문답 답변】");
+    QUESTIONS.forEach(function (q, i) {
+      var a = clean(raw[i]);
+      L.push(
+        i + 1 + ". " + q.drucker + " : " + (a ? a : "(미입력)")
+      );
+    });
+    L.push("");
+    L.push("【제가 1차로 조립한 초안】");
+    var slogs = buildSlogans(core);
+    if (slogs.length) {
+      L.push("- 사명 슬로건 후보:");
+      slogs.forEach(function (s) {
+        L.push("  · (" + s.tag + ") " + s.text);
+      });
+    } else {
+      L.push("- 사명 슬로건 후보: (재료 부족으로 미조립)");
+    }
+    L.push(
+      "- 사명 5요소 → 파급효과: " +
+        (elemVals[0] || "(미입력)") +
+        " / 방법: " +
+        (elemVals[1] || "(미입력)") +
+        " / 목표: " +
+        (elemVals[2] || "(미입력)") +
+        " / 연결: " +
+        (elemVals[3] || "(미입력)") +
+        " / 정착: " +
+        (elemVals[4] || "(미입력)")
+    );
+    L.push("- 기술문 초안: " + (statement || "(재료 부족으로 미조립)"));
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 위 답변만을 근거로, 기억에 남는 사명 슬로건(한 줄) 후보 3개를 서로 다른 결로 제안해 주세요. 답변에 없는 사실은 지어내지 마세요."
+    );
+    L.push(
+      "2. 사명 5요소(파급효과 · 방법 · 목표 · 연결 · 정착)를 각각 한 줄로 채워 주세요."
+    );
+    L.push(
+      "3. 슬로건의 의미를 풀어내는 사명 기술문(산문체 5~8문장)을 써 주세요."
+    );
+    L.push(
+      "4. 답변이 얇거나 비어 있는 항목이 있으면, 결론을 대신 내리지 말고 저에게 먼저 되물어 주세요. 특히 고객을 '모두'로 두지 않도록 좁혀 주세요."
+    );
+    L.push(
+      "5. 미사여구나 추상적 경영 용어(시너지 · 초격차 등)로 빈칸을 덮지 말고, 구체적인 단어를 쓰세요."
+    );
+    return L.join("\n");
+  }
+
+  /* ---------- plain-text mission draft (for copy) ---------- */
+  function buildDraftText(slogs, elemVals, statement) {
+    var L = [];
+    L.push("[사명 슬로건 후보]");
+    if (slogs.length) {
+      slogs.forEach(function (s, i) {
+        L.push(i + 1 + ". (" + s.tag + ") " + s.text);
+      });
+    } else {
+      L.push("(재료 부족으로 미조립)");
+    }
+    L.push("");
+    L.push("[사명 5요소]");
+    var names = ["파급효과", "방법", "목표", "연결", "정착"];
+    names.forEach(function (nm, i) {
+      L.push("- " + nm + ": " + (elemVals[i] || "(미입력)"));
+    });
+    L.push("");
+    L.push("[사명 기술문 초안]");
+    L.push(statement || "(재료 부족으로 미조립)");
+    return L.join("\n");
+  }
+
+  /* ---------- assemble ---------- */
+  document.getElementById("assemble").addEventListener("click", function () {
+    var raw = QUESTIONS.map(function (q) {
+      return document.getElementById(q.id).value;
+    });
+    var full = raw.map(stripEnd);
+    var core = raw.map(extractCore);
+    var substantial = full.map(function (v) {
+      return v.length >= 6;
+    });
+    var sCount = substantial.filter(Boolean).length;
+    var band = bandFor(sCount);
+
+    var elemVals = ELEMS.map(function (e) {
+      return full[e.from];
+    });
+    var slogs = buildSlogans(core);
+    var statement = buildStatement(full);
+
+    lastPrompt = buildPrompt(raw, core, elemVals, statement);
+    lastDraft = buildDraftText(slogs, elemVals, statement);
+
+    var html = "";
+
+    /* verdict + meter */
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html +=
+      '<div class="meter" role="img" aria-label="5개 질문 중 ' +
+      sCount +
+      '개 충실히 답변">';
+    for (var p = 0; p < 5; p++) {
+      html += '<span class="pip' + (p < sCount ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html += '<p class="meter-caption">' + sCount + " / 5 충실히 답변</p>";
+    html += "</div>";
+
+    /* blanks to improve */
+    var blanks = [];
+    QUESTIONS.forEach(function (q, i) {
+      if (!substantial[i]) {
+        var empty = full[i].length === 0;
+        blanks.push({
+          title: q.fixTitle + (empty ? "" : " (내용이 짧습니다)"),
+          fix: q.fix,
+        });
+      }
+    });
+    if (blanks.length === 0) {
+      html +=
+        '<p class="clean-note">다섯 질문이 모두 충실히 채워졌습니다. 아래 초안을 검토하고 마음에 드는 슬로건을 골라 다듬으세요.</p>';
+    } else {
+      html += '<div class="result-block-title">더 채우면 좋은 칸</div>';
+      html += '<ul class="blank-list">';
+      blanks.forEach(function (b) {
+        html += '<li class="blank-item">';
+        html += '<p class="bi-title">' + esc(b.title) + "</p>";
+        html += '<p class="bi-fix">' + esc(b.fix) + "</p>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    }
+
+    /* slogans */
+    html += '<div class="result-block-title">사명 슬로건 후보</div>';
+    if (slogs.length) {
+      html += '<ul class="slogan-list">';
+      slogs.forEach(function (s) {
+        html += '<li class="slogan">';
+        html += '<span class="s-tag">' + esc(s.tag) + "</span>";
+        html += '<p class="s-text">' + esc(s.text) + "</p>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html +=
+        '<p class="guide-note">슬로건 후보를 조립하려면 최소한 <strong>사명(Q1)</strong>, 또는 <strong>고객(Q2)</strong>과 <strong>고객 가치(Q3)</strong>를 함께 채워주세요.</p>';
+    }
+
+    /* 5 elements */
+    html += '<div class="result-block-title">사명 5요소</div>';
+    html += '<ul class="elem-list">';
+    ELEMS.forEach(function (e, i) {
+      var v = elemVals[i];
+      html += '<li class="elem">';
+      html += '<span class="e-name">' + esc(e.name) + "</span>";
+      html += '<span class="e-body">';
+      html += '<p class="e-mean">' + esc(e.mean) + "</p>";
+      if (v) {
+        html += '<p class="e-val">' + esc(v) + "</p>";
+      } else {
+        html +=
+          '<p class="e-val empty">(미입력 — ' +
+          esc(QUESTIONS[e.from].tag) +
+          " 답을 채우면 여기에 들어갑니다)</p>";
+      }
+      html += "</span></li>";
+    });
+    html += "</ul>";
+    html +=
+      '<p class="map-note">드러커의 답을 비전하우스 사명 5요소에 대응시켰습니다: 파급효과←결과(Q4), 방법←계획(Q5), 목표←고객 가치(Q3), 연결←고객(Q2), 정착←사명(Q1).</p>';
+
+    /* prose statement */
+    html += '<div class="result-block-title">사명 기술문 (초안)</div>';
+    if (statement) {
+      html += '<p class="statement">' + esc(statement) + "</p>";
+    } else {
+      html +=
+        '<p class="statement empty">질문에 답을 채우면, 답을 엮은 사명 기술문 초안이 여기에 만들어집니다.</p>';
+    }
+
+    /* draft copy row */
+    html += '<div class="copy-row no-print">';
+    html +=
+      '<button class="btn-copy" id="copyDraftBtn">사명 초안 복사</button>';
+    html +=
+      '<span class="copy-status" id="draftStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    /* AI prompt */
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 이 초안을 바탕으로 사명 슬로건과 5요소, 기술문을 함께 다듬어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPromptBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="promptStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    QUESTIONS.forEach(function (q) {
+      var t = document.getElementById(q.id);
+      t.value = "";
+      grow(t);
+    });
+    lastPrompt = "";
+    lastDraft = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◑</div>' +
+      "<p><strong>아직 조립 전입니다.</strong></p>" +
+      "<p>다섯 질문에 답하고 '사명 조립하기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ---------- result button wiring ---------- */
+  function wireResultButtons() {
+    var d = document.getElementById("copyDraftBtn");
+    var p = document.getElementById("copyPromptBtn");
+    var pr = document.getElementById("printBtn");
+    if (d)
+      d.addEventListener("click", function () {
+        doCopy(lastDraft, "draftStatus");
+      });
+    if (p)
+      p.addEventListener("click", function () {
+        doCopy(lastPrompt, "promptStatus");
+      });
+    if (pr)
+      pr.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(id, msg) {
+    var s = document.getElementById(id);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  /* ---------- copy: 3-tier fallback ---------- */
+  function doCopy(text, statusId) {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(statusId, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusId);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusId);
+  }
+
+  function legacyCopy(text, statusId) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(statusId, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

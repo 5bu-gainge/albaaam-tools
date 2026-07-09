@@ -1,0 +1,1391 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>업무부하·번아웃 자가진단</title>
+<meta
+  name="description"
+  content="몇 가지 문항 체크로 지금 내 업무부하와 소진 신호를 영역별 신호등으로 보여줍니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2b6875;
+    --accent-strong: #1f515c;
+    --accent-tint: #e7f1f3;
+    --accent-tint-2: #d3e6ea;
+    --ink: #21231f;
+    --ink-soft: #474a44;
+    --ink-mute: #676b64;
+    --paper: #f7f6f2;
+    --card: #ffffff;
+    --line: #e5e2da;
+    --line-strong: #d5d1c6;
+
+    /* traffic-light semantics (functional, separate from accent) */
+    --sig-green: #2f7d54;
+    --sig-green-ink: #1f5c3c;
+    --sig-green-tint: #e7f2ea;
+    --sig-amber: #d99411;
+    --sig-amber-ink: #8a5a08;
+    --sig-amber-tint: #fbf0d9;
+    --sig-red: #c14133;
+    --sig-red-ink: #97281c;
+    --sig-red-tint: #fbe8e5;
+
+    --shadow: 0 1px 2px rgba(33, 35, 31, 0.05), 0 6px 20px rgba(33, 35, 31, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- optional textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 80px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfaf7;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a29c92;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- question groups ---------- */
+  .scale-legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    background: #fbfaf7;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 9px 12px;
+    margin: 0 0 18px;
+  }
+  .scale-legend b {
+    color: var(--ink-soft);
+  }
+  .scale-legend .arrow {
+    flex: 1 1 60px;
+    height: 2px;
+    min-width: 40px;
+    background: linear-gradient(90deg, var(--sig-green), var(--sig-amber), var(--sig-red));
+    border-radius: 2px;
+  }
+
+  .dgroup {
+    margin-bottom: 22px;
+  }
+  .dgroup:last-of-type {
+    margin-bottom: 4px;
+  }
+  .dgroup-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 12px;
+  }
+  .dgroup-idx {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-size: 0.82rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+  }
+  .dgroup-name {
+    font-size: 1.02rem;
+    font-weight: 800;
+    margin: 0;
+  }
+
+  fieldset.q {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfaf7;
+    margin: 0 0 11px;
+    padding: 13px 14px 12px;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  }
+  fieldset.q.missing {
+    border-color: var(--sig-red);
+    box-shadow: 0 0 0 3px var(--sig-red-tint);
+  }
+  fieldset.q legend {
+    padding: 0;
+    font-size: 0.96rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 11px;
+  }
+  .scale {
+    display: flex;
+    gap: 6px;
+  }
+  .opt {
+    flex: 1 1 0;
+    min-width: 0;
+    position: relative;
+    display: block;
+  }
+  .opt .sr {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .optbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 46px;
+    padding: 4px 3px;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink-soft);
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.25;
+    cursor: pointer;
+    transition: all 0.13s;
+  }
+  .optbox:hover {
+    border-color: var(--accent);
+  }
+  .opt .sr:checked + .optbox {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 700;
+  }
+  .opt .sr:focus-visible + .optbox {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .progress-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    font-weight: 700;
+  }
+  .progress-track {
+    flex: 1 1 auto;
+    height: 7px;
+    background: #e8e4da;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: 5px;
+    transition: width 0.2s;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 16px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .form-msg {
+    margin: 12px 0 0;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--sig-red-ink);
+    min-height: 1.2em;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* traffic light */
+  .signal {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    padding: 5px 7px;
+    background: #29302f;
+    border-radius: 9px;
+    flex: none;
+  }
+  .lamp {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #4c4a45;
+    opacity: 0.32;
+  }
+  .lamp.on.red {
+    background: var(--sig-red);
+    opacity: 1;
+    box-shadow: 0 0 7px rgba(193, 65, 51, 0.85);
+  }
+  .lamp.on.amber {
+    background: var(--sig-amber);
+    opacity: 1;
+    box-shadow: 0 0 7px rgba(217, 148, 17, 0.85);
+  }
+  .lamp.on.green {
+    background: var(--sig-green);
+    opacity: 1;
+    box-shadow: 0 0 7px rgba(47, 125, 84, 0.85);
+  }
+  .signal.big {
+    padding: 7px 10px;
+    gap: 7px;
+  }
+  .signal.big .lamp {
+    width: 20px;
+    height: 20px;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 20px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-green {
+    background: var(--sig-green-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-amber {
+    background: var(--sig-amber-tint);
+    border-color: #f0dcb6;
+  }
+  .verdict.tone-red {
+    background: var(--sig-red-tint);
+    border-color: #f1cec8;
+  }
+  .verdict-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .verdict-heads {
+    min-width: 0;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 3px;
+  }
+  .verdict-title {
+    font-size: 1.34rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.3;
+  }
+  .verdict.tone-green .verdict-title {
+    color: var(--sig-green-ink);
+  }
+  .verdict.tone-amber .verdict-title {
+    color: var(--sig-amber-ink);
+  }
+  .verdict.tone-red .verdict-title {
+    color: var(--sig-red-ink);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .scorebar {
+    height: 10px;
+    border-radius: 6px;
+    background: #e5ded2;
+    overflow: hidden;
+    margin: 14px 0 6px;
+  }
+  .scorebar > span {
+    display: block;
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.3s;
+  }
+  .verdict.tone-green .scorebar > span {
+    background: var(--sig-green);
+  }
+  .verdict.tone-amber .scorebar > span {
+    background: var(--sig-amber);
+  }
+  .verdict.tone-red .scorebar > span {
+    background: var(--sig-red);
+  }
+  .score-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 12px;
+  }
+
+  .domain-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .domain-card {
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 14px 15px;
+    background: #fff;
+  }
+  .domain-card.b-green {
+    border-left-color: var(--sig-green);
+  }
+  .domain-card.b-amber {
+    border-left-color: var(--sig-amber);
+  }
+  .domain-card.b-red {
+    border-left-color: var(--sig-red);
+  }
+  .dc-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 9px;
+    flex-wrap: wrap;
+  }
+  .dc-name {
+    font-weight: 800;
+    font-size: 1rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .dc-tag {
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 6px;
+    flex: none;
+  }
+  .dc-tag.b-green {
+    color: var(--sig-green-ink);
+    background: var(--sig-green-tint);
+  }
+  .dc-tag.b-amber {
+    color: var(--sig-amber-ink);
+    background: var(--sig-amber-tint);
+  }
+  .dc-tag.b-red {
+    color: var(--sig-red-ink);
+    background: var(--sig-red-tint);
+  }
+  .dc-score {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    font-weight: 700;
+    flex: none;
+  }
+  .dc-advice {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #29302f;
+    color: #eef1ec;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--sig-green-ink);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(33, 35, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .optbox {
+      font-size: 0.72rem;
+      min-height: 48px;
+      padding: 4px 1px;
+    }
+    .scale {
+      gap: 4px;
+    }
+    .verdict-title {
+      font-size: 1.2rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #quiz-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">번아웃 자가진단 · 소진 3요인 + 부하·회복</span>
+    <h1>업무부하·번아웃 자가진단</h1>
+    <p class="lede">
+      몇 가지 문항에 답하면, 지금 내 업무부하와 소진 신호를 다섯 개 영역별
+      신호등(초록·노랑·빨강)으로 보여 드립니다. 어디에 먼저 손대야 하는지가
+      한눈에 보입니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>지금 상황 메모 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      요즘 가장 부담되는 일이나 상황을 적어 두면, 아래 진단 결과와 함께 AI 코치
+      프롬프트에 담깁니다. 비워 두어도 진단은 됩니다.
+    </p>
+    <label class="field-label" for="note">가장 부담되는 상황</label>
+    <textarea
+      id="note"
+      placeholder="예) 두 프로젝트 마감이 겹쳤고, 퇴근 후에도 계속 일 생각이 나서 잠을 설친다 ..."
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용과 응답은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API를
+      호출하지 않습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="quiz-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>15개 문항 체크</h2>
+    </div>
+    <p class="panel-sub">
+      지난 2주 동안 얼마나 자주 그랬는지 각 문항에서 하나씩 고르세요. 다섯 개
+      영역, 각 3문항입니다.
+    </p>
+
+    <div class="scale-legend" aria-hidden="true">
+      <b>전혀</b>
+      <span class="arrow"></span>
+      <b>거의 매일</b>
+    </div>
+
+    <div id="quiz"></div>
+
+    <div class="progress-line" aria-hidden="true">
+      <span id="progress-count">응답 0 / 15</span>
+      <span class="progress-track"><span class="progress-fill" id="progress-fill"></span></span>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="diagnose">신호등 진단하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+    <p class="form-msg" id="formMsg" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>진단 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">🟢🟡🔴</div>
+        <p><strong>아직 진단 전입니다.</strong></p>
+        <p>15개 문항에 응답하고 '신호등 진단하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 매슬랙(Maslach)의 번아웃 3차원 모형(정서적
+      소진 · 냉소/거리두기 · 효능감 저하)에, 과도한 업무 요구(job demands)와
+      회복(effort–recovery) 관점을 더해 다섯 영역으로 구성했습니다. 신호등 구간은
+      스스로 점검을 돕기 위한 휴리스틱이며, 임상적 절단점이 아닙니다.
+    </p>
+    <p>
+      이 도구는 지금 상태를 스스로 살펴보게 돕는 보조 도구일 뿐, 의학적 진단이
+      아닙니다. 빨간불이 이어지거나 일상이 힘들다면 상담·의료 등 전문가의 도움을
+      받으시길 권합니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // 0..4 frequency scale (all items are negatively worded → higher = more strain)
+  var SCALE = [
+    { v: 0, short: "전혀", full: "전혀 아니다" },
+    { v: 1, short: "드물게", full: "드물게 그렇다" },
+    { v: 2, short: "가끔", full: "가끔 그렇다" },
+    { v: 3, short: "자주", full: "자주 그렇다" },
+    { v: 4, short: "항상", full: "거의 매일 그렇다" },
+  ];
+
+  // 5 domains x 3 items. Each item scored 0..4 → domain raw 0..12.
+  // Band by thirds: 0-4 안정(green), 5-8 주의(amber), 9-12 경고(red).
+  var DOMAINS = [
+    {
+      id: "load",
+      name: "업무량·시간 부하",
+      q: [
+        "처리해야 할 일의 양이 감당할 수 있는 수준을 넘는다.",
+        "마감과 시간 압박에 쫓기며 일한다.",
+        "정규 근무시간으로는 일이 끝나지 않아 초과로 이어진다.",
+      ],
+      advice: {
+        green:
+          "업무량은 관리 범위 안에 있습니다. 지금의 우선순위 방식과 여유 버퍼를 유지하세요.",
+        amber:
+          "부하가 높아지고 있습니다. 마감이 겹치는 구간을 미리 분산하고, 새 요청을 받을 때 기존 일정과의 교환을 명시하세요.",
+        red:
+          "지금 부하는 지속하기 어렵습니다. 이번 주 할 일을 '반드시 · 위임 · 중단'으로 나눠 최소 한 가지는 덜어내고, 관리자와 우선순위를 다시 맞추세요.",
+      },
+    },
+    {
+      id: "exhaustion",
+      name: "정서적 소진",
+      q: [
+        "하루 일과가 끝나면 완전히 진이 빠진다.",
+        "아침에 또 출근할 생각을 하면 벌써 지친다.",
+        "일 때문에 감정적으로 고갈된 느낌이다.",
+      ],
+      advice: {
+        green:
+          "정서적 에너지는 아직 버티고 있습니다. 지금의 휴식 리듬을 지키세요.",
+        amber:
+          "에너지가 눈에 띄게 떨어지고 있습니다. 하루 중 짧은 회복 구간(짧은 산책, 온전히 쉬는 점심)을 의식적으로 넣으세요.",
+        red:
+          "정서적 소진이 뚜렷합니다. 회복은 선택이 아니라 필수입니다. 가까운 시일에 온전히 쉬는 시간을 확보하고, 소진이 길어지면 전문적 도움을 고려하세요.",
+      },
+    },
+    {
+      id: "cynicism",
+      name: "냉소·심리적 거리두기",
+      q: [
+        "내가 하는 일이 예전만큼 의미 있게 느껴지지 않는다.",
+        "동료나 고객의 일에 점점 무심해진다.",
+        "일에 최소한만 관여하고 빨리 벗어나고 싶다.",
+      ],
+      advice: {
+        green:
+          "일에 대한 태도는 건강합니다. 의미를 느끼는 활동을 계속 가까이 두세요.",
+        amber:
+          "몰입이 식고 있습니다. 최근 의미를 느꼈던 순간을 적어 보고, 그 일의 비중을 조금 늘려 보세요.",
+        red:
+          "일과 사람에 대한 냉소가 커졌습니다. 이는 소진의 핵심 신호입니다. 내 일이 누구에게 어떤 의미인지 다시 연결하고, 통제할 수 없는 부분과는 거리를 두세요.",
+      },
+    },
+    {
+      id: "efficacy",
+      name: "효능감 저하",
+      q: [
+        "예전만큼 일에서 성취감을 느끼지 못한다.",
+        "열심히 해도 뭔가를 이뤄내고 있다는 느낌이 없다.",
+        "내 능력이나 판단에 대한 자신이 줄었다.",
+      ],
+      advice: {
+        green:
+          "일에서 유능감을 유지하고 있습니다. 성취를 기록하는 습관을 이어가세요.",
+        amber:
+          "성취감이 흐려지고 있습니다. 성과를 스스로 인정하는 짧은 주간 회고를 다시 시작하세요.",
+        red:
+          "효능감이 크게 낮아졌습니다. 큰 목표보다 오늘 끝낸 작은 성취를 눈에 보이게 기록해 자신감의 기반을 다시 쌓으세요.",
+      },
+    },
+    {
+      id: "recovery",
+      name: "회복 실패·신체 신호",
+      q: [
+        "퇴근 후나 주말에도 일 생각이 떠나지 않는다.",
+        "쉬어도 피로가 잘 풀리지 않는다.",
+        "수면 · 두통 · 소화 등 몸의 이상 신호가 늘었다.",
+      ],
+      advice: {
+        green:
+          "회복과 경계가 잘 작동하고 있습니다. 지금의 오프타임 습관을 유지하세요.",
+        amber:
+          "회복이 충분치 않습니다. 퇴근 후 업무 알림을 끄고, 잠들기 전 업무 생각을 종료하는 루틴을 만드세요.",
+        red:
+          "몸과 마음이 회복되지 못하고 있습니다. 업무와 물리적·심리적으로 분리되는 경계(알림 차단, 업무 앱 분리)를 만들고, 신체 증상이 계속되면 진료를 받으세요.",
+      },
+    },
+  ];
+
+  var BAND_LABEL = { green: "안정", amber: "주의", red: "경고" };
+
+  // build a stable list of question ids
+  var QIDS = [];
+  DOMAINS.forEach(function (d) {
+    d.q.forEach(function (_, i) {
+      QIDS.push("q-" + d.id + "-" + i);
+    });
+  });
+  var TOTAL_Q = QIDS.length; // 15
+  var answered = {};
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // ---- render quiz ----
+  var quizEl = document.getElementById("quiz");
+  DOMAINS.forEach(function (d, di) {
+    var group = document.createElement("div");
+    group.className = "dgroup";
+
+    var head = document.createElement("div");
+    head.className = "dgroup-head";
+    head.innerHTML =
+      '<span class="dgroup-idx" aria-hidden="true">' +
+      (di + 1) +
+      "</span>" +
+      '<p class="dgroup-name">' +
+      esc(d.name) +
+      "</p>";
+    group.appendChild(head);
+
+    d.q.forEach(function (text, qi) {
+      var qid = "q-" + d.id + "-" + qi;
+      var fs = document.createElement("fieldset");
+      fs.className = "q";
+      fs.id = "fs-" + qid;
+
+      var opts = "";
+      SCALE.forEach(function (s) {
+        var oid = qid + "-" + s.v;
+        opts +=
+          '<label class="opt">' +
+          '<input class="sr" type="radio" name="' +
+          qid +
+          '" id="' +
+          oid +
+          '" value="' +
+          s.v +
+          '" aria-label="' +
+          esc(s.full) +
+          '" />' +
+          '<span class="optbox">' +
+          esc(s.short) +
+          "</span>" +
+          "</label>";
+      });
+
+      fs.innerHTML =
+        "<legend>" +
+        esc(text) +
+        "</legend>" +
+        '<div class="scale" role="radiogroup" aria-label="' +
+        esc(text) +
+        '">' +
+        opts +
+        "</div>";
+      group.appendChild(fs);
+    });
+
+    quizEl.appendChild(group);
+  });
+
+  // ---- track progress ----
+  var progressCount = document.getElementById("progress-count");
+  var progressFill = document.getElementById("progress-fill");
+
+  quizEl.addEventListener("change", function (e) {
+    var el = e.target;
+    if (!el.classList || !el.classList.contains("sr")) return;
+    answered[el.name] = true;
+    var fs = document.getElementById("fs-" + el.name);
+    if (fs) fs.classList.remove("missing");
+    updateProgress();
+  });
+
+  function countAnswered() {
+    var n = 0;
+    QIDS.forEach(function (qid) {
+      if (document.querySelector('input[name="' + qid + '"]:checked')) n++;
+    });
+    return n;
+  }
+
+  function updateProgress() {
+    var n = countAnswered();
+    progressCount.textContent = "응답 " + n + " / " + TOTAL_Q;
+    progressFill.style.width = (n / TOTAL_Q) * 100 + "%";
+  }
+
+  // ---- auto-grow textarea ----
+  var note = document.getElementById("note");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  note.addEventListener("input", function () {
+    grow(note);
+  });
+
+  // ---- scoring ----
+  function bandOf(raw) {
+    if (raw <= 4) return "green";
+    if (raw <= 8) return "amber";
+    return "red";
+  }
+
+  function overallBand(reds, ambers, total) {
+    if (reds >= 2 || total >= 40) return "red";
+    if (reds >= 1 || ambers >= 2 || total >= 21) return "amber";
+    return "green";
+  }
+
+  var OVERALL = {
+    green: {
+      label: "종합 신호 · 초록",
+      title: "전반적으로 안정 범위입니다",
+      desc:
+        "지금은 업무부하와 소진 신호가 관리 범위 안에 있습니다. 이 리듬을 유지하되, 일이 몰리는 시기에는 이 진단을 다시 해 보며 초록불을 지키세요.",
+    },
+    amber: {
+      label: "종합 신호 · 노랑",
+      title: "일부 영역에서 경고가 올라옵니다",
+      desc:
+        "몇몇 영역에서 신호가 켜지기 시작했습니다. 아래에서 노란불·빨간불이 켜진 영역부터 손대면, 더 나빠지기 전에 흐름을 되돌릴 수 있습니다.",
+    },
+    red: {
+      label: "종합 신호 · 빨강",
+      title: "소진 위험이 높게 나타납니다",
+      desc:
+        "여러 영역에서 위험 신호가 뚜렷합니다. 의지로 버티는 단계를 넘었을 수 있습니다. 빨간불 영역을 먼저 조치하고, 상태가 이어지면 상담·의료 등 전문가의 도움을 받으세요.",
+    },
+  };
+
+  function lampHtml(band, big) {
+    var order = ["red", "amber", "green"];
+    var h =
+      '<span class="signal' +
+      (big ? " big" : "") +
+      '" role="img" aria-label="신호등 ' +
+      esc(BAND_LABEL[band]) +
+      '">';
+    order.forEach(function (c) {
+      h += '<span class="lamp ' + c + (c === band ? " on" : "") + '"></span>';
+    });
+    h += "</span>";
+    return h;
+  }
+
+  function buildPrompt(results, total, ovBand, noteText) {
+    var lines = [];
+    lines.push(
+      "당신은 직장인 번아웃과 업무부하 회복을 돕는 신중한 코치입니다. 아래는 제가 방금 마친 자가진단 결과입니다."
+    );
+    lines.push("");
+    lines.push("【종합 신호】 " + BAND_LABEL[ovBand] + " (총점 " + total + " / 60)");
+    lines.push("");
+    lines.push("【영역별 신호등】 (각 0~12점, 낮을수록 안정)");
+    results.forEach(function (r) {
+      lines.push(
+        "- " +
+          r.name +
+          ": " +
+          BAND_LABEL[r.band] +
+          " (" +
+          r.raw +
+          "/12)"
+      );
+    });
+    lines.push("");
+    if (noteText && noteText.trim()) {
+      lines.push("【지금 가장 부담되는 상황】");
+      lines.push(noteText.trim());
+      lines.push("");
+    }
+    lines.push("【요청 사항】");
+    lines.push(
+      "1. 빨간불 → 노란불 영역 순서로, 이번 2주 동안 실천할 구체적이고 작은 행동을 영역마다 1~2개 제안해 주세요."
+    );
+    lines.push(
+      "2. 결론을 대신 내리지 말고, 제 상황을 먼저 질문으로 확인한 뒤 함께 계획을 다듬어 주세요."
+    );
+    lines.push(
+      "3. 업무량을 줄이는 방법(우선순위 재조정 · 위임 · 경계 설정)과 회복 루틴을 나눠 정리해 주세요."
+    );
+    lines.push(
+      "4. 이건 의학적 진단이 아니라는 점을 전제로, 소진이 심하거나 신체 증상이 이어지면 전문가(상담 · 의료) 상담을 권해 주세요."
+    );
+    lines.push(
+      "5. 근거 없는 낙관이나 일반론으로 덮지 말고, 모르는 부분은 제게 사실을 물어 주세요."
+    );
+    return lines.join("\n");
+  }
+
+  var lastPrompt = "";
+  var resultEl = document.getElementById("result");
+  var formMsg = document.getElementById("formMsg");
+
+  document.getElementById("diagnose").addEventListener("click", function () {
+    // require all answered
+    var missing = [];
+    QIDS.forEach(function (qid) {
+      var picked = document.querySelector('input[name="' + qid + '"]:checked');
+      var fs = document.getElementById("fs-" + qid);
+      if (!picked) {
+        missing.push(qid);
+        if (fs) fs.classList.add("missing");
+      } else if (fs) {
+        fs.classList.remove("missing");
+      }
+    });
+
+    if (missing.length > 0) {
+      formMsg.textContent =
+        missing.length + "개 문항이 아직 남았습니다. 모두 응답해 주세요.";
+      var firstFs = document.getElementById("fs-" + missing[0]);
+      if (firstFs) firstFs.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    formMsg.textContent = "";
+
+    // score domains
+    var results = [];
+    var total = 0;
+    var reds = 0;
+    var ambers = 0;
+    DOMAINS.forEach(function (d) {
+      var raw = 0;
+      d.q.forEach(function (_, i) {
+        var picked = document.querySelector(
+          'input[name="q-' + d.id + "-" + i + '"]:checked'
+        );
+        raw += picked ? parseInt(picked.value, 10) : 0;
+      });
+      var band = bandOf(raw);
+      if (band === "red") reds++;
+      if (band === "amber") ambers++;
+      total += raw;
+      results.push({
+        id: d.id,
+        name: d.name,
+        raw: raw,
+        band: band,
+        advice: d.advice[band],
+      });
+    });
+
+    var ovBand = overallBand(reds, ambers, total);
+    var ov = OVERALL[ovBand];
+    var noteText = note.value;
+
+    var html = "";
+
+    // overall verdict
+    html += '<div class="verdict tone-' + ovBand + '">';
+    html += '<div class="verdict-top">';
+    html += lampHtml(ovBand, true);
+    html += '<div class="verdict-heads">';
+    html += '<p class="verdict-label">' + esc(ov.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(ov.title) + "</p>";
+    html += "</div></div>";
+    html += '<p class="verdict-desc">' + esc(ov.desc) + "</p>";
+    html +=
+      '<div class="scorebar" role="img" aria-label="총점 ' +
+      total +
+      ' / 60"><span style="width:' +
+      (total / 60) * 100 +
+      '%"></span></div>';
+    html +=
+      '<p class="score-caption">종합 점수 ' +
+      total +
+      " / 60 · 빨간불 " +
+      reds +
+      "개 · 노란불 " +
+      ambers +
+      "개</p>";
+    html += "</div>";
+
+    // per-domain traffic lights
+    html += '<div class="result-block-title">영역별 신호등</div>';
+    html += '<div class="domain-list">';
+    results.forEach(function (r) {
+      html += '<div class="domain-card b-' + r.band + '">';
+      html += '<div class="dc-head">';
+      html += lampHtml(r.band, false);
+      html += '<span class="dc-name">' + esc(r.name) + "</span>";
+      html +=
+        '<span class="dc-tag b-' +
+        r.band +
+        '">' +
+        esc(BAND_LABEL[r.band]) +
+        "</span>";
+      html += '<span class="dc-score">' + r.raw + " / 12</span>";
+      html += "</div>";
+      html += '<p class="dc-advice">' + esc(r.advice) + "</p>";
+      html += "</div>";
+    });
+    html += "</div>";
+
+    // AI prompt
+    lastPrompt = buildPrompt(results, total, ovBand, noteText);
+    html += '<div class="result-block-title">심화: AI 코치에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 이 진단을 바탕으로 2주 회복·부하 조정 계획을 함께 세워 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    answered = {};
+    note.value = "";
+    grow(note);
+    Array.prototype.forEach.call(
+      quizEl.querySelectorAll("input.sr:checked"),
+      function (b) {
+        b.checked = false;
+      }
+    );
+    Array.prototype.forEach.call(quizEl.querySelectorAll("fieldset.q"), function (
+      fs
+    ) {
+      fs.classList.remove("missing");
+    });
+    formMsg.textContent = "";
+    updateProgress();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">🟢🟡🔴</div>' +
+      "<p><strong>아직 진단 전입니다.</strong></p>" +
+      "<p>15개 문항에 응답하고 '신호등 진단하기'를 누르세요.</p></div>";
+    document.getElementById("quiz-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      // tier 3: manual modal
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  updateProgress();
+</script>

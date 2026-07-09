@@ -1,0 +1,1292 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>어려운 대화 리허설 (NVC 4단계)</title>
+<meta name="description" content="감정적으로 번질 대화를 비폭력대화 4단계(관찰-느낌-욕구-요청) 스크립트로 미리 정리하게 해줍니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #4a5a8f;
+    --accent-strong: #394674;
+    --accent-tint: #edeff8;
+    --accent-tint-2: #dbe0f1;
+    --ink: #21232a;
+    --ink-soft: #474a55;
+    --ink-mute: #6a6d78;
+    --paper: #f7f8fb;
+    --card: #ffffff;
+    --line: #e4e6ee;
+    --line-strong: #d3d6e2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #b9791b;
+    --warn-tint: #fff6ea;
+    --warn-line: #f0dcbe;
+    --shadow: 0 1px 2px rgba(33, 35, 42, 0.05), 0 6px 20px rgba(33, 35, 42, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 72px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a2a6b3;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- NVC step blocks ---------- */
+  .nvc-step {
+    margin-bottom: 20px;
+  }
+  .nvc-step:last-of-type {
+    margin-bottom: 4px;
+  }
+  .nvc-step-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 4px;
+  }
+  .nvc-badge {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-weight: 800;
+    font-size: 0.82rem;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--accent-tint-2);
+  }
+  .nvc-name {
+    font-weight: 800;
+    font-size: 1.04rem;
+  }
+  .nvc-name .en {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin-left: 6px;
+  }
+  .nvc-guide {
+    color: var(--ink-mute);
+    font-size: 0.86rem;
+    margin: 0 0 9px;
+    padding-left: 35px;
+  }
+
+  /* ---------- chips ---------- */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 9px;
+  }
+  .chips-label {
+    width: 100%;
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    margin: 0 0 1px;
+  }
+  .chip {
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 999px;
+    padding: 8px 13px;
+    min-height: 38px;
+    cursor: pointer;
+    line-height: 1;
+    transition: background 0.12s, transform 0.05s;
+  }
+  .chip:hover {
+    background: var(--accent-tint-2);
+  }
+  .chip:active {
+    transform: translateY(1px);
+  }
+  .chip:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-draft {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-warn {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-ready {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-draft .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-warn .verdict-title {
+    color: #8f5c11;
+  }
+  .verdict.tone-ready .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #dcdfe9;
+  }
+  .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-ready .pip.lit {
+    background: var(--good);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  .fb-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .fb-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--warn);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fff;
+  }
+  .fb-item.sev-empty {
+    border-left-color: var(--accent);
+  }
+  .fb-step {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--ink-mute);
+    background: #eef0f6;
+    padding: 3px 9px;
+    border-radius: 6px;
+    margin-bottom: 7px;
+  }
+  .fb-item .fb-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 4px;
+  }
+  .fb-item .fb-fix {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+  .clean-note strong {
+    color: var(--good);
+  }
+
+  /* ---------- speakable script card ---------- */
+  .script-card {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 14px;
+    padding: 16px 15px;
+  }
+  pre.script {
+    margin: 0;
+    background: #fff;
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 11px;
+    padding: 16px 15px;
+    font-size: 0.95rem;
+    line-height: 1.72;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    color: var(--ink);
+    font-family: inherit;
+  }
+
+  /* ---------- AI prompt box ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #24262e;
+    color: #eef0f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(33, 35, 42, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .nvc-guide {
+      padding-left: 0;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #situation-panel,
+    #steps-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">어려운 대화 준비 · NVC 4단계</span>
+    <h1>어려운 대화 리허설</h1>
+    <p class="lede">
+      감정적으로 번지기 쉬운 대화를, 말하기 전에 비폭력대화 4단계(관찰 · 느낌 ·
+      욕구 · 요청)로 정리합니다. 비난이 아닌 부탁으로 바꿔 소리 내어 연습할
+      스크립트를 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="situation-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>대화 상황 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      누구와, 어떤 주제로 나눌 대화인가요? 적어 두면 스크립트와 리허설 프롬프트에
+      함께 담깁니다. 비워 두어도 됩니다.
+    </p>
+    <label class="field-label" for="target">상대 · 주제</label>
+    <textarea
+      id="target"
+      placeholder="예) 자료를 자주 늦게 주는 팀원과, 마감 전 공유 방식에 대해"
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+      없습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="steps-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>NVC 4단계 채우기</h2>
+    </div>
+    <p class="panel-sub">
+      각 단계를 한두 문장으로 채우세요. '판정하기'를 누르면 평가·가짜 느낌·모호한
+      요청이 섞였는지 점검해 드립니다.
+    </p>
+
+    <div class="nvc-step">
+      <div class="nvc-step-head">
+        <span class="nvc-badge" aria-hidden="true">1</span>
+        <span class="nvc-name">관찰<span class="en">Observation</span></span>
+      </div>
+      <p class="nvc-guide">
+        무슨 일이 있었나요? 평가·해석을 빼고, 카메라로 찍을 수 있는 사실만
+        적습니다.
+      </p>
+      <textarea
+        id="obs"
+        placeholder="예) 지난 세 번의 회의에서, 요청한 자료가 회의 시작까지 공유되지 않았다."
+      ></textarea>
+    </div>
+
+    <div class="nvc-step">
+      <div class="nvc-step-head">
+        <span class="nvc-badge" aria-hidden="true">2</span>
+        <span class="nvc-name">느낌<span class="en">Feeling</span></span>
+      </div>
+      <p class="nvc-guide">
+        그때 내 마음은 어땠나요? '무시당했다' 같은 생각이 아니라, 감정 그 자체로
+        적습니다.
+      </p>
+      <textarea
+        id="feel"
+        placeholder="예) 나는 답답하고, 회의 진행이 불안했다."
+      ></textarea>
+      <div class="chips" id="feel-chips" aria-label="느낌 단어 예시 (눌러서 추가)">
+        <p class="chips-label">막히면 눌러 채우기:</p>
+      </div>
+    </div>
+
+    <div class="nvc-step">
+      <div class="nvc-step-head">
+        <span class="nvc-badge" aria-hidden="true">3</span>
+        <span class="nvc-name">욕구<span class="en">Need</span></span>
+      </div>
+      <p class="nvc-guide">
+        그 느낌 아래에서 내가 정말 원하는 것은 무엇인가요? 상대가 아닌, 나의
+        보편적 욕구로 적습니다.
+      </p>
+      <textarea
+        id="need"
+        placeholder="예) 나에게는 예측 가능성과 서로에 대한 신뢰가 중요하다."
+      ></textarea>
+      <div class="chips" id="need-chips" aria-label="욕구 단어 예시 (눌러서 추가)">
+        <p class="chips-label">막히면 눌러 채우기:</p>
+      </div>
+    </div>
+
+    <div class="nvc-step">
+      <div class="nvc-step-head">
+        <span class="nvc-badge" aria-hidden="true">4</span>
+        <span class="nvc-name">요청<span class="en">Request</span></span>
+      </div>
+      <p class="nvc-guide">
+        상대에게 부탁할 구체적 행동은? '하지 마'가 아니라 '무엇을 해 달라'는
+        긍정형·실행가능한 부탁으로 적습니다.
+      </p>
+      <textarea
+        id="req"
+        placeholder="예) 다음 회의부터 자료를 하루 전날 오후까지 공유해 줄 수 있을까요?"
+      ></textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="diagnose">리허설 스크립트 만들기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>리허설 스크립트</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">&#10078;</div>
+        <p><strong>아직 만들기 전입니다.</strong></p>
+        <p>4단계를 채우고 '리허설 스크립트 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 마셜 로젠버그(Marshall Rosenberg)의
+      비폭력대화(Nonviolent Communication, NVC) 4단계 모델 — 관찰(Observation) ·
+      느낌(Feeling) · 욕구(Need) · 요청(Request). 점검 로직은 NVC의 두 원칙, 즉
+      '관찰과 평가를 분리한다'와 '느낌과 생각(가짜 느낌)을 구분한다', 그리고
+      요청은 긍정형 · 구체적 · 실행가능한 부탁이어야 한다는 기준을 따릅니다.
+    </p>
+    <p>
+      이 도구는 대화를 대신 해 주지 않으며, 말하기 전에 생각을 정리하도록 돕는
+      보조 도구입니다. 신호는 기계적 단어 감지에 기반하므로 맥락에 맞게 스스로
+      다듬어 사용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* =========================================================
+     비폭력대화(NVC) 4단계 리허설 — 실제 점검/생성 로직
+     - 관찰: 평가/일반화/낙인 단어 감지 (관찰 vs 평가 분리)
+     - 느낌: '가짜 느낌'(상대 행동에 대한 해석) 감지
+     - 요청: 부정형 / 모호함 / 강요 어조 감지
+     ========================================================= */
+
+  // 느낌·욕구 어휘 (막힐 때 눌러 채우는 보조 칩)
+  var FEEL_CHIPS = [
+    "답답하다", "서운하다", "불안하다", "걱정된다", "실망스럽다", "지친다",
+    "부담스럽다", "속상하다", "외롭다", "긴장된다", "혼란스럽다", "조바심난다"
+  ];
+  var NEED_CHIPS = [
+    "존중", "신뢰", "인정", "명확함", "협력", "공정함",
+    "안정감", "배려", "자율성", "소통", "예측 가능성", "성장"
+  ];
+
+  // 관찰에 섞이기 쉬운 평가/일반화/낙인/의도추측 표현
+  var EVAL_WORDS = [
+    "항상", "맨날", "만날", "매번", "언제나", "늘", "절대", "전혀", "하나도",
+    "무조건", "일부러", "고의로", "게으르", "무책임", "무능", "이기적",
+    "예의없", "예의 없", "무례", "불성실", "성의없", "성의 없", "프로답지",
+    "배려없", "배려 없", "형편없", "엉망", "한심", "나태", "제멋대로",
+    "무시하", "무시한", "무시해"
+  ];
+
+  // '가짜 느낌' — 감정처럼 보이나 상대 행동에 대한 해석/평가
+  var PSEUDO_WORDS = [
+    "무시당", "무시받", "이용당", "이용받", "버림받", "버려진", "배신당",
+    "공격받", "거절당", "조종당", "강요당", "인정받지 못", "인정 못 받",
+    "존중받지 못", "존중 못 받", "오해받", "소외", "압박받", "협박당",
+    "방치", "비난받", "외면당", "무시당하"
+  ];
+
+  // 요청 — 부정형 / 모호함 / 강요 어조
+  var REQ_NEG = ["하지 마", "하지마", "하지 말", "하지말", "말아", "안 했으면", "안했으면", "그만해", "그만두"];
+  var REQ_VAGUE = ["좀 더", "좀더", "잘 좀", "좀 잘", "신경 좀", "신경써", "신경 써", "제대로", "확실히", "알아서", "적당히", "분발", "노력해", "잘 해줘", "잘해줘"];
+  var REQ_DEMAND = ["당장", "반드시", "무조건", "해야 한다", "해야 합니다", "해야만", "해라", "하도록 해", "하세요"];
+
+  var EMPTY_FIX = {
+    obs: "무슨 일이 있었는지, 판단을 빼고 사실만 적어 보세요. (예: 지난 세 번의 회의에서 요청한 자료가 오지 않았다)",
+    feel: "그 일이 있을 때 든 감정을 적어 보세요. 아래 단어 칩을 눌러 채울 수 있어요.",
+    need: "그 느낌 아래에서 내가 정말 원하는 것(보편적 욕구)을 적어 보세요. 아래 칩을 활용하세요.",
+    req: "상대에게 부탁할 구체적이고 실행 가능한 행동을 적어 보세요. (예: 다음 회의부터 자료를 하루 전 오후까지 공유해 줄 수 있을까요?)"
+  };
+
+  var STEP_META = [
+    { key: "obs", name: "관찰", empty: "관찰 단계가 비어 있어요" },
+    { key: "feel", name: "느낌", empty: "느낌 단계가 비어 있어요" },
+    { key: "need", name: "욕구", empty: "욕구 단계가 비어 있어요" },
+    { key: "req", name: "요청", empty: "요청 단계가 비어 있어요" }
+  ];
+
+  // ---------- helpers ----------
+  function $(id) {
+    return document.getElementById(id);
+  }
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function matchWords(text, list) {
+    var found = [];
+    var t = String(text);
+    for (var i = 0; i < list.length; i++) {
+      if (t.indexOf(list[i]) >= 0 && found.indexOf(list[i]) < 0) {
+        found.push(list[i]);
+      }
+    }
+    return found;
+  }
+  function tokens(arr) {
+    return "「" + arr.join("」, 「") + "」";
+  }
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  // ---------- render vocab chips ----------
+  function renderChips(hostId, words, targetId) {
+    var host = $(hostId);
+    words.forEach(function (w) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.textContent = "+ " + w;
+      b.addEventListener("click", function () {
+        appendWord($(targetId), w);
+      });
+      host.appendChild(b);
+    });
+  }
+  function appendWord(el, w) {
+    var cur = el.value.trim();
+    if (cur === "") {
+      el.value = w;
+    } else if (cur.indexOf(w) >= 0) {
+      // 이미 있으면 중복 추가하지 않음
+      el.value = cur;
+    } else {
+      el.value = cur.replace(/[,\s]+$/, "") + ", " + w;
+    }
+    grow(el);
+    el.focus();
+  }
+  renderChips("feel-chips", FEEL_CHIPS, "feel");
+  renderChips("need-chips", NEED_CHIPS, "need");
+
+  // ---------- auto-grow all textareas ----------
+  var TAS = ["target", "obs", "feel", "need", "req"];
+  TAS.forEach(function (id) {
+    var el = $(id);
+    el.addEventListener("input", function () {
+      grow(el);
+    });
+  });
+
+  // ---------- analysis ----------
+  function readFields() {
+    return {
+      target: $("target").value,
+      obs: $("obs").value,
+      feel: $("feel").value,
+      need: $("need").value,
+      req: $("req").value
+    };
+  }
+
+  function analyze(f) {
+    var issues = []; // {sev:'empty'|'warn', step, title, fix}
+    var strong = [];
+    var filled = 0;
+
+    STEP_META.forEach(function (s) {
+      if (f[s.key] && f[s.key].trim()) filled++;
+    });
+
+    // empty steps
+    STEP_META.forEach(function (s) {
+      if (!f[s.key] || !f[s.key].trim()) {
+        issues.push({
+          sev: "empty",
+          step: s.name,
+          title: s.empty,
+          fix: EMPTY_FIX[s.key]
+        });
+      }
+    });
+
+    // 관찰: 평가/일반화/낙인
+    if (f.obs && f.obs.trim()) {
+      var ev = matchWords(f.obs, EVAL_WORDS);
+      if (ev.length) {
+        issues.push({
+          sev: "warn",
+          step: "관찰",
+          title: "관찰에 평가·판단이 섞였어요",
+          fix:
+            tokens(ev) +
+            " 같은 표현은 사실이 아니라 해석입니다. 상대가 반박하기 어려운 사실(무엇을, 몇 번, 언제)로 바꾸면 방어를 덜 부릅니다."
+        });
+      } else {
+        strong.push("관찰이 사실 중심으로 쓰였어요.");
+      }
+    }
+
+    // 느낌: 가짜 느낌
+    if (f.feel && f.feel.trim()) {
+      var ps = matchWords(f.feel, PSEUDO_WORDS);
+      if (ps.length) {
+        issues.push({
+          sev: "warn",
+          step: "느낌",
+          title: "느낌이 아니라 '생각'일 수 있어요",
+          fix:
+            tokens(ps) +
+            " 은(는) 상대의 행동에 대한 해석입니다. 그 아래에 있는 진짜 감정(서운함 · 답답함 · 불안 · 외로움 등)으로 바꾸면 비난처럼 들리지 않습니다."
+        });
+      } else {
+        strong.push("느낌이 감정 언어로 표현됐어요.");
+      }
+    }
+
+    // 요청: 부정형 / 모호 / 강요
+    if (f.req && f.req.trim()) {
+      var neg = matchWords(f.req, REQ_NEG);
+      var vag = matchWords(f.req, REQ_VAGUE);
+      var dem = matchWords(f.req, REQ_DEMAND);
+      if (neg.length) {
+        issues.push({
+          sev: "warn",
+          step: "요청",
+          title: "요청이 '하지 마'(부정형)로 되어 있어요",
+          fix:
+            "무엇을 멈춰 달라기보다, 대신 무엇을 해 달라는 긍정형·행동형으로 바꾸면 상대가 실천하기 쉽습니다."
+        });
+      }
+      if (vag.length) {
+        issues.push({
+          sev: "warn",
+          step: "요청",
+          title: "요청이 다소 모호해요",
+          fix:
+            tokens(vag) +
+            " 같은 표현은 사람마다 다르게 해석합니다. 언제 · 무엇을 · 얼마나처럼 확인 가능한 행동으로 좁혀 보세요."
+        });
+      }
+      if (dem.length) {
+        issues.push({
+          sev: "warn",
+          step: "요청",
+          title: "요청이 강요처럼 들릴 수 있어요",
+          fix:
+            "요청은 상대가 거절해도 관계가 유지되는 부탁입니다. " +
+            tokens(dem) +
+            " 같은 단정 대신, 여지를 두는 표현으로 바꿔 보세요."
+        });
+      }
+      if (!neg.length && !vag.length && !dem.length) {
+        strong.push("요청이 구체적인 부탁으로 표현됐어요.");
+      }
+    }
+
+    return { filled: filled, issues: issues, strong: strong };
+  }
+
+  function bandFor(a) {
+    var q = a.issues.filter(function (i) {
+      return i.sev === "warn";
+    }).length;
+
+    if (a.filled < 2) {
+      return {
+        tone: "draft",
+        label: "초안 · " + a.filled + "/4 단계",
+        title: "아직 초안 단계예요",
+        desc:
+          "네 단계 중 " +
+          a.filled +
+          "단계만 채워졌습니다. 관찰 · 느낌 · 욕구 · 요청을 모두 채우면 소리 내어 연습할 문장이 완성됩니다."
+      };
+    }
+    if (a.filled < 4) {
+      return {
+        tone: "warn",
+        label: a.filled + "/4 단계 · 점검 " + q + "건",
+        title: "거의 왔어요, 빈 단계가 있어요",
+        desc:
+          "스크립트 골격은 잡혔습니다. 비어 있는 단계를 채우면 대화가 관찰에서 요청까지 한 방향으로 이어집니다."
+      };
+    }
+    if (q === 0) {
+      return {
+        tone: "ready",
+        label: "4/4 단계 · 점검 통과",
+        title: "리허설 준비가 됐어요",
+        desc:
+          "네 단계가 모두 채워졌고, 평가 · 가짜 느낌 · 모호한 요청 신호가 잡히지 않았습니다. 아래 스크립트를 소리 내어 연습해 보세요."
+      };
+    }
+    return {
+      tone: "warn",
+      label: "4/4 단계 · 점검 " + q + "건",
+      title: "골격 완성, 다듬을 지점이 있어요",
+      desc:
+        "네 단계가 모두 채워졌습니다. 아래 점검 신호를 반영하면 더 부드럽고 전달력 있는 대화가 됩니다."
+    };
+  }
+
+  // ---------- speakable script ----------
+  function ph(v, alt) {
+    return v && v.trim() ? v.trim() : "(" + alt + ")";
+  }
+  function buildScript(f) {
+    var L = [];
+    if (f.target && f.target.trim()) {
+      L.push("[" + f.target.trim() + "]");
+      L.push("");
+    }
+    L.push("제가 나누고 싶은 이야기가 있어요.");
+    L.push("");
+    L.push("관찰 · 무슨 일이 있었나 (사실만)");
+    L.push(ph(f.obs, "여기에 사실을 채워주세요"));
+    L.push("");
+    L.push("느낌 · 그때 내 마음");
+    L.push(ph(f.feel, "여기에 그때 든 감정을 채워주세요"));
+    L.push("");
+    L.push("욕구 · 그 아래 내게 중요한 것");
+    L.push(ph(f.need, "여기에 내게 중요한 것을 채워주세요"));
+    L.push("");
+    L.push("요청 · 구체적으로 부탁하고 싶은 것");
+    L.push(ph(f.req, "여기에 구체적인 부탁을 채워주세요"));
+    L.push("");
+    L.push("이 부분에 대해 어떻게 생각하는지 듣고 싶어요.");
+    return L.join("\n");
+  }
+
+  // ---------- AI role-play prompt ----------
+  function buildPrompt(f, a) {
+    var L = [];
+    L.push("당신은 비폭력대화(NVC) 코치이자, 제가 곧 나눌 어려운 대화의 '상대역'입니다.");
+    L.push("");
+    L.push("【대화 상황】");
+    L.push("상대 · 주제: " + (f.target && f.target.trim() ? f.target.trim() : "(미입력)"));
+    L.push("");
+    L.push("【제가 준비한 NVC 4단계】");
+    L.push("1) 관찰(사실): " + (f.obs.trim() || "(미입력)"));
+    L.push("2) 느낌: " + (f.feel.trim() || "(미입력)"));
+    L.push("3) 욕구: " + (f.need.trim() || "(미입력)"));
+    L.push("4) 요청: " + (f.req.trim() || "(미입력)"));
+    L.push("");
+    L.push("【자가 점검에서 나온 신호】");
+    var warns = a.issues.filter(function (i) {
+      return i.sev === "warn";
+    });
+    if (warns.length === 0) {
+      L.push("- 평가·가짜 느낌·모호한 요청 신호는 잡히지 않았습니다.");
+    } else {
+      warns.forEach(function (w) {
+        L.push("- [" + w.step + "] " + w.title);
+      });
+    }
+    L.push("");
+    L.push("【요청 사항】");
+    L.push("1. 먼저 위 4단계가 '관찰과 평가', '느낌과 생각'을 잘 분리했는지, 요청이 긍정형·구체적·실행가능한 부탁인지 짚어 주세요.");
+    L.push("2. 그다음 상대역을 맡아, 현실적으로 나올 법한 방어적 반응이나 반문을 한 번에 하나씩 해 주세요. 제가 답하면 다음 반응으로 이어가는 롤플레이로 진행해 주세요.");
+    L.push("3. 각 주고받음 뒤에, 제 표현이 비난·강요로 미끄러진 지점을 NVC 관점에서 짧게 피드백해 주세요.");
+    L.push("4. 결론이나 '정답 대사'를 대신 써 주지 말고, 제가 스스로 문장을 고르도록 선택지와 질문을 먼저 주세요.");
+    L.push("5. 사실을 모르면 지어내지 말고 저에게 물어봐 주세요.");
+    return L.join("\n");
+  }
+
+  // ---------- render result ----------
+  var resultEl = $("result");
+  var lastScript = "";
+  var lastPrompt = "";
+
+  $("diagnose").addEventListener("click", function () {
+    var f = readFields();
+    var a = analyze(f);
+    var band = bandFor(a);
+    lastScript = buildScript(f);
+    lastPrompt = buildPrompt(f, a);
+
+    var html = "";
+
+    // verdict + meter
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html +=
+      '<div class="meter" role="img" aria-label="4단계 중 ' +
+      a.filled +
+      '단계 작성됨">';
+    for (var p = 0; p < 4; p++) {
+      html += '<span class="pip' + (p < a.filled ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html += '<p class="meter-caption">' + a.filled + " / 4 단계 작성</p>";
+    html += "</div>";
+
+    // strengths (positive framing first)
+    if (a.strong.length) {
+      html +=
+        '<p class="clean-note"><strong>잘 된 점</strong> · ' +
+        a.strong.map(esc).join(" ") +
+        "</p>";
+    }
+
+    // feedback (empty first, then quality)
+    if (a.issues.length) {
+      var ordered = a.issues.filter(function (i) {
+        return i.sev === "empty";
+      }).concat(
+        a.issues.filter(function (i) {
+          return i.sev === "warn";
+        })
+      );
+      html += '<div class="result-block-title">짚어볼 지점</div>';
+      html += '<ul class="fb-list">';
+      ordered.forEach(function (it) {
+        html += '<li class="fb-item sev-' + it.sev + '">';
+        html += '<span class="fb-step">' + esc(it.step) + "</span>";
+        html += '<p class="fb-title">' + esc(it.title) + "</p>";
+        html += '<p class="fb-fix">' + esc(it.fix) + "</p>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // speakable script
+    html += '<div class="result-block-title">말할 스크립트 (그대로 읽어보세요)</div>';
+    html += '<div class="script-card">';
+    html += '<pre class="script" id="script-text">' + esc(lastScript) + "</pre>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyScript">스크립트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="statusScript" role="status" aria-live="polite"></span>';
+    html += "</div>";
+    html += "</div>";
+
+    // AI role-play prompt
+    html += '<div class="result-block-title">리허설 프롬프트 (AI와 상대역 연습)</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 이 4단계를 검토하고 상대역이 되어 대화를 리허설해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPrompt">프롬프트 복사</button>';
+    html +=
+      '<span class="copy-status" id="statusPrompt" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- reset ----------
+  $("reset").addEventListener("click", function () {
+    TAS.forEach(function (id) {
+      var el = $(id);
+      el.value = "";
+      grow(el);
+    });
+    lastScript = "";
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">&#10078;</div>' +
+      "<p><strong>아직 만들기 전입니다.</strong></p>" +
+      "<p>4단계를 채우고 '리허설 스크립트 만들기'를 누르세요.</p></div>";
+    $("steps-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- wire result buttons ----------
+  function wireResultButtons() {
+    var cs = $("copyScript");
+    var cp = $("copyPrompt");
+    var pb = $("printBtn");
+    if (cs)
+      cs.addEventListener("click", function () {
+        doCopy(lastScript, "statusScript");
+      });
+    if (cp)
+      cp.addEventListener("click", function () {
+        doCopy(lastPrompt, "statusPrompt");
+      });
+    if (pb)
+      pb.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(statusId, msg) {
+    var s = $(statusId);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  // ---------- copy (3-tier fallback) ----------
+  function doCopy(text, statusId) {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(statusId, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusId);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusId);
+  }
+
+  function legacyCopy(text, statusId) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(statusId, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = $("modal");
+  var modalText = $("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  $("modal-close").addEventListener("click", closeModal);
+  $("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

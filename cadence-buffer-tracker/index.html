@@ -1,0 +1,1638 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FLOOR/TARGET/PEAK 케이던스 &amp; 버퍼 트래커</title>
+<meta name="description" content="바쁜 주의 유일한 약속(FLOOR)을 지키게 주간 케이던스를 짜고, 버퍼가 2주 아래로 내려가면 리필 모드를 알립니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    /* tuned-down teal: steady, sustainable operating cadence */
+    --accent: #2c766f;
+    --accent-strong: #215d57;
+    --accent-tint: #e7f2f0;
+    --accent-tint-2: #d0e6e2;
+    --ink: #1f2523;
+    --ink-soft: #45504c;
+    --ink-mute: #67716c;
+    --paper: #f6f8f7;
+    --card: #ffffff;
+    --line: #e3e8e5;
+    --line-strong: #d1d9d5;
+    --good: #2f6f4f;
+    --good-strong: #245a3f;
+    --good-tint: #e7f1ec;
+    --good-line: #cfe3d8;
+    --warn: #a9601a;
+    --warn-strong: #7f4712;
+    --warn-tint: #f9efe0;
+    --warn-line: #eeddbf;
+    --shadow: 0 1px 2px rgba(31, 37, 35, 0.05), 0 6px 20px rgba(31, 37, 35, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.68rem;
+    line-height: 1.3;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  label.field-label,
+  .field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 9px;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- segmented control ---------- */
+  .seg {
+    display: flex;
+    gap: 8px;
+  }
+  .seg-item {
+    flex: 1 1 0;
+    min-width: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    text-align: center;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: #fff;
+    padding: 11px 6px;
+    min-height: 58px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+  .seg-item .seg-t {
+    font-weight: 700;
+    font-size: 0.96rem;
+    color: var(--ink);
+  }
+  .seg-item .seg-s {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+  }
+  .seg-item.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .seg-item.on .seg-s {
+    color: var(--accent-strong);
+  }
+  .seg-item input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .seg-item:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- stepper ---------- */
+  .stepper {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    max-width: 260px;
+  }
+  .step-btn {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink);
+    border-radius: 11px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+  .step-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+  .stepper input {
+    flex: 1 1 auto;
+    width: 100%;
+    text-align: center;
+    font-family: inherit;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    background: #fbfdfc;
+    -moz-appearance: textfield;
+  }
+  .stepper input::-webkit-outer-spin-button,
+  .stepper input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .stepper input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .step-unit {
+    align-self: center;
+    font-size: 0.92rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* ---------- toggle ---------- */
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fbfdfc;
+    cursor: pointer;
+    min-height: 52px;
+  }
+  .toggle + .toggle {
+    margin-top: 10px;
+  }
+  .toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+  .tg-box {
+    flex: none;
+    width: 44px;
+    height: 26px;
+    border-radius: 999px;
+    background: #d3dbd7;
+    position: relative;
+    transition: background 0.15s;
+  }
+  .tg-box::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s;
+  }
+  .toggle input:checked + .tg-box {
+    background: var(--accent);
+  }
+  .toggle input:checked + .tg-box::after {
+    transform: translateX(18px);
+  }
+  .toggle:focus-within .tg-box {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .tg-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .tg-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.96rem;
+    color: var(--ink);
+  }
+  .tg-desc {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+
+  /* ---------- textarea / select ---------- */
+  textarea {
+    width: 100%;
+    min-height: 74px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a1aaa5;
+  }
+  select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+  }
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-ok {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-warn {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.36rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-ok .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-warn .verdict-title {
+    color: var(--warn-strong);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 15px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 11px;
+    border-radius: 5px;
+    background: #e2e8e4;
+    position: relative;
+  }
+  .pip.lit.good {
+    background: var(--good);
+  }
+  .pip.lit.warn {
+    background: var(--warn);
+  }
+  .pip.safeline::after {
+    content: "";
+    position: absolute;
+    right: -3px;
+    top: -4px;
+    bottom: -4px;
+    width: 2px;
+    background: var(--ink-mute);
+    border-radius: 2px;
+    opacity: 0.6;
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+  .block-meta {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+  }
+
+  /* refill callout */
+  .refill {
+    border: 1px solid var(--warn-line);
+    border-left: 4px solid var(--warn);
+    background: var(--warn-tint);
+    border-radius: 12px;
+    padding: 15px 16px;
+    margin-bottom: 4px;
+  }
+  .refill h3 {
+    margin: 0 0 6px;
+    font-size: 1.02rem;
+    color: var(--warn-strong);
+  }
+  .refill p {
+    margin: 0 0 8px;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .refill p:last-child {
+    margin-bottom: 0;
+  }
+  .refill .rf-num {
+    font-weight: 800;
+    color: var(--warn-strong);
+  }
+
+  /* FLOOR promise */
+  .floor-card {
+    border: 1px solid var(--accent-tint-2);
+    background: var(--accent-tint);
+    border-radius: 12px;
+    padding: 15px 16px;
+    margin-bottom: 4px;
+  }
+  .floor-card .fc-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+  }
+  .fc-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: #fff;
+    background: var(--accent);
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .fc-head strong {
+    font-size: 1rem;
+    color: var(--accent-strong);
+  }
+  .floor-card ul {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .floor-card li {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    padding-left: 20px;
+    position: relative;
+  }
+  .floor-card li::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 9px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* verdict for FLOOR-met */
+  .floormet {
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 0;
+    border: 1px solid var(--line);
+    font-size: 0.94rem;
+  }
+  .floormet.pass {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+    color: var(--good-strong);
+  }
+  .floormet.fail {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+    color: var(--warn-strong);
+  }
+  .floormet strong {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  .floormet ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    color: var(--ink-soft);
+  }
+  .floormet li {
+    margin: 2px 0;
+  }
+
+  /* asset list */
+  .asset-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .asset-item {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 12px 14px;
+    background: #fbfdfc;
+  }
+  .asset-item.is-floor {
+    border-color: var(--accent-tint-2);
+    background: var(--accent-tint);
+  }
+  .ai-top {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 3px;
+  }
+  .ai-surface {
+    font-weight: 800;
+    font-size: 0.98rem;
+    color: var(--ink);
+  }
+  .ai-count {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--accent-strong);
+  }
+  .ai-tag {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    padding: 2px 7px;
+    border-radius: 5px;
+  }
+  .ai-tag.floor {
+    color: #fff;
+    background: var(--accent);
+  }
+  .ai-tag.koen {
+    color: var(--warn-strong);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+  }
+  .ai-why {
+    margin: 0;
+    font-size: 0.87rem;
+    color: var(--ink-mute);
+  }
+  .total-note {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    background: #eef3f1;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 12px 0 0;
+  }
+  .total-note b {
+    color: var(--ink);
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23302e;
+    color: #eef4f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 37, 35, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .seg-item {
+      padding: 10px 4px;
+      min-height: 60px;
+    }
+    .seg-item .seg-t {
+      font-size: 0.9rem;
+    }
+    .stepper {
+      max-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #situation-panel,
+    #progress-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">주간 운영 · FLOOR / TARGET / PEAK</span>
+    <h1>케이던스 &amp; 버퍼 트래커</h1>
+    <p class="lede">
+      바쁜 주에도 무너지지 않게 이번 주 발행 케이던스를 짜 드립니다. 그리고
+      예약 가능한 완성분(버퍼)이 2주 아래로 내려가면, 이번 주 임무를
+      '발행'에서 '리필'로 바꿔 알려 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="situation-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>이번 주 여력 &amp; 버퍼</h2>
+    </div>
+    <p class="panel-sub">
+      이번 주에 낼 수 있는 여력과, 지금 완성돼 예약만 하면 되는 필러 피스가
+      몇 주치 쌓여 있는지 알려 주세요.
+    </p>
+
+    <div class="field">
+      <span class="field-label" id="cap-label">이번 주 여력</span>
+      <div class="seg" role="radiogroup" aria-labelledby="cap-label" id="cap-seg">
+        <label class="seg-item" data-cap="FLOOR">
+          <input type="radio" name="cap" value="FLOOR" />
+          <span class="seg-t">바쁜 주</span>
+          <span class="seg-s">FLOOR</span>
+        </label>
+        <label class="seg-item on" data-cap="TARGET">
+          <input type="radio" name="cap" value="TARGET" checked />
+          <span class="seg-t">보통 주</span>
+          <span class="seg-s">TARGET</span>
+        </label>
+        <label class="seg-item" data-cap="PEAK">
+          <input type="radio" name="cap" value="PEAK" />
+          <span class="seg-t">가벼운 주</span>
+          <span class="seg-s">PEAK</span>
+        </label>
+      </div>
+      <p class="field-hint">
+        바쁜 주엔 FLOOR만 지키면 합격입니다. 여유가 있을 때만 TARGET·PEAK로
+        올라갑니다.
+      </p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="buffer">버퍼 깊이 (예약 가능한 완성 필러 피스)</label>
+      <div class="stepper">
+        <button type="button" class="step-btn" id="buf-minus" aria-label="버퍼 1 줄이기">−</button>
+        <input
+          id="buffer"
+          type="number"
+          inputmode="numeric"
+          min="0"
+          max="12"
+          step="1"
+          value="2"
+          aria-describedby="buf-hint"
+        />
+        <button type="button" class="step-btn" id="buf-plus" aria-label="버퍼 1 늘리기">+</button>
+        <span class="step-unit">주치</span>
+      </div>
+      <p class="field-hint" id="buf-hint">
+        완성돼 바로 예약할 수 있는 필러 피스의 수. 안전선은 2주, 가득 찬 상태는
+        4주입니다.
+      </p>
+    </div>
+
+    <div class="field">
+      <span class="field-label">이번 주 추가 조건</span>
+      <label class="toggle">
+        <input type="checkbox" id="footage" />
+        <span class="tg-box" aria-hidden="true"></span>
+        <span class="tg-text">
+          <span class="tg-label">촬영 풋티지·녹화가 있다</span>
+          <span class="tg-desc">있으면 YouTube 롱폼/Shorts를 계획에 넣습니다.</span>
+        </span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="evergreen" />
+        <span class="tg-box" aria-hidden="true"></span>
+        <span class="tg-text">
+          <span class="tg-label">에버그린 라이브러리가 있다</span>
+          <span class="tg-desc">버퍼가 빌 때 재커팅 리포스트로 FLOOR를 메웁니다.</span>
+        </span>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel" id="progress-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>FLOOR 진척 &amp; 원천 필러 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      이번 주 FLOOR(블로그 1 + 링크드인 2)를 얼마나 채웠는지 표시하면 합격선
+      판정을 보여 드립니다. 원천 인사이트를 적으면 아래 AI 프롬프트가 그 내용에
+      맞춰집니다.
+    </p>
+
+    <div class="field">
+      <label class="toggle" style="margin-bottom:10px">
+        <input type="checkbox" id="blogDone" />
+        <span class="tg-box" aria-hidden="true"></span>
+        <span class="tg-text">
+          <span class="tg-label">블로그 필러 1편 발행함</span>
+        </span>
+      </label>
+      <span class="field-label" id="li-label">링크드인 발행 수 (FLOOR = 2)</span>
+      <div class="seg" role="radiogroup" aria-labelledby="li-label" id="li-seg">
+        <label class="seg-item on" data-li="0">
+          <input type="radio" name="li" value="0" checked />
+          <span class="seg-t">0개</span>
+        </label>
+        <label class="seg-item" data-li="1">
+          <input type="radio" name="li" value="1" />
+          <span class="seg-t">1개</span>
+        </label>
+        <label class="seg-item" data-li="2">
+          <input type="radio" name="li" value="2" />
+          <span class="seg-t">2개+</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="pillar">원천 필러 (선택)</label>
+      <select id="pillar">
+        <option value="">— 필러 선택 —</option>
+        <option value="언더백 현장 인사이트">1. 언더백 현장 인사이트</option>
+        <option value="AI·자동화 빌드 인 퍼블릭">2. AI·자동화 빌드 인 퍼블릭</option>
+        <option value="컨설팅 프레임워크 &amp; 사고법">3. 컨설팅 프레임워크 &amp; 사고법</option>
+        <option value="1인 운영 + 지식 시스템">4. 1인 운영 + 지식 시스템</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="insight">이번 주 원천 인사이트 (선택)</label>
+      <textarea
+        id="insight"
+        placeholder="예) 언더백 제조사 3곳에서 반복된 '재고는 자산이 아니라 숨은 부채' 관찰. 컨설팅 현장 메모 한 줄이면 충분합니다."
+      ></textarea>
+      <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="plan">이번 주 계획 세우기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>이번 주 운영 계획</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◷</div>
+        <p><strong>아직 계획 전입니다.</strong></p>
+        <p>여력과 버퍼를 입력하고 '이번 주 계획 세우기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> social-content 스위트 운영 모델
+      (content-ops)의 FLOOR / TARGET / PEAK 케이던스 사다리와 뱅크드 버퍼
+      규율. FLOOR(주 1 블로그 + 링크드인 2)는 바쁜 주의 유일한 하드 약속이며,
+      합격선은 TARGET-met가 아니라 FLOOR-met입니다. 버퍼가 2주 아래로 내려가면
+      그 주 임무는 발행이 아니라 리필입니다. 브로드캐스트 표면(X · Threads ·
+      YouTube Shorts)은 한국어와 영어를 별도 2개 자산으로 카운트합니다.
+    </p>
+    <p>
+      이 도구는 주간 케이던스 판단을 돕는 보조 도구이며, 무엇을 낼지 대신
+      확정해 주지 않습니다. 결과는 스스로 계획을 다듬을 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------------------------------------------------------
+     Cadence model. Numbers are the FLOOR/TARGET/PEAK ladder as
+     defined in the content-ops operating model (source of truth).
+     Broadcast surfaces (X, Threads, YouTube Shorts) count KO and EN
+     as two separate assets.
+  --------------------------------------------------------------- */
+
+  var TIER_META = {
+    FLOOR: {
+      title: "바쁜 주 · FLOOR 유지",
+      hours: "약 2.5~3시간 (답글 45~60분 1창 포함)",
+      desc: "이번 주 유일한 하드 약속만 지킵니다. 클라이언트 일에 치여도 이 세 자산은 낸다는 안전선입니다.",
+    },
+    TARGET: {
+      title: "보통 주 · TARGET 주간",
+      hours: "약 5~6.5시간",
+      desc: "FLOOR 위에 플랫폼별 파생을 얹습니다. 못 채워도 실패가 아닙니다. 합격선은 여전히 FLOOR입니다.",
+    },
+    PEAK: {
+      title: "가벼운 주 · PEAK 주간",
+      hours: "약 8~10시간",
+      desc: "TARGET을 상향하고 에버그린을 재커팅해 리포스트합니다. 여유가 있을 때만 올라가는 층입니다.",
+    },
+  };
+
+  // asset definitions per tier.
+  // bc = broadcast surface (KO/EN counted as 2). floor = part of the FLOOR promise.
+  function planFor(tier, footage) {
+    var yt = {
+      surface: "YouTube",
+      count: "롱폼 1편 또는 Shorts 2~3편",
+      min: 1,
+      max: 1,
+      bc: false,
+      floor: false,
+      why: "풋티지가 있을 때만. 강의·빌드 녹화를 클립으로 재사용.",
+    };
+
+    if (tier === "FLOOR") {
+      return [
+        {
+          surface: "블로그",
+          count: "1편",
+          min: 1,
+          max: 1,
+          bc: false,
+          floor: true,
+          why: "이번 주 원천 필러. 오운드 홈에 먼저 게시하는 앵커.",
+        },
+        {
+          surface: "링크드인",
+          count: "2개",
+          min: 2,
+          max: 2,
+          bc: false,
+          floor: true,
+          why: "이중언어 1자산 = 1 카운트. 답글도 이 세 자산에만 집중.",
+        },
+      ];
+    }
+
+    if (tier === "TARGET") {
+      var t = [
+        { surface: "블로그", count: "1편", min: 1, max: 1, bc: false, floor: true, why: "원천 필러 롱폼(오운드 앵커)." },
+        { surface: "링크드인", count: "3~4개", min: 3, max: 4, bc: false, floor: true, why: "이 중 2개가 FLOOR 하드 약속. 이중언어 1자산 = 1." },
+        { surface: "X 스레드", count: "1개", min: 1, max: 1, bc: true, floor: false, why: "필러를 스레드로 재커팅. 새로 쓰지 않음." },
+        { surface: "X 싱글", count: "2~3개", min: 2, max: 3, bc: true, floor: false, why: "raw-material bank에서 마이크로 컷." },
+        { surface: "IG 피드·릴", count: "2~3개", min: 2, max: 3, bc: false, floor: false, why: "같은 덱을 세로로 리스타일. 이중언어 1 = 1." },
+        { surface: "Threads", count: "3~4개", min: 3, max: 4, bc: true, floor: false, why: "짧은 관점·후속 대화용 마이크로." },
+      ];
+      if (footage) t.push(yt);
+      return t;
+    }
+
+    // PEAK: TARGET 상향 + 에버그린 리포스트
+    var p = [
+      { surface: "블로그", count: "1편", min: 1, max: 1, bc: false, floor: true, why: "원천 필러 롱폼(오운드 앵커)." },
+      { surface: "링크드인", count: "4~5개", min: 4, max: 5, bc: false, floor: true, why: "이 중 2개가 FLOOR. 상향분은 파생·큐레이션." },
+      { surface: "X 스레드", count: "1~2개", min: 1, max: 2, bc: true, floor: false, why: "필러 + 보조 스레드 재커팅." },
+      { surface: "X 싱글", count: "3~4개", min: 3, max: 4, bc: true, floor: false, why: "마이크로 컷 상향." },
+      { surface: "IG 피드·릴", count: "3~4개", min: 3, max: 4, bc: false, floor: false, why: "덱 리스타일 + 릴 클립." },
+      { surface: "Threads", count: "4~5개", min: 4, max: 5, bc: true, floor: false, why: "대화량 확장." },
+    ];
+    if (footage) p.push(yt);
+    p.push({
+      surface: "에버그린 리포스트",
+      count: "1~2개",
+      min: 1,
+      max: 2,
+      bc: false,
+      floor: false,
+      why: "필러 중앙값을 넘은 과거 피스를 재커팅(새 훅·예시 갱신, 바이트 동일 금지).",
+    });
+    return p;
+  }
+
+  // KO/EN-aware totals: broadcast surfaces double.
+  function totalsFor(plan) {
+    var min = 0,
+      max = 0,
+      bcSurfaces = [];
+    plan.forEach(function (a) {
+      var m = a.bc ? 2 : 1;
+      min += a.min * m;
+      max += a.max * m;
+      if (a.bc) bcSurfaces.push(a.surface);
+    });
+    return { min: min, max: max, bcSurfaces: bcSurfaces };
+  }
+
+  /* ------------------------- state ------------------------- */
+  var state = {
+    cap: "TARGET",
+    buffer: 2,
+    footage: false,
+    evergreen: false,
+    blogDone: false,
+    li: 0,
+    pillar: "",
+    insight: "",
+  };
+
+  var SAFE = 2;
+  var FULL = 4;
+
+  /* ------------------------- wiring ------------------------- */
+  function bindSeg(segId, key, cast) {
+    var seg = document.getElementById(segId);
+    seg.addEventListener("change", function (e) {
+      if (e.target.tagName !== "INPUT") return;
+      var val = cast ? cast(e.target.value) : e.target.value;
+      state[key] = val;
+      Array.prototype.forEach.call(seg.querySelectorAll(".seg-item"), function (it) {
+        var input = it.querySelector("input");
+        it.classList.toggle("on", input.checked);
+      });
+    });
+  }
+  bindSeg("cap-seg", "cap");
+  bindSeg("li-seg", "li", function (v) {
+    return parseInt(v, 10);
+  });
+
+  var bufferInput = document.getElementById("buffer");
+  function clampBuffer(n) {
+    if (isNaN(n)) n = 0;
+    if (n < 0) n = 0;
+    if (n > 12) n = 12;
+    return n;
+  }
+  function syncBuffer() {
+    state.buffer = clampBuffer(parseInt(bufferInput.value, 10));
+    bufferInput.value = state.buffer;
+  }
+  bufferInput.addEventListener("input", function () {
+    state.buffer = clampBuffer(parseInt(bufferInput.value, 10));
+  });
+  bufferInput.addEventListener("blur", syncBuffer);
+  document.getElementById("buf-minus").addEventListener("click", function () {
+    bufferInput.value = clampBuffer(state.buffer - 1);
+    syncBuffer();
+  });
+  document.getElementById("buf-plus").addEventListener("click", function () {
+    bufferInput.value = clampBuffer(state.buffer + 1);
+    syncBuffer();
+  });
+
+  document.getElementById("footage").addEventListener("change", function (e) {
+    state.footage = e.target.checked;
+  });
+  document.getElementById("evergreen").addEventListener("change", function (e) {
+    state.evergreen = e.target.checked;
+  });
+  document.getElementById("blogDone").addEventListener("change", function (e) {
+    state.blogDone = e.target.checked;
+  });
+  document.getElementById("pillar").addEventListener("change", function (e) {
+    state.pillar = e.target.value;
+  });
+
+  var insight = document.getElementById("insight");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  insight.addEventListener("input", function () {
+    state.insight = insight.value;
+    grow(insight);
+  });
+
+  /* ------------------------- helpers ------------------------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function effectiveMode() {
+    return state.buffer < SAFE ? "REFILL" : state.cap;
+  }
+
+  function bufferMeterHtml(refill) {
+    // FULL pips; lit up to buffer (capped). Safe line marker after pip #2.
+    var html = '<div class="meter" role="img" aria-label="버퍼 ' + state.buffer + '주, 안전선 ' + SAFE + '주">';
+    for (var i = 0; i < FULL; i++) {
+      var lit = i < Math.min(state.buffer, FULL);
+      var cls = "pip";
+      if (lit) cls += " lit " + (refill ? "warn" : "good");
+      if (i === SAFE - 1) cls += " safeline";
+      html += '<span class="' + cls + '"></span>';
+    }
+    html += "</div>";
+    var cap =
+      state.buffer >= FULL
+        ? "버퍼 " + state.buffer + "주 (가득 · 안전선 2주 여유 있음)"
+        : "버퍼 " + state.buffer + "주 · 안전선 2주 · 가득 4주";
+    html += '<p class="meter-caption">' + esc(cap) + "</p>";
+    return html;
+  }
+
+  /* ------------------------- render ------------------------- */
+  document.getElementById("plan").addEventListener("click", function () {
+    syncBuffer();
+    var mode = effectiveMode();
+    var refill = mode === "REFILL";
+    var tier = state.cap; // ambition tier for the cadence list
+    var meta = TIER_META[tier];
+    var plan = planFor(tier, state.footage);
+    var totals = totalsFor(plan);
+
+    var html = "";
+
+    /* --- verdict / buffer headline --- */
+    var v;
+    if (refill) {
+      v = {
+        tone: "warn",
+        label: "버퍼 " + state.buffer + "주 · 안전선 2주 미만",
+        title: "리필 모드",
+        desc:
+          "지금 예약 가능한 완성분이 부족합니다. 이번 주 임무는 새 발행이 아니라 버퍼를 다시 채우는 것입니다. FLOOR는 그대로 지키되, 나머지 시간은 전부 리필에 넣으세요.",
+      };
+    } else {
+      v = {
+        tone: "ok",
+        label: "버퍼 " + state.buffer + "주 · 안전선 확보",
+        title: meta.title,
+        desc: meta.desc,
+      };
+    }
+    html += '<div class="verdict tone-' + v.tone + '">';
+    html += '<p class="verdict-label">' + esc(v.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(v.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(v.desc) + "</p>";
+    html += bufferMeterHtml(refill);
+    if (refill) {
+      html +=
+        '<p class="meter-caption" style="color:var(--warn-strong)">선택한 여력: ' +
+        esc(TIER_META[state.cap].title) +
+        " → 하지만 버퍼 부족으로 이번 주 실제 모드는 <b>리필</b>입니다.</p>";
+    }
+    html += "</div>";
+
+    /* --- refill priority block --- */
+    if (refill) {
+      var needSafe = Math.max(0, SAFE - state.buffer);
+      var needFull = Math.max(0, FULL - state.buffer);
+      html += '<div class="result-block-title">이번 주 최우선: 버퍼 리필</div>';
+      html += '<div class="refill">';
+      html +=
+        "<h3>발행이 아니라 채우기의 주</h3>";
+      html +=
+        "<p>안전선(2주) 복구까지 <span class='rf-num'>" +
+        needSafe +
+        "편</span>, 가득(4주)까지 <span class='rf-num'>" +
+        needFull +
+        "편</span>의 완성 필러 피스가 필요합니다. 생산 배치를 돌려 이번 주에 예치하세요.</p>";
+      if (state.evergreen) {
+        html +=
+          "<p>FLOOR 3자산은 <b>에버그린 라이브러리에서 재커팅 리포스트</b>로 메우고(새 훅·예시 갱신), 새 생산 시간은 전량 버퍼 리필에 투입합니다.</p>";
+      } else {
+        html +=
+          "<p>에버그린 라이브러리가 아직 없으니 FLOOR는 신규 최소 생산으로 채우되, 남는 시간은 버퍼 리필을 최우선으로 두세요. 라이브러리가 서면 다음부터 이 주간이 훨씬 가벼워집니다.</p>";
+      }
+      var refH = needSafe <= 1 ? "약 3~5시간" : "약 5~8시간";
+      html +=
+        "<p>예상 시간: FLOOR 유지 + 리필 " +
+        needSafe +
+        "편 기준 " +
+        refH +
+        ". 이번 주는 야심(TARGET·PEAK)을 접고 안전선 복구에 집중하는 편이 낫습니다.</p>";
+      html += "</div>";
+    }
+
+    /* --- FLOOR promise (always) --- */
+    html += '<div class="result-block-title">FLOOR · 이번 주 하드 약속</div>';
+    html += '<div class="floor-card">';
+    html +=
+      '<p class="fc-head"><span class="fc-badge">FLOOR</span><strong>이 세 자산은 무슨 일이 있어도 낸다</strong></p>';
+    html += "<ul>";
+    html += "<li>블로그 필러 1편 (오운드 홈 앵커)</li>";
+    html += "<li>링크드인 2개 (이중언어 1자산 = 1 카운트)</li>";
+    html += "<li>답글은 이 세 자산에만 집중 (약 45~60분 1창)</li>";
+    html += "</ul>";
+    html += "</div>";
+
+    /* --- FLOOR-met verdict --- */
+    var met = state.blogDone && state.li >= 2;
+    html += '<div class="result-block-title">FLOOR 합격선 판정</div>';
+    if (met) {
+      html += '<div class="floormet pass">';
+      html +=
+        "<strong>FLOOR 충족 — 이번 주 합격선을 넘었습니다.</strong>";
+      html +=
+        "합격선은 TARGET-met가 아니라 FLOOR-met입니다. 일관성 지표가 보는 바로 그 선을 지켰습니다. 남은 여력은 TARGET·PEAK나 버퍼 리필로 돌리세요.";
+      html += "</div>";
+    } else {
+      html += '<div class="floormet fail">';
+      html += "<strong>아직 FLOOR 미충족 — 이번 주 합격선 전입니다.</strong>";
+      html += "합격까지 남은 것:";
+      html += "<ul>";
+      if (!state.blogDone) html += "<li>블로그 필러 1편 발행</li>";
+      if (state.li < 2)
+        html += "<li>링크드인 " + (2 - state.li) + "개 더 (현재 " + state.li + "/2)</li>";
+      html += "</ul>";
+      html += "</div>";
+    }
+
+    /* --- cadence plan --- */
+    var planTitle = refill
+      ? "여력이 되면: " + tier + " 케이던스"
+      : tier + " 케이던스 플랜";
+    html += '<div class="result-block-title">' + esc(planTitle) + "</div>";
+    html += '<p class="block-meta">예상 노동 예산: <b>' + esc(meta.hours) + "</b></p>";
+    if (refill) {
+      html +=
+        '<p class="block-meta" style="color:var(--warn-strong)">이번 주는 리필이 우선입니다. 아래는 버퍼가 회복된 뒤 지향할 케이던스입니다.</p>';
+    }
+    html += '<ul class="asset-list">';
+    plan.forEach(function (a) {
+      html += '<li class="asset-item' + (a.floor ? " is-floor" : "") + '">';
+      html += '<div class="ai-top">';
+      html += '<span class="ai-surface">' + esc(a.surface) + "</span>";
+      html += '<span class="ai-count">' + esc(a.count) + "</span>";
+      if (a.floor) html += '<span class="ai-tag floor">FLOOR</span>';
+      if (a.bc) html += '<span class="ai-tag koen">KO/EN 별도 2×</span>';
+      html += "</div>";
+      html += '<p class="ai-why">' + esc(a.why) + "</p>";
+      html += "</li>";
+    });
+    html += "</ul>";
+
+    html += '<p class="total-note">이번 주 총 <b>대략 ' +
+      totals.min +
+      "~" +
+      totals.max +
+      "개 자산</b>입니다. ";
+    if (totals.bcSurfaces.length) {
+      html +=
+        "브로드캐스트 표면(" +
+        esc(totals.bcSurfaces.join(" · ")) +
+        ")은 한국어와 영어를 <b>별도 2개</b>로 세었습니다. LinkedIn·IG 이중언어 자산은 1개로 셉니다.";
+    } else {
+      html += "FLOOR 자산은 이중언어 1자산 = 1개로 셉니다.";
+    }
+    html += "</p>";
+
+    /* --- AI prompt --- */
+    lastPrompt = buildPrompt(mode, tier, plan, totals);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="block-meta">아래 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 이 상황에 맞춰 한 주치 원자화 계획(하나의 필러 → 자산 리스트)과 리필 계획을 함께 짜 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function buildPrompt(mode, tier, plan, totals) {
+    var L = [];
+    var refill = mode === "REFILL";
+    L.push(
+      "당신은 1인 운영자의 소셜 콘텐츠 운영 코치입니다. FLOOR/TARGET/PEAK 케이던스와 뱅크드 버퍼 규율로 지속 가능한 발행을 돕습니다."
+    );
+    L.push("아래 이번 주 상황에 맞춰, 무리 없이 실행할 한 주치 콘텐츠 계획을 짜 주세요.");
+    L.push("");
+    L.push("【이번 주 상황】");
+    L.push("- 선택한 여력: " + TIER_META[state.cap].title);
+    L.push("- 버퍼 깊이: " + state.buffer + "주 (안전선 2주 / 가득 4주)");
+    L.push("- 실제 모드: " + (refill ? "리필 모드 (버퍼 부족 → 발행보다 채우기 우선)" : tier));
+    L.push("- 촬영 풋티지·녹화: " + (state.footage ? "있음" : "없음"));
+    L.push("- 에버그린 라이브러리: " + (state.evergreen ? "있음" : "없음"));
+    L.push(
+      "- FLOOR 진척: 블로그 " +
+        (state.blogDone ? "완료" : "미발행") +
+        " / 링크드인 " +
+        state.li +
+        "of2 → " +
+        (state.blogDone && state.li >= 2 ? "FLOOR 충족" : "FLOOR 미충족")
+    );
+    if (state.pillar) L.push("- 원천 필러: " + state.pillar);
+    L.push("");
+    if (state.insight && state.insight.trim()) {
+      L.push("【원천 인사이트】");
+      L.push(state.insight.trim());
+      L.push("");
+    } else {
+      L.push("【원천 인사이트】");
+      L.push("(아직 없음 — 먼저 이번 주 원천 필러 인사이트 한 줄을 저에게 물어봐 주세요.)");
+      L.push("");
+    }
+    L.push("【목표 케이던스 (이번 주)】");
+    plan.forEach(function (a) {
+      L.push(
+        "- " +
+          a.surface +
+          " " +
+          a.count +
+          (a.floor ? " [FLOOR]" : "") +
+          (a.bc ? " [KO/EN 별도]" : "")
+      );
+    });
+    L.push("→ 총 대략 " + totals.min + "~" + totals.max + "개 자산.");
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 하나의 원천 필러를 위 표면들로 '원자화'해 주세요. 각 자산은 새로 쓴 초안이 아니라 같은 소재의 재커팅이어야 합니다(재작성 금지)."
+    );
+    L.push(
+      "2. FLOOR(블로그 1 + 링크드인 2)는 무슨 일이 있어도 지키는 하드 약속입니다. 이 세 자산을 먼저 확정해 주세요."
+    );
+    L.push(
+      "3. 브로드캐스트 표면(X · Threads · YouTube Shorts)은 한국어와 영어를 별도 포스트 2개로 만드세요(기계번역이 아니라 각 언어 네이티브 리보이싱)."
+    );
+    if (refill) {
+      var needSafe = Math.max(0, SAFE - state.buffer);
+      L.push(
+        "4. 지금은 리필 모드입니다. 이번 주 발행은 최소화하고, 버퍼를 안전선(2주)까지 복구할 완성 필러 피스 " +
+          needSafe +
+          "편의 생산 계획을 우선 제안하세요." +
+          (state.evergreen
+            ? " FLOOR는 에버그린 재커팅 리포스트로 메우는 안을 함께 주세요."
+            : "")
+      );
+    } else {
+      L.push(
+        "4. 각 자산의 발행 순서와 시점(스태거)을 제안하고, 무리라고 판단되면 TARGET을 낮춰 FLOOR만 지키는 대안을 함께 주세요."
+      );
+    }
+    L.push(
+      "5. 근거 없는 수치·사례·고객명을 지어내지 마세요. 자료가 없으면 자리표시자로 두고 저에게 사실을 물어 주세요."
+    );
+    L.push(
+      "6. 마지막으로 이번 주가 끝났을 때 무엇으로 성공을 판단할지 한 줄로 정리해 주세요(합격선은 TARGET이 아니라 FLOOR 충족)."
+    );
+    return L.join("\n");
+  }
+
+  /* ------------------------- reset ------------------------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    state = {
+      cap: "TARGET",
+      buffer: 2,
+      footage: false,
+      evergreen: false,
+      blogDone: false,
+      li: 0,
+      pillar: "",
+      insight: "",
+    };
+    // reset capacity segmented
+    Array.prototype.forEach.call(
+      document.querySelectorAll("#cap-seg .seg-item"),
+      function (it) {
+        var input = it.querySelector("input");
+        input.checked = it.dataset.cap === "TARGET";
+        it.classList.toggle("on", input.checked);
+      }
+    );
+    // reset li segmented
+    Array.prototype.forEach.call(
+      document.querySelectorAll("#li-seg .seg-item"),
+      function (it) {
+        var input = it.querySelector("input");
+        input.checked = it.dataset.li === "0";
+        it.classList.toggle("on", input.checked);
+      }
+    );
+    bufferInput.value = 2;
+    document.getElementById("footage").checked = false;
+    document.getElementById("evergreen").checked = false;
+    document.getElementById("blogDone").checked = false;
+    document.getElementById("pillar").value = "";
+    insight.value = "";
+    grow(insight);
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◷</div>' +
+      "<p><strong>아직 계획 전입니다.</strong></p>" +
+      "<p>여력과 버퍼를 입력하고 '이번 주 계획 세우기'를 누르세요.</p></div>";
+    document.getElementById("situation-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ------------------------- copy (3-tier) + print ------------------------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ------------------------- manual modal ------------------------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

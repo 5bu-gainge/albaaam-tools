@@ -1,0 +1,1566 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>핵심 메시지 &amp; 위계 빌더</title>
+<meta
+  name="description"
+  content="하나의 핵심 메시지 아래 뒷받침 메시지 2~3개와 근거를 위계로 정렬해 랜딩·덱 구조의 척추를 세웁니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #47589e;
+    --accent-strong: #37477f;
+    --accent-tint: #eef0f9;
+    --accent-tint-2: #dde1f2;
+    --ink: #1f2430;
+    --ink-soft: #414759;
+    --ink-mute: #626878;
+    --paper: #f6f7fb;
+    --card: #ffffff;
+    --line: #e4e6ef;
+    --line-strong: #d3d7e4;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #8f5411;
+    --warn-tint: #fff6ec;
+    --warn-line: #f2ddc4;
+    --shadow: 0 1px 2px rgba(31, 36, 48, 0.05), 0 6px 20px rgba(31, 36, 48, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  label.field-label .req {
+    color: var(--accent);
+    font-weight: 800;
+  }
+  textarea,
+  select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfbfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 58px;
+    resize: none;
+    overflow: hidden;
+    display: block;
+  }
+  textarea.core {
+    min-height: 74px;
+    font-size: 1.04rem;
+    font-weight: 600;
+  }
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa0b2;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-gap {
+    margin-top: 15px;
+  }
+
+  /* ---------- supporting rows ---------- */
+  #srows {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .srow {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent-tint-2);
+    border-radius: 13px;
+    background: #fbfbfe;
+    padding: 14px 15px;
+  }
+  .srow-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .srow-badge {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border-radius: 7px;
+    padding: 3px 10px;
+  }
+  .srow-del {
+    background: transparent;
+    border: none;
+    color: var(--ink-mute);
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 7px;
+  }
+  .srow-del:hover {
+    color: var(--warn);
+    background: var(--warn-tint);
+  }
+  .srow-del:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .sub-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 6px;
+  }
+  .add-row {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-add {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border: 1px dashed var(--accent-tint-2);
+    font-size: 0.92rem;
+    padding: 10px 16px;
+  }
+  .btn-add:hover {
+    border-color: var(--accent);
+  }
+  .btn-add:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .add-note {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .need-note {
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    color: var(--warn);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.94rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-strong {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict.tone-mid {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-low {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.36rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-strong .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mid .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-low .verdict-title {
+    color: var(--warn);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .scorebar {
+    height: 10px;
+    border-radius: 6px;
+    background: rgba(31, 36, 48, 0.1);
+    margin: 15px 0 6px;
+    overflow: hidden;
+  }
+  .scorebar-fill {
+    display: block;
+    height: 100%;
+    border-radius: 6px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+  .verdict.tone-strong .scorebar-fill {
+    background: var(--good);
+  }
+  .verdict.tone-low .scorebar-fill {
+    background: var(--warn);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 12px;
+  }
+
+  /* ---------- spine ---------- */
+  .spine {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .node-core {
+    border: 1px solid var(--accent-tint-2);
+    background: var(--accent-tint);
+    border-radius: 13px;
+    padding: 15px 16px;
+  }
+  .node-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    margin-bottom: 6px;
+  }
+  .node-core .node-text {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.42;
+  }
+  .connector {
+    width: 2px;
+    height: 16px;
+    background: var(--accent-tint-2);
+    align-self: center;
+  }
+  .support-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .node-support {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 11px;
+    padding: 13px 15px;
+    background: #fbfbfe;
+  }
+  .node-support .rank {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .node-support .node-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 8px;
+    line-height: 1.4;
+  }
+  .proof {
+    font-size: 0.88rem;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .proof .p-key {
+    flex: none;
+    font-weight: 700;
+    color: var(--good);
+  }
+  .proof .p-val {
+    color: var(--ink-soft);
+  }
+  .proof.missing .p-key {
+    color: var(--warn);
+  }
+  .proof.missing .p-val {
+    color: var(--warn);
+    font-weight: 600;
+  }
+  .chip-spec {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--good);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 6px;
+    padding: 1px 7px;
+    margin-left: 6px;
+  }
+
+  /* ---------- diagnostics ---------- */
+  .diag-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .diag-item {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 13px 15px;
+    background: var(--card);
+  }
+  .diag-item.sev-fail {
+    border-left: 3px solid var(--warn);
+  }
+  .diag-item.sev-warn {
+    border-left: 3px solid var(--accent);
+  }
+  .diag-item .di-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .di-scope {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border-radius: 6px;
+    padding: 1px 8px;
+  }
+  .diag-item .di-fix {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* ---------- flow ---------- */
+  .flow-intro {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+  }
+  .flow-arc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    align-items: center;
+    margin: 0 0 12px;
+  }
+  .flow-step {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: #fbfbfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    padding: 5px 10px;
+  }
+  .flow-step.slot-core {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .flow-arrow {
+    color: var(--ink-mute);
+    font-size: 0.8rem;
+  }
+  .map-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .map-list li {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+  .map-list li b {
+    color: var(--accent-strong);
+  }
+
+  /* ---------- prompt ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #22262f;
+    color: #eef0f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 36, 48, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .node-core .node-text {
+      font-size: 1.02rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #support-panel,
+    #use-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">메시지 설계 · Message Architecture</span>
+    <h1>핵심 메시지 &amp; 위계 빌더</h1>
+    <p class="lede">
+      다섯 가지를 말하는 페이지는 아무것도 말하지 못합니다. 하나의 핵심 메시지
+      아래 뒷받침 메시지 2~3개와 근거를 위계로 정렬해, 랜딩·세일즈·덱의 구조가
+      될 척추를 세웁니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>핵심 메시지</h2>
+    </div>
+    <p class="panel-sub">
+      이 페이지·덱이 존재하는 이유를 한 문장으로. 고객이 딱 하나만 기억한다면
+      무엇이어야 하나요? 기능이 아니라 고객이 얻는 결과를 고객의 언어로 쓰세요.
+    </p>
+    <label class="field-label" for="core"
+      >핵심 메시지 <span class="req">*</span></label
+    >
+    <textarea
+      id="core"
+      class="core"
+      placeholder="예) 첫 채용도 2주 안에 확신을 갖고 뽑습니다."
+    ></textarea>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="support-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>뒷받침 메시지와 근거</h2>
+    </div>
+    <p class="panel-sub">
+      핵심 메시지가 참인 이유 2~3개. 각 메시지 옆에는 그것을 믿게 하는 근거(숫자·
+      사례·출처)를 붙이세요. 강한 주장은 근거와 한 눈에 붙어 있을 때 설득됩니다.
+      위에 있을수록 더 강한 메시지가 되도록 정렬하세요.
+    </p>
+    <div id="srows"></div>
+    <div class="add-row">
+      <button class="btn-add" id="addRow" type="button">+ 뒷받침 추가</button>
+      <span class="add-note">권장 2~3개 · 최대 5개</span>
+    </div>
+  </section>
+
+  <section class="panel" id="use-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>이 위계를 어디에 쓰나요?</h2>
+    </div>
+    <p class="panel-sub">
+      쓰임새에 맞춰 섹션 흐름(척추가 붙는 골격)을 추천합니다.
+    </p>
+    <label class="field-label" for="artifact">쓰임새</label>
+    <select id="artifact">
+      <option value="landing">랜딩페이지</option>
+      <option value="sales">세일즈페이지</option>
+      <option value="deck">발표 덱</option>
+      <option value="proposal">제안서</option>
+      <option value="detail">상세페이지 (Notion·상세)</option>
+    </select>
+
+    <div class="actions">
+      <button class="btn-primary" id="build">위계 세우기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">결과</span>
+      <h2>메시지 위계 진단</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">⊹</div>
+        <p><strong>아직 위계를 세우기 전입니다.</strong></p>
+        <p>핵심 메시지와 뒷받침을 입력하고 '위계 세우기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 메시지 아키텍처 원칙 — 핵심 메시지는
+      하나이고 나머지는 모두 그 아래 위계(뒷받침·근거)라는 원리, 강한 주장 옆에
+      근거를 붙이는 '주장-근거 짝짓기', 그리고 의미는 이미지가 아니라 텍스트에
+      담아 사람·검색엔진·AI 답변엔진이 모두 읽게 한다는 '네 명의 독자' 기준을
+      따릅니다.
+    </p>
+    <p>
+      이 도구는 메시지 구조를 점검하는 사고 보조 도구이며, 최종 카피를 대신
+      확정해 주지 않습니다. 진단은 스스로 판단할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ============================================================
+     핵심 메시지 & 위계 빌더
+     로직 원천: marketing-message-architecture SKILL.md
+     - 핵심 메시지 1개 + 뒷받침 2~3개 + 각 근거의 위계
+     - 주장-근거 짝짓기, 네 명의 독자(의미는 텍스트에)
+     ============================================================ */
+
+  var MAX_ROWS = 5;
+
+  /* 공허한 마케팅 상투어(핵심 메시지에서 특히 경계) */
+  var JARGON = [
+    "시너지", "초격차", "혁신적", "혁신", "최고", "최상", "원스톱",
+    "토탈", "토털", "극대화", "프리미엄", "세계적", "넘버원", "압도적",
+    "획기적", "패러다임", "퀄리티", "차별화된", "차별화", "최적의",
+    "최적화", "완벽한", "완벽", "명품", "초일류"
+  ];
+
+  /* 기능/기술 언어 신호 */
+  var FEATURE_MARK = [
+    "플랫폼", "솔루션", "시스템", "엔진", "알고리즘", "기술력", "기술",
+    "기반의", "기반", "자동화 도구", "관리 도구", "프로세스", "프레임워크"
+  ];
+  /* 고객 결과/가치 언어 신호 */
+  var VALUE_MARK = [
+    "줄이", "늘리", "절감", "빠르", "쉽게", "간편", "안심", "확보", "해결",
+    "성장", "이기", "벌", "아끼", "지키", "없이", "만에", "배로", "두 배",
+    "세 배", "확실", "편하게", "달성", "높이", "낮추", "%", "퍼센트"
+  ];
+
+  /* 근거의 구체성 신호(숫자·사례·출처) */
+  function isSpecificProof(t) {
+    if (!t) return false;
+    if (/\d/.test(t)) return true;
+    if (/[%％]/.test(t)) return true;
+    if (/[「」“”『』"]/.test(t)) return true;
+    var units = ["배", "명", "개", "년", "개월", "주", "일", "원", "위", "건", "곳", "퍼센트", "억", "만"];
+    for (var i = 0; i < units.length; i++) {
+      if (t.indexOf(units[i]) !== -1) return true;
+    }
+    var src = ["설문", "조사", "후기", "리뷰", "고객사", "사례", "실적", "수상", "인증", "특허", "논문", "출처"];
+    for (var j = 0; j < src.length; j++) {
+      if (t.indexOf(src[j]) !== -1) return true;
+    }
+    return false;
+  }
+
+  function tokenize(s) {
+    return String(s || "")
+      .toLowerCase()
+      .replace(/[^가-힣a-z0-9\s]/g, " ")
+      .split(/\s+/)
+      .filter(function (t) {
+        return t.length >= 2;
+      });
+  }
+
+  function overlapRatio(a, b) {
+    if (!a.length || !b.length) return 0;
+    var setB = {};
+    b.forEach(function (t) {
+      setB[t] = true;
+    });
+    var hit = 0;
+    var seen = {};
+    a.forEach(function (t) {
+      if (setB[t] && !seen[t]) {
+        hit++;
+        seen[t] = true;
+      }
+    });
+    return hit / Math.min(a.length, b.length);
+  }
+
+  function scanList(text, list) {
+    var found = [];
+    for (var i = 0; i < list.length; i++) {
+      if (text.indexOf(list[i]) !== -1) found.push(list[i]);
+    }
+    return found;
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  /* ---------- supporting rows ---------- */
+  var srowsEl = document.getElementById("srows");
+  var addBtn = document.getElementById("addRow");
+
+  function makeRow() {
+    var div = document.createElement("div");
+    div.className = "srow";
+    div.innerHTML =
+      '<div class="srow-head">' +
+      '<span class="srow-badge">뒷받침</span>' +
+      '<button type="button" class="srow-del" aria-label="이 뒷받침 삭제">삭제</button>' +
+      "</div>" +
+      '<label class="sub-label">뒷받침 메시지</label>' +
+      '<textarea class="s-msg" placeholder="예) 구조화된 질문지로 면접관이 달라도 같은 기준으로 평가합니다."></textarea>' +
+      '<label class="sub-label" style="margin-top:11px">근거 (숫자·사례·출처, 선택)</label>' +
+      '<textarea class="s-proof" placeholder="예) 도입 고객사 32곳 평균 채용 확정 소요 11일"></textarea>';
+    srowsEl.appendChild(div);
+    var msgs = div.querySelectorAll("textarea");
+    Array.prototype.forEach.call(msgs, function (t) {
+      t.addEventListener("input", function () {
+        grow(t);
+      });
+    });
+    div.querySelector(".srow-del").addEventListener("click", function () {
+      div.parentNode.removeChild(div);
+      refreshRows();
+    });
+    return div;
+  }
+
+  function refreshRows() {
+    var rows = srowsEl.querySelectorAll(".srow");
+    Array.prototype.forEach.call(rows, function (r, i) {
+      r.querySelector(".srow-badge").textContent = "뒷받침 " + (i + 1);
+      var del = r.querySelector(".srow-del");
+      del.disabled = rows.length <= 1;
+    });
+    addBtn.disabled = rows.length >= MAX_ROWS;
+  }
+
+  addBtn.addEventListener("click", function () {
+    if (srowsEl.querySelectorAll(".srow").length >= MAX_ROWS) return;
+    var r = makeRow();
+    refreshRows();
+    var first = r.querySelector(".s-msg");
+    if (first) first.focus();
+  });
+
+  /* seed two rows */
+  makeRow();
+  makeRow();
+  refreshRows();
+
+  /* ---------- auto-grow ---------- */
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  var coreEl = document.getElementById("core");
+  coreEl.addEventListener("input", function () {
+    grow(coreEl);
+  });
+
+  /* ---------- artifact section-flow playbooks ---------- */
+  var FLOWS = {
+    landing: {
+      name: "랜딩페이지",
+      steps: ["히어로 (핵심 메시지 + CTA)", "문제·위험", "더 나은 방법", "작동 방식", "근거", "반론·FAQ", "마지막 CTA"],
+      body: ["문제·위험", "더 나은 방법", "작동 방식"],
+      note: "전환 목표는 하나. 근거 뒤에 CTA를 한 번 더 반복하세요."
+    },
+    sales: {
+      name: "세일즈페이지",
+      steps: ["강한 약속 (핵심 메시지)", "문제·욕구", "결과·변화", "근거 쌓기", "반론 처리", "단일 제안 + CTA"],
+      body: ["문제·욕구", "결과·변화", "근거 쌓기"],
+      note: "길이는 설득에 필요한 만큼만. 제안과 CTA는 하나로 모으세요."
+    },
+    deck: {
+      name: "발표 덱",
+      steps: ["상황·이해관계", "문제", "통찰 (핵심 메시지)", "해결", "근거", "계획", "요청"],
+      body: ["해결", "근거", "계획"],
+      note: "한 슬라이드에 한 메시지. 뒷받침 메시지가 곧 슬라이드 한 장씩입니다."
+    },
+    proposal: {
+      name: "제안서",
+      steps: ["상황·이해관계", "문제", "접근·통찰 (핵심 메시지)", "해결", "근거 (깊게)", "계획 (깊게)", "요청"],
+      body: ["해결", "근거 (깊게)", "계획 (깊게)"],
+      note: "덱과 같은 아크에 계획·근거를 더 깊게. 요청(ask)은 명확히 하나로."
+    },
+    detail: {
+      name: "상세페이지 (Notion·상세)",
+      steps: ["후킹 헤더 (맥락 + 핵심 메시지)", "문제 공감", "해결", "특징 (근거와 함께)", "차별점", "사용법", "후기", "FAQ", "CTA"],
+      body: ["해결", "특징 (근거와 함께)", "차별점"],
+      note: "각 섹션 헤더가 곧 메시지. 의미는 이미지가 아니라 본문 텍스트에 담으세요."
+    }
+  };
+
+  /* ---------- core analysis ---------- */
+  function analyzeCore(text) {
+    var t = text.trim();
+    var noSpace = t.replace(/\s+/g, "");
+    var sentences = t
+      .split(/[.!?。！？]+/)
+      .map(function (s) {
+        return s.trim();
+      })
+      .filter(function (s) {
+        return s.length > 0;
+      });
+    var multiSentence = sentences.length > 1;
+    var listSignals = scanList(t, [",", "·", "/", " 및 ", " 그리고 ", " 또한 ", ";"]).length;
+    var multiMessage = multiSentence || listSignals >= 2;
+
+    var tooLong = noSpace.length > 50;
+    var jargon = scanList(t, JARGON);
+    var feats = scanList(t, FEATURE_MARK);
+    var vals = scanList(t, VALUE_MARK);
+    var featureHeavy = feats.length > 0 && vals.length === 0;
+
+    return {
+      len: noSpace.length,
+      multiMessage: multiMessage,
+      tooLong: tooLong,
+      jargon: jargon,
+      featureHeavy: featureHeavy,
+      tokens: tokenize(t)
+    };
+  }
+
+  /* ---------- build ---------- */
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  document.getElementById("build").addEventListener("click", function () {
+    var coreText = coreEl.value.trim();
+
+    if (!coreText) {
+      resultEl.innerHTML =
+        '<p class="need-note">먼저 <b>핵심 메시지</b>를 한 문장 입력해 주세요. 위계는 하나의 핵심 메시지에서 시작합니다.</p>';
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      coreEl.focus();
+      return;
+    }
+
+    /* gather supports */
+    var supports = [];
+    var rows = srowsEl.querySelectorAll(".srow");
+    Array.prototype.forEach.call(rows, function (r) {
+      var msg = r.querySelector(".s-msg").value.trim();
+      var proof = r.querySelector(".s-proof").value.trim();
+      if (msg) {
+        supports.push({
+          msg: msg,
+          proof: proof,
+          hasProof: proof.length > 0,
+          specific: isSpecificProof(proof),
+          tokens: tokenize(msg)
+        });
+      }
+    });
+
+    var core = analyzeCore(coreText);
+    var n = supports.length;
+
+    /* ---- checks / score ---- */
+    var diags = [];
+    var score = 0;
+
+    /* 1. core single message (22) */
+    if (core.multiMessage) {
+      diags.push({
+        sev: "fail",
+        scope: "핵심 메시지",
+        title: "핵심 메시지가 하나가 아닙니다",
+        fix: "여러 메시지를 한 문장에 담으면 아무것도 남지 않습니다. 딱 하나만 남기고, 나머지는 아래 뒷받침으로 내려 위계로 배치하세요."
+      });
+    } else {
+      score += 22;
+    }
+
+    /* 2. core concise (10) */
+    if (core.tooLong) {
+      diags.push({
+        sev: "warn",
+        scope: "핵심 메시지",
+        title: "핵심 메시지가 한눈에 안 들어옵니다 (" + core.len + "자)",
+        fix: "고객은 몇 초 안에 읽습니다. 수식어를 덜어 내고, 고객이 얻는 결과 한 가지만 또렷하게 남기세요."
+      });
+    } else {
+      score += 10;
+    }
+
+    /* 3. jargon-free (10) */
+    if (core.jargon.length > 0) {
+      diags.push({
+        sev: "warn",
+        scope: "핵심 메시지",
+        title: "공허한 상투어가 섞여 있습니다: " + core.jargon.join(", "),
+        fix: "‘" + core.jargon[0] + "’ 같은 말은 고객이 해독해야 합니다. 고객이 실제로 겪는 상황과 얻는 결과를 구체적인 말로 바꾸세요."
+      });
+    } else {
+      score += 10;
+    }
+
+    /* 4. value language (soft caution, unscored) */
+    if (core.featureHeavy) {
+      diags.push({
+        sev: "warn",
+        scope: "핵심 메시지",
+        title: "기능 언어에 가깝습니다",
+        fix: "‘무엇을 만든다’가 아니라 ‘그래서 고객이 무엇을 얻는가’로. 기능이 전달하는 결과를 고객의 언어로 앞세우세요."
+      });
+    }
+
+    /* 5. support count (20) */
+    if (n === 0) {
+      diags.push({
+        sev: "fail",
+        scope: "위계",
+        title: "뒷받침 메시지가 없습니다",
+        fix: "핵심 메시지가 참인 이유 2~3개가 있어야 위계가 섭니다. 핵심을 떠받치는 근거 있는 이유를 채우세요."
+      });
+    } else if (n === 1) {
+      score += 10;
+      diags.push({
+        sev: "warn",
+        scope: "위계",
+        title: "뒷받침이 1개뿐입니다",
+        fix: "이유가 하나면 주장은 얇아집니다. 서로 다른 각도의 뒷받침을 1~2개 더해 2~3개로 만드세요."
+      });
+    } else if (n <= 3) {
+      score += 20;
+    } else {
+      score += 8;
+      diags.push({
+        sev: "fail",
+        scope: "위계",
+        title: "뒷받침이 " + n + "개로 너무 많습니다",
+        fix: "다섯 가지를 말하면 아무것도 말하지 못합니다. 가장 강한 2~3개만 남기고 나머지는 근거로 흡수하거나 버리세요."
+      });
+    }
+
+    /* 6. proof coverage (22, proportional) */
+    var proofed = supports.filter(function (s) {
+      return s.hasProof;
+    });
+    if (n > 0) {
+      var cov = proofed.length / n;
+      score += Math.round(22 * cov);
+      if (proofed.length < n) {
+        var missing = n - proofed.length;
+        diags.push({
+          sev: proofed.length === 0 ? "fail" : "warn",
+          scope: "근거 배치",
+          title: "근거 없는 주장이 " + missing + "개 있습니다",
+          fix: "강한 주장은 바로 옆에 근거가 붙어 있을 때 믿게 됩니다. 각 뒷받침에 숫자·사례·출처를 붙이거나, 근거를 못 찾으면 주장을 그만큼 낮추세요."
+        });
+      }
+    }
+
+    /* 7. proof specificity (8, among proofed) */
+    if (proofed.length > 0) {
+      var spec = proofed.filter(function (s) {
+        return s.specific;
+      });
+      score += Math.round(8 * (spec.length / proofed.length));
+      if (spec.length < proofed.length) {
+        diags.push({
+          sev: "warn",
+          scope: "근거 배치",
+          title: "근거가 추상적입니다",
+          fix: "‘좋다·많다’ 같은 말은 근거가 아닙니다. 숫자, 기간, 고객사 수, 인용된 후기처럼 확인 가능한 사실로 바꾸세요."
+        });
+      }
+    }
+
+    /* 8. distinctness (8) */
+    var dupCore = false;
+    var dupPair = false;
+    for (var i = 0; i < supports.length; i++) {
+      if (overlapRatio(supports[i].tokens, core.tokens) >= 0.7 && supports[i].tokens.length >= 2) {
+        dupCore = true;
+      }
+      for (var k = i + 1; k < supports.length; k++) {
+        if (overlapRatio(supports[i].tokens, supports[k].tokens) >= 0.7 && supports[i].tokens.length >= 2) {
+          dupPair = true;
+        }
+      }
+    }
+    if (n > 0) {
+      if (!dupCore && !dupPair) {
+        score += 8;
+      } else if (dupCore) {
+        diags.push({
+          sev: "warn",
+          scope: "위계",
+          title: "뒷받침이 핵심 메시지를 그대로 반복합니다",
+          fix: "뒷받침은 핵심을 되풀이하는 게 아니라 ‘왜 참인가’를 새 각도로 더합니다. 반복된 것은 다른 이유로 바꾸세요."
+        });
+      } else if (dupPair) {
+        diags.push({
+          sev: "warn",
+          scope: "위계",
+          title: "뒷받침끼리 서로 겹칩니다",
+          fix: "두 뒷받침이 사실상 같은 말이면 하나입니다. 하나로 합치고, 빈 자리에 다른 각도의 이유를 넣으세요."
+        });
+      }
+    }
+
+    if (score > 100) score = 100;
+    if (score < 0) score = 0;
+
+    /* ---- band (with hard gates) ---- */
+    var band;
+    var collapsed = core.multiMessage || n <= 1;
+    if (collapsed) {
+      band = {
+        tone: "low",
+        label: "위계 점수 " + score + " / 100",
+        title: "아직 척추가 서지 않았습니다",
+        desc: "지금은 위계라기보다 메시지 뭉치에 가깝습니다. 핵심을 하나로 좁히고 뒷받침 2~3개를 세우는 것부터 시작하세요."
+      };
+    } else if (score >= 80) {
+      band = {
+        tone: "strong",
+        label: "위계 점수 " + score + " / 100",
+        title: "척추가 단단합니다",
+        desc: "핵심 메시지 하나에 뒷받침과 근거가 잘 맞물려 있습니다. 아래 흐름에 얹으면 바로 페이지·덱의 골격이 됩니다."
+      };
+    } else if (score >= 55) {
+      band = {
+        tone: "mid",
+        label: "위계 점수 " + score + " / 100",
+        title: "보강하면 척추가 섭니다",
+        desc: "골격은 있습니다. 아래에서 짚은 빈칸(특히 근거)을 채우면 설득력이 한 단계 올라갑니다."
+      };
+    } else {
+      band = {
+        tone: "low",
+        label: "위계 점수 " + score + " / 100",
+        title: "아직 위계가 흐립니다",
+        desc: "핵심과 뒷받침, 근거의 연결이 약합니다. 아래 진단을 하나씩 채우며 위계를 다시 세우세요."
+      };
+    }
+
+    /* ---- render ---- */
+    var html = "";
+
+    /* verdict */
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html +=
+      '<div class="scorebar" role="img" aria-label="위계 점수 ' +
+      score +
+      '점 / 100점"><span class="scorebar-fill" style="width:' +
+      score +
+      '%"></span></div>';
+    html +=
+      '<p class="meter-caption">핵심 메시지 1 · 뒷받침 ' +
+      n +
+      "개 · 근거 " +
+      proofed.length +
+      "/" +
+      n +
+      "</p>";
+    html += "</div>";
+
+    /* spine */
+    html += '<div class="result-block-title">메시지 위계 · 당신의 척추</div>';
+    html += '<div class="spine">';
+    html += '<div class="node-core"><span class="node-tag">핵심 메시지 · PRIMARY</span>';
+    html += '<p class="node-text">' + esc(coreText) + "</p></div>";
+    if (n > 0) {
+      html += '<div class="connector" aria-hidden="true"></div>';
+      html += '<div class="support-stack">';
+      supports.forEach(function (s, idx) {
+        html += '<div class="node-support">';
+        html += '<div class="rank">뒷받침 ' + (idx + 1) + "</div>";
+        html += '<p class="node-text">' + esc(s.msg) + "</p>";
+        if (s.hasProof) {
+          html +=
+            '<div class="proof"><span class="p-key">근거</span><span class="p-val">' +
+            esc(s.proof) +
+            "</span>" +
+            (s.specific ? '<span class="chip-spec">구체적</span>' : "") +
+            "</div>";
+        } else {
+          html +=
+            '<div class="proof missing"><span class="p-key">근거</span><span class="p-val">아직 없음 — 보강 필요</span></div>';
+        }
+        html += "</div>";
+      });
+      html += "</div>";
+    }
+    html += "</div>";
+
+    /* diagnostics */
+    html += '<div class="result-block-title">진단 · 채워야 할 곳</div>';
+    if (diags.length === 0) {
+      html +=
+        '<p class="clean-note">빈칸이 잡히지 않았습니다. 핵심 하나, 뒷받침 2~3개, 근거가 모두 자리에 있습니다. 그래도 실제 고객에게 한 번 읽혀 보며 가장 약한 뒷받침을 계속 시험하세요.</p>';
+    } else {
+      html += '<ul class="diag-list">';
+      diags.forEach(function (d) {
+        html += '<li class="diag-item sev-' + d.sev + '">';
+        html +=
+          '<p class="di-title">' +
+          esc(d.title) +
+          ' <span class="di-scope">' +
+          esc(d.scope) +
+          "</span></p>";
+        html += '<p class="di-fix">' + esc(d.fix) + "</p>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    }
+
+    /* section flow */
+    var flow = FLOWS[document.getElementById("artifact").value] || FLOWS.landing;
+    html += '<div class="result-block-title">추천 섹션 흐름 · ' + esc(flow.name) + "</div>";
+    html +=
+      '<p class="flow-intro">이 위계가 붙을 골격입니다. 핵심 메시지는 맨 앞(헤드라인/히어로)에, 뒷받침은 본문 섹션에 하나씩 얹습니다.</p>';
+    html += '<div class="flow-arc">';
+    flow.steps.forEach(function (st, i) {
+      var isCore = /핵심 메시지/.test(st);
+      if (i > 0) html += '<span class="flow-arrow" aria-hidden="true">→</span>';
+      html += '<span class="flow-step' + (isCore ? " slot-core" : "") + '">' + esc(st) + "</span>";
+    });
+    html += "</div>";
+    if (n > 0) {
+      html += '<ul class="map-list">';
+      html += "<li><b>핵심 메시지</b> → " + esc(flow.steps[0]) + "</li>";
+      supports.forEach(function (s, idx) {
+        var slot = flow.body[idx] || flow.body[flow.body.length - 1] || "본문";
+        var short = s.msg.length > 34 ? s.msg.slice(0, 34) + "…" : s.msg;
+        html += "<li><b>뒷받침 " + (idx + 1) + "</b> → " + esc(slot) + " 섹션 · “" + esc(short) + "”</li>";
+      });
+      html += "</ul>";
+      html += '<p class="flow-intro" style="margin-top:12px">' + esc(flow.note) + "</p>";
+    }
+
+    /* prompt */
+    lastPrompt = buildPrompt(coreText, supports, band, diags, flow, score);
+    html += '<div class="result-block-title">심화 · AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="flow-intro">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 위계를 바탕으로 헤드라인·서브헤드·섹션 카피를 근거와 함께 전개해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- prompt builder ---------- */
+  function buildPrompt(core, supports, band, diags, flow, score) {
+    var L = [];
+    L.push("당신은 랜딩·세일즈·덱 카피에 정통한 메시지 설계 전문가입니다.");
+    L.push("아래 '메시지 위계'를 시장에서 통하는 카피로 완성해 주세요.");
+    L.push("");
+    L.push("[반드시 지킬 원칙]");
+    L.push("- 핵심 메시지는 하나. 나머지는 모두 그 아래 위계(뒷받침·근거)로 배치한다.");
+    L.push("- 강한 주장 옆에는 반드시 근거를 붙인다(주장-근거 짝짓기).");
+    L.push("- 의미는 이미지가 아니라 텍스트에 담는다(사람·검색엔진·AI 답변엔진이 모두 읽게).");
+    L.push("- 근거 없는 상투어(시너지·초격차·혁신 등)로 빈칸을 덮지 말고, 사실이 없으면 나에게 물어본다.");
+    L.push("");
+    L.push("[핵심 메시지]");
+    L.push(core);
+    L.push("");
+    L.push("[뒷받침 메시지와 근거]");
+    if (supports.length === 0) {
+      L.push("- (아직 없음 — 핵심이 참인 이유 2~3개를 먼저 함께 세워 주세요)");
+    } else {
+      supports.forEach(function (s, i) {
+        L.push(
+          i + 1 + ". " + s.msg + (s.hasProof ? "  (근거: " + s.proof + ")" : "  (근거: 없음 — 어떤 근거가 필요한지 표시)")
+        );
+      });
+    }
+    L.push("");
+    L.push("[자가 진단]");
+    L.push("- 위계 점수: " + score + "/100 (" + band.title + ")");
+    if (diags.length === 0) {
+      L.push("- 발견된 빈칸: 없음");
+    } else {
+      L.push("- 발견된 빈칸:");
+      diags.forEach(function (d) {
+        L.push("  · [" + d.scope + "] " + d.title);
+      });
+    }
+    L.push("");
+    L.push("[쓰임새] " + flow.name);
+    L.push("추천 섹션 흐름: " + flow.steps.join(" → "));
+    L.push("");
+    L.push("[요청]");
+    L.push("1. 이 위계를 위 섹션 흐름에 맞춰 헤드라인·서브헤드·각 섹션 카피로 전개해 주세요.");
+    L.push("2. 각 뒷받침 메시지마다 바로 옆에 놓을 근거를 배치하고(있으면 활용, 없으면 어떤 근거가 필요한지 명시), 강한 주장과 근거가 한 눈에 붙게 하세요.");
+    L.push("3. 하나의 명확하고 마찰 낮은 CTA를 정해 주세요.");
+    L.push("4. 고객이 실제로 던질 반론 3개와 답, 검색 어투의 FAQ 3개를 더해 주세요.");
+    L.push("5. 결론을 대신 확정하지 말고, 근거가 약한 곳은 나에게 사실을 먼저 물어본 뒤 카피를 채워 주세요.");
+    return L.join("\n");
+  }
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    coreEl.value = "";
+    grow(coreEl);
+    srowsEl.innerHTML = "";
+    makeRow();
+    makeRow();
+    refreshRows();
+    document.getElementById("artifact").value = "landing";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">⊹</div>' +
+      "<p><strong>아직 위계를 세우기 전입니다.</strong></p>" +
+      "<p>핵심 메시지와 뒷받침을 입력하고 '위계 세우기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

@@ -1,0 +1,1468 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>연봉·처우 협상 준비 워크시트 (BATNA)</title>
+<meta
+  name="description"
+  content="협상 전 목표가·최저선·대안(BATNA)·상대 관점을 정리해 협상 카드와 대화 스크립트를 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3b5a8a;
+    --accent-strong: #2f4a76;
+    --accent-tint: #eaf0f8;
+    --accent-tint-2: #d8e3f1;
+    --ink: #1f2430;
+    --ink-soft: #434a58;
+    --ink-mute: #5f6678;
+    --paper: #f5f7fa;
+    --card: #ffffff;
+    --line: #e5e8ee;
+    --line-strong: #d3d8e2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #b4472e;
+    --warn-tint: #fbede8;
+    --warn-line: #f0d3c8;
+    --amber: #a35a12;
+    --amber-tint: #fff6ec;
+    --amber-line: #f2ddc4;
+    --shadow: 0 1px 2px rgba(31, 36, 48, 0.05), 0 6px 20px rgba(31, 36, 48, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  label.field-label .opt {
+    font-weight: 600;
+    color: var(--ink-mute);
+    font-size: 0.84rem;
+  }
+
+  .num-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 4px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .num-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  input.num {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1.04rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: #fbfcfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 44px 13px 14px;
+    text-align: right;
+  }
+  .num-wrap .unit {
+    position: absolute;
+    right: 13px;
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    pointer-events: none;
+  }
+  input.num:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    background: #fff;
+  }
+  input.num::placeholder {
+    color: #aab0bd;
+    font-weight: 500;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 74px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfcfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    background: #fff;
+  }
+  textarea::placeholder {
+    color: #aab0bd;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .stack .field-label {
+    margin-bottom: 6px;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-ready {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict.tone-mixed {
+    background: var(--amber-tint);
+    border-color: var(--amber-line);
+  }
+  .verdict.tone-weak {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-ready .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: var(--amber);
+  }
+  .verdict.tone-weak .verdict-title {
+    color: var(--warn);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #dfe3ea;
+  }
+  .verdict.tone-ready .pip.lit {
+    background: var(--good);
+  }
+  .verdict.tone-mixed .pip.lit {
+    background: var(--amber);
+  }
+  .verdict.tone-weak .pip.lit {
+    background: var(--warn);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* ---------- ask ladder ---------- */
+  .ladder {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .rung {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fbfcfd;
+  }
+  .rung-anchor {
+    border-left-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .rung-target {
+    border-left-color: var(--good);
+    background: var(--good-tint);
+  }
+  .rung-floor {
+    border-left-color: var(--warn);
+    background: var(--warn-tint);
+  }
+  .rung-k {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    flex: none;
+  }
+  .rung-mid {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .rung-note {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    margin-top: 2px;
+    font-weight: 500;
+  }
+  .rung-v {
+    font-size: 1.08rem;
+    font-weight: 800;
+    color: var(--ink);
+    flex: none;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .zopa-cap {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin: 12px 0 0;
+    padding: 11px 13px;
+    background: var(--accent-tint);
+    border-radius: 9px;
+  }
+  .zopa-cap b {
+    color: var(--accent-strong);
+  }
+  .raise-badge {
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-top: 10px;
+  }
+  .raise-badge.up {
+    color: var(--good);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+  }
+  .raise-badge.flat {
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+  }
+
+  /* ---------- warnings / notes ---------- */
+  .warn-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .warn-item {
+    border: 1px solid var(--warn-line);
+    border-left: 3px solid var(--warn);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: var(--warn-tint);
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .warn-item.sev-high {
+    font-weight: 600;
+  }
+  .warn-item .wi-k {
+    font-weight: 800;
+    color: var(--warn);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 0.86rem;
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* ---------- card summary ---------- */
+  .card-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .card-row {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fbfcfd;
+  }
+  .card-row .cr-k {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    margin: 0 0 5px;
+    letter-spacing: 0.01em;
+  }
+  .card-row .cr-v {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+  .card-row .cr-v.muted {
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+
+  /* ---------- script / prompt ---------- */
+  pre.script {
+    margin: 0;
+    background: #fbfcfd;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+  }
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #22262f;
+    color: #eef1f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 36, 48, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .num-grid {
+      grid-template-columns: 1fr;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .rung {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    .rung-v {
+      text-align: left;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #context-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">협상 준비 · BATNA 워크시트</span>
+    <h1>연봉·처우 협상 준비 워크시트</h1>
+    <p class="lede">
+      감으로 들어가면 상대 페이스에 끌려갑니다. 목표가·최저선·대안(BATNA)·상대의
+      관점을 먼저 정리하면, 흔들리지 않는 협상 카드와 그대로 말할 수 있는 대화
+      스크립트가 만들어집니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>세 개의 숫자</h2>
+    </div>
+    <p class="panel-sub">
+      모든 금액은 <strong>만원 단위</strong>로 넣으세요. (예: 6,000만원 →
+      <code>6000</code>) 협상은 이 세 숫자 사이에서 벌어집니다.
+    </p>
+    <div class="num-grid">
+      <div class="field">
+        <label class="field-label" for="current"
+          >현재 총보상 <span class="opt">(선택)</span></label
+        >
+        <div class="num-wrap">
+          <input
+            class="num"
+            id="current"
+            type="text"
+            inputmode="numeric"
+            placeholder="5,000"
+            aria-describedby="current-hint"
+          />
+          <span class="unit">만원</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="target">목표가</label>
+        <div class="num-wrap">
+          <input
+            class="num"
+            id="target"
+            type="text"
+            inputmode="numeric"
+            placeholder="6,000"
+          />
+          <span class="unit">만원</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="floor">최저선(유보가격)</label>
+        <div class="num-wrap">
+          <input
+            class="num"
+            id="floor"
+            type="text"
+            inputmode="numeric"
+            placeholder="5,500"
+          />
+          <span class="unit">만원</span>
+        </div>
+      </div>
+    </div>
+    <p class="field-hint" id="current-hint">
+      최저선(유보가격)은 "이 아래로는 합의하지 않고 대안을 택한다"는 마지노선입니다.
+      입력은 이 브라우저 밖으로 전송되지 않습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="context-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>레버리지와 상대</h2>
+    </div>
+    <p class="panel-sub">
+      숫자만으로는 협상이 안 됩니다. 무엇이 나를 뒷받침하고, 상대는 무엇을 걱정하는지
+      정리하세요.
+    </p>
+    <div class="stack">
+      <div class="field">
+        <label class="field-label" for="batna"
+          >내 대안 (BATNA) — 이 협상이 결렬되면 나의 최선의 선택지</label
+        >
+        <textarea
+          id="batna"
+          placeholder="예) B사에서 받은 오퍼 6,200만원 / 현직 유지하며 이직 계속 탐색 / 프리랜서 전환 검토 ..."
+        ></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="batnaVal"
+          >대안의 예상 가치 <span class="opt">(선택, 만원)</span></label
+        >
+        <div class="num-wrap" style="max-width: 220px">
+          <input
+            class="num"
+            id="batnaVal"
+            type="text"
+            inputmode="numeric"
+            placeholder="6,200"
+          />
+          <span class="unit">만원</span>
+        </div>
+        <p class="field-hint">
+          대안에 금액을 매길 수 있으면 넣으세요. 최저선이 대안보다 낮지 않은지
+          자동으로 점검합니다.
+        </p>
+      </div>
+      <div class="field">
+        <label class="field-label" for="value"
+          >나의 가치 근거 — 상대를 설득할 성과·시장 가치·희소 역량</label
+        >
+        <textarea
+          id="value"
+          placeholder="예) 작년 담당 프로젝트로 매출 12% 성장에 기여 / 대체 어려운 데이터 파이프라인 단독 운영 / 동일 직무 시장 이직 제안 다수 ..."
+        ></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="counter"
+          >상대의 관점·제약 — 결정권자가 걱정하는 것</label
+        >
+        <textarea
+          id="counter"
+          placeholder="예) 팀 내 연봉 형평성 / 올해 인건비 예산 한도 / 나를 놓쳤을 때의 채용·인수인계 비용 / 전례가 남는 것에 대한 부담 ..."
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="build">협상 카드 만들기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>협상 카드 · 대화 스크립트</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◔</div>
+        <p><strong>아직 준비 전입니다.</strong></p>
+        <p>목표가와 최저선을 넣고 '협상 카드 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 로저 피셔 &amp; 윌리엄 유리(하버드 협상
+      프로젝트)의 <em>Getting to Yes</em>에서 정리된
+      <strong>BATNA</strong>(협상 결렬 시 나의 최선의 대안), 그리고 협상학의
+      <strong>유보가격(reservation price)</strong>·<strong>ZOPA</strong>(합의
+      가능 구간) 개념을 따릅니다. 협상력은 대안에서 나오며, 최저선은 대안보다 낮게
+      설정하지 않는 것이 원칙입니다.
+    </p>
+    <p>
+      이 도구는 스스로 협상을 준비하도록 돕는 보조 도구이며, 시장 연봉 수치를
+      제공하거나 결과를 보장하지 않습니다. 금액과 대안은 반드시 본인이 확인한
+      사실로 채우세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  function $(id) {
+    return document.getElementById(id);
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // ---- number helpers (input is in 만원 units) ----
+  function parseMan(str) {
+    if (str == null) return null;
+    var digits = String(str).replace(/[^0-9]/g, "");
+    if (!digits) return null;
+    var n = parseInt(digits, 10);
+    if (isNaN(n)) return null;
+    return n;
+  }
+  function commafy(n) {
+    var neg = n < 0;
+    var s = String(Math.abs(Math.round(n)));
+    s = s.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return (neg ? "-" : "") + s;
+  }
+  function fmtMan(n) {
+    if (n == null || isNaN(n)) return "-";
+    var s = commafy(n) + "만원";
+    if (n >= 10000) {
+      var e = Math.round((n / 10000) * 100) / 100;
+      s += " (" + e + "억)";
+    }
+    return s;
+  }
+  function roundTo(n, unit) {
+    return Math.round(n / unit) * unit;
+  }
+  function flat(text) {
+    // collapse a multi-line field into one readable clause
+    return String(text)
+      .replace(/\s*\n+\s*/g, " · ")
+      .trim();
+  }
+
+  // ---- auto-grow textareas ----
+  Array.prototype.forEach.call(document.querySelectorAll("textarea"), function (ta) {
+    function grow() {
+      ta.style.height = "auto";
+      ta.style.height = ta.scrollHeight + "px";
+    }
+    ta.addEventListener("input", grow);
+  });
+
+  // ---- live thousands formatting on number fields ----
+  Array.prototype.forEach.call(document.querySelectorAll("input.num"), function (el) {
+    el.addEventListener("input", function () {
+      var n = parseMan(el.value);
+      el.value = n == null ? "" : commafy(n);
+    });
+  });
+
+  var resultEl = $("result");
+  var lastCard = "";
+  var lastScript = "";
+  var lastPrompt = "";
+
+  // ---- core builders ----
+  function readinessBand(score) {
+    if (score >= 5)
+      return {
+        tone: "ready",
+        label: "준비도 " + score + "/5",
+        title: "협상 카드 준비 완료",
+        desc: "네 개의 기둥(목표가·최저선·대안·상대 관점)과 가치 근거가 모두 채워졌습니다. 아래 스크립트를 소리 내어 읽으며 리허설하세요.",
+      };
+    if (score >= 3)
+      return {
+        tone: "mixed",
+        label: "준비도 " + score + "/5",
+        title: "핵심은 갖췄고, 보강이 필요합니다",
+        desc: "골격은 섰지만 비어 있는 칸이 있습니다. 아래 보완점을 메우면 협상 중 흔들릴 여지가 줄어듭니다.",
+      };
+    return {
+      tone: "weak",
+      label: "준비도 " + score + "/5",
+      title: "아직 준비가 부족합니다",
+      desc: "지금 협상 테이블에 앉으면 상대 페이스에 끌려갑니다. 특히 대안(BATNA)과 상대 관점을 먼저 채우세요. 협상력은 대안에서 나옵니다.",
+    };
+  }
+
+  function buildScript(d) {
+    var L = [];
+    L.push("【1. 오프닝 — 앵커 제시】");
+    L.push(
+      "바쁘신 중에 시간 내주셔서 감사합니다. 지난 기간의 기여와 현재 시장 상황을 함께 놓고 보면, 저는 " +
+        fmtMan(d.anchor) +
+        " 수준이 적정하다고 생각합니다."
+    );
+    if (d.value) {
+      L.push("그렇게 보는 근거는 이렇습니다: " + flat(d.value) + ".");
+    } else {
+      L.push(
+        "근거: ［최근의 대표 성과나 시장 가치 1~2가지를 여기에 넣으세요. 숫자가 있으면 더 강해집니다.］"
+      );
+    }
+    L.push("");
+    L.push("【2. 상대의 입장을 먼저 인정】");
+    if (d.counter) {
+      L.push("동시에 " + flat(d.counter) + " 같은 회사 측 사정도 이해하고 있습니다.");
+    } else {
+      L.push(
+        "동시에 ［예산 한도·팀 내 형평성 등 회사가 걱정할 만한 지점 1가지를 여기에 넣으세요］도 이해하고 있습니다."
+      );
+    }
+    L.push(
+      "그래서 저의 목표는 " +
+        fmtMan(d.target) +
+        "이며, 그 제약 안에서 함께 접점을 찾고 싶습니다."
+    );
+    L.push("");
+    L.push("【3. 대안(BATNA)은 위협이 아니라 정보로】");
+    if (d.batna) {
+      L.push(
+        "참고로 저에게는 " +
+          flat(d.batna) +
+          " 같은 다른 선택지도 있습니다. 다만 저는 이곳에서 계속 기여하고 싶어, 협박이 아니라 솔직한 상황 공유로 먼저 대화를 요청드립니다."
+      );
+    } else {
+      L.push(
+        "＊대안(BATNA)을 입력하면, 이 자리에 상대를 압박하지 않으면서도 협상력을 보여 주는 문장이 자동으로 만들어집니다. 대안 없이 하는 요구는 힘이 약합니다."
+      );
+    }
+    L.push("");
+    L.push("【4. 최저선 방어 — 총 처우로 넓히기】");
+    L.push(
+      "혹시 기본급을 " +
+        fmtMan(d.floor) +
+        " 이상으로 맞추기 어렵다면, 사이닝 보너스·성과급·직책·근무 유연성·교육비 등 연봉 외 요소를 포함한 총 처우로 접점을 찾는 방안도 함께 논의하고 싶습니다."
+    );
+    L.push(
+      "제 최저선은 " +
+        fmtMan(d.floor) +
+        "이며, 그 아래에서는 아쉽지만 지금 가진 대안을 진지하게 고려하게 됩니다."
+    );
+    return L.join("\n");
+  }
+
+  function buildCard(d) {
+    var L = [];
+    L.push("[연봉·처우 협상 카드]");
+    L.push("· 첫 제시(앵커): " + fmtMan(d.anchor));
+    L.push("· 목표가: " + fmtMan(d.target));
+    L.push("· 최저선(유보가격): " + fmtMan(d.floor));
+    if (d.current != null) {
+      L.push(
+        "· 현재 총보상: " +
+          fmtMan(d.current) +
+          (d.raisePct != null
+            ? "  (목표가 기준 " +
+              (d.raisePct >= 0 ? "+" : "") +
+              d.raisePct.toFixed(1) +
+              "%)"
+            : "")
+      );
+    }
+    L.push("· 협상 여지(ZOPA): " + fmtMan(d.floor) + " ~ " + fmtMan(d.target));
+    L.push("· 대안(BATNA): " + (d.batna ? flat(d.batna) : "(미입력 — 협상력 취약)"));
+    if (d.batnaVal != null) L.push("  └ 대안 가치: " + fmtMan(d.batnaVal));
+    L.push("· 핵심 레버리지: " + (d.value ? flat(d.value) : "(미입력)"));
+    L.push("· 상대 관점·제약: " + (d.counter ? flat(d.counter) : "(미입력)"));
+    return L.join("\n");
+  }
+
+  function buildPrompt(d) {
+    var L = [];
+    L.push(
+      "당신은 하버드 협상 프로젝트의 원칙 협상(Getting to Yes)과 BATNA·유보가격(reservation price)·ZOPA 개념에 정통한 연봉 협상 코치입니다."
+    );
+    L.push("아래 저의 협상 준비 워크시트를 검토하고, 실전 협상을 도와주세요.");
+    L.push("");
+    L.push("【숫자 (만원 단위)】");
+    if (d.current != null) L.push("- 현재 총보상: " + fmtMan(d.current));
+    L.push("- 목표가: " + fmtMan(d.target));
+    L.push("- 최저선(유보가격): " + fmtMan(d.floor));
+    L.push("- 첫 제시(앵커): " + fmtMan(d.anchor));
+    if (d.batnaVal != null) L.push("- 대안(BATNA)의 예상 가치: " + fmtMan(d.batnaVal));
+    L.push("");
+    L.push("【내 대안 (BATNA)】");
+    L.push(d.batna ? d.batna.trim() : "(아직 정하지 못했습니다. 대안을 함께 찾아 주세요.)");
+    L.push("");
+    L.push("【나의 가치 근거】");
+    L.push(d.value ? d.value.trim() : "(아직 정리하지 못했습니다. 무엇을 근거로 삼을지 질문해 주세요.)");
+    L.push("");
+    L.push("【상대의 관점·제약】");
+    L.push(d.counter ? d.counter.trim() : "(아직 파악하지 못했습니다. 어떤 정보를 알아내야 할지 알려 주세요.)");
+    L.push("");
+    L.push("【자가 진단】");
+    L.push("- 준비도: " + d.score + "/5");
+    if (d.warnMsgs.length) {
+      L.push("- 감지된 경고:");
+      d.warnMsgs.forEach(function (w) {
+        L.push("  · " + w);
+      });
+    } else {
+      L.push("- 감지된 경고: 없음");
+    }
+    L.push("");
+    L.push("【요청】");
+    L.push(
+      "1. 제 최저선과 대안(BATNA)이 현실적인지 압박 질문으로 점검해 주세요. 근거 없는 시장 수치를 지어내지 말고, 필요하면 제가 직접 확인해야 할 출처(잡플래닛·시장 리포트·동종 업계 지인 등)를 알려 주세요."
+    );
+    L.push(
+      "2. 첫 제시(앵커)가 너무 높거나 낮지 않은지, 정당화 논리와 함께 조정안을 제안해 주세요."
+    );
+    L.push(
+      "3. 상대가 낼 법한 반론 3가지를 예상하고, 각 반론에 대한 저의 대응 문장을 만들어 주세요(역할극)."
+    );
+    L.push(
+      "4. 결론을 대신 확정하지 말고, 먼저 질문과 선택지를 제시한 뒤 코치의 해석을 비교용으로 덧붙여 주세요."
+    );
+    L.push(
+      "5. 연봉 외 총 처우(사이닝 보너스·성과급·직책·유연근무·교육비 등)로 합의 구간을 넓히는 대안을 제안해 주세요."
+    );
+    return L.join("\n");
+  }
+
+  // ---- render helpers ----
+  function renderNeedsInput(missing) {
+    var html = "";
+    html += '<div class="verdict tone-mixed">';
+    html += '<p class="verdict-label">입력 필요</p>';
+    html += '<p class="verdict-title">협상은 두 숫자에서 시작합니다</p>';
+    html +=
+      '<p class="verdict-desc">협상 카드를 만들려면 최소한 <strong>' +
+      esc(missing.join(", ")) +
+      "</strong>이(가) 필요합니다. 목표가는 이루고 싶은 지점, 최저선은 그 아래로는 합의하지 않을 마지노선입니다.</p>";
+    html += "</div>";
+    resultEl.innerHTML = html;
+  }
+
+  function build() {
+    var current = parseMan($("current").value);
+    var target = parseMan($("target").value);
+    var floor = parseMan($("floor").value);
+    var batna = $("batna").value.trim();
+    var batnaVal = parseMan($("batnaVal").value);
+    var value = $("value").value.trim();
+    var counter = $("counter").value.trim();
+
+    // gate: need target + floor to build a real card
+    var missing = [];
+    if (target == null) missing.push("목표가");
+    if (floor == null) missing.push("최저선");
+    if (missing.length) {
+      renderNeedsInput(missing);
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    // ---- anchor: open ~8% above target, rounded to nearest 10만, never below target ----
+    var anchor = roundTo(Math.round(target * 1.08), 10);
+    if (anchor <= target) anchor = target + 10;
+
+    var raisePct = current != null && current > 0 ? ((target - current) / current) * 100 : null;
+
+    // ---- warnings (real validations) ----
+    var warnings = [];
+    if (floor >= target) {
+      warnings.push({
+        sev: "high",
+        k: "최저선이 목표가 이상입니다",
+        t:
+          "최저선(" +
+          fmtMan(floor) +
+          ")이 목표가(" +
+          fmtMan(target) +
+          ")보다 높거나 같습니다. 협상 여지가 없습니다. 최저선을 목표가보다 낮게 다시 잡으세요.",
+      });
+    }
+    if (current != null && target <= current) {
+      warnings.push({
+        sev: "high",
+        k: "목표가가 인상이 아닙니다",
+        t:
+          "목표가(" +
+          fmtMan(target) +
+          ")가 현재 총보상(" +
+          fmtMan(current) +
+          ") 이하입니다. 목표가를 다시 검토하세요.",
+      });
+    }
+    if (batnaVal != null && batnaVal > floor) {
+      warnings.push({
+        sev: "high",
+        k: "최저선이 대안보다 낮습니다",
+        t:
+          "대안(BATNA) 가치(" +
+          fmtMan(batnaVal) +
+          ")가 최저선(" +
+          fmtMan(floor) +
+          ")보다 높습니다. 원칙상 최저선은 대안보다 낮게 두지 않습니다. 최저선을 최소 " +
+          fmtMan(batnaVal) +
+          " 수준으로 올리세요.",
+      });
+    }
+    if (!batna) {
+      warnings.push({
+        sev: "high",
+        k: "대안(BATNA)이 비어 있습니다",
+        t: "대안이 없으면 최저선을 지킬 힘이 약합니다. 결렬 시 택할 최선의 선택지를 먼저 만드세요. 협상력은 대안에서 나옵니다.",
+      });
+    }
+    if (!value) {
+      warnings.push({
+        sev: "low",
+        k: "가치 근거가 비어 있습니다",
+        t: "상대를 설득할 구체적 성과·시장 가치가 필요합니다. 가능하면 숫자로 표현하세요.",
+      });
+    }
+    if (!counter) {
+      warnings.push({
+        sev: "low",
+        k: "상대의 관점이 비어 있습니다",
+        t: "상대의 예산·형평성·나를 놓쳤을 때의 비용을 모른 채 하는 요구는 관철되기 어렵습니다.",
+      });
+    }
+
+    // ---- readiness score (5 pillars) ----
+    var score = 0;
+    if (target != null) score++;
+    if (floor != null && floor < target) score++;
+    if (batna.length >= 8) score++;
+    if (value.length >= 8) score++;
+    if (counter.length >= 8) score++;
+    var band = readinessBand(score);
+
+    var d = {
+      current: current,
+      target: target,
+      floor: floor,
+      anchor: anchor,
+      raisePct: raisePct,
+      batna: batna,
+      batnaVal: batnaVal,
+      value: value,
+      counter: counter,
+      score: score,
+      warnMsgs: warnings.map(function (w) {
+        return w.k + " — " + w.t;
+      }),
+    };
+
+    lastScript = buildScript(d);
+    lastCard = buildCard(d);
+    lastPrompt = buildPrompt(d);
+
+    // ---- render ----
+    var html = "";
+
+    // readiness verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html +=
+      '<div class="meter" role="img" aria-label="준비도 5점 중 ' + score + '점">';
+    for (var p = 0; p < 5; p++) {
+      html += '<span class="pip' + (p < score ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html += '<p class="meter-caption">' + score + " / 5 준비 완료</p>";
+    html += "</div>";
+
+    // ask ladder
+    html += '<div class="result-block-title">제시 사다리 (앵커 → 목표 → 최저선)</div>';
+    html += '<div class="ladder">';
+    html +=
+      '<div class="rung rung-anchor"><span class="rung-mid"><span class="rung-k">첫 제시 · 앵커</span><span class="rung-note">목표가보다 약 8% 높게 열어 양보 여지를 확보</span></span><span class="rung-v">' +
+      esc(fmtMan(anchor)) +
+      "</span></div>";
+    html +=
+      '<div class="rung rung-target"><span class="rung-mid"><span class="rung-k">목표가</span><span class="rung-note">현실적으로 도달하려는 지점</span></span><span class="rung-v">' +
+      esc(fmtMan(target)) +
+      "</span></div>";
+    html +=
+      '<div class="rung rung-floor"><span class="rung-mid"><span class="rung-k">최저선 · 유보가격</span><span class="rung-note">이 아래로는 합의 대신 대안을 택한다</span></span><span class="rung-v">' +
+      esc(fmtMan(floor)) +
+      "</span></div>";
+    html += "</div>";
+
+    if (floor < target) {
+      html +=
+        '<p class="zopa-cap"><b>협상 여지(ZOPA):</b> ' +
+        esc(fmtMan(floor)) +
+        " ~ " +
+        esc(fmtMan(target)) +
+        " 구간에서 합의를 만들고, 이 밖은 넘기지 않습니다.</p>";
+    }
+    if (raisePct != null) {
+      if (raisePct > 0) {
+        html +=
+          '<span class="raise-badge up">현재 대비 목표 +' +
+          raisePct.toFixed(1) +
+          "%</span>";
+      } else {
+        html +=
+          '<span class="raise-badge flat">목표가가 현재보다 높지 않음 (' +
+          raisePct.toFixed(1) +
+          "%)</span>";
+      }
+    }
+
+    // warnings / boost points
+    if (warnings.length) {
+      html += '<div class="result-block-title">점검할 보완점</div>';
+      html += '<ul class="warn-list">';
+      warnings.forEach(function (w) {
+        html +=
+          '<li class="warn-item sev-' +
+          w.sev +
+          '"><span class="wi-k">' +
+          esc(w.k) +
+          "</span>" +
+          esc(w.t) +
+          "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html +=
+        '<p class="clean-note" style="margin-top:18px">보완할 빈칸이 없습니다. 네 기둥과 가치 근거가 모두 채워졌습니다. 남은 건 리허설입니다.</p>';
+    }
+
+    // negotiation card summary
+    html += '<div class="result-block-title">협상 카드</div>';
+    html += '<div class="card-grid">';
+    html += cardRow("대안 (BATNA)", batna || "(미입력 — 협상력 취약)", !batna);
+    html += cardRow("핵심 레버리지", value || "(미입력)", !value);
+    html += cardRow("상대 관점·제약", counter || "(미입력)", !counter);
+    html += "</div>";
+
+    // conversation script
+    html += '<div class="result-block-title">대화 스크립트 (그대로 읽을 수 있게)</div>';
+    html += '<pre class="script" id="script-text">' + esc(lastScript) + "</pre>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyCardBtn">카드+스크립트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus1" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // AI prompt
+    html +=
+      '<div class="result-block-title">심화: AI 협상 코치에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 워크시트를 근거로 최저선·앵커를 압박 점검하고 반론 역할극을 함께 해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPromptBtn">프롬프트 복사</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus2" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function cardRow(k, v, muted) {
+    return (
+      '<div class="card-row"><p class="cr-k">' +
+      esc(k) +
+      '</p><p class="cr-v' +
+      (muted ? " muted" : "") +
+      '">' +
+      esc(v) +
+      "</p></div>"
+    );
+  }
+
+  // ---- reset ----
+  function reset() {
+    ["current", "target", "floor", "batnaVal"].forEach(function (id) {
+      $(id).value = "";
+    });
+    ["batna", "value", "counter"].forEach(function (id) {
+      var el = $(id);
+      el.value = "";
+      el.style.height = "auto";
+    });
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+      "<p><strong>아직 준비 전입니다.</strong></p>" +
+      "<p>목표가와 최저선을 넣고 '협상 카드 만들기'를 누르세요.</p></div>";
+    $("context-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  $("build").addEventListener("click", build);
+  $("reset").addEventListener("click", reset);
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var cardBtn = $("copyCardBtn");
+    var promptBtn = $("copyPromptBtn");
+    var printBtn = $("printBtn");
+    if (cardBtn)
+      cardBtn.addEventListener("click", function () {
+        doCopy(lastCard + "\n\n[대화 스크립트]\n" + lastScript, "copyStatus1");
+      });
+    if (promptBtn)
+      promptBtn.addEventListener("click", function () {
+        doCopy(lastPrompt, "copyStatus2");
+      });
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(id, msg) {
+    var s = $(id);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy(text, statusId) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(statusId, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusId);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusId);
+  }
+
+  function legacyCopy(text, statusId) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      ta.setSelectionRange(0, text.length);
+    } catch (e) {}
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(statusId, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = $("modal");
+  var modalText = $("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  $("modal-close").addEventListener("click", closeModal);
+  $("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    try {
+      modalText.setSelectionRange(0, modalText.value.length);
+    } catch (e) {}
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

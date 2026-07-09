@@ -1,0 +1,1192 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>주간 회고 정리기 (KPT)</title>
+<meta name="description" content="한 주 한 일과 막힌 것만 적으면 Keep-Problem-Try 회고와 상사 보고용 요약을 동시에 뽑습니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2f6d78;
+    --accent-strong: #245863;
+    --accent-tint: #e7f1f2;
+    --accent-tint-2: #d3e5e7;
+    --ink: #1f2426;
+    --ink-soft: #414a4d;
+    --ink-mute: #667074;
+    --paper: #f6f8f8;
+    --card: #ffffff;
+    --line: #e2e8e8;
+    --line-strong: #cdd6d6;
+    --good: #2f6f4f;
+    --good-strong: #235a3e;
+    --good-tint: #e7f2ec;
+    --warn: #b3701a;
+    --warn-strong: #8f5711;
+    --warn-tint: #fbf1e2;
+    --shadow: 0 1px 2px rgba(31, 36, 38, 0.05),
+      0 6px 20px rgba(31, 36, 38, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field {
+    margin-bottom: 18px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  label.field-label .tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-right: 7px;
+    vertical-align: 1px;
+  }
+  .tag.keep {
+    color: var(--good-strong);
+    background: var(--good-tint);
+  }
+  .tag.prob {
+    color: var(--warn-strong);
+    background: var(--warn-tint);
+  }
+  textarea,
+  input.text {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 92px;
+    resize: none;
+    overflow: hidden;
+  }
+  input.text {
+    max-width: 320px;
+  }
+  textarea:focus,
+  input.text:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder,
+  input.text::placeholder {
+    color: #9aa4a4;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .warn-line {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--warn-strong);
+    margin: 12px 0 0;
+    display: none;
+  }
+  .warn-line.show {
+    display: block;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 20px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-accent {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-warn {
+    background: var(--warn-tint);
+    border-color: #f0dcbf;
+  }
+  .verdict.tone-good {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.36rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-accent .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-warn .verdict-title {
+    color: var(--warn-strong);
+  }
+  .verdict.tone-good .verdict-title {
+    color: var(--good-strong);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .stat-chip {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 5px 12px;
+  }
+  .stat-chip b {
+    color: var(--accent-strong);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+  .result-block-title:first-child {
+    margin-top: 0;
+  }
+
+  /* ---------- KPT ---------- */
+  .keep-list,
+  .prob-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .keep-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--good);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fafcfb;
+    font-size: 0.96rem;
+    color: var(--ink);
+  }
+  .prob-card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .prob-head {
+    border-left: 3px solid var(--warn);
+    background: var(--warn-tint);
+    padding: 12px 14px;
+  }
+  .prob-head .p-label {
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--warn-strong);
+  }
+  .prob-head .p-text {
+    margin: 2px 0 0;
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--ink);
+  }
+  .try-body {
+    border-left: 3px solid var(--accent);
+    padding: 12px 14px;
+  }
+  .try-body .t-label {
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--accent-strong);
+  }
+  .try-body .t-text {
+    margin: 3px 0 0;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .try-cat {
+    display: inline-block;
+    margin-top: 9px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    padding: 2px 9px;
+    border-radius: 6px;
+  }
+  .soft-note {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    background: #fafcfb;
+    border: 1px dashed var(--line-strong);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 0;
+  }
+
+  /* ---------- output boxes ---------- */
+  pre.report {
+    margin: 0;
+    background: #f4f8f8;
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 15px 15px;
+    font-size: 0.9rem;
+    line-height: 1.72;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: inherit;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232a2b;
+    color: #eef3f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .btn-copy.alt {
+    background: var(--accent);
+  }
+  .btn-copy.alt:hover {
+    background: var(--accent-strong);
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good-strong);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 36, 38, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+    resize: none;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    input.text {
+      max-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #meta-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">주간 회고 · Keep · Problem · Try</span>
+    <h1>주간 회고 정리기 (KPT)</h1>
+    <p class="lede">
+      이번 주 한 일과 막힌 것만 적으면, Keep · Problem · Try 회고와 상사에게
+      바로 보낼 주간 보고 요약을 한 번에 정리해 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>이번 주를 적어 주세요</h2>
+    </div>
+    <p class="panel-sub">
+      한 줄에 하나씩, 짧게 적으면 됩니다. 완성된 문장이 아니어도 괜찮습니다.
+    </p>
+
+    <div class="field">
+      <label class="field-label" for="done">
+        <span class="tag keep">한 일</span>이번 주에 한 일 · 진전
+      </label>
+      <textarea
+        id="done"
+        placeholder="예)&#10;신규 랜딩 페이지 초안 완성&#10;고객사 3곳 온보딩 미팅 진행&#10;주간 리포트 자동화 스크립트 배포"
+      ></textarea>
+      <p class="field-hint">여기 적은 일이 Keep(계속할 것)의 재료가 됩니다.</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="blocked">
+        <span class="tag prob">막힌 것</span>막히거나 아쉬웠던 것 · 문제
+      </label>
+      <textarea
+        id="blocked"
+        placeholder="예)&#10;디자인 확정이 늦어져 개발 일정이 밀림&#10;타 팀 응답이 없어 데이터 연동 대기 중&#10;처음 쓰는 도구라 세팅에 시간을 많이 씀"
+      ></textarea>
+      <p class="field-hint">
+        각 항목마다 다음 주에 시도할 Try(액션)를 자동으로 제안합니다.
+      </p>
+    </div>
+
+    <p class="warn-line" id="warn" role="alert">
+      한 일 또는 막힌 것 중 최소 한 줄은 적어 주세요.
+    </p>
+  </section>
+
+  <section class="panel" id="meta-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>보고 기간 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      상사 보고 요약 맨 위에 들어갈 기간입니다. 비워 두면 이번 주로 표기됩니다.
+    </p>
+    <div class="field">
+      <label class="field-label" for="period">기간 표기</label>
+      <input class="text" id="period" type="text" placeholder="예) 6월 3주차" />
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="run">회고 정리하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>정리 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◔</div>
+        <p><strong>아직 정리 전입니다.</strong></p>
+        <p>위에 한 일과 막힌 것을 적고 '회고 정리하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> KPT(Keep · Problem · Try) 회고
+      프레임워크와, 주간 업무 보고에서 통용되는 구조(완료 · 진행 중 이슈 · 다음
+      주 계획)를 바탕으로 구성했습니다. 막힌 것에 대한 Try 제안은 입력한 문장의
+      키워드(일정 · 소통 · 자료 · 의사결정 · 기술 · 우선순위 · 역량 · 컨디션)를
+      분류해 통용되는 대응 원칙을 연결한 것입니다.
+    </p>
+    <p>
+      이 도구는 회고를 돕는 정리 보조 도구이며, 성과나 평가를 대신 판단하지
+      않습니다. 결과는 스스로 다듬을 초안으로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ----------------------------------------------------------
+   * 주간 회고 정리기 (KPT)
+   * 입력: 한 일(여러 줄) + 막힌 것(여러 줄) + 기간(선택)
+   * 출력: Keep 리스트 · Problem→Try 페어 · 상사 보고 요약 · AI 프롬프트
+   * 모든 처리는 이 브라우저 안에서만 일어납니다. 외부 전송 없음.
+   * ---------------------------------------------------------- */
+
+  // Try 도출 규칙: 막힌 것의 키워드를 분류해 통용되는 대응 원칙을 연결한다.
+  var TRY_RULES = [
+    {
+      cat: "시간·일정",
+      keys: [
+        "시간", "일정", "마감", "기한", "늦", "지연", "밀림", "밀렸",
+        "바빠", "바쁨", "여유", "촉박", "deadline",
+      ],
+      action:
+        "다음 주 시작 전에 이 일에 필요한 시간을 캘린더에 먼저 블록으로 잡거나, 현실적인 기한으로 다시 조율한다.",
+    },
+    {
+      cat: "소통·협업",
+      keys: [
+        "소통", "커뮤니", "공유", "협업", "전달", "연락", "회신", "응답",
+        "답이 없", "답변", "다른 팀", "타 팀", "타팀", "부서", "협조",
+        "리뷰가", "피드백이",
+      ],
+      action:
+        "관련자와 짧은 싱크(15분)를 잡아 기대치와 책임 소재를 맞추고, 필요한 요청을 글로 남겨 기록한다.",
+    },
+    {
+      cat: "정보·자료",
+      keys: [
+        "자료", "데이터", "정보", "문서", "근거", "레퍼런스", "기준이 없",
+        "가이드", "스펙", "요구사항", "정의가",
+      ],
+      action:
+        "필요한 자료를 누구에게 언제까지 받을지 명확히 요청하고, 그때까지 진행할 임시 기준을 먼저 정한다.",
+    },
+    {
+      cat: "의사결정",
+      keys: [
+        "결정", "승인", "확정", "의사결정", "컨펌", "사인", "보류", "대기",
+        "confirm", "결재", "방향이",
+      ],
+      action:
+        "의사결정자에게 기한을 정해 결정을 요청하고, 결정이 늦어질 때의 대안(플랜 B)을 함께 제시한다.",
+    },
+    {
+      cat: "기술·도구",
+      keys: [
+        "버그", "에러", "오류", "장애", "환경", "빌드", "배포", "코드",
+        "시스템", "서버", "도구", "툴", "세팅", "설정", "설치", "연동",
+        "api",
+      ],
+      action:
+        "문제의 재현 조건을 정리해 도움을 요청하거나 페어링을 잡고, 임시 우회책이 있는지 먼저 확인한다.",
+    },
+    {
+      cat: "우선순위",
+      keys: [
+        "우선순위", "너무 많", "일이 많", "과부하", "동시에", "벅차", "몰려",
+        "넘쳐", "겹쳐", "산더미",
+      ],
+      action:
+        "할 일을 영향도 기준으로 다시 줄 세워 상위 한두 개에 집중하고, 하나는 위임하거나 다음 주로 미룬다.",
+    },
+    {
+      cat: "역량·학습",
+      keys: [
+        "몰라", "모르", "처음", "익숙", "학습", "배워", "경험이 없",
+        "어려워", "이해가", "낯설",
+      ],
+      action:
+        "필요한 부분만 짧게 학습하거나 경험자에게 30분 코칭을 요청해 진입 장벽을 먼저 낮춘다.",
+    },
+    {
+      cat: "컨디션",
+      keys: [
+        "집중", "번아웃", "지침", "지쳐", "피곤", "의욕", "동기", "슬럼프",
+        "힘들",
+      ],
+      action:
+        "작업을 30분 단위로 잘게 쪼개 첫 스텝만 시작하고, 회복 시간을 일정에 미리 확보한다.",
+    },
+  ];
+
+  var TRY_DEFAULT = {
+    cat: "원인 좁히기",
+    action:
+      "이 문제의 원인을 한 문장으로 좁히고, 다음 주에 시도할 가장 작은 첫 액션 하나를 정한다.",
+  };
+
+  function deriveTry(text) {
+    var t = String(text).toLowerCase();
+    for (var i = 0; i < TRY_RULES.length; i++) {
+      var rule = TRY_RULES[i];
+      for (var k = 0; k < rule.keys.length; k++) {
+        if (t.indexOf(rule.keys[k].toLowerCase()) !== -1) {
+          return { cat: rule.cat, action: rule.action };
+        }
+      }
+    }
+    return TRY_DEFAULT;
+  }
+
+  // 여러 줄 텍스트 → 정리된 항목 배열 (글머리 기호·번호 제거)
+  function parseLines(text) {
+    return String(text)
+      .split("\n")
+      .map(function (line) {
+        return line
+          .replace(/^\s*(?:[-*•·▪◦o]|\d+[.)]|[가-힣][.)])\s*/, "")
+          .trim();
+      })
+      .filter(function (line) {
+        return line.length > 0;
+      });
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // 이번 주 월~금 범위 (기간 미입력 시 기본값)
+  function weekRange() {
+    var now = new Date();
+    var day = now.getDay(); // 0=일 .. 6=토
+    var diffToMon = day === 0 ? -6 : 1 - day;
+    var mon = new Date(now);
+    mon.setDate(now.getDate() + diffToMon);
+    var fri = new Date(mon);
+    fri.setDate(mon.getDate() + 4);
+    function fmt(d) {
+      return d.getMonth() + 1 + "월 " + d.getDate() + "일";
+    }
+    return fmt(mon) + " ~ " + fmt(fri);
+  }
+
+  var periodEl = document.getElementById("period");
+  periodEl.placeholder = "예) " + weekRange();
+
+  // ---- auto-grow textareas ----
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  var doneEl = document.getElementById("done");
+  var blockedEl = document.getElementById("blocked");
+  [doneEl, blockedEl].forEach(function (el) {
+    el.addEventListener("input", function () {
+      grow(el);
+    });
+  });
+
+  // ---- verdict band ----
+  function bandFor(done, block) {
+    if (block === 0 && done > 0) {
+      return {
+        tone: "good",
+        label: "막힌 것 0개",
+        title: "막힘 없이 완주한 한 주",
+        desc:
+          "이번 주는 걸림돌 없이 흘러갔네요. 잘된 흐름을 다음 주에도 이어가도록 Keep 항목을 유지 기준으로 삼아 보세요.",
+      };
+    }
+    if (done === 0 && block > 0) {
+      return {
+        tone: "warn",
+        label: "한 일 0개 · 막힌 것 " + block + "개",
+        title: "막힌 것부터 풀어야 할 한 주",
+        desc:
+          "진전보다 막힘이 먼저 보이는 주간입니다. 아래 Try를 다음 주 첫 액션으로 삼아 하나씩 풀면, 다음 회고엔 Keep이 채워집니다.",
+      };
+    }
+    if (block >= 3 && block >= done) {
+      return {
+        tone: "warn",
+        label: "한 일 " + done + "개 · 막힌 것 " + block + "개",
+        title: "막힌 게 많았던 한 주",
+        desc:
+          "해낸 일도 있지만 걸림돌이 여럿입니다. 아래 Problem마다 붙은 Try를 다음 주 계획으로 옮기면 흐름이 다시 잡힙니다.",
+      };
+    }
+    return {
+      tone: "accent",
+      label: "한 일 " + done + "개 · 막힌 것 " + block + "개",
+      title: "이번 주 회고를 정리했어요",
+      desc:
+        "한 일은 Keep으로, 막힌 것은 각각의 Try로 정리했습니다. 아래 상사 보고 요약은 그대로 복사해 보내면 됩니다.",
+    };
+  }
+
+  // ---- build boss report ----
+  function buildReport(period, dones, probs, tries) {
+    var lines = [];
+    lines.push("[주간 업무 보고] " + period);
+    lines.push("");
+    lines.push("■ 이번 주 완료 (" + dones.length + "건)");
+    if (dones.length) {
+      dones.forEach(function (d) {
+        lines.push("- " + d);
+      });
+    } else {
+      lines.push("- (기재된 완료 항목 없음)");
+    }
+    lines.push("");
+    lines.push("■ 진행 중 · 막힌 이슈 (" + probs.length + "건)");
+    if (probs.length) {
+      probs.forEach(function (p, i) {
+        lines.push("- " + p);
+        lines.push("  · 대응 계획: " + tries[i].action);
+      });
+    } else {
+      lines.push("- 특이 이슈 없음. 계획대로 진행.");
+    }
+    lines.push("");
+    lines.push("■ 다음 주 계획");
+    if (tries.length) {
+      tries.forEach(function (t) {
+        lines.push("- " + t.action);
+      });
+    } else {
+      lines.push("- 이번 주 성과를 이어 유지 항목을 지속한다.");
+    }
+    return lines.join("\n");
+  }
+
+  // ---- build AI deepening prompt ----
+  function buildPrompt(period, dones, probs, tries) {
+    var lines = [];
+    lines.push(
+      "당신은 주간 회고와 업무 보고를 돕는 실무 코치입니다. 아래 한 주 기록을 바탕으로 KPT 회고와 상사 보고 요약을 더 날카롭게 다듬어 주세요."
+    );
+    lines.push("");
+    lines.push("【기간】 " + period);
+    lines.push("");
+    lines.push("【이번 주 한 일】");
+    if (dones.length) {
+      dones.forEach(function (d) {
+        lines.push("- " + d);
+      });
+    } else {
+      lines.push("- (없음)");
+    }
+    lines.push("");
+    lines.push("【막힌 것 / 문제】");
+    if (probs.length) {
+      probs.forEach(function (p, i) {
+        lines.push("- " + p + "  (내가 생각한 다음 액션: " + tries[i].action + ")");
+      });
+    } else {
+      lines.push("- (없음)");
+    }
+    lines.push("");
+    lines.push("【요청 사항】");
+    lines.push(
+      "1. Keep(계속할 것)을 성과가 드러나도록 한 줄씩 다듬어 주세요. 단, 제가 적지 않은 성과나 수치는 만들어 내지 마세요."
+    );
+    lines.push(
+      "2. Problem마다 원인을 한 문장으로 좁히고, 다음 주에 바로 실행할 수 있는 구체적 Try로 바꿔 주세요."
+    );
+    lines.push(
+      "3. 상사에게 보낼 주간 보고 요약을, 결과 중심으로 간결하게(완료 · 이슈 · 다음 주 계획) 정리해 주세요."
+    );
+    lines.push(
+      "4. 이번 주에 가장 먼저 풀어야 할 단 하나의 핵심 이슈를 골라, 이유와 함께 짚어 주세요."
+    );
+    lines.push(
+      "5. 결론을 대신 내리기보다, 제가 스스로 판단하도록 질문을 먼저 던진 뒤 당신의 제안을 비교용으로 덧붙여 주세요."
+    );
+    return lines.join("\n");
+  }
+
+  var lastReport = "";
+  var lastPrompt = "";
+
+  var resultEl = document.getElementById("result");
+  var warnEl = document.getElementById("warn");
+
+  document.getElementById("run").addEventListener("click", function () {
+    var dones = parseLines(doneEl.value);
+    var probs = parseLines(blockedEl.value);
+
+    if (dones.length === 0 && probs.length === 0) {
+      warnEl.classList.add("show");
+      doneEl.focus();
+      return;
+    }
+    warnEl.classList.remove("show");
+
+    var period = periodEl.value.trim() || "이번 주";
+    var tries = probs.map(function (p) {
+      return deriveTry(p);
+    });
+    var band = bandFor(dones.length, probs.length);
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html += '<div class="stat-row">';
+    html +=
+      '<span class="stat-chip">Keep <b>' + dones.length + "</b></span>";
+    html +=
+      '<span class="stat-chip">Problem <b>' + probs.length + "</b></span>";
+    html += '<span class="stat-chip">Try <b>' + tries.length + "</b></span>";
+    html += "</div>";
+    html += "</div>";
+
+    // Keep
+    html += '<div class="result-block-title">Keep · 계속할 것</div>';
+    if (dones.length) {
+      html += '<ul class="keep-list">';
+      dones.forEach(function (d) {
+        html += '<li class="keep-item">' + esc(d) + "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html +=
+        '<p class="soft-note">이번 주 한 일을 한 줄씩 적으면 계속할 것(Keep)이 채워집니다.</p>';
+    }
+
+    // Problem -> Try
+    html +=
+      '<div class="result-block-title">Problem · 막힌 것 &rarr; Try · 다음 액션</div>';
+    if (probs.length) {
+      html += '<ul class="prob-list">';
+      probs.forEach(function (p, i) {
+        html += '<li class="prob-card">';
+        html += '<div class="prob-head">';
+        html += '<span class="p-label">PROBLEM</span>';
+        html += '<p class="p-text">' + esc(p) + "</p>";
+        html += "</div>";
+        html += '<div class="try-body">';
+        html += '<span class="t-label">TRY · 다음 주 액션</span>';
+        html += '<p class="t-text">' + esc(tries[i].action) + "</p>";
+        html += '<span class="try-cat">' + esc(tries[i].cat) + "</span>";
+        html += "</div>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html +=
+        '<p class="soft-note">막힌 것이 없어 다음 주 액션도 비어 있습니다. 잘된 흐름을 유지하세요.</p>';
+    }
+
+    // boss report
+    lastReport = buildReport(period, dones, probs, tries);
+    html += '<div class="result-block-title">상사 보고용 요약</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">그대로 복사해 메신저·메일에 붙여넣을 수 있는 주간 보고 초안입니다.</p>';
+    html += '<pre class="report" id="report-text">' + esc(lastReport) + "</pre>";
+    html += '<div class="copy-row no-print">';
+    html +=
+      '<button class="btn-copy alt" id="copyReport">보고 요약 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="reportStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // AI prompt
+    lastPrompt = buildPrompt(period, dones, probs, tries);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">이 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 위 회고를 더 날카롭게 다듬고 다음 주 초점을 함께 잡아 줍니다.</p>';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPrompt">프롬프트 복사</button>';
+    html +=
+      '<span class="copy-status" id="promptStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    doneEl.value = "";
+    blockedEl.value = "";
+    periodEl.value = "";
+    grow(doneEl);
+    grow(blockedEl);
+    warnEl.classList.remove("show");
+    lastReport = "";
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+      "<p><strong>아직 정리 전입니다.</strong></p>" +
+      "<p>위에 한 일과 막힌 것을 적고 '회고 정리하기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    doneEl.focus();
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyReport = document.getElementById("copyReport");
+    var copyPrompt = document.getElementById("copyPrompt");
+    var printBtn = document.getElementById("printBtn");
+    if (copyReport)
+      copyReport.addEventListener("click", function () {
+        copyText(lastReport, "reportStatus");
+      });
+    if (copyPrompt)
+      copyPrompt.addEventListener("click", function () {
+        copyText(lastPrompt, "promptStatus");
+      });
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(statusId, msg) {
+    var s = document.getElementById(statusId);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function copyText(text, statusId) {
+    if (!text) return;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(statusId, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusId);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusId);
+  }
+
+  function legacyCopy(text, statusId) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(statusId, "복사되었습니다");
+    } else {
+      // tier 3: manual modal
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

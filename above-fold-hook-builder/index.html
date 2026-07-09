@@ -1,0 +1,1410 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>폴드 위 첫 줄 훅 빌더 (6 아키타입)</title>
+<meta
+  name="description"
+  content="하고 싶은 말과 통념·반전을 넣으면 대비 기반 6가지 아키타입으로 링크드인·스레드 첫 줄 후보를 만든다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #4a4e9c;
+    --accent-strong: #383c82;
+    --accent-tint: #eef0fb;
+    --accent-tint-2: #dfe2f5;
+    --ink: #23252b;
+    --ink-soft: #474a54;
+    --ink-mute: #6a6d78;
+    --paper: #f7f8fb;
+    --card: #ffffff;
+    --line: #e5e6ef;
+    --line-strong: #d4d6e4;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #b57611;
+    --track: #e8eaf2;
+    --shadow: 0 1px 2px rgba(35, 37, 43, 0.05), 0 6px 20px rgba(35, 37, 43, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field {
+    margin-bottom: 16px;
+  }
+  .field:last-of-type {
+    margin-bottom: 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  label.field-label small {
+    font-weight: 600;
+    color: var(--ink-mute);
+    margin-left: 2px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 54px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 13px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a3a6b4;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- segmented control ---------- */
+  .seg-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 4px;
+  }
+  .seg-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .seg-label {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .seg {
+    display: inline-flex;
+    background: #eef0f5;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .seg button {
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 11px 16px;
+    border-radius: 8px;
+    min-height: 44px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .seg button[aria-pressed="true"] {
+    background: var(--card);
+    color: var(--accent-strong);
+    box-shadow: var(--shadow);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+  }
+  .btn {
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    min-height: 48px;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .btn:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  .field-error {
+    color: #b3261e;
+    background: #fdecea;
+    border: 1px solid #f5cfca;
+    border-radius: 10px;
+    padding: 10px 13px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin: 14px 0 0;
+    display: none;
+  }
+  .field-error.show {
+    display: block;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--accent);
+    opacity: 0.55;
+    margin-bottom: 6px;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* summary band */
+  .summary {
+    border-radius: 14px;
+    padding: 18px 17px;
+    margin-bottom: 18px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .summary-label {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--accent-strong);
+    text-transform: uppercase;
+    margin: 0 0 12px;
+  }
+  .summary-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .sg-item {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+  }
+  .sg-k {
+    flex: none;
+    width: 84px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+  }
+  .sg-v {
+    flex: 1 1 auto;
+    font-size: 0.96rem;
+    font-weight: 600;
+    color: var(--ink);
+    min-width: 0;
+  }
+  .sg-v.muted {
+    color: var(--ink-mute);
+    font-weight: 500;
+  }
+  .tip {
+    margin: 14px 0 0;
+    font-size: 0.88rem;
+    border-radius: 10px;
+    padding: 11px 13px;
+    line-height: 1.55;
+  }
+  .tip.ok {
+    color: var(--good);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+  }
+  .tip.weak {
+    color: #a35a12;
+    background: #fff6ec;
+    border: 1px solid #f2ddc4;
+  }
+
+  .result-block-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 24px 0 12px;
+    flex-wrap: wrap;
+  }
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  /* hook cards */
+  .hook-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 15px;
+    background: var(--card);
+    margin-bottom: 14px;
+  }
+  .hook-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 11px;
+  }
+  .hook-name {
+    font-weight: 800;
+    font-size: 0.98rem;
+    color: var(--accent-strong);
+  }
+  .axis-chip {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  .best-chip {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    border: 1px solid var(--line-strong);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  .hook-line {
+    font-size: 1.12rem;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--ink);
+    background: var(--accent-tint);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 13px 14px;
+    margin: 0 0 11px;
+  }
+  .len-meter {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 11px;
+    font-size: 0.82rem;
+  }
+  .len-bar {
+    flex: 1 1 auto;
+    height: 7px;
+    border-radius: 4px;
+    background: var(--track);
+    overflow: hidden;
+  }
+  .len-bar span {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+    background: var(--good);
+    transition: width 0.2s;
+  }
+  .len-bar.tight span {
+    background: var(--warn);
+  }
+  .len-bar.over span {
+    background: var(--accent);
+  }
+  .len-num {
+    flex: none;
+    font-weight: 700;
+    color: var(--ink-mute);
+    white-space: nowrap;
+  }
+  .len-state {
+    flex: none;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .len-state.ok {
+    color: var(--good);
+  }
+  .len-state.tight {
+    color: var(--warn);
+  }
+  .len-state.over {
+    color: var(--accent-strong);
+  }
+  .hook-why,
+  .hook-caution,
+  .hook-bridge {
+    font-size: 0.89rem;
+    margin: 0 0 6px;
+    line-height: 1.58;
+  }
+  .hook-why {
+    color: var(--ink-soft);
+  }
+  .hook-caution {
+    color: var(--ink-mute);
+  }
+  .hook-why b,
+  .hook-caution b,
+  .hook-bridge b {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .hook-bridge {
+    color: var(--ink-soft);
+    background: #f4f5fa;
+    border-radius: 8px;
+    padding: 9px 11px;
+    margin: 8px 0 12px;
+  }
+  .hook-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn-mini {
+    background: var(--ink);
+    color: #fff;
+    border: 1px solid transparent;
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 10px 15px;
+    border-radius: 9px;
+    min-height: 44px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-mini:hover {
+    background: #000;
+  }
+  .btn-mini.copied {
+    background: var(--good);
+  }
+
+  /* prompt box */
+  .prompt-lead {
+    font-size: 0.92rem;
+    color: var(--ink-mute);
+    margin: 0 0 11px;
+  }
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #262838;
+    color: #eef0f8;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--accent);
+    color: #fff;
+    border: 1px solid transparent;
+    font-size: 0.94rem;
+    font-weight: 700;
+    padding: 11px 18px;
+    border-radius: 10px;
+    min-height: 44px;
+    cursor: pointer;
+  }
+  .btn-copy:hover {
+    background: var(--accent-strong);
+  }
+  .btn-copy.copied {
+    background: var(--good);
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(35, 37, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .seg-row {
+      gap: 14px;
+    }
+    .sg-k {
+      width: 68px;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #tune-panel,
+    .actions,
+    .copy-row,
+    .hook-actions,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+    .hook-line {
+      border: 1px solid #ccc;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">첫 줄 훅 · 대비 6 아키타입</span>
+    <h1>폴드 위 첫 줄 훅 빌더</h1>
+    <p class="lede">
+      스크롤을 멈추는 건 결국 첫 줄입니다. 하고 싶은 말과 통념·반전을 넣으면,
+      대비를 무기로 삼는 6가지 아키타입으로 링크드인·스레드 첫 줄 후보를 만들어
+      드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>대비 재료 입력</h2>
+    </div>
+    <p class="panel-sub">
+      좋은 훅은 &lsquo;통념&rsquo;과 &lsquo;반전&rsquo;의 간극에서 나옵니다. 세
+      칸을 짧은 한 문장으로 채우세요. 문장부호는 빼도 됩니다.
+    </p>
+
+    <div class="field">
+      <label class="field-label" for="msg"
+        >하고 싶은 말 <small>본문에서 결국 하려는 결론</small></label
+      >
+      <textarea
+        id="msg"
+        rows="1"
+        placeholder="예) 콘텐츠는 매일 올리는 양이 아니라 뾰족한 관점 하나가 만든다"
+      ></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="common"
+        >통념 <small>사람들이 흔히 옳다고 믿는 것</small></label
+      >
+      <textarea
+        id="common"
+        rows="1"
+        placeholder="예) 매일 올려야 알고리즘이 밀어준다"
+      ></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="twist"
+        >반전 <small>당신이 아는 진실 (통념과 반대)</small></label
+      >
+      <textarea
+        id="twist"
+        rows="1"
+        placeholder="예) 관점이 뚜렷한 글 하나가 매일 올린 열 개를 이긴다"
+      ></textarea>
+    </div>
+
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+      없습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="tune-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>톤과 플랫폼</h2>
+    </div>
+    <p class="panel-sub">첫 줄의 말투와, 폴드(&lsquo;더 보기&rsquo;) 길이 기준이 달라집니다.</p>
+    <div class="seg-row">
+      <div class="seg-group">
+        <span class="seg-label">말투</span>
+        <div class="seg" id="seg-tone" role="group" aria-label="말투 선택">
+          <button type="button" data-tone="formal" aria-pressed="true">
+            해요체 (정중)
+          </button>
+          <button type="button" data-tone="casual" aria-pressed="false">
+            반말 (직설)
+          </button>
+        </div>
+      </div>
+      <div class="seg-group">
+        <span class="seg-label">플랫폼</span>
+        <div class="seg" id="seg-plat" role="group" aria-label="플랫폼 선택">
+          <button type="button" data-plat="linkedin" aria-pressed="true">
+            링크드인
+          </button>
+          <button type="button" data-plat="threads" aria-pressed="false">
+            스레드
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="build">첫 줄 6개 만들기</button>
+      <button class="btn btn-ghost" id="example">예시로 채우기</button>
+      <button class="btn btn-ghost" id="reset">초기화</button>
+    </div>
+    <p class="field-error" id="err" role="alert"></p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>첫 줄 후보</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">&ldquo;</div>
+        <p><strong>아직 만들기 전입니다.</strong></p>
+        <p>재료를 채우고 &lsquo;첫 줄 6개 만들기&rsquo;를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 카피라이팅에서 널리 통용되는 대비 훅
+      원리입니다. 첫 줄의 역할은 정보를 다 주는 것이 아니라, 통념과 진실 사이에
+      &lsquo;정보 간극(curiosity gap)&rsquo;을 만들어 다음 줄을 읽게 만드는 것입니다. 6가지
+      아키타입은 정면 반박, 고백, 불편한 진실, 숨은 대가, 도발 질문, 재정의라는
+      서로 다른 대비 축을 씁니다. 폴드 길이(약 100~140자)는 플랫폼 미리보기의
+      대략적 기준이며, 실제 잘림 지점은 기기·글자·업데이트에 따라 달라집니다.
+    </p>
+    <p>
+      이 도구는 생각을 돕는 보조 도구입니다. 첫 줄을 대신 확정해 주지 않으며,
+      만들어진 후보는 당신의 목소리로 다듬을 재료로 쓰세요. 없는 통계나 인용을
+      지어 붙이지 마세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------------------------------------------------------
+   * 6 contrast archetypes. Each renders a first-line hook from the
+   * user's (common belief) / (twist) pair, in two registers.
+   * Templates quote user phrases so Korean particle grammar stays
+   * correct regardless of how the phrase ends.
+   * ------------------------------------------------------------- */
+  var ARCHETYPES = [
+    {
+      id: "contradict",
+      name: "정면 반박형",
+      axis: "통념 ↔ 진실",
+      best: "링크드인·스레드",
+      why: "모두가 옳다고 여기는 말을 첫 줄에서 부정해 &lsquo;왜?&rsquo;라는 긴장을 만듭니다.",
+      caution: "근거 없이 세게만 나가면 어그로로 읽힙니다. 본문에서 증거로 갚으세요.",
+      formal: function (c, t) {
+        return '다들 "' + c + '"라고 하죠. 그런데 저는 정반대를 봤어요.';
+      },
+      casual: function (c, t) {
+        return '다들 "' + c + '"라고 한다. 그런데 정반대였다.';
+      },
+    },
+    {
+      id: "confession",
+      name: "고백 전환형",
+      axis: "과거의 나 ↔ 지금의 나",
+      best: "스레드·개인 브랜드",
+      why: "&lsquo;나도 그랬다&rsquo;는 고백이 방어를 낮추고, 전환점이 궁금증을 겁니다.",
+      caution: "전환의 계기가 본문에 없으면 공허해집니다.",
+      formal: function (c, t) {
+        return '저도 한때 "' + c + '"를 믿었어요. 지금은 "' + t + '"를 믿습니다.';
+      },
+      casual: function (c, t) {
+        return '나도 한때 "' + c + '"를 믿었다. 지금은 "' + t + '"를 믿는다.';
+      },
+    },
+    {
+      id: "taboo",
+      name: "불편한 진실형",
+      axis: "침묵 ↔ 발설",
+      best: "링크드인",
+      why: "&lsquo;아무도 말 안 하지만&rsquo;이 금기를 깨는 내부자 신호가 되어 클릭을 부릅니다.",
+      caution: "실제로 통념을 거스르는 내용일 때만 쓰세요. 아니면 낚시가 됩니다.",
+      formal: function (c, t) {
+        return '아무도 대놓고 말하지 않는 사실 하나. "' + t + '".';
+      },
+      casual: function (c, t) {
+        return '아무도 대놓고 말 안 하는 사실. "' + t + '".';
+      },
+    },
+    {
+      id: "cost",
+      name: "숨은 대가형",
+      axis: "안심 ↔ 숨은 비용",
+      best: "경영자 링크드인",
+      why: "통념을 따르는 &lsquo;대가&rsquo;를 첫 줄에 걸어 손실 회피 심리를 자극합니다.",
+      caution: "대가가 막연하면 약합니다. 본문에서 구체적 손실로 이어가세요.",
+      formal: function (c, t) {
+        return '"' + c + '", 이 말을 그대로 믿는 대가는 생각보다 큽니다.';
+      },
+      casual: function (c, t) {
+        return '"' + c + '", 그대로 믿다간 생각보다 크게 잃는다.';
+      },
+    },
+    {
+      id: "question",
+      name: "도발 질문형",
+      axis: "표면 ↔ 이면 질문",
+      best: "스레드",
+      why: "답을 아는 듯 던지는 질문이 독자 머릿속에 빈칸을 만들어 스크롤을 멈춥니다.",
+      caution: "뻔한 질문은 무시당합니다. 통념과 결과의 간극을 찌르세요.",
+      formal: function (c, t) {
+        return '모두 "' + c + '"라는데, 왜 결과는 늘 제자리일까요?';
+      },
+      casual: function (c, t) {
+        return '모두 "' + c + '"라는데, 왜 결과는 늘 제자리일까?';
+      },
+    },
+    {
+      id: "reframe",
+      name: "재정의형",
+      axis: "A가 아니라 B",
+      best: "링크드인·스레드",
+      why: "&lsquo;그게 아니라 이거&rsquo;라는 구조가 익숙한 프레임을 갈아끼워 통찰처럼 읽힙니다.",
+      caution: "설교조가 되기 쉽습니다. 단정 뒤 근거를 바로 붙이세요.",
+      formal: function (c, t) {
+        return '핵심은 "' + c + '"가 아니에요. "' + t + '"입니다.';
+      },
+      casual: function (c, t) {
+        return '핵심은 "' + c + '"가 아니다. "' + t + '"다.';
+      },
+    },
+  ];
+
+  var FOLD = {
+    linkedin: { label: "링크드인", budget: 140 },
+    threads: { label: "스레드", budget: 100 },
+  };
+
+  var state = { tone: "formal", platform: "linkedin" };
+
+  // ---- refs ----
+  var msgEl = document.getElementById("msg");
+  var commonEl = document.getElementById("common");
+  var twistEl = document.getElementById("twist");
+  var resultEl = document.getElementById("result");
+  var errEl = document.getElementById("err");
+
+  var hooks = []; // last generated hooks
+  var lastPrompt = "";
+
+  // ---- helpers ----
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // Normalise a raw input: trim, collapse spaces, drop wrapping quotes and
+  // trailing sentence punctuation (templates supply their own).
+  function clean(s) {
+    var v = String(s == null ? "" : s).trim();
+    v = v.replace(/\s+/g, " ");
+    v = v.replace(/^["'“”‘’「『]+/, "").replace(/["'“”‘’」』]+$/, "");
+    v = v.replace(/[.。!?！？~…\s]+$/, "");
+    return v.trim();
+  }
+
+  function autoGrow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  [msgEl, commonEl, twistEl].forEach(function (el) {
+    el.addEventListener("input", function () {
+      autoGrow(el);
+    });
+  });
+
+  // ---- segmented controls ----
+  function wireSeg(id, key) {
+    var group = document.getElementById(id);
+    group.addEventListener("click", function (e) {
+      var btn = e.target.closest("button");
+      if (!btn) return;
+      var val = btn.getAttribute("data-" + (key === "tone" ? "tone" : "plat"));
+      state[key === "tone" ? "tone" : "platform"] = val;
+      Array.prototype.forEach.call(group.querySelectorAll("button"), function (b) {
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+      });
+    });
+  }
+  wireSeg("seg-tone", "tone");
+  wireSeg("seg-plat", "platform");
+
+  // ---- contrast quality tip ----
+  function contrastTip(c, t) {
+    var strip = function (s) {
+      return s.replace(/\s+/g, "");
+    };
+    if (!t) {
+      return {
+        weak: true,
+        msg: "반전이 비어 있어 대비를 만들 수 없습니다. 통념과 반대되는 진실을 넣어 주세요.",
+      };
+    }
+    if (strip(c) === strip(t)) {
+      return {
+        weak: true,
+        msg: "통념과 반전이 거의 같습니다. 대비가 없으면 훅이 서지 않아요. 서로 반대되는 두 문장으로 다시 써 보세요.",
+      };
+    }
+    var tok = function (s) {
+      return s.split(/\s+/).filter(function (w) {
+        return w.length >= 2;
+      });
+    };
+    var a = tok(c),
+      b = tok(t),
+      setB = {};
+    b.forEach(function (w) {
+      setB[w] = 1;
+    });
+    var shared = 0;
+    a.forEach(function (w) {
+      if (setB[w]) shared++;
+    });
+    var ratio = shared / Math.max(1, Math.min(a.length, b.length));
+    if (shared >= 2 && ratio >= 0.6) {
+      return {
+        weak: true,
+        msg: "통념과 반전이 많이 겹칩니다. 대비를 더 또렷하게 세우면 훅이 훨씬 강해집니다.",
+      };
+    }
+    return {
+      weak: false,
+      msg: "통념과 반전의 대비가 잡혔습니다. 이 긴장을 첫 줄로 세워 봅니다.",
+    };
+  }
+
+  // ---- length state vs fold budget ----
+  function lenState(n, budget) {
+    if (n <= budget) return "ok";
+    if (n <= Math.round(budget * 1.15)) return "tight";
+    return "over";
+  }
+  function lenWord(st) {
+    return st === "ok" ? "폴드 안" : st === "tight" ? "빠듯" : "폴드 넘음";
+  }
+
+  // ---- prompt builder ----
+  function buildPrompt(m, c, t) {
+    var plat = FOLD[state.platform].label;
+    var budget = FOLD[state.platform].budget;
+    var toneLabel =
+      state.tone === "formal" ? "해요체/합니다체(정중)" : "반말(직설)";
+    var L = [];
+    L.push(
+      "당신은 링크드인과 스레드에서 첫 줄(폴드 위 훅)로 스크롤을 멈추게 하는 한국어 카피라이터입니다."
+    );
+    L.push(
+      "아래 재료로, 폴드 위에서 끝까지 읽게 만드는 첫 줄과 그 뒤 본문을 다듬어 주세요."
+    );
+    L.push("");
+    L.push("【재료】");
+    L.push("- 하고 싶은 말(본문 결론): " + (m || "(미입력)"));
+    L.push("- 통념(사람들이 믿는 것): " + c);
+    L.push("- 반전(내가 아는 진실): " + t);
+    L.push("- 플랫폼: " + plat);
+    L.push("- 톤: " + toneLabel);
+    L.push("");
+    L.push("【내가 뽑은 6가지 첫 줄 후보 (대비 아키타입별)】");
+    hooks.forEach(function (h, i) {
+      L.push(i + 1 + ". [" + h.name + " / " + h.axis + "] " + h.line);
+    });
+    L.push("");
+    L.push("【요청】");
+    L.push(
+      "1. 위 후보 중 이 재료에 가장 강한 2~3개를 고르고, 왜 그 대비가 이 주제에 통하는지 한 줄로 설명해 주세요."
+    );
+    L.push(
+      "2. 고른 후보를 " +
+        plat +
+        " 톤에 맞게 더 날카로운 자연스러운 한국어로 다듬어 주세요. 첫 줄은 폴드 미리보기(약 " +
+        budget +
+        "자) 안에 들어오게 짧게 유지합니다."
+    );
+    L.push(
+      "3. 통념과 반전의 &lsquo;대비&rsquo;를 흐리지 마세요. 첫 줄은 긴장만 걸고, 해소는 본문으로 미룹니다."
+        .replace(/&lsquo;/g, "'")
+        .replace(/&rsquo;/g, "'")
+    );
+    L.push(
+      "4. 고른 첫 줄 하나를 골라 그 아래로 이어질 본문 초안을 써 주세요. 마지막은 &lsquo;하고 싶은 말&rsquo;로 착지합니다."
+        .replace(/&lsquo;/g, "'")
+        .replace(/&rsquo;/g, "'")
+    );
+    L.push(
+      "5. 없는 통계·인용·수치를 지어내지 마세요. 근거가 필요하면 저에게 사실을 물어보세요."
+    );
+    L.push('6. "더 보기"로 잘릴 폴드 컷 지점을 표시해 주세요.');
+    return L.join("\n");
+  }
+
+  // ---- build ----
+  function showError(msg) {
+    errEl.textContent = msg;
+    errEl.classList.add("show");
+  }
+  function clearError() {
+    errEl.textContent = "";
+    errEl.classList.remove("show");
+  }
+
+  document.getElementById("build").addEventListener("click", function () {
+    var m = clean(msgEl.value);
+    var c = clean(commonEl.value);
+    var t = clean(twistEl.value);
+
+    var missing = [];
+    if (!c) missing.push("통념");
+    if (!t) missing.push("반전");
+    if (missing.length) {
+      showError(
+        missing.join("과 ") +
+          "을(를) 채워 주세요. 대비의 두 축이 있어야 첫 줄을 만들 수 있어요."
+      );
+      (missing[0] === "통념" ? commonEl : twistEl).focus();
+      return;
+    }
+    clearError();
+
+    var fn = state.tone === "casual" ? "casual" : "formal";
+    var budget = FOLD[state.platform].budget;
+
+    hooks = ARCHETYPES.map(function (a) {
+      var line = a[fn](c, t);
+      var n = line.length;
+      var st = lenState(n, budget);
+      return {
+        id: a.id,
+        name: a.name,
+        axis: a.axis,
+        best: a.best,
+        why: a.why,
+        caution: a.caution,
+        line: line,
+        len: n,
+        st: st,
+      };
+    });
+
+    lastPrompt = buildPrompt(m, c, t);
+    render(m, c, t, budget);
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function render(m, c, t, budget) {
+    var tip = contrastTip(c, t);
+    var html = "";
+
+    // summary band
+    html += '<div class="summary">';
+    html += '<p class="summary-label">대비 요약</p>';
+    html += '<div class="summary-grid">';
+    html +=
+      '<div class="sg-item"><span class="sg-k">하고 싶은 말</span>' +
+      (m
+        ? '<span class="sg-v">' + esc(m) + "</span>"
+        : '<span class="sg-v muted">(미입력) — 넣으면 본문 다리를 제안해 드려요</span>') +
+      "</div>";
+    html +=
+      '<div class="sg-item"><span class="sg-k">통념</span><span class="sg-v">' +
+      esc(c) +
+      "</span></div>";
+    html +=
+      '<div class="sg-item"><span class="sg-k">반전</span><span class="sg-v">' +
+      esc(t) +
+      "</span></div>";
+    html += "</div>";
+    html +=
+      '<p class="tip ' +
+      (tip.weak ? "weak" : "ok") +
+      '">' +
+      esc(tip.msg) +
+      "</p>";
+    html += "</div>";
+
+    // hooks header + copy-all
+    html += '<div class="result-block-row">';
+    html +=
+      '<p class="result-block-title">첫 줄 후보 6 (' +
+      esc(FOLD[state.platform].label) +
+      " · 폴드 약 " +
+      budget +
+      "자)</p>";
+    html += '<button class="btn-mini" id="copyAll">6개 모두 복사</button>';
+    html += "</div>";
+
+    hooks.forEach(function (h, i) {
+      var pct = Math.min(100, Math.round((h.len / budget) * 100));
+      html += '<div class="hook-card">';
+      html += '<div class="hook-top">';
+      html +=
+        '<span class="hook-name">' + (i + 1) + ". " + esc(h.name) + "</span>";
+      html += '<span class="axis-chip">' + esc(h.axis) + "</span>";
+      html += '<span class="best-chip">' + esc(h.best) + "</span>";
+      html += "</div>";
+
+      html += '<p class="hook-line">' + esc(h.line) + "</p>";
+
+      html += '<div class="len-meter">';
+      html +=
+        '<span class="len-bar ' +
+        h.st +
+        '"><span style="width:' +
+        pct +
+        '%"></span></span>';
+      html +=
+        '<span class="len-num">' + h.len + " / " + budget + "자</span>";
+      html +=
+        '<span class="len-state ' +
+        h.st +
+        '">' +
+        lenWord(h.st) +
+        "</span>";
+      html += "</div>";
+
+      html +=
+        '<p class="hook-why"><b>왜 통하나</b> · ' + h.why + "</p>";
+      html +=
+        '<p class="hook-caution"><b>주의</b> · ' + h.caution + "</p>";
+
+      if (m) {
+        var bridge =
+          state.tone === "casual"
+            ? "이 첫 줄로 긴장을 건 뒤, 곧바로 본론으로 잇는다: "
+            : "이 첫 줄로 긴장을 건 뒤, 곧바로 본론으로 잇습니다: ";
+        html +=
+          '<p class="hook-bridge"><b>본문 다리</b> · ' +
+          esc(bridge) +
+          '"' +
+          esc(m) +
+          '"</p>';
+      }
+
+      html += '<div class="hook-actions">';
+      html +=
+        '<button class="btn-mini" data-idx="' +
+        i +
+        '">이 첫 줄 복사</button>';
+      html += "</div>";
+      html += "</div>";
+    });
+
+    // AI prompt
+    html += '<p class="result-block-title" style="margin-top:26px">심화: AI에 붙여넣을 프롬프트</p>';
+    html +=
+      '<p class="prompt-lead">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 후보들을 바탕으로 첫 줄을 골라 다듬고 본문까지 이어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPrompt">프롬프트 복사</button>';
+    html += '<button class="btn btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResult();
+  }
+
+  // ---- result wiring ----
+  function wireResult() {
+    var copyAll = document.getElementById("copyAll");
+    if (copyAll)
+      copyAll.addEventListener("click", function () {
+        copyText(hooksAsText(), copyAll);
+      });
+
+    Array.prototype.forEach.call(
+      resultEl.querySelectorAll("button[data-idx]"),
+      function (btn) {
+        btn.addEventListener("click", function () {
+          var idx = parseInt(btn.getAttribute("data-idx"), 10);
+          if (hooks[idx]) copyText(hooks[idx].line, btn);
+        });
+      }
+    );
+
+    var copyPrompt = document.getElementById("copyPrompt");
+    if (copyPrompt)
+      copyPrompt.addEventListener("click", function () {
+        copyText(lastPrompt, copyPrompt);
+      });
+
+    var printBtn = document.getElementById("printBtn");
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function hooksAsText() {
+    return hooks
+      .map(function (h, i) {
+        return i + 1 + ". [" + h.name + " / " + h.axis + "] " + h.line;
+      })
+      .join("\n");
+  }
+
+  // ---- copy: 3-tier fallback ----
+  function flashBtn(btn) {
+    if (!btn) return;
+    if (!btn.dataset.orig) btn.dataset.orig = btn.textContent;
+    btn.textContent = "복사됨";
+    btn.classList.add("copied");
+    clearTimeout(btn._t);
+    btn._t = setTimeout(function () {
+      btn.textContent = btn.dataset.orig;
+      btn.classList.remove("copied");
+    }, 1800);
+  }
+
+  function copyText(text, btn) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashBtn(btn);
+        },
+        function () {
+          legacyCopy(text, btn);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, btn);
+  }
+
+  function legacyCopy(text, btn) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      ta.setSelectionRange(0, text.length);
+    } catch (e) {}
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashBtn(btn);
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      try {
+        modalText.setSelectionRange(0, modalText.value.length);
+      } catch (e) {}
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // ---- example ----
+  document.getElementById("example").addEventListener("click", function () {
+    msgEl.value =
+      "콘텐츠는 매일 올리는 양이 아니라 뾰족한 관점 하나가 만든다";
+    commonEl.value = "매일 올려야 알고리즘이 밀어준다";
+    twistEl.value = "관점이 뚜렷한 글 하나가 매일 올린 열 개를 이긴다";
+    [msgEl, commonEl, twistEl].forEach(autoGrow);
+    clearError();
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    msgEl.value = "";
+    commonEl.value = "";
+    twistEl.value = "";
+    [msgEl, commonEl, twistEl].forEach(autoGrow);
+    hooks = [];
+    lastPrompt = "";
+    clearError();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">&ldquo;</div>' +
+      "<p><strong>아직 만들기 전입니다.</strong></p>" +
+      "<p>재료를 채우고 &lsquo;첫 줄 6개 만들기&rsquo;를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+</script>

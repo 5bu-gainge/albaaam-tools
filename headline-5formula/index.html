@@ -1,0 +1,1304 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>헤드라인 5공식 생성기</title>
+<meta name="description" content="제품 사실을 넣으면 결과형·문제형·질문형·대조형·구체증거형 5공식으로 헤드라인 초안을 뽑고 셀프체크한다" />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #4c5aa0;
+    --accent-strong: #3a4680;
+    --accent-tint: #eef0fb;
+    --accent-tint-2: #dee2f4;
+    --ink: #21232b;
+    --ink-soft: #464a56;
+    --ink-mute: #6a6e7a;
+    --paper: #f7f8fc;
+    --card: #ffffff;
+    --line: #e4e5ee;
+    --line-strong: #d3d5e2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #955a12;
+    --warn-tint: #fbeeda;
+    --bad: #a23a3a;
+    --bad-tint: #f8e6e3;
+    --shadow: 0 1px 2px rgba(33, 35, 43, 0.05), 0 6px 20px rgba(33, 35, 43, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field {
+    margin-bottom: 15px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  label.field-label .req {
+    color: var(--accent);
+    font-weight: 800;
+    margin-left: 3px;
+  }
+  label.field-label .opt {
+    color: var(--ink-mute);
+    font-weight: 600;
+    font-size: 0.82rem;
+    margin-left: 5px;
+  }
+  input[type="text"],
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfbfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 58px;
+    resize: none;
+    overflow: hidden;
+  }
+  input[type="text"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #a3a6b4;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 14px 0 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .btn-link {
+    background: transparent;
+    color: var(--accent-strong);
+    border: none;
+    padding: 6px 2px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .btn-link:hover {
+    color: var(--accent);
+  }
+  .err {
+    color: var(--bad);
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 12px 0 0;
+    display: none;
+  }
+  .err.show {
+    display: block;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .best-banner {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 13px;
+    padding: 15px 16px;
+    margin-bottom: 18px;
+  }
+  .best-banner .bb-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--accent-strong);
+    text-transform: uppercase;
+    margin: 0 0 6px;
+  }
+  .best-banner .bb-text {
+    font-size: 1.16rem;
+    font-weight: 800;
+    line-height: 1.35;
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+  .best-banner .bb-meta {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  .fcard {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 15px;
+    margin-bottom: 14px;
+    background: #fcfcff;
+  }
+  .fcard-head {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    margin-bottom: 4px;
+  }
+  .fnum {
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .fcard-head h3 {
+    margin: 0;
+    font-size: 1.04rem;
+    font-weight: 800;
+  }
+  .fdesc {
+    margin: 0 0 13px;
+    font-size: 0.88rem;
+    color: var(--ink-mute);
+  }
+  .fneed {
+    margin: 0 0 13px;
+    font-size: 0.85rem;
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid #f0dcb8;
+    border-radius: 9px;
+    padding: 9px 11px;
+  }
+  ul.variants {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  li.variant {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fff;
+    padding: 12px 13px;
+  }
+  li.variant.best {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-tint);
+  }
+  .v-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .v-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    font-size: 1.02rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .v-copy {
+    flex: none;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .v-copy:hover {
+    background: var(--accent-tint-2);
+  }
+  .v-checks {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    margin-top: 11px;
+  }
+  .score {
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 999px;
+    flex: none;
+  }
+  .score.s-good {
+    background: var(--good-tint);
+    color: var(--good);
+  }
+  .score.s-ok {
+    background: var(--warn-tint);
+    color: var(--warn);
+  }
+  .score.s-bad {
+    background: var(--bad-tint);
+    color: var(--bad);
+  }
+  .badge {
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    flex: none;
+  }
+  .badge.ok {
+    background: var(--good-tint);
+    color: var(--good);
+  }
+  .badge.no {
+    background: var(--warn-tint);
+    color: var(--warn);
+  }
+  .best-flag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23252e;
+    color: #eef0f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(33, 35, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .v-top {
+      flex-direction: column;
+    }
+    .v-copy {
+      align-self: flex-start;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">카피 설계 · 헤드라인 5공식</span>
+    <h1>헤드라인 5공식 생성기</h1>
+    <p class="lede">
+      제품 사실을 입력하면 결과·문제·질문·대조·구체증거 다섯 공식으로 헤드라인
+      초안을 뽑고, 초 안에 읽히는지·구체적인지·모호하지 않은지 스스로 점검해
+      드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>제품 사실 입력</h2>
+    </div>
+    <p class="panel-sub">
+      헤드라인은 지어내는 것이 아니라 사실에서 뽑아내는 것입니다. 아는 사실만
+      정확히 채우세요. 빈 칸은 해당 공식만 건너뜁니다.
+    </p>
+
+    <div class="field">
+      <label class="field-label" for="f-audience"
+        >누구를 위한 것인가 (타깃 고객)<span class="req">*</span></label
+      >
+      <input type="text" id="f-audience" placeholder="예) 스타트업 채용 담당자" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="f-outcome"
+        >고객이 얻는 결과·변화<span class="opt">(결과·질문형에 사용)</span></label
+      >
+      <textarea
+        class="grow"
+        id="f-outcome"
+        placeholder="예) 2주 만에 확신을 갖고 채용하기"
+      ></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="f-problem"
+        >고객이 겪는 문제·불편<span class="opt">(문제·질문형에 사용)</span></label
+      >
+      <textarea
+        class="grow"
+        id="f-problem"
+        placeholder="예) 면접만으로는 진짜 실력을 알기 어렵다"
+      ></textarea>
+    </div>
+
+    <p class="field-hint" style="margin-top:4px">
+      아래는 각 공식을 더 강하게 만드는 선택 입력입니다.
+    </p>
+
+    <div class="field" style="margin-top:14px">
+      <label class="field-label" for="f-name"
+        >제품·서비스 이름<span class="opt">(선택)</span></label
+      >
+      <input type="text" id="f-name" placeholder="예) 리크루팃" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="f-proof"
+        >구체적 숫자·증거<span class="opt">(구체증거형에 사용)</span></label
+      >
+      <input
+        type="text"
+        id="f-proof"
+        placeholder="예) 도입 기업 채용 실패율 41% 감소"
+      />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="f-alt"
+        >고객이 지금 쓰는 방식·대안<span class="opt">(대조형에 사용)</span></label
+      >
+      <input
+        type="text"
+        id="f-alt"
+        placeholder="예) 감에 의존하던 기존 면접"
+      />
+    </div>
+
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+    <p class="err" id="err" role="alert"></p>
+
+    <div class="actions">
+      <button class="btn-primary" id="generate">헤드라인 생성</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+    <button class="btn-link no-print" id="sample" type="button">
+      예시로 채워 보기
+    </button>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>헤드라인 초안 &amp; 셀프체크</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">✍</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>사실을 채우고 '헤드라인 생성'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 메시지 아키텍처의 헤드라인 5원형(결과형
+      · 문제형 · 질문형 · 대조형 · 구체증거형)과 "헤드라인은 초 안에 이해되고,
+      하나의 핵심 가치를 앞세우며, 모호한 표현이 아니라 구체적 증거로 믿음을
+      만든다"는 시장성 기준. 셀프체크는 <strong>길이(스캔 가능성)</strong>,
+      <strong>구체성(숫자·증거)</strong>, <strong>모호어 회피</strong>,
+      <strong>단일 메시지</strong> 네 축을 자동 점검합니다.
+    </p>
+    <p>
+      이 도구는 초안과 점검을 돕는 보조 도구입니다. 최종 헤드라인은 실제 고객의
+      언어와 반응으로 검증해 확정하세요. 사실이 아닌 숫자는 넣지 마세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------- Korean particle helpers (grammatically correct joins) ----------
+  function jong(word) {
+    if (!word) return null;
+    var ch = word.charCodeAt(word.length - 1);
+    if (ch < 0xac00 || ch > 0xd7a3) return null; // not a Hangul syllable
+    return (ch - 0xac00) % 28; // 0 = no batchim
+  }
+  function eul(w) {
+    var j = jong(w);
+    if (j === null) return w + "을(를)";
+    return w + (j !== 0 ? "을" : "를");
+  }
+  function eun(w) {
+    var j = jong(w);
+    if (j === null) return w + "은(는)";
+    return w + (j !== 0 ? "은" : "는");
+  }
+  function ga(w) {
+    var j = jong(w);
+    if (j === null) return w + "이(가)";
+    return w + (j !== 0 ? "이" : "가");
+  }
+  function ro(w) {
+    var j = jong(w);
+    if (j === null) return w + "(으)로";
+    if (j === 0 || j === 8) return w + "로"; // no batchim or ㄹ batchim
+    return w + "으로";
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  var $ = function (id) {
+    return document.getElementById(id);
+  };
+
+  // ---------- auto-grow textareas ----------
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("textarea.grow"), function (t) {
+    t.addEventListener("input", function () {
+      grow(t);
+    });
+  });
+
+  // ---------- self-check engine ----------
+  // Vague/undecodable marketing puffery to avoid (message-architecture: clarity beats cleverness)
+  var JARGON = [
+    "시너지",
+    "초격차",
+    "혁신적",
+    "혁신",
+    "극대화",
+    "최적화",
+    "원스톱",
+    "토탈",
+    "완벽",
+    "압도적",
+    "프리미엄",
+    "차별화",
+    "최고의",
+    "최고",
+    "퀄리티",
+    "글로벌 스탠다드",
+    "패러다임",
+  ];
+
+  function selfCheck(text) {
+    var checks = [];
+
+    // 1. 길이 (스캔 가능성) — Korean scanning headline stays tight
+    var chars = text.replace(/\s/g, "").length;
+    var lenPass = chars <= 30;
+    checks.push({
+      key: "길이",
+      pass: lenPass,
+      label: lenPass
+        ? "길이 OK (" + chars + "자)"
+        : chars <= 42
+        ? "다소 김 (" + chars + "자)"
+        : "너무 김 (" + chars + "자)",
+    });
+
+    // 2. 구체성 (숫자·증거)
+    var hasNum = /[0-9]/.test(text) || /[%]/.test(text);
+    checks.push({
+      key: "구체성",
+      pass: hasNum,
+      label: hasNum ? "숫자·증거 있음" : "숫자·증거 없음",
+    });
+
+    // 3. 모호어 회피
+    var found = [];
+    for (var i = 0; i < JARGON.length; i++) {
+      if (text.indexOf(JARGON[i]) !== -1) found.push(JARGON[i]);
+    }
+    checks.push({
+      key: "모호어",
+      pass: found.length === 0,
+      label: found.length === 0 ? "모호어 없음" : "모호어: " + found.join(", "),
+    });
+
+    // 4. 단일 메시지 — 나열형 구분자 2개 이상이면 메시지 분산 신호
+    var sep = (text.match(/[,·]/g) || []).length + (text.match(/\s및\s/g) || []).length;
+    var onePass = sep < 2;
+    checks.push({
+      key: "메시지",
+      pass: onePass,
+      label: onePass ? "한 메시지" : "메시지 분산 위험",
+    });
+
+    var score = checks.reduce(function (n, c) {
+      return n + (c.pass ? 1 : 0);
+    }, 0);
+    return { score: score, chars: chars, checks: checks };
+  }
+
+  // ---------- headline generation from facts ----------
+  function uniqPush(arr, s) {
+    if (!s) return;
+    s = s.replace(/\s+/g, " ").trim();
+    if (!s) return;
+    if (arr.indexOf(s) === -1) arr.push(s);
+  }
+
+  function buildFormulas(f) {
+    var name = f.name,
+      aud = f.audience,
+      out = f.outcome,
+      prob = f.problem,
+      proof = f.proof,
+      alt = f.alt;
+
+    var formulas = [];
+
+    // 1. 결과형 (outcome-led): 고객이 얻는 결과를 문장 맨 앞에 세운다.
+    var vOut = [];
+    if (out) {
+      uniqPush(vOut, out);
+      if (name) uniqPush(vOut, ro(name) + " " + out);
+      if (aud) uniqPush(vOut, eul(aud) + " 위한 답, " + out);
+      if (name) uniqPush(vOut, out + " — " + ga(name) + " 해냅니다");
+    }
+    formulas.push({
+      key: "outcome",
+      title: "결과형",
+      desc: "고객이 얻는 결과·변화를 맨 앞에 세워, 이득부터 즉시 전달합니다.",
+      need: out ? null : "'고객이 얻는 결과·변화'를 채우면 이 공식이 만들어집니다.",
+      variants: vOut.slice(0, 3),
+    });
+
+    // 2. 문제형 (problem-led): 고객의 고통·불편을 정면으로 호명한다.
+    var vProb = [];
+    if (prob) {
+      uniqPush(vProb, "아직도 " + prob + "?");
+      uniqPush(vProb, prob + ", 계속 이대로 두시겠어요?");
+      if (aud) uniqPush(vProb, aud + "라면 겪는 문제 — " + prob);
+      uniqPush(vProb, prob + ", 이유가 있습니다");
+    }
+    formulas.push({
+      key: "problem",
+      title: "문제형",
+      desc: "고객이 겪는 문제를 정면으로 호명해, '내 얘기'라는 인식을 만듭니다.",
+      need: prob ? null : "'고객이 겪는 문제·불편'을 채우면 이 공식이 만들어집니다.",
+      variants: vProb.slice(0, 3),
+    });
+
+    // 3. 질문형 (question-led): 답을 갈구하게 만드는 질문을 던진다.
+    var vQ = [];
+    if (out) {
+      uniqPush(vQ, (aud ? eun(aud) + " " : "") + out + ", 지금 가능하세요?");
+      uniqPush(vQ, "왜 누구는 " + out + ", 누구는 못 할까요?");
+    }
+    if (prob) uniqPush(vQ, prob + ", 계속 감수하시겠어요?");
+    if (name) uniqPush(vQ, ga(name) + " 답이 될 수 있을까요?");
+    formulas.push({
+      key: "question",
+      title: "질문형",
+      desc: "답을 갈구하게 만드는 질문으로 고객을 본문 안으로 끌어들입니다.",
+      need:
+        out || prob || name
+          ? null
+          : "'결과'나 '문제' 중 하나를 채우면 질문형이 만들어집니다.",
+      variants: vQ.slice(0, 3),
+    });
+
+    // 4. 대조형 (contrast-led): 기존 방식과 대비시켜 선택을 선명하게 만든다.
+    var vC = [];
+    if (alt) {
+      uniqPush(vC, alt + " 대신, " + (name || out || "새로운 방법"));
+      uniqPush(vC, eun(alt) + " 이제 그만." + (out ? " " + out + "." : ""));
+      if (name) uniqPush(vC, ro(alt) + "는 안 됩니다. " + eun(name) + " 다릅니다.");
+    }
+    if (!alt && prob && out) {
+      uniqPush(vC, "그냥 " + prob + " vs " + out + " — 당신의 선택");
+    }
+    formulas.push({
+      key: "contrast",
+      title: "대조형",
+      desc: "지금 쓰는 방식과 대비시켜, 우리를 골라야 할 이유를 선명하게 만듭니다.",
+      need: alt
+        ? null
+        : "'지금 쓰는 방식·대안'을 채우면 가장 강한 대조형이 만들어집니다.",
+      variants: vC.slice(0, 3),
+    });
+
+    // 5. 구체증거형 (specific-proof-led): 숫자·증거를 앞세워 즉시 신뢰를 만든다.
+    var vP = [];
+    if (proof) {
+      uniqPush(vP, proof);
+      if (name) uniqPush(vP, proof + ", 그 비결은 " + name);
+      uniqPush(vP, "숫자로 증명합니다 — " + proof);
+    }
+    formulas.push({
+      key: "proof",
+      title: "구체증거형",
+      desc: "검증 가능한 숫자·증거를 앞세워, 읽는 즉시 믿음을 만듭니다.",
+      need: proof
+        ? null
+        : "'구체적 숫자·증거'를 채우면 이 공식이 만들어집니다. 헤드라인에서 숫자는 가장 강한 무기입니다.",
+      variants: vP.slice(0, 3),
+    });
+
+    return formulas;
+  }
+
+  // ---------- AI refinement prompt ----------
+  function buildPrompt(f, formulas) {
+    var L = [];
+    L.push(
+      "당신은 시장에서 통하는 헤드라인을 설계하는 카피라이터이자 메시지 아키텍트입니다."
+    );
+    L.push("아래 제품 사실을 근거로, 5가지 공식별 헤드라인을 다듬고 셀프체크해 주세요.");
+    L.push("");
+    L.push("【제품 사실】");
+    L.push("- 타깃 고객: " + (f.audience || "(미입력)"));
+    L.push("- 고객이 얻는 결과·변화: " + (f.outcome || "(미입력)"));
+    L.push("- 고객이 겪는 문제·불편: " + (f.problem || "(미입력)"));
+    L.push("- 제품·서비스 이름: " + (f.name || "(미입력)"));
+    L.push("- 구체적 숫자·증거: " + (f.proof || "(미입력)"));
+    L.push("- 지금 쓰는 방식·대안: " + (f.alt || "(미입력)"));
+    L.push("");
+    L.push("【자동 생성된 초안】");
+    formulas.forEach(function (fm) {
+      if (fm.variants.length === 0) return;
+      L.push("[" + fm.title + "]");
+      fm.variants.forEach(function (v) {
+        L.push("- " + v);
+      });
+    });
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 각 공식(결과형·문제형·질문형·대조형·구체증거형)마다 헤드라인 3개씩, 위 초안을 더 날카롭게 다듬어 제안해 주세요."
+    );
+    L.push("2. 각 헤드라인을 다음 4가지 기준으로 셀프체크하고 통과/보완을 표시해 주세요.");
+    L.push("   (1) 초 안에 이해되는가 (길이·스캔 가능성)");
+    L.push("   (2) 구체적인가 (모호한 형용사 대신 숫자·사실)");
+    L.push("   (3) 모호한 마케팅어(시너지·초격차·혁신적 등)를 피했는가");
+    L.push("   (4) 하나의 핵심 메시지만 담았는가");
+    L.push("3. 마지막에 이 제품에 가장 잘 맞는 공식과 최종 추천 헤드라인 1개를 근거와 함께 골라 주세요.");
+    L.push(
+      "4. 사실에 없는 숫자나 효과를 지어내지 마세요. 근거가 필요하면 제게 사실을 물어 주세요."
+    );
+    return L.join("\n");
+  }
+
+  // ---------- render ----------
+  var resultEl = $("result");
+  var COPY = []; // index -> raw headline text
+  var lastPrompt = "";
+
+  function scoreClass(n) {
+    if (n >= 3) return "s-good";
+    if (n === 2) return "s-ok";
+    return "s-bad";
+  }
+
+  function renderChecks(text) {
+    var r = selfCheck(text);
+    var html =
+      '<span class="score ' +
+      scoreClass(r.score) +
+      '">' +
+      r.score +
+      "/4</span>";
+    r.checks.forEach(function (c) {
+      html +=
+        '<span class="badge ' +
+        (c.pass ? "ok" : "no") +
+        '">' +
+        esc(c.label) +
+        "</span>";
+    });
+    return { html: html, score: r.score, chars: r.chars };
+  }
+
+  function generate() {
+    var f = {
+      name: $("f-name").value.trim(),
+      audience: $("f-audience").value.trim(),
+      outcome: $("f-outcome").value.trim(),
+      problem: $("f-problem").value.trim(),
+      proof: $("f-proof").value.trim(),
+      alt: $("f-alt").value.trim(),
+    };
+
+    // validation
+    var err = $("err");
+    if (!f.audience) {
+      err.textContent = "'누구를 위한 것인가(타깃 고객)'는 꼭 입력해 주세요.";
+      err.classList.add("show");
+      $("f-audience").focus();
+      return;
+    }
+    if (!f.outcome && !f.problem && !f.proof && !f.name) {
+      err.textContent =
+        "'결과·변화', '문제·불편', '숫자·증거', '이름' 중 최소 하나는 입력해 주세요.";
+      err.classList.add("show");
+      $("f-outcome").focus();
+      return;
+    }
+    err.classList.remove("show");
+
+    var formulas = buildFormulas(f);
+    COPY = [];
+
+    // find strongest across all variants
+    var best = null; // {text, score, chars, title}
+    formulas.forEach(function (fm) {
+      fm.variants.forEach(function (v) {
+        var r = selfCheck(v);
+        if (
+          !best ||
+          r.score > best.score ||
+          (r.score === best.score && r.chars < best.chars)
+        ) {
+          best = { text: v, score: r.score, chars: r.chars, title: fm.title };
+        }
+      });
+    });
+
+    var html = "";
+
+    // best banner
+    if (best) {
+      html += '<div class="best-banner">';
+      html += '<p class="bb-label">가장 강한 초안</p>';
+      html += '<p class="bb-text">' + esc(best.text) + "</p>";
+      html +=
+        '<p class="bb-meta">' +
+        esc(best.title) +
+        " · 셀프체크 " +
+        best.score +
+        "/4점 · " +
+        best.chars +
+        "자. 이 문장을 출발점으로 실제 고객 반응으로 검증하세요.</p>";
+      html += "</div>";
+    }
+
+    // formula cards
+    var produced = 0;
+    formulas.forEach(function (fm, fi) {
+      html += '<div class="fcard">';
+      html +=
+        '<div class="fcard-head"><span class="fnum">공식 ' +
+        (fi + 1) +
+        '</span><h3>' +
+        esc(fm.title) +
+        "</h3></div>";
+      html += '<p class="fdesc">' + esc(fm.desc) + "</p>";
+
+      if (fm.variants.length === 0) {
+        html += '<p class="fneed">' + esc(fm.need) + "</p>";
+      } else {
+        if (fm.need) html += '<p class="fneed">' + esc(fm.need) + "</p>";
+        html += '<ul class="variants">';
+        fm.variants.forEach(function (v) {
+          produced++;
+          var idx = COPY.length;
+          COPY.push(v);
+          var chk = renderChecks(v);
+          var isBest = best && v === best.text;
+          html += '<li class="variant' + (isBest ? " best" : "") + '">';
+          html += '<div class="v-top">';
+          html +=
+            '<p class="v-text">' +
+            esc(v) +
+            (isBest ? '<span class="best-flag">추천</span>' : "") +
+            "</p>";
+          html +=
+            '<button class="v-copy" data-copy="' +
+            idx +
+            '" type="button">복사</button>';
+          html += "</div>";
+          html += '<div class="v-checks">' + chk.html + "</div>";
+          html += "</li>";
+        });
+        html += "</ul>";
+      }
+      html += "</div>";
+    });
+
+    // AI prompt
+    lastPrompt = buildPrompt(f, formulas);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 이 사실과 초안을 바탕으로 헤드라인을 더 날카롭게 다듬고 최종 1개를 추천해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn" type="button">프롬프트 복사</button>';
+    html +=
+      '<button class="btn-ghost" id="copyAllBtn" type="button">헤드라인 전체 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // ---------- result button wiring ----------
+  function wireResultButtons() {
+    var copyBtn = $("copyBtn");
+    var copyAllBtn = $("copyAllBtn");
+    var printBtn = $("printBtn");
+    if (copyBtn)
+      copyBtn.addEventListener("click", function () {
+        doCopy(lastPrompt, null);
+      });
+    if (copyAllBtn)
+      copyAllBtn.addEventListener("click", function () {
+        doCopy(COPY.join("\n"), null);
+      });
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  // delegated per-headline copy
+  resultEl.addEventListener("click", function (e) {
+    var btn = e.target.closest ? e.target.closest("button.v-copy") : null;
+    if (!btn) return;
+    var idx = parseInt(btn.getAttribute("data-copy"), 10);
+    if (isNaN(idx) || !COPY[idx]) return;
+    doCopy(COPY[idx], btn);
+  });
+
+  function flashStatus(msg) {
+    var s = $("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function flashBtn(btn) {
+    if (!btn) return;
+    var prev = btn.textContent;
+    btn.textContent = "복사됨";
+    setTimeout(function () {
+      btn.textContent = prev;
+    }, 1600);
+  }
+
+  // ---------- 3-tier copy ----------
+  function doCopy(text, btn) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          if (btn) flashBtn(btn);
+          else flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, btn);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, btn);
+  }
+
+  function legacyCopy(text, btn) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      if (btn) flashBtn(btn);
+      else flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = $("modal");
+  var modalText = $("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  $("modal-close").addEventListener("click", closeModal);
+  $("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // ---------- sample / reset / generate ----------
+  $("sample").addEventListener("click", function () {
+    $("f-name").value = "리크루팃";
+    $("f-audience").value = "스타트업 채용 담당자";
+    $("f-outcome").value = "2주 만에 확신을 갖고 채용하기";
+    $("f-problem").value = "면접만으로는 진짜 실력을 알기 어렵다";
+    $("f-proof").value = "도입 기업 채용 실패율 41% 감소";
+    $("f-alt").value = "감에 의존하던 기존 면접";
+    Array.prototype.forEach.call(
+      document.querySelectorAll("textarea.grow"),
+      grow
+    );
+    $("err").classList.remove("show");
+  });
+
+  $("generate").addEventListener("click", generate);
+
+  $("reset").addEventListener("click", function () {
+    ["f-name", "f-audience", "f-outcome", "f-problem", "f-proof", "f-alt"].forEach(
+      function (id) {
+        $(id).value = "";
+      }
+    );
+    Array.prototype.forEach.call(document.querySelectorAll("textarea.grow"), grow);
+    $("err").classList.remove("show");
+    COPY = [];
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">✍</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>사실을 채우고 '헤드라인 생성'을 누르세요.</p></div>";
+    $("input-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+</script>

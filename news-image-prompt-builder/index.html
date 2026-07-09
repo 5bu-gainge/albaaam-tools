@@ -1,0 +1,1352 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>경영뉴스 이미지 프롬프트 빌더</title>
+<meta
+  name="description"
+  content="뉴스 제목과 URL 목록을 붙이면 손그림 카드뉴스 인포그래픽용 이미지 생성 프롬프트를 카드 구조와 팩트 규율까지 갖춰 뽑아 줍니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2f6690;
+    --accent-strong: #244f70;
+    --accent-tint: #e9f1f7;
+    --accent-tint-2: #d4e4f0;
+    --ink: #22262b;
+    --ink-soft: #454b52;
+    --ink-mute: #6a7078;
+    --paper: #f6f8fa;
+    --card: #ffffff;
+    --line: #e2e7ec;
+    --line-strong: #cfd6dd;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn-ink: #8a5a12;
+    --warn-bg: #fff6ec;
+    --warn-line: #f2ddc4;
+    --shadow: 0 1px 2px rgba(34, 38, 43, 0.05),
+      0 6px 20px rgba(34, 38, 43, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 150px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfdfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input[type="text"],
+  input[type="number"] {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    color: var(--ink);
+    background: #fcfdfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 12px;
+  }
+  textarea:focus,
+  input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a2aab3;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .hint-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn-link {
+    background: none;
+    border: none;
+    color: var(--accent-strong);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.86rem;
+    padding: 6px 0;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .btn-link:hover {
+    color: var(--accent);
+  }
+
+  .opt-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 4px;
+  }
+  .opt-field {
+    flex: 1 1 220px;
+    min-width: 0;
+  }
+
+  /* ---------- card-structure legend ---------- */
+  .legend {
+    margin-top: 16px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 11px;
+    padding: 14px 16px;
+    background: #fbfcfe;
+  }
+  .legend-title {
+    margin: 0 0 8px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+  .legend-list {
+    margin: 0;
+    padding-left: 1.2em;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .legend-list b {
+    color: var(--ink);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button.btn {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button.btn:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .chip {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 11px;
+    border-radius: 999px;
+  }
+  .chip.neutral {
+    color: var(--ink-soft);
+    background: #eef1f4;
+    border-color: var(--line);
+  }
+
+  .warn-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 0;
+    list-style: none;
+  }
+  .warn {
+    font-size: 0.88rem;
+    color: var(--warn-ink);
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-line);
+    border-left: 3px solid #d98a2b;
+    border-radius: 8px;
+    padding: 10px 13px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  ol.cards-preview {
+    list-style: none;
+    margin: 0 0 6px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  li.cardp {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fbfcfe;
+    padding: 12px 13px;
+  }
+  .cardp-num {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+  }
+  .cardp-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .cardp-head {
+    margin: 0 0 6px;
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--ink);
+  }
+  .cardp-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip-outlet {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .chip-flag {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--warn-ink);
+    background: #fbe4cf;
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+
+  ul.fact-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  li.fact-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .fi-ico {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: var(--good-tint);
+    color: var(--good);
+    display: grid;
+    place-items: center;
+    font-size: 0.78rem;
+    font-weight: 800;
+    margin-top: 1px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232a31;
+    color: #eef2f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #12161a;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(34, 38, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  footer.foot .ver {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: #98a0a8;
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .opt-field {
+      flex: 1 1 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #options-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">경영뉴스 · 손그림 카드뉴스 인포그래픽</span>
+    <h1>경영뉴스 이미지 프롬프트 빌더</h1>
+    <p class="lede">
+      뉴스 제목과 URL 목록을 붙여넣으면, 손그림 카드뉴스 스타일의 요약
+      인포그래픽을 만드는 이미지 생성 프롬프트를 뽑아 드립니다. 카드 3줄 구조와
+      팩트 규율(없는 사실 금지)까지 프롬프트에 새겨 넣습니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>뉴스 목록 붙여넣기</h2>
+    </div>
+    <p class="panel-sub">
+      한 줄에 제목, 다음 줄에 링크(URL) 순서로 붙여넣으세요. 항목 사이는 빈 줄로
+      구분하면 가장 깔끔합니다. 링크가 없어도 제목만으로 카드가 만들어집니다.
+    </p>
+    <label class="field-label" for="news">뉴스 제목 + URL</label>
+    <textarea
+      id="news"
+      placeholder="반도체 수출 3개월 연속 증가&#10;https://www.mk.co.kr/news/economy/...&#10;&#10;한국은행 기준금리 동결 결정&#10;https://www.hankyung.com/economy/...&#10;&#10;중소기업 주 52시간제 계도기간 종료&#10;https://www.yna.co.kr/economy/..."
+      aria-describedby="news-hint"
+    ></textarea>
+    <div class="hint-row">
+      <p class="field-hint" id="news-hint">
+        입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.
+      </p>
+      <button class="btn-link" type="button" id="sample">예시 넣기</button>
+    </div>
+  </section>
+
+  <section class="panel" id="options-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>카드 옵션</h2>
+    </div>
+    <div class="opt-row">
+      <div class="opt-field">
+        <label class="field-label" for="count">카드 개수</label>
+        <input
+          id="count"
+          type="number"
+          min="1"
+          max="12"
+          value="7"
+          inputmode="numeric"
+        />
+        <p class="field-hint">
+          기본 7장. 입력이 더 많으면 경영 관점 상위 N개만 사용합니다.
+        </p>
+      </div>
+      <div class="opt-field">
+        <label class="field-label" for="date">날짜 배지</label>
+        <input id="date" type="text" placeholder="2026.7.9 목요일" />
+        <p class="field-hint">
+          상단 달력 배지 문구입니다. 오늘 날짜로 자동 입력됩니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="legend">
+      <p class="legend-title">각 카드에 새겨지는 3줄 구조</p>
+      <ol class="legend-list">
+        <li><b>무엇이 바뀌었나</b> — 헤드라인의 핵심 변화</li>
+        <li><b>누가·왜 중요한가</b> — 배경 없는 독자를 위한 맥락 한 구절</li>
+        <li><b>경영 시사점</b> — 비용·인력·규제·수요·리스크·전환 신호</li>
+      </ol>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="build">프롬프트 만들기</button>
+      <button class="btn btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">&#9636;</div>
+        <p><strong>아직 만들어진 프롬프트가 없습니다.</strong></p>
+        <p>뉴스 목록을 붙여넣고 '프롬프트 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 사내 스킬
+      <em>news-summary-image-prompt</em>의 카드뉴스 인포그래픽 설계와 팩트
+      규율을 그대로 적용합니다. 각 카드는 '무엇이 바뀌었나 / 누가 영향받나 / 왜
+      중요한가' 중 최소 두 가지에 답하도록 구성하고, 입력·검증된 사실에 없는
+      수치·이름·인용은 만들지 않으며, 출처는 매체명만 하단 노트에 표기합니다.
+      도메인 → 매체명 매핑은 국내외 주요 언론사 약 60곳을 내장하고, 미등록
+      도메인은 그대로 표기해 확인을 요청합니다.
+    </p>
+    <p>
+      이 도구는 프롬프트 초안을 짜 주는 보조 도구이며, 기사 사실 확인과 최종
+      한글 텍스트 검수는 사람이 해야 합니다. 이미지 모델은 한글 텍스트에 약하니
+      생성 후 오탈자·대비·모바일 가독성을 꼭 점검하세요.
+    </p>
+    <p class="ver">경영뉴스 이미지 프롬프트 빌더 · v1.0.0</p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------------------------------------------------------
+   * 도메인 → 매체명 매핑 (국내외 주요 언론사)
+   * ------------------------------------------------------------- */
+  var OUTLETS = {
+    // 경제지
+    "mk.co.kr": "매일경제",
+    "hankyung.com": "한국경제",
+    "wowtv.co.kr": "한국경제TV",
+    "sedaily.com": "서울경제",
+    "edaily.co.kr": "이데일리",
+    "mt.co.kr": "머니투데이",
+    "moneys.co.kr": "머니S",
+    "fnnews.com": "파이낸셜뉴스",
+    "asiae.co.kr": "아시아경제",
+    "ajunews.com": "아주경제",
+    "heraldcorp.com": "헤럴드경제",
+    "dt.co.kr": "디지털타임스",
+    "etnews.com": "전자신문",
+    "thebell.co.kr": "더벨",
+    "businesspost.co.kr": "비즈니스포스트",
+    "bizwatch.co.kr": "비즈워치",
+    "newspim.com": "뉴스핌",
+    "biz.chosun.com": "조선비즈",
+    // 종합 일간지
+    "chosun.com": "조선일보",
+    "joongang.co.kr": "중앙일보",
+    "donga.com": "동아일보",
+    "hani.co.kr": "한겨레",
+    "khan.co.kr": "경향신문",
+    "hankookilbo.com": "한국일보",
+    "seoul.co.kr": "서울신문",
+    "kmib.co.kr": "국민일보",
+    "munhwa.com": "문화일보",
+    "segye.com": "세계일보",
+    "dailian.co.kr": "데일리안",
+    "pressian.com": "프레시안",
+    "ohmynews.com": "오마이뉴스",
+    // 통신·방송
+    "yna.co.kr": "연합뉴스",
+    "yonhapnewstv.co.kr": "연합뉴스TV",
+    "news1.kr": "뉴스1",
+    "newsis.com": "뉴시스",
+    "inews24.com": "아이뉴스24",
+    "ytn.co.kr": "YTN",
+    "sbs.co.kr": "SBS",
+    "kbs.co.kr": "KBS",
+    "imbc.com": "MBC",
+    "jtbc.co.kr": "JTBC",
+    "jtbc.joins.com": "JTBC",
+    "mbn.co.kr": "MBN",
+    "channela.com": "채널A",
+    // IT·테크
+    "zdnet.co.kr": "ZDNet Korea",
+    "bloter.net": "블로터",
+    "ddaily.co.kr": "디지털데일리",
+    "theguru.co.kr": "더구루",
+    // 포털(집계)
+    "news.naver.com": "네이버뉴스(포털)",
+    "n.news.naver.com": "네이버뉴스(포털)",
+    "naver.me": "네이버뉴스(포털)",
+    "news.daum.net": "다음뉴스(포털)",
+    "v.daum.net": "다음뉴스(포털)",
+    "daum.net": "다음뉴스(포털)",
+    // 해외
+    "reuters.com": "로이터",
+    "bloomberg.com": "블룸버그",
+    "wsj.com": "월스트리트저널",
+    "ft.com": "파이낸셜타임스",
+    "nytimes.com": "뉴욕타임스",
+    "cnbc.com": "CNBC",
+    "cnn.com": "CNN",
+    "bbc.com": "BBC",
+    "bbc.co.uk": "BBC",
+    "techcrunch.com": "테크크런치",
+    "theverge.com": "더버지",
+    "nikkei.com": "닛케이",
+    "scmp.com": "사우스차이나모닝포스트"
+  };
+
+  var URL_RE = /(https?:\/\/[^\s]+|www\.[^\s]+)/i;
+  var URL_ONLY_RE = /^(https?:\/\/|www\.)\S+$/i;
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function hostOf(url) {
+    var u = String(url).trim().replace(/^https?:\/\//i, "").replace(/^www\./i, "");
+    u = u.split("/")[0].split("?")[0].split("#")[0].toLowerCase();
+    return u;
+  }
+
+  function outletOf(url) {
+    if (!url) return null;
+    var host = hostOf(url);
+    if (!host) return null;
+    var best = null;
+    for (var key in OUTLETS) {
+      if (!OUTLETS.hasOwnProperty(key)) continue;
+      if (host === key || host.slice(-(key.length + 1)) === "." + key) {
+        if (!best || key.length > best.length) best = key;
+      }
+    }
+    if (best) return { name: OUTLETS[best], known: true };
+    // fallback: registrable-ish domain (last two or three labels)
+    var parts = host.split(".");
+    var reg = host;
+    if (parts.length >= 3 && /^(co|or|go|ne|ac|kr|com)$/.test(parts[parts.length - 2])) {
+      reg = parts.slice(-3).join(".");
+    } else if (parts.length >= 2) {
+      reg = parts.slice(-2).join(".");
+    }
+    return { name: reg, known: false };
+  }
+
+  /* ---------------------------------------------------------------
+   * 입력 파싱: (headline, url) 쌍으로
+   * ------------------------------------------------------------- */
+  function parseInput(raw) {
+    var lines = String(raw).split(/\r?\n/);
+    var items = [];
+    var pending = null;
+
+    function flush() {
+      if (pending) {
+        items.push(pending);
+        pending = null;
+      }
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+      var t = lines[i].trim();
+      if (!t) continue;
+
+      // 순수 URL 줄
+      if (URL_ONLY_RE.test(t)) {
+        if (pending) {
+          pending.url = t;
+          items.push(pending);
+          pending = null;
+        }
+        // 앞선 제목이 없는 URL은 무시
+        continue;
+      }
+
+      // 제목 줄: 번호/불릿 접두어 제거
+      var cleaned = t
+        .replace(/^\s*(\d+\s*[.)]\s*|[-•*·▶▷◦]\s*)/, "")
+        .trim();
+
+      // 제목 줄에 URL이 인라인으로 붙어 있는 경우
+      var m = cleaned.match(URL_RE);
+      if (m) {
+        var inlineUrl = m[1];
+        var head = cleaned
+          .replace(inlineUrl, "")
+          .replace(/[\-–—:|]\s*$/, "")
+          .trim();
+        if (head) {
+          flush();
+          items.push({ headline: head, url: inlineUrl });
+        } else if (pending) {
+          pending.url = inlineUrl;
+          items.push(pending);
+          pending = null;
+        }
+      } else {
+        // 새 제목 → 이전 제목이 URL 없이 대기 중이면 먼저 확정
+        flush();
+        pending = { headline: cleaned, url: null };
+      }
+    }
+    flush();
+
+    // 출처 계산
+    items.forEach(function (it) {
+      var o = outletOf(it.url);
+      it.outlet = o ? o.name : null;
+      it.outletKnown = o ? o.known : false;
+    });
+    return items;
+  }
+
+  function clampInt(v, lo, hi, dflt) {
+    var n = parseInt(v, 10);
+    if (isNaN(n)) n = dflt;
+    if (n < lo) n = lo;
+    if (n > hi) n = hi;
+    return n;
+  }
+
+  function todayBadge() {
+    var d = new Date();
+    var wk = ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
+    return (
+      d.getFullYear() +
+      "." +
+      (d.getMonth() + 1) +
+      "." +
+      d.getDate() +
+      " " +
+      wk +
+      "요일"
+    );
+  }
+
+  /* ---------------------------------------------------------------
+   * 이미지 생성 프롬프트 조립 (news-summary-image-prompt 템플릿)
+   * ------------------------------------------------------------- */
+  function buildPrompt(items, useCount, dateStr, outletsStr, truncated) {
+    var L = [];
+    L.push("You are a Korean business news infographic designer.");
+    L.push("");
+    L.push("Goal:");
+    L.push(
+      "Create one mobile-friendly vertical sketchnote infographic from the INPUT news headline and URL list."
+    );
+    L.push("");
+    L.push("INPUT:");
+    L.push('"""');
+    items.forEach(function (it, i) {
+      L.push(i + 1 + ". " + it.headline);
+      if (it.url) {
+        L.push("   URL: " + it.url);
+      } else {
+        L.push("   URL: (없음 — 이 카드는 제목만으로 headline level로 작성)");
+      }
+      L.push("   출처: " + (it.outlet || "미확인"));
+    });
+    L.push('"""');
+    L.push("");
+    L.push("Source and fact rules:");
+    L.push(
+      "- If you can access the URLs, use them to confirm the article title, date, source outlet, and key facts."
+    );
+    L.push(
+      "- If a URL is unavailable, use only the provided headline for that card and keep it at the headline level."
+    );
+    L.push(
+      "- Do not invent numbers, names, quotes, or details that are not in the input or verified source."
+    );
+    L.push("- Do not show URLs in the image.");
+    L.push("- Show only source outlet names in the footer source note.");
+    L.push("");
+    L.push("Reader-first content rules:");
+    L.push(
+      "- Assume the viewer is busy and may not know the policy, market, or industry background."
+    );
+    L.push(
+      "- Each news card should answer at least two of: what changed, who or what is affected, why it matters, what decision or risk follows."
+    );
+    L.push(
+      "- If the headline uses jargon, abbreviations, legal terms, or market shorthand, include one compact context phrase in plain Korean."
+    );
+    L.push(
+      "- Do not fill all three bullets with isolated facts. Reserve at least one bullet for meaning, impact, or the next thing to watch."
+    );
+    L.push(
+      '- The "경영자 체크포인트" card should connect the articles into operating implications, not repeat the headlines.'
+    );
+    L.push("");
+    L.push("Image format:");
+    L.push("- Vertical portrait poster for mobile sharing.");
+    L.push("- White paper background.");
+    L.push("- Hand-drawn marker sketchnote style.");
+    L.push("- Thick imperfect black borders.");
+    L.push("- Red circled card numbers.");
+    L.push("- Green check marks for bullets.");
+    L.push("- Blue and red emphasis words.");
+    L.push("- Yellow highlight strips.");
+    L.push(
+      "- Simple doodles: charts, people, chips, books, banks, classrooms, cargo, stamps, apps."
+    );
+    L.push("- High contrast Korean text, black on white wherever possible.");
+    L.push("- No pale gray body text.");
+    L.push("- No watermark.");
+    L.push("- No emoji.");
+    L.push("- No real media logos.");
+    L.push("");
+    L.push("Top title:");
+    L.push('"오늘의 경영뉴스 ' + useCount + '가지!"');
+    L.push("");
+    L.push("Calendar badge:");
+    L.push('"' + dateStr + '"');
+    L.push("");
+    L.push("Cards:");
+    L.push("- Make " + useCount + " news cards from the INPUT.");
+    if (truncated) {
+      L.push(
+        "- The INPUT has more items than " +
+          useCount +
+          "; choose the " +
+          useCount +
+          " most useful from a business or management perspective."
+      );
+    }
+    L.push(
+      "- Each card has: 1) a red circled number, 2) a short Korean heading (about 8 to 14 characters), 3) three short Korean bullets (about 8 to 18 characters each), 4) one clear doodle icon or mini chart."
+    );
+    L.push("- Bullet 1 = what changed (핵심 변화).");
+    L.push(
+      "- Bullet 2 = who or what is affected, or the background a non-specialist reader needs (독자 맥락)."
+    );
+    L.push(
+      "- Bullet 3 = the business implication, risk, or action signal (경영 시사점)."
+    );
+    L.push("");
+    L.push("Additional insight card:");
+    L.push('Heading: "경영자 체크포인트"');
+    L.push(
+      "- Derive 3 short management implications from the whole set. Do not repeat the headlines."
+    );
+    L.push("");
+    L.push("Footer:");
+    L.push('Left label: "오늘의 한 줄 요약"');
+    L.push(
+      "Main sentence: one Korean sentence, 35 characters or less, summarizing the management meaning of the whole set."
+    );
+    if (outletsStr) {
+      L.push('Small source note: "출처: ' + outletsStr + '"');
+    } else {
+      L.push('Small source note: "출처: [매체명을 · 로 구분]"');
+    }
+    L.push("");
+    L.push("Writing rules:");
+    L.push("- Korean text only except unavoidable source names.");
+    L.push("- Keep every heading and bullet short enough to read on a phone.");
+    L.push(
+      "- Prefer concrete business words: 비용, 인력, 소비, 규제, 수요, 공급망, 전략, 리스크, 전환."
+    );
+    L.push(
+      "- Highlight important numbers and upward or downward movement in red or blue."
+    );
+    L.push("- Avoid long sentences, URL text, and tiny captions.");
+    L.push("");
+    L.push("Quality bar:");
+    L.push(
+      "- The image should feel like a hand-drawn executive briefing, not a generic poster."
+    );
+    L.push("- The viewer should understand the main business signal in 10 seconds.");
+    L.push(
+      "- If text space is tight, preserve correct headings and the first two bullets rather than adding more copy."
+    );
+    return L.join("\n");
+  }
+
+  /* ---------------------------------------------------------------
+   * DOM 와이어링
+   * ------------------------------------------------------------- */
+  var newsEl = document.getElementById("news");
+  var countEl = document.getElementById("count");
+  var dateEl = document.getElementById("date");
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  dateEl.value = todayBadge();
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  newsEl.addEventListener("input", function () {
+    grow(newsEl);
+  });
+
+  var SAMPLE =
+    "반도체 수출 3개월 연속 증가\n" +
+    "https://www.mk.co.kr/news/economy/\n\n" +
+    "한국은행 기준금리 연 3.5% 동결 결정\n" +
+    "https://www.hankyung.com/economy/\n\n" +
+    "중소기업 주 52시간제 계도기간 종료\n" +
+    "https://www.yna.co.kr/economy/\n\n" +
+    "공정위, 플랫폼 자율규제안 발표\n" +
+    "https://biz.chosun.com/policy/";
+
+  document.getElementById("sample").addEventListener("click", function () {
+    newsEl.value = SAMPLE;
+    grow(newsEl);
+    newsEl.focus();
+  });
+
+  function renderEmpty() {
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">&#9636;</div>' +
+      "<p><strong>아직 만들어진 프롬프트가 없습니다.</strong></p>" +
+      "<p>뉴스 목록을 붙여넣고 '프롬프트 만들기'를 누르세요.</p></div>";
+  }
+
+  function renderError(msg) {
+    resultEl.innerHTML =
+      '<ul class="warn-list"><li class="warn">' + esc(msg) + "</li></ul>";
+  }
+
+  document.getElementById("build").addEventListener("click", function () {
+    var raw = newsEl.value || "";
+    var items = parseInput(raw);
+
+    if (items.length === 0) {
+      renderError(
+        "붙여넣은 목록에서 뉴스를 찾지 못했습니다. '제목' 줄과 'https://로 시작하는 링크' 줄을 확인해 주세요. 링크가 없다면 제목만 줄바꿈으로 나열해도 됩니다."
+      );
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var targetN = clampInt(countEl.value, 1, 12, 7);
+    countEl.value = targetN;
+    var parsedCount = items.length;
+    var useCount = Math.min(parsedCount, targetN);
+    var truncated = parsedCount > targetN;
+
+    var dateStr = (dateEl.value || "").trim() || todayBadge();
+    dateEl.value = dateStr;
+
+    // 통계
+    var headlineOnly = 0;
+    var unknownOutlet = 0;
+    var outletOrder = [];
+    var seen = {};
+    items.forEach(function (it) {
+      if (!it.url) headlineOnly++;
+      if (it.url && !it.outletKnown) unknownOutlet++;
+      if (it.outlet && !seen[it.outlet]) {
+        seen[it.outlet] = true;
+        outletOrder.push(it.outlet);
+      }
+    });
+    var outletsStr = outletOrder.join(" · ");
+
+    lastPrompt = buildPrompt(items, useCount, dateStr, outletsStr, truncated);
+
+    var html = "";
+
+    // ---- 요약 칩 ----
+    html += '<div class="chips">';
+    html += '<span class="chip">뉴스 ' + parsedCount + "개</span>";
+    html += '<span class="chip">카드 ' + useCount + "장</span>";
+    html +=
+      '<span class="chip">출처 ' + outletOrder.length + "곳</span>";
+    html += '<span class="chip neutral">' + esc(dateStr) + "</span>";
+    html += "</div>";
+
+    // ---- 경고/안내 ----
+    var warns = [];
+    if (truncated) {
+      warns.push(
+        "입력 " +
+          parsedCount +
+          "개 중 상위 " +
+          useCount +
+          "개만 카드로 사용됩니다. 아래 목록 전체를 프롬프트에 담고, 모델이 경영 관점에서 " +
+          useCount +
+          "개를 고르도록 지시했습니다."
+      );
+    }
+    if (headlineOnly > 0) {
+      warns.push(
+        headlineOnly +
+          "개 항목은 URL이 없어 '제목 기반'으로만 작성됩니다. 사실 확인 없이 헤드라인 수준으로만 요약하도록 지시했습니다."
+      );
+    }
+    if (unknownOutlet > 0) {
+      warns.push(
+        unknownOutlet +
+          "개 출처는 매체명을 확정하지 못해 도메인으로 표기했습니다. 프롬프트의 '출처' 값을 한 번 확인해 주세요."
+      );
+    }
+    if (warns.length) {
+      html += '<ul class="warn-list">';
+      warns.forEach(function (w) {
+        html += '<li class="warn">' + esc(w) + "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // ---- 파싱된 카드 미리보기 ----
+    html += '<div class="result-block-title">인식된 뉴스 카드</div>';
+    html += '<ol class="cards-preview">';
+    items.forEach(function (it, i) {
+      html += '<li class="cardp">';
+      html += '<span class="cardp-num">' + (i + 1) + "</span>";
+      html += '<div class="cardp-body">';
+      html += '<p class="cardp-head">' + esc(it.headline) + "</p>";
+      html += '<div class="cardp-meta">';
+      if (it.outlet) {
+        html += '<span class="chip-outlet">' + esc(it.outlet) + "</span>";
+      }
+      if (!it.url) {
+        html += '<span class="chip-flag">제목 기반</span>';
+      } else if (!it.outletKnown) {
+        html += '<span class="chip-flag">출처 확인</span>';
+      }
+      html += "</div></div></li>";
+    });
+    html += "</ol>";
+
+    // ---- 팩트 규율 (프롬프트에 새겨진 가드레일) ----
+    html += '<div class="result-block-title">프롬프트에 새겨진 규율</div>';
+    var facts = [
+      "입력·검증된 사실에 없는 수치·이름·인용·인과는 만들지 않습니다.",
+      "각 카드는 '무엇이 바뀌었나 / 누가 영향받나 / 왜 중요한가' 중 최소 2개에 답합니다.",
+      "전문용어·약어에는 쉬운 한국어 맥락을 한 구절 덧붙입니다.",
+      "URL은 이미지에 넣지 않고, 출처는 매체명만 하단 노트에 표기합니다.",
+      "이미지 텍스트는 짧게(제목 8~14자, 불릿 8~18자) — 한글 오류를 줄입니다.",
+      "이모지·워터마크·실제 언론사 로고 없음, 고대비 검정 텍스트."
+    ];
+    html += '<ul class="fact-list">';
+    facts.forEach(function (f) {
+      html +=
+        '<li class="fact-item"><span class="fi-ico" aria-hidden="true">&#10003;</span><span>' +
+        esc(f) +
+        "</span></li>";
+    });
+    html += "</ul>";
+
+    // ---- 최종 프롬프트 ----
+    html += '<div class="result-block-title">이미지 생성 모델에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 GPT Image · ChatGPT · Gemini 등 이미지 생성 도구에 그대로 붙여넣으세요. 손그림 카드뉴스 인포그래픽 한 장을 만들어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  document.getElementById("reset").addEventListener("click", function () {
+    newsEl.value = "";
+    grow(newsEl);
+    countEl.value = 7;
+    dateEl.value = todayBadge();
+    lastPrompt = "";
+    renderEmpty();
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+    newsEl.focus();
+  });
+
+  /* ---- 복사 (3단 폴백) + 인쇄 ---- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (!text) return;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text); // tier 3: manual modal
+    }
+  }
+
+  /* ---- 수동 복사 모달 ---- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

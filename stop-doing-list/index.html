@@ -1,0 +1,1361 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>스톱-두잉 리스트</title>
+<meta name="description" content="우선순위를 더 얹는 대신, 지금 그만둬도 되는 저가치 반복 업무를 찾아 그만두기·넘기기·자동화·줄이기로 분류합니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2f736a;
+    --accent-strong: #24594f;
+    --accent-tint: #e8f2ef;
+    --accent-tint-2: #d5e7e1;
+    --ink: #20221f;
+    --ink-soft: #464a45;
+    --ink-mute: #676c64;
+    --paper: #f7f6f2;
+    --card: #ffffff;
+    --line: #e5e2da;
+    --line-strong: #d5d1c6;
+    --good: #266b4b;
+    --good-tint: #e5f1ea;
+    --shadow: 0 1px 2px rgba(32, 34, 31, 0.05),
+      0 6px 20px rgba(32, 34, 31, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: var(--ink);
+    background: #fdfcfa;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a29b90;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- task scoring cards ---------- */
+  .load-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 14px;
+  }
+  .scale-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 10px;
+    padding: 10px 13px;
+    margin: 0 0 15px;
+  }
+  .scale-hint b {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  .scale-hint .arw {
+    flex: none;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  #tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .task {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    padding: 14px 15px;
+    background: #fdfcfa;
+  }
+  .task-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-bottom: 13px;
+  }
+  .task-num {
+    flex: none;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-top: 2px;
+    min-width: 18px;
+  }
+  .task-text {
+    flex: 1 1 auto;
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0;
+    min-width: 0;
+  }
+  .task-remove {
+    flex: none;
+    border: none;
+    background: transparent;
+    color: var(--ink-mute);
+    font-size: 1.15rem;
+    line-height: 1;
+    padding: 2px 4px;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+  .task-remove:hover {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+  }
+  .dims {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px 14px;
+  }
+  .dim-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 6px;
+  }
+  .seg {
+    display: flex;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .seg label {
+    flex: 1 1 0;
+    position: relative;
+    display: flex;
+  }
+  .seg label + label {
+    border-left: 1px solid var(--line);
+  }
+  .seg input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .seg .seg-btn {
+    flex: 1 1 auto;
+    display: grid;
+    place-items: center;
+    min-height: 44px;
+    padding: 4px 3px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.12s, color 0.12s;
+  }
+  .seg input:checked + .seg-btn {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-weight: 800;
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+  .seg input:focus-visible + .seg-btn {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .tasks-empty {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 22px 12px;
+    font-size: 0.94rem;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s,
+      color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .btn-sm {
+    font-size: 0.9rem;
+    padding: 10px 15px;
+  }
+  .inline-warn {
+    font-size: 0.88rem;
+    color: #a3431f;
+    font-weight: 600;
+    margin: 12px 0 0;
+    min-height: 1.2em;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-plan {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-mixed {
+    background: #fff6ec;
+    border-color: #f2ddc4;
+  }
+  .verdict.tone-strategy {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-plan .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: #a35a12;
+  }
+  .verdict.tone-strategy .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .bar {
+    height: 10px;
+    border-radius: 6px;
+    background: #e4ded4;
+    overflow: hidden;
+    margin: 15px 0 6px;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+  .verdict.tone-strategy .bar-fill {
+    background: var(--good);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .cat-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .cat-chip {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+  }
+  .cat-chip.zero {
+    opacity: 0.4;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  .rcard {
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 13px 15px;
+    background: #fff;
+    margin-bottom: 11px;
+  }
+  .rcard-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .rcard-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0;
+    min-width: 0;
+  }
+  .badge {
+    flex: none;
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .rcard-why {
+    margin: 8px 0 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 9px;
+  }
+  .chip {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--ink-mute);
+    background: #f1efe9;
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23302d;
+    color: #eef3f0;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 34, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .dims {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #score-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">업무 다이어트 · Stop-Doing List</span>
+    <h1>스톱-두잉 리스트</h1>
+    <p class="lede">
+      우선순위를 더 얹지 마세요. 지금 하고 있는 일을 4가지 기준으로 훑어,
+      <strong>지금 그만둬도 되는 저가치 반복 업무</strong>를 찾아
+      그만두기·넘기기·자동화·줄이기로 나눠 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>지금 하고 있는 일을 적으세요</h2>
+    </div>
+    <p class="panel-sub">
+      머릿속을 채우고 있는 업무를 한 줄에 하나씩 적어 주세요. 정기 업무,
+      반복되는 회의, 습관처럼 하는 일까지 전부 꺼낼수록 정확합니다.
+    </p>
+    <label class="field-label" for="taskInput">업무 목록 (한 줄에 하나)</label>
+    <textarea
+      id="taskInput"
+      placeholder="예)&#10;주간 업무 보고서 작성&#10;반복되는 내부 회의 참석&#10;이메일 수신함 정리&#10;경쟁사 동향 수동 취합&#10;신규 고객 제안서 작성"
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+      없습니다.
+    </p>
+    <div class="load-row">
+      <button class="btn-primary" id="loadBtn">업무 불러오기</button>
+      <button class="btn-ghost btn-sm" id="exampleBtn">예시로 채우기</button>
+    </div>
+  </section>
+
+  <section class="panel" id="score-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>각 업무에 4가지 기준을 표시하세요</h2>
+    </div>
+    <p class="panel-sub">
+      직관으로 빠르게 골라도 됩니다. 기본값은 가운데에 맞춰져 있습니다.
+    </p>
+    <div class="scale-hint">
+      <span class="arw" aria-hidden="true">→</span>
+      <span
+        ><b>오른쪽</b>으로 갈수록 접시에서 덜어낼 수 있다는 신호가
+        강해집니다.</span
+      >
+    </div>
+    <div id="tasks">
+      <div class="tasks-empty" id="tasksEmpty">
+        위에서 업무를 불러오면 여기에 채점 카드가 생깁니다.
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="analyzeBtn">분석하기</button>
+      <button class="btn-ghost" id="resetBtn">초기화</button>
+    </div>
+    <p class="inline-warn" id="warn" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>스톱-두잉 리스트</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◔</div>
+        <p><strong>아직 분석 전입니다.</strong></p>
+        <p>업무를 불러와 표시한 뒤 '분석하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 피터 드러커의 <em>체계적 폐기</em>
+      (systematic abandonment) — "지금 이 일을 하고 있지 않았다면, 지금 아는
+      것을 알면서도 새로 시작하겠는가?" — 와 짐 콜린스의 <em>Good to Great</em>
+      (2001)에 나오는 '그만둘 일 목록(stop-doing list)' 개념. 여기에 가치·빈도·대체
+      가능성·중단 영향의 4축으로 각 업무를 그만두기 / 넘기기(위임) / 자동화 /
+      줄이기 / 지키기로 분류하는 규칙을 결합했습니다.
+    </p>
+    <p>
+      이 도구는 판단을 돕는 보조 도구이며, 무엇을 그만둘지 대신 결정해 주지
+      않습니다. 분류 결과는 스스로 판단할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- scoring dimensions ----------
+     each answer stored 0..2 where higher = stronger "get it off your plate" */
+  var DIMS = [
+    {
+      key: "value",
+      label: "성과 기여도",
+      opts: [
+        { v: 0, t: "높음" },
+        { v: 1, t: "보통" },
+        { v: 2, t: "낮음" },
+      ],
+    },
+    {
+      key: "repeat",
+      label: "반복 빈도",
+      opts: [
+        { v: 0, t: "드묾" },
+        { v: 1, t: "가끔" },
+        { v: 2, t: "잦음" },
+      ],
+    },
+    {
+      key: "deleg",
+      label: "대체 가능성",
+      opts: [
+        { v: 0, t: "나만" },
+        { v: 1, t: "남도" },
+        { v: 2, t: "누구나" },
+      ],
+    },
+    {
+      key: "notice",
+      label: "멈추면 티 나나",
+      opts: [
+        { v: 0, t: "큼" },
+        { v: 1, t: "작음" },
+        { v: 2, t: "없음" },
+      ],
+    },
+  ];
+
+  /* ---------- category meta ---------- */
+  var CAT = {
+    stop: {
+      label: "그만두기",
+      color: "#24594f",
+      tint: "#e8f2ef",
+      filled: true,
+      rank: 0,
+      action: "저가치이고 멈춰도 티가 나지 않습니다. 지금 목록에서 지우세요.",
+    },
+    delegate: {
+      label: "넘기기",
+      color: "#8a5a12",
+      tint: "#f7ecd6",
+      rank: 1,
+      action: "당신만의 고유 업무가 아닙니다. 맡을 사람에게 넘기세요.",
+    },
+    automate: {
+      label: "자동화",
+      color: "#2f558a",
+      tint: "#e4ecf7",
+      rank: 2,
+      action:
+        "잦은 반복이고 규칙화됩니다. 템플릿·자동화로 사람 손을 빼세요.",
+    },
+    reduce: {
+      label: "줄이기",
+      color: "#4b5563",
+      tint: "#eceef2",
+      rank: 3,
+      action: "가치는 있으나 과투자입니다. 빈도·범위·완성도를 낮추세요.",
+    },
+    keep: {
+      label: "지키기",
+      color: "#266b4b",
+      tint: "#e5f1ea",
+      rank: 4,
+      action: "고가치이자 당신의 몫입니다. 이 시간을 지켜 주세요.",
+    },
+  };
+  var CAT_ORDER = ["stop", "delegate", "automate", "reduce", "keep"];
+
+  /* ---------- decision tree (deterministic) ----------
+     v,r,d,n each 0..2 (higher = more stoppable) */
+  function verdict(t) {
+    var v = t.value,
+      r = t.repeat,
+      d = t.deleg,
+      n = t.notice;
+    // 1. Keep: high value AND (only you can do it OR stopping hurts)
+    if (v === 0 && (d === 0 || n === 0)) return "keep";
+    // 2. Stop: low value AND stopping costs little  (systematic abandonment)
+    if (v === 2 && n >= 1) return "stop";
+    // 3. Automate: frequently repeated AND rule-based (not uniquely you)
+    if (r === 2 && d >= 1) return "automate";
+    // 4. Delegate: someone else can own it AND not high-stakes on you
+    if (d >= 1 && n >= 1) return "delegate";
+    // 5. Reduce: has some value but you are over-investing time
+    if (r >= 1 && v >= 1) return "reduce";
+    // 6. Keep everything else (judgment work, high stakes, uniquely yours)
+    return "keep";
+  }
+
+  /* offload priority 0..100 — how much this should come off YOUR plate */
+  function offload(t) {
+    return Math.round(
+      (t.value / 2) * 30 +
+        (t.notice / 2) * 25 +
+        (t.deleg / 2) * 25 +
+        (t.repeat / 2) * 20
+    );
+  }
+
+  function signalChips(t) {
+    var out = [];
+    if (t.value === 2) out.push("저가치");
+    else if (t.value === 0) out.push("고가치");
+    if (t.repeat === 2) out.push("잦은 반복");
+    if (t.deleg === 2) out.push("누구나 가능");
+    else if (t.deleg === 0) out.push("당신만 가능");
+    if (t.notice === 2) out.push("멈춰도 티 안 남");
+    else if (t.notice === 0) out.push("멈추면 큰 문제");
+    return out;
+  }
+
+  /* ---------- state ---------- */
+  var tasks = []; // {id, text, value, repeat, deleg, notice}
+  var seq = 0;
+  var lastPrompt = "";
+
+  var tasksEl = document.getElementById("tasks");
+  var tasksEmpty = document.getElementById("tasksEmpty");
+  var warnEl = document.getElementById("warn");
+  var resultEl = document.getElementById("result");
+  var input = document.getElementById("taskInput");
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* ---------- auto-grow textarea ---------- */
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  input.addEventListener("input", function () {
+    grow(input);
+  });
+
+  /* ---------- load tasks from textarea (preserve existing scores by text) ---------- */
+  function loadTasks() {
+    var prev = {};
+    tasks.forEach(function (t) {
+      prev[t.text] = t;
+    });
+    var lines = input.value.split("\n");
+    var seen = {};
+    var next = [];
+    for (var i = 0; i < lines.length; i++) {
+      var text = lines[i].replace(/^\s*[-*•\d.)]+\s*/, "").trim();
+      if (!text) continue;
+      if (seen[text]) continue;
+      seen[text] = true;
+      if (prev[text]) {
+        next.push(prev[text]);
+      } else {
+        next.push({
+          id: ++seq,
+          text: text,
+          value: 1,
+          repeat: 1,
+          deleg: 1,
+          notice: 1,
+        });
+      }
+      if (next.length >= 40) break;
+    }
+    tasks = next;
+    renderTasks();
+    warnEl.textContent = "";
+    if (tasks.length) {
+      document
+        .getElementById("score-panel")
+        .scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function renderTasks() {
+    if (!tasks.length) {
+      tasksEl.innerHTML =
+        '<div class="tasks-empty">위에서 업무를 불러오면 여기에 채점 카드가 생깁니다.</div>';
+      return;
+    }
+    var html = "";
+    tasks.forEach(function (t, idx) {
+      html += '<div class="task" data-id="' + t.id + '">';
+      html += '<div class="task-head">';
+      html +=
+        '<span class="task-num" aria-hidden="true">' + (idx + 1) + "</span>";
+      html += '<p class="task-text">' + esc(t.text) + "</p>";
+      html +=
+        '<button class="task-remove" data-remove="' +
+        t.id +
+        '" aria-label="이 업무 삭제" title="삭제">×</button>';
+      html += "</div>";
+      html += '<div class="dims">';
+      DIMS.forEach(function (dim) {
+        html += "<div>";
+        html += '<p class="dim-label">' + dim.label + "</p>";
+        html += '<div class="seg" role="radiogroup" aria-label="' +
+          esc(t.text) + " " + dim.label + '">';
+        dim.opts.forEach(function (o) {
+          var name = "d_" + t.id + "_" + dim.key;
+          var id = name + "_" + o.v;
+          var chk = t[dim.key] === o.v ? " checked" : "";
+          html +=
+            '<label><input type="radio" name="' +
+            name +
+            '" id="' +
+            id +
+            '" value="' +
+            o.v +
+            '" data-tid="' +
+            t.id +
+            '" data-dim="' +
+            dim.key +
+            '"' +
+            chk +
+            ' /><span class="seg-btn">' +
+            o.t +
+            "</span></label>";
+        });
+        html += "</div></div>";
+      });
+      html += "</div></div>";
+    });
+    tasksEl.innerHTML = html;
+  }
+
+  /* update score on radio change */
+  tasksEl.addEventListener("change", function (e) {
+    var r = e.target;
+    if (r.tagName !== "INPUT" || r.type !== "radio") return;
+    var tid = parseInt(r.dataset.tid, 10);
+    var dim = r.dataset.dim;
+    for (var i = 0; i < tasks.length; i++) {
+      if (tasks[i].id === tid) {
+        tasks[i][dim] = parseInt(r.value, 10);
+        break;
+      }
+    }
+  });
+
+  /* remove a task */
+  tasksEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-remove]");
+    if (!btn) return;
+    var rid = parseInt(btn.dataset.remove, 10);
+    tasks = tasks.filter(function (t) {
+      return t.id !== rid;
+    });
+    renderTasks();
+  });
+
+  /* ---------- example ---------- */
+  document.getElementById("exampleBtn").addEventListener("click", function () {
+    input.value = [
+      "주간 업무 보고서 작성",
+      "반복되는 내부 회의 참석",
+      "이메일 수신함 정리",
+      "경쟁사 동향 수동 취합",
+      "팀원 1:1 코칭",
+      "신규 고객 제안서 작성",
+      "지출 결의서 수기 입력",
+      "소셜미디어 댓글 확인",
+      "분기 전략 기획",
+      "사내 뉴스레터 편집",
+    ].join("\n");
+    grow(input);
+    loadTasks();
+  });
+
+  document.getElementById("loadBtn").addEventListener("click", loadTasks);
+
+  /* ---------- build AI prompt ---------- */
+  function buildPrompt(groups) {
+    var L = [];
+    L.push(
+      "당신은 피터 드러커의 '체계적 폐기(systematic abandonment)'와 짐 콜린스의 '스톱-두잉 리스트'에 정통한 생산성·리더십 코치입니다."
+    );
+    L.push(
+      "아래는 제 업무 목록을 4가지 기준(가치 기여 / 반복 빈도 / 대체 가능성 / 중단 시 영향)으로 스스로 분류한 결과입니다."
+    );
+    L.push("");
+    CAT_ORDER.forEach(function (c) {
+      var items = groups[c];
+      if (!items || !items.length) return;
+      L.push("[" + CAT[c].label + "]");
+      items.forEach(function (t) {
+        L.push("- " + t.text);
+      });
+      L.push("");
+    });
+    L.push("요청:");
+    L.push(
+      "1. '그만두기'와 '넘기기' 후보 각각에 대해 실제로 실행할 다음 한 걸음을 적어 주세요. (넘기기는 인수인계 한 줄, 그만두기는 관계자에게 알릴 문장 초안)"
+    );
+    L.push(
+      "2. '자동화' 후보는 어떤 도구·규칙·템플릿으로 사람 손을 뺄 수 있을지 구체적으로 제안해 주세요."
+    );
+    L.push(
+      "3. 제가 '지키기'로 분류한 항목 중, 사실은 놓아도 되는데 습관·불안 때문에 붙잡고 있는 것은 없는지 반대로 심문해 주세요."
+    );
+    L.push(
+      "4. 결론을 대신 확정하지 말고, 제가 스스로 결정하도록 근거와 질문을 먼저 제시한 뒤 당신의 의견을 비교용으로 덧붙여 주세요."
+    );
+    L.push(
+      "5. 지어낸 수치나 일반론적 미사여구 없이, 제 목록에 실제로 있는 항목만 다뤄 주세요."
+    );
+    return L.join("\n");
+  }
+
+  function summaryBand(offloadable, total) {
+    var ratio = total ? offloadable / total : 0;
+    if (ratio >= 0.5)
+      return {
+        tone: "plan",
+        label: "덜어낼 여지 큼",
+        title: "접시가 과부하 상태입니다",
+        desc:
+          "절반 이상이 그만두거나 넘기거나 자동화할 수 있는 일입니다. 우선순위를 더 얹기 전에, 먼저 비우세요.",
+      };
+    if (ratio >= 0.25)
+      return {
+        tone: "mixed",
+        label: "덜어낼 여지 있음",
+        title: "덜어낼 수 있는 일이 분명히 있습니다",
+        desc:
+          "핵심 업무는 유지하되, 아래 그만두기·넘기기·자동화 후보부터 접시에서 걷어내면 여백이 생깁니다.",
+      };
+    return {
+      tone: "strategy",
+      label: "잘 정리된 편",
+      title: "이미 핵심에 집중하고 있습니다",
+      desc:
+        "덜어낼 항목이 많지 않습니다. 그래도 '지키기'로 둔 일이 정말 당신의 몫인지, 아래 프롬프트로 한 번 더 반대 심문해 보세요.",
+    };
+  }
+
+  /* ---------- analyze ---------- */
+  document.getElementById("analyzeBtn").addEventListener("click", function () {
+    if (!tasks.length) {
+      warnEl.textContent =
+        "먼저 STEP 1에서 업무를 적고 '업무 불러오기'를 눌러 주세요.";
+      return;
+    }
+    warnEl.textContent = "";
+
+    // classify
+    var enriched = tasks.map(function (t) {
+      return {
+        text: t.text,
+        cat: verdict(t),
+        off: offload(t),
+        chips: signalChips(t),
+      };
+    });
+
+    // group for counts + prompt
+    var groups = {};
+    CAT_ORDER.forEach(function (c) {
+      groups[c] = [];
+    });
+    enriched.forEach(function (e) {
+      groups[e.cat].push(e);
+    });
+
+    var counts = {};
+    CAT_ORDER.forEach(function (c) {
+      counts[c] = groups[c].length;
+    });
+    var total = enriched.length;
+    var offloadable = counts.stop + counts.delegate + counts.automate;
+    var band = summaryBand(offloadable, total);
+
+    // sort: category rank, then offload desc
+    enriched.sort(function (a, b) {
+      if (CAT[a.cat].rank !== CAT[b.cat].rank)
+        return CAT[a.cat].rank - CAT[b.cat].rank;
+      return b.off - a.off;
+    });
+
+    var html = "";
+
+    // verdict summary
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    var pct = total ? Math.round((offloadable / total) * 100) : 0;
+    html +=
+      '<div class="bar" role="img" aria-label="전체 ' +
+      total +
+      "개 중 " +
+      offloadable +
+      '개 덜어낼 수 있음"><div class="bar-fill" style="width:' +
+      pct +
+      '%"></div></div>';
+    html +=
+      '<p class="meter-caption">지금 접시에서 덜어낼 수 있는 일 ' +
+      offloadable +
+      " / " +
+      total +
+      "개 (그만두기·넘기기·자동화)</p>";
+    // category chips
+    html += '<div class="cat-chips">';
+    CAT_ORDER.forEach(function (c) {
+      var m = CAT[c];
+      var z = counts[c] === 0 ? " zero" : "";
+      var style = m.filled
+        ? "background:" + m.color + ";color:#fff;"
+        : "background:" + m.tint + ";color:" + m.color + ";";
+      html +=
+        '<span class="cat-chip' +
+        z +
+        '" style="' +
+        style +
+        '">' +
+        m.label +
+        " " +
+        counts[c] +
+        "</span>";
+    });
+    html += "</div>";
+    html += "</div>";
+
+    // task cards
+    html += '<div class="result-block-title">업무별 분류</div>';
+    enriched.forEach(function (e) {
+      var m = CAT[e.cat];
+      html +=
+        '<div class="rcard" style="border-left-color:' + m.color + '">';
+      html += '<div class="rcard-head">';
+      html += '<p class="rcard-title">' + esc(e.text) + "</p>";
+      var bstyle = m.filled
+        ? "background:" + m.color + ";color:#fff;"
+        : "background:" + m.tint + ";color:" + m.color + ";";
+      html +=
+        '<span class="badge" style="' +
+        bstyle +
+        '">' +
+        m.label +
+        "</span>";
+      html += "</div>";
+      html += '<p class="rcard-why">' + esc(m.action) + "</p>";
+      if (e.chips.length) {
+        html += '<div class="chips">';
+        e.chips.forEach(function (c) {
+          html += '<span class="chip">' + esc(c) + "</span>";
+        });
+        html += "</div>";
+      }
+      html += "</div>";
+    });
+
+    // AI prompt
+    lastPrompt = buildPrompt(groups);
+    html +=
+      '<div class="result-block-title">실행: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 분류를 바탕으로 그만두기·넘기기 실행 문장과 자동화 방법까지 함께 짜 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html +=
+      '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- reset ---------- */
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    tasks = [];
+    input.value = "";
+    grow(input);
+    warnEl.textContent = "";
+    renderTasks();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+      "<p><strong>아직 분석 전입니다.</strong></p>" +
+      "<p>업무를 불러와 표시한 뒤 '분석하기'를 누르세요.</p></div>";
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

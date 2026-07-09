@@ -1,0 +1,1217 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>원어민 비즈니스 영어 변환 프롬프트 빌더</title>
+<meta name="description" content="한국어 초안을 채널(이메일/슬랙/발표)과 격식 수준에 맞춘 원어민 영어 한 버전으로 바꾸는 프롬프트를 만든다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2b6d6a;
+    --accent-strong: #205250;
+    --accent-tint: #e9f2f1;
+    --accent-tint-2: #d3e6e4;
+    --ink: #1f2422;
+    --ink-soft: #45504d;
+    --ink-mute: #6a736f;
+    --paper: #f6f8f7;
+    --card: #ffffff;
+    --line: #e2e7e5;
+    --line-strong: #cfd8d5;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #a3591a;
+    --warn-tint: #fbf0e2;
+    --warn-line: #eeddc4;
+    --shadow: 0 1px 2px rgba(31, 36, 34, 0.05), 0 6px 20px rgba(31, 36, 34, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea,
+  input.text {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfcfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 118px;
+    resize: none;
+    overflow: hidden;
+  }
+  input.text {
+    min-height: 46px;
+  }
+  textarea:focus,
+  input.text:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder,
+  input.text::placeholder {
+    color: #9aa39f;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-block {
+    margin-top: 18px;
+  }
+  .field-block:first-child {
+    margin-top: 0;
+  }
+
+  /* ---------- segmented controls ---------- */
+  fieldset.seg-field {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  legend.seg-legend {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    padding: 0;
+  }
+  .seg-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+  label.seg {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 96px;
+    min-height: 46px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 1px;
+    padding: 8px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    background: #fbfcfc;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+  label.seg .seg-name {
+    font-weight: 700;
+    font-size: 0.96rem;
+    color: var(--ink);
+  }
+  label.seg .seg-en {
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+  }
+  label.seg.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  label.seg.on .seg-name {
+    color: var(--accent-strong);
+  }
+  label.seg input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  label.seg:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 22px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .empty-state.warn .big {
+    color: var(--warn);
+  }
+
+  /* summary stat grid */
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 9px;
+    margin-bottom: 20px;
+  }
+  .stat {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fbfcfc;
+    padding: 12px 12px;
+    text-align: center;
+  }
+  .stat .s-val {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.25;
+  }
+  .stat .s-lab {
+    font-size: 0.74rem;
+    color: var(--ink-mute);
+    margin-top: 3px;
+    font-weight: 600;
+  }
+  .stat.hl {
+    border-color: var(--accent-tint-2);
+    background: var(--accent-tint);
+  }
+  .stat.hl .s-val {
+    color: var(--accent-strong);
+  }
+  .rec-line {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 0 0 18px;
+  }
+  .rec-line strong {
+    color: var(--ink-soft);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+  .result-block-title:first-child {
+    margin-top: 0;
+  }
+
+  /* trap cards */
+  ul.traps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  li.trap {
+    border: 1px solid var(--warn-line);
+    border-left: 3px solid var(--warn);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: var(--warn-tint);
+  }
+  .trap-title {
+    font-weight: 700;
+    font-size: 0.99rem;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+  .trap-why {
+    margin: 0 0 8px;
+    font-size: 0.89rem;
+    color: var(--ink-soft);
+  }
+  .trap-guide {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+  .trap-guide .tag {
+    display: inline-block;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--warn);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-right: 7px;
+    vertical-align: 1px;
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* preserve chips */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  .chip {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 7px;
+    padding: 4px 10px;
+    font-family: "Pretendard", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  .preserve-note {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 9px 0 0;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #21302e;
+    color: #eef4f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 36, 34, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .summary {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    label.seg {
+      min-width: calc(50% - 5px);
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #config-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">비즈니스 영어 변환 · Native Relay</span>
+    <h1>원어민 비즈니스 영어 변환 프롬프트 빌더</h1>
+    <p class="lede">
+      한국어 초안을 채널(이메일 · 슬랙 · 발표)과 격식 수준에 맞춘 원어민 영어
+      한 버전으로 바꾸는 프롬프트를 만들어 드립니다. 초안 속 직역 함정을 먼저
+      짚고, 보존해야 할 숫자·날짜·고유명사를 고정해 프롬프트에 담습니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>한국어 초안</h2>
+    </div>
+    <p class="panel-sub">
+      영어로 바꾸고 싶은 이메일 · 메시지 · 발표 문장을 한국어로 붙여넣으세요.
+    </p>
+    <label class="field-label" for="draft">바꿀 내용 (한국어)</label>
+    <textarea
+      id="draft"
+      placeholder="예) 바쁘신 와중에 죄송하지만, 지난주에 공유드린 제안서 확인 부탁드립니다. 이번 주 중으로 피드백 주시면 감사하겠습니다. 김민수 책임님께도 참고 부탁드려요."
+    ></textarea>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이 없습니다.</p>
+  </section>
+
+  <section class="panel" id="config-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>채널과 격식 선택</h2>
+    </div>
+    <p class="panel-sub">
+      전달 채널과 격식 수준에 따라 원어민이 고르는 표현과 레지스터가 달라집니다.
+    </p>
+
+    <fieldset class="seg-field field-block">
+      <legend class="seg-legend">전달 채널</legend>
+      <div class="seg-group" id="channel-group">
+        <label class="seg on">
+          <input type="radio" name="channel" value="email" checked />
+          <span class="seg-name">이메일</span>
+          <span class="seg-en">Email</span>
+        </label>
+        <label class="seg">
+          <input type="radio" name="channel" value="slack" />
+          <span class="seg-name">슬랙</span>
+          <span class="seg-en">Slack · 메신저</span>
+        </label>
+        <label class="seg">
+          <input type="radio" name="channel" value="presentation" />
+          <span class="seg-name">발표</span>
+          <span class="seg-en">Presentation</span>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="seg-field field-block">
+      <legend class="seg-legend">격식 수준</legend>
+      <div class="seg-group" id="level-group">
+        <label class="seg">
+          <input type="radio" name="level" value="formal" />
+          <span class="seg-name">정중·격식</span>
+          <span class="seg-en">Formal</span>
+        </label>
+        <label class="seg on">
+          <input type="radio" name="level" value="neutral" checked />
+          <span class="seg-name">표준 비즈니스</span>
+          <span class="seg-en">Neutral</span>
+        </label>
+        <label class="seg">
+          <input type="radio" name="level" value="casual" />
+          <span class="seg-name">편안·캐주얼</span>
+          <span class="seg-en">Casual</span>
+        </label>
+      </div>
+    </fieldset>
+
+    <div class="field-block">
+      <label class="field-label" for="audience">수신자 · 상황 (선택)</label>
+      <input
+        class="text"
+        id="audience"
+        type="text"
+        placeholder="예) 해외 본사 임원 / 처음 연락하는 거래처 / 같은 팀 동료"
+      />
+      <p class="field-hint">누구에게 보내는지 적으면 톤을 더 정확히 맞춘 프롬프트가 됩니다.</p>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="build" type="button">변환 프롬프트 만들기</button>
+      <button class="btn-ghost" id="reset" type="button">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">⇄</div>
+        <p><strong>아직 만들어진 프롬프트가 없습니다.</strong></p>
+        <p>한국어 초안을 입력하고 '변환 프롬프트 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 사내 변환 규범
+      <em>native-en-relay</em>의 재작성 7원칙 — 의미·의도·뉘앙스 보존, 한국어
+      직역투 대신 원어민 자연스러움 우선, 관습적 사과·겸양·중복 수식 제거,
+      고유명사·숫자·날짜·파일명 그대로 보존, 문장의 화행(질문·요청·공지) 유지,
+      채널·상대에 맞춘 톤 매칭, 이모지 최소화. 채널별(이메일·슬랙·발표) 레지스터
+      기준은 통용되는 비즈니스 라이팅 관행을 따랐습니다.
+    </p>
+    <p>
+      이 도구는 초안 속 직역 함정을 감지하고 맞춤 프롬프트를 만들어 주는 사고
+      보조 도구입니다. 최종 영어 문장은 직접 생성하지 않으며, 만들어진 프롬프트를
+      AI에 붙여넣어 얻은 결과는 스스로 검토해 사용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select" type="button">전체 선택</button>
+      <button class="btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ------------------------------------------------------------------
+     Channel + formality register data (business-writing conventions).
+     Each choice injects real, distinct guidance into the built prompt.
+  ------------------------------------------------------------------ */
+  var CHANNELS = {
+    email: {
+      name: "이메일",
+      en: "Email",
+      block:
+        "인사말과 맺음말을 갖춘 완결된 문장으로. 간결한 제목(Subject)을 제안하고, 용건과 기한을 본문 앞부분에서 분명히 밝힙니다. 서명(이름·직함)은 넣지 않습니다.",
+      output: "제목(Subject) 한 줄과 본문으로 나눠서 제시하세요.",
+      rec: "정중·격식 또는 표준 비즈니스",
+    },
+    slack: {
+      name: "슬랙",
+      en: "Slack / 메신저",
+      block:
+        "격식 인사·맺음말 없이 바로 용건으로. 짧고 스캔하기 쉬운 문장, 핵심을 맨 앞에 둡니다. 가벼운 축약형(I'll, we're)은 허용합니다.",
+      output: "인사·서명 없는 메시지 한 덩어리로 제시하세요.",
+      rec: "표준 비즈니스 또는 편안·캐주얼",
+    },
+    presentation: {
+      name: "발표",
+      en: "Presentation / 스피치",
+      block:
+        "청중에게 말로 전달되는 대본으로. 짧고 힘 있는 문장, 병렬 구조, 신호어(First, Next, Finally)로 흐름을 안내하고 긴 종속절을 피합니다.",
+      output: "말하기 흐름대로 문단을 나눠 제시하세요.",
+      rec: "표준 비즈니스",
+    },
+  };
+
+  var LEVELS = {
+    formal: {
+      name: "정중·격식",
+      en: "Formal",
+      block:
+        "축약형을 피하고 완전한 문장으로. \"I would appreciate it if ...\", \"Could you please ...\" 같은 정중한 요청. 외부·상급자·첫 연락 상대에 적합합니다.",
+    },
+    neutral: {
+      name: "표준 비즈니스",
+      en: "Neutral business",
+      block:
+        "명확하고 전문적이되 딱딱하지 않게. 축약형 일부 허용, 직접적이지만 예의 있게. 대부분의 사내·거래 상황의 기본값입니다.",
+    },
+    casual: {
+      name: "편안·캐주얼",
+      en: "Casual",
+      block:
+        "친근하고 간결하게. 축약형과 가벼운 표현 허용, 이름 호칭과 최소한의 격식. 가까운 동료·팀 내부에 적합합니다.",
+    },
+  };
+
+  /* ------------------------------------------------------------------
+     Direct-translation trap detectors. Each runs against the Korean
+     draft; matched traps become result cards AND are injected into the
+     prompt's "특히 주의할 점" block. Regexes are non-global (stateless).
+  ------------------------------------------------------------------ */
+  var RULES = [
+    {
+      id: "apology",
+      label: "과도한 사과·겸양",
+      re: /(죄송하지만|죄송합니다만|죄송한데|번거로우시겠|번거롭게\s*해|바쁘신\s*(와중|가운데|데|중)|송구|외람되)/,
+      why: "한국어 비즈니스 글은 요청 앞에 사과·겸양을 관습적으로 붙이지만, 원어민 비즈니스 영어는 사과를 남발하지 않고 용건을 먼저 분명히 합니다.",
+      guide: "\"Sorry to bother you\"를 반복하지 말고 바로 용건으로. 배려가 필요하면 \"When you have a moment,\" 정도로 가볍게.",
+    },
+    {
+      id: "closing",
+      label: "상투적 맺음말 (잘 부탁드립니다)",
+      re: /(잘\s*부탁(드립니다|드려요|해요|합니다|해\s|드립)|많은\s*관심|관심\s*부탁|성원\s*부탁)/,
+      why: "'잘 부탁드립니다'는 영어에 1:1 대응이 없습니다. 직역하면 어색하고 정체불명의 문장이 됩니다.",
+      guide: "구체적 CTA나 \"Thanks in advance.\" / \"Looking forward to your reply.\"로 대체하세요.",
+    },
+    {
+      id: "confirm-share",
+      label: "모호한 확인·공유 표현",
+      re: /(확인\s*부탁|확인\s*바랍|참고\s*(바랍|부탁|하시)|공유\s*(드립니다|드려요|합니다|드리겠|해\s*주|해\s*드)|검토\s*부탁)/,
+      why: "'확인 부탁드립니다', '공유드립니다'는 맥락에 따라 서로 다른 영어 동사(review / confirm / let me know / FYI / share)가 필요합니다.",
+      guide: "원하는 행동을 명확히: \"Please review and confirm by ...\" 또는 \"Sharing this for your reference (FYI).\"",
+    },
+    {
+      id: "vague-deadline",
+      label: "모호한 기한 표현",
+      re: /(이번\s*주|다음\s*주|이번\s*달|조만간|빠른\s*시일|금명간|추후|나중에|가급적\s*빨리|되도록\s*빨리|최대한\s*빨리|곧\s|곧\.|ASAP)/i,
+      why: "원어민 비즈니스 영어는 모호한 시점보다 명시적 날짜·요일을 선호합니다. 직역하면 상대가 기한을 오해하기 쉽습니다.",
+      guide: "'조만간' 대신 \"by Thursday (Jul 10)\"처럼 구체화. 초안에 정확한 날짜가 없으면 프롬프트가 되묻도록 지시합니다.",
+    },
+    {
+      id: "over-honorific",
+      label: "이중 높임·격식 과잉",
+      re: /(해\s*주시면\s*감사|주시면\s*감사하겠|해주셨으면|부탁드려도\s*될까요|가능하실까요|주시면\s*정말\s*감사)/,
+      why: "겹겹의 존대는 영어로 옮기면 과도하게 굽신대는 톤이 되어 오히려 프로답지 않게 들립니다.",
+      guide: "정중함은 유지하되 \"Could you ...?\" / \"Would you be able to ...?\" 한 겹으로 정리하세요.",
+    },
+    {
+      id: "konglish",
+      label: "직역 위험 외래어 (콩글리시)",
+      re: /(팔로우\s*업|팔로업|리마인드|컨펌|피드백\s*(주세요|부탁|바랍|주시)|디테일하게|스케줄\s*잡|미팅\s*잡|어레인지|체크\s*부탁|픽스해)/,
+      why: "외래어를 그대로 영어로 옮기면 어색하거나 부정확합니다.",
+      guide: "\"follow up\", \"a reminder\", \"your feedback\", \"confirm\", \"the details\", \"set up a meeting\" 등 정확한 관용 표현으로 바꾸세요.",
+    },
+    {
+      id: "request-subject",
+      label: "요청문 — 영어는 주어가 필요",
+      re: /(부탁드립|부탁해요|부탁합니다|부탁드려|해\s*주세요|해주세요|해줘|해\s*줘|보내\s*주|보내줘|알려\s*주|알려줘|주시겠|주실\s*수\s*있)/,
+      why: "한국어는 주어(I / we / you)를 자주 생략하지만, 영어 요청문은 행위 주체를 분명히 밝혀야 자연스럽습니다.",
+      guide: "\"Could you ...?\", \"I'd like you to ...\", \"Please ...\"처럼 누가 무엇을 하는지 드러내세요.",
+    },
+    {
+      id: "casual-signals",
+      label: "캐주얼 신호 (이모지·구어체)",
+      re: /(ㅎㅎ|ㅋㅋ+|~{1,}|!{2,}|😊|🙂|😄|👍|🙏|ㅠ|ㅜ|😢)/u,
+      why: "이모지·물결·자음 반복 같은 캐주얼 신호는 선택한 격식 채널과 충돌할 수 있습니다.",
+      guide: "선택한 격식 수준에 맞춰 정리하세요. 격식이면 제거, 캐주얼이면 최소한만 반영합니다.",
+    },
+    {
+      id: "runon",
+      label: "장문·만연체",
+      test: function (t) {
+        var parts = t
+          .split(/[.!?…\n]|다\.|요\./)
+          .map(function (s) {
+            return s.trim();
+          })
+          .filter(Boolean);
+        var maxLen = 0;
+        parts.forEach(function (p) {
+          if (p.length > maxLen) maxLen = p.length;
+        });
+        if (parts.length <= 1 && t.trim().length > 85) return true;
+        return maxLen > 58;
+      },
+      why: "한 문장에 여러 절을 담으면 영어로 옮길 때 가독성이 크게 떨어집니다. 특히 발표 채널은 짧은 문장이 유리합니다.",
+      guide: "긴 문장을 두세 문장으로 나눠 한 문장에 하나의 메시지만 담으세요.",
+    },
+  ];
+
+  function detectTraps(text) {
+    return RULES.filter(function (r) {
+      return r.test ? r.test(text) : r.re.test(text);
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Extract fixed elements that must survive the translation verbatim:
+     English/product/file tokens, dates/times, numbers/amounts.
+  ------------------------------------------------------------------ */
+  function extractPreserve(text) {
+    var out = [];
+    var seen = {};
+    function add(v) {
+      v = String(v).replace(/\s+/g, " ").trim();
+      if (!v) return;
+      var k = v.toLowerCase();
+      if (seen[k]) return;
+      seen[k] = 1;
+      out.push(v);
+    }
+
+    // English / product / file / version tokens
+    var latin = text.match(/[A-Za-z][A-Za-z0-9]*(?:[._+\-][A-Za-z0-9]+)*/g) || [];
+    latin.forEach(function (w) {
+      if (w.length >= 2) add(w);
+    });
+
+    // dates / times
+    var dates =
+      text.match(
+        /(\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}\s*월\s*\d{1,2}\s*일|오전\s*\d{1,2}\s*시(?:\s*\d{1,2}\s*분)?|오후\s*\d{1,2}\s*시(?:\s*\d{1,2}\s*분)?|\d{1,2}:\d{2})/g
+      ) || [];
+    var work = text;
+    dates.forEach(function (d) {
+      add(d);
+      work = work.split(d).join(" ");
+    });
+
+    // numbers / amounts (dates already stripped from `work`)
+    var nums =
+      work.match(
+        /\d[\d,]*(?:\.\d+)?\s*(?:억|만\s*원|만원|원|%|퍼센트|달러|USD|KRW|명|개|건|장|시간|분|일|주|개월|년|배|위|층|호)?/g
+      ) || [];
+    nums.forEach(add);
+
+    return out.slice(0, 24);
+  }
+
+  /* ------------------------------------------------------------------
+     Build the tailored prompt from all detected + selected inputs.
+  ------------------------------------------------------------------ */
+  function buildPrompt(o) {
+    var ch = CHANNELS[o.channel];
+    var lv = LEVELS[o.level];
+    var L = [];
+    L.push("당신은 한국 직장인을 돕는 원어민 미국인(Pro Native American) 비즈니스 영어 라이터입니다.");
+    L.push("아래 한국어 초안을, 지정한 채널과 격식 수준에 맞춘 자연스러운 원어민 비즈니스 영어 \"한 버전\"으로 바꿔 주세요. 여러 후보를 나열하지 말고 가장 좋은 하나만 제시합니다.");
+    L.push("");
+    L.push("【채널】 " + ch.name + " (" + ch.en + ")");
+    L.push("- " + ch.block);
+    L.push("");
+    L.push("【격식 수준】 " + lv.name + " (" + lv.en + ")");
+    L.push("- " + lv.block);
+    if (o.audience && o.audience.trim()) {
+      L.push("");
+      L.push("【수신자·상황】 " + o.audience.trim());
+    }
+    L.push("");
+    L.push("【원문(한국어 초안)】");
+    L.push(o.draft.trim());
+    L.push("");
+    if (o.preserves.length) {
+      L.push("【반드시 그대로 보존할 고정 요소】 (철자·숫자·형식 변경 금지)");
+      L.push("- " + o.preserves.join("  ·  "));
+      L.push("");
+    }
+    L.push("【변환 원칙】");
+    L.push("1. 의미·의도·뉘앙스를 보존하고, 없는 정보를 지어내지 않는다.");
+    L.push("2. 한국어 직역투를 버리고 원어민의 자연스러운 표현을 우선한다.");
+    L.push("3. 관습적 사과·겸양·중복 수식을 덜어내되 정중함은 유지한다.");
+    L.push("4. 고유명사·숫자·날짜·파일명·버전은 위 고정 요소 그대로 유지한다.");
+    L.push("5. 질문·요청·공지 등 문장의 성격(화행)을 그대로 유지한다.");
+    L.push("6. 위 채널과 격식에 맞는 레지스터를 일관되게 적용한다.");
+    L.push("7. 이모지·감탄사는 원문에 있고 격식이 허용할 때만 최소한으로 살린다.");
+    if (o.traps.length) {
+      L.push("");
+      L.push("【이 초안에서 특히 주의할 점】");
+      o.traps.forEach(function (t) {
+        L.push("- " + t.label + ": " + t.guide);
+      });
+    }
+    L.push("");
+    L.push("【출력 형식】");
+    L.push("1. 최종 영어 버전을 한 개만 제시한다(후보 나열 금지). " + ch.output);
+    L.push("2. 원문에 모호한 부분이 있으면 임의로 지어내지 말고, 어떤 해석을 택했는지 한 줄로 밝히거나 나에게 되물어 달라.");
+    L.push("3. 마지막에 \"원어민은 이렇게 다르게 씁니다\"로, 바꾼 표현 중 학습에 도움이 될 2~3개를 한국어로 짧게 설명해 달라.");
+    return L.join("\n");
+  }
+
+  /* ------------------------------------------------------------------
+     DOM wiring
+  ------------------------------------------------------------------ */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  var draftEl = document.getElementById("draft");
+  var audienceEl = document.getElementById("audience");
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  // auto-grow textarea
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  draftEl.addEventListener("input", function () {
+    grow(draftEl);
+  });
+
+  // segmented control: toggle .on classes for reliable styling + keyboard
+  function wireSegGroup(groupId) {
+    var group = document.getElementById(groupId);
+    group.addEventListener("change", function (e) {
+      var input = e.target;
+      if (input.type !== "radio") return;
+      Array.prototype.forEach.call(
+        group.querySelectorAll("label.seg"),
+        function (lbl) {
+          var box = lbl.querySelector("input");
+          lbl.classList.toggle("on", box.checked);
+        }
+      );
+    });
+  }
+  wireSegGroup("channel-group");
+  wireSegGroup("level-group");
+
+  function getRadio(name) {
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : null;
+  }
+
+  function emptyState(warn, msg1, msg2) {
+    return (
+      '<div class="empty-state' +
+      (warn ? " warn" : "") +
+      '"><div class="big" aria-hidden="true">' +
+      (warn ? "✎" : "⇄") +
+      "</div><p><strong>" +
+      esc(msg1) +
+      "</strong></p><p>" +
+      esc(msg2) +
+      "</p></div>"
+    );
+  }
+
+  document.getElementById("build").addEventListener("click", function () {
+    var draft = draftEl.value || "";
+    if (!draft.trim()) {
+      resultEl.innerHTML = emptyState(
+        true,
+        "한국어 초안을 먼저 입력해 주세요.",
+        "바꿀 문장이 있어야 직역 함정을 짚고 프롬프트를 만들 수 있습니다."
+      );
+      draftEl.focus();
+      document
+        .getElementById("input-panel")
+        .scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var channel = getRadio("channel") || "email";
+    var level = getRadio("level") || "neutral";
+    var audience = audienceEl.value || "";
+    var traps = detectTraps(draft);
+    var preserves = extractPreserve(draft);
+    var chars = draft.trim().length;
+
+    lastPrompt = buildPrompt({
+      draft: draft,
+      channel: channel,
+      level: level,
+      audience: audience,
+      traps: traps,
+      preserves: preserves,
+    });
+
+    var ch = CHANNELS[channel];
+    var lv = LEVELS[level];
+    var html = "";
+
+    // summary stat grid
+    html += '<div class="summary">';
+    html += '<div class="stat"><div class="s-val">' + esc(ch.name) + '</div><div class="s-lab">채널</div></div>';
+    html += '<div class="stat"><div class="s-val">' + esc(lv.name) + '</div><div class="s-lab">격식</div></div>';
+    html += '<div class="stat"><div class="s-val">' + chars + '자</div><div class="s-lab">초안 길이</div></div>';
+    html += '<div class="stat hl"><div class="s-val">' + traps.length + '개</div><div class="s-lab">직역 함정</div></div>';
+    html += "</div>";
+    html += '<p class="rec-line"><strong>' + esc(ch.name) + '</strong> 채널 권장 격식: ' + esc(ch.rec) + ".</p>";
+
+    // trap cards
+    html += '<div class="result-block-title">감지된 직역 함정</div>';
+    if (traps.length === 0) {
+      html +=
+        '<p class="clean-note">눈에 띄는 직역 함정이 감지되지 않았습니다. 그래도 원어민 자연스러움은 표현 선택에서 갈립니다. 아래 프롬프트로 한 버전을 뽑아 비교해 보세요.</p>';
+    } else {
+      html += '<ul class="traps">';
+      traps.forEach(function (t) {
+        html += '<li class="trap">';
+        html += '<p class="trap-title">' + esc(t.label) + "</p>";
+        html += '<p class="trap-why">' + esc(t.why) + "</p>";
+        html += '<p class="trap-guide"><span class="tag">이렇게</span>' + esc(t.guide) + "</p>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // preserve chips
+    html += '<div class="result-block-title">그대로 보존할 고정 요소</div>';
+    if (preserves.length === 0) {
+      html +=
+        '<p class="preserve-note">숫자·날짜·영문 고유명사가 감지되지 않았습니다. 번역 중 새로 만들어지지 않도록만 유의하세요.</p>';
+    } else {
+      html += '<div class="chips">';
+      preserves.forEach(function (p) {
+        html += '<span class="chip">' + esc(p) + "</span>";
+      });
+      html += "</div>";
+      html +=
+        '<p class="preserve-note">이 항목들은 철자·숫자·형식 그대로 유지되도록 아래 프롬프트에 고정했습니다.</p>';
+    }
+
+    // prompt
+    html += '<div class="result-block-title">AI에 붙여넣을 변환 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 위 진단을 반영해 초안을 원어민 영어 한 버전으로 바꿔 줍니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn" type="button">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // reset
+  document.getElementById("reset").addEventListener("click", function () {
+    draftEl.value = "";
+    audienceEl.value = "";
+    grow(draftEl);
+    // restore defaults: email + neutral
+    var eEmail = document.querySelector('input[name="channel"][value="email"]');
+    var eNeutral = document.querySelector('input[name="level"][value="neutral"]');
+    if (eEmail) eEmail.checked = true;
+    if (eNeutral) eNeutral.checked = true;
+    Array.prototype.forEach.call(
+      document.querySelectorAll("label.seg"),
+      function (lbl) {
+        var box = lbl.querySelector("input");
+        lbl.classList.toggle("on", box.checked);
+      }
+    );
+    lastPrompt = "";
+    resultEl.innerHTML = emptyState(
+      false,
+      "아직 만들어진 프롬프트가 없습니다.",
+      "한국어 초안을 입력하고 '변환 프롬프트 만들기'를 누르세요."
+    );
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (!text) return;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      // tier 3: manual modal
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

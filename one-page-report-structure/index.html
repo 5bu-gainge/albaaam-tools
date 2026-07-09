@@ -1,0 +1,1438 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>한 장 보고서 구조 잡기 (피라미드)</title>
+<meta name="description" content="흩어진 근거를 결론-핵심근거-요청 순의 한 장 보고서 골격으로 재배열한다" />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3d5a80;
+    --accent-strong: #2c435f;
+    --accent-tint: #eef2f8;
+    --accent-tint-2: #dbe4f0;
+    --ink: #20242b;
+    --ink-soft: #464c56;
+    --ink-mute: #6a6f79;
+    --paper: #f6f7f9;
+    --card: #ffffff;
+    --line: #e3e6ec;
+    --line-strong: #cdd3dd;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #a35a12;
+    --warn-tint: #fff5e9;
+    --warn-line: #f1ddc0;
+    --shadow: 0 1px 2px rgba(32, 36, 43, 0.05), 0 6px 20px rgba(32, 36, 43, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 128px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: var(--ink);
+    background: #fbfcfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a2a8b2;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .inline-status {
+    font-size: 0.86rem;
+    color: var(--warn);
+    font-weight: 700;
+    margin: 10px 0 0;
+    min-height: 1.1em;
+  }
+
+  /* ---------- classify list ---------- */
+  .counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 0 0 15px;
+    padding: 10px 13px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 10px;
+  }
+  .counts span b {
+    color: var(--accent-strong);
+  }
+  ul.citems {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  li.citem {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fbfcfd;
+    padding: 13px 14px;
+  }
+  .ci-text {
+    margin: 0 0 10px;
+    font-size: 0.98rem;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .ci-roles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  .rolebtn {
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 7px 13px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink-mute);
+    line-height: 1.2;
+  }
+  .rolebtn:hover {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+  .rolebtn.sel {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .rolebtn.sel:hover {
+    color: #fff;
+  }
+  .classify-empty {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 22px 12px;
+    font-size: 0.94rem;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-warn {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-mixed {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-good {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.34rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-warn .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-good .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #dfe3ea;
+  }
+  .verdict.tone-warn .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-mixed .pip.lit {
+    background: #c8801f;
+  }
+  .verdict.tone-good .pip.lit {
+    background: var(--good);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  /* gaps */
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+  ul.gap-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .gap-item {
+    border: 1px solid var(--warn-line);
+    border-left: 3px solid #c8801f;
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: var(--warn-tint);
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .gap-item b {
+    color: var(--warn);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* skeleton document */
+  .skeleton {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .sk-part {
+    padding: 15px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sk-part:last-child {
+    border-bottom: none;
+  }
+  .sk-label {
+    display: inline-block;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-bottom: 9px;
+  }
+  .sk-bg .sk-label {
+    color: var(--ink-mute);
+    background: #eef0f4;
+  }
+  .sk-conc {
+    background: var(--accent-tint);
+  }
+  .sk-conc .sk-label {
+    color: #fff;
+    background: var(--accent);
+  }
+  .sk-conc .sk-line {
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+  .sk-evid .sk-label {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+  }
+  .sk-ask .sk-label {
+    color: var(--good);
+    background: var(--good-tint);
+  }
+  .sk-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .sk-line {
+    font-size: 0.97rem;
+    color: var(--ink);
+    line-height: 1.55;
+    display: flex;
+    gap: 9px;
+  }
+  .sk-line .sk-idx {
+    flex: none;
+    font-weight: 800;
+    color: var(--accent);
+    min-width: 1.1em;
+  }
+  .sk-empty {
+    font-size: 0.92rem;
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232833;
+    color: #eef1f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .btn-copy.alt {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-copy.alt:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+    background: transparent;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 36, 43, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #classify-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">보고서 구조 · 피라미드 원칙</span>
+    <h1>한 장 보고서 구조 잡기</h1>
+    <p class="lede">
+      흩어진 근거와 메모를 <strong>결론 → 핵심 근거 → 요청</strong> 순서의 한 장
+      보고서 골격으로 재배열합니다. 무엇이 결론이고 무엇이 근거인지 짚어 빈칸까지
+      알려 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>흩어진 내용 붙여넣기</h2>
+    </div>
+    <p class="panel-sub">
+      보고서에 담을 근거·메모·문장을 <strong>한 줄에 하나씩</strong> 넣으세요.
+      순서는 뒤죽박죽이어도 됩니다. 다음 단계에서 역할별로 재배열합니다.
+    </p>
+    <label class="field-label" for="raw">보고 재료 (한 줄 = 한 항목)</label>
+    <textarea
+      id="raw"
+      placeholder="예)
+온라인 채널 매출 비중이 12%에 그치고 있다
+경쟁사 A사는 이미 D2C로 전체 매출의 30% 이상을 전환했다
+현재 우리는 대리점 중심 유통에 의존하고 있다
+자사몰 재방문율이 최근 6개월간 8%p 상승했다
+따라서 신규 D2C 채널로의 전환을 제안한다
+초기 구축을 위한 예산 2억 원 승인을 요청드립니다"
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+      없습니다.
+    </p>
+    <div class="actions">
+      <button class="btn-primary" id="classifyBtn">항목 나누고 분류하기</button>
+      <button class="btn-ghost" id="exampleBtn">예시로 채우기</button>
+      <button class="btn-ghost" id="resetBtn">초기화</button>
+    </div>
+    <p class="inline-status" id="inputStatus" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="panel" id="classify-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>항목 역할 나누기</h2>
+    </div>
+    <p class="panel-sub">
+      각 항목의 역할을 자동으로 추정했습니다. 어색한 것은 눌러서 바꾸세요.
+      <strong>결론</strong>은 하고 싶은 핵심 메시지, <strong>근거</strong>는 그걸
+      떠받치는 사실, <strong>요청</strong>은 읽는 사람에게 바라는 결정입니다.
+    </p>
+    <div id="classify">
+      <div class="classify-empty">
+        위에서 내용을 넣고 '항목 나누고 분류하기'를 누르면 여기에 나타납니다.
+      </div>
+    </div>
+    <div class="actions" id="buildActions" style="display: none">
+      <button class="btn-primary" id="buildBtn">한 장 보고서 골격 만들기</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>재배열된 골격</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▤</div>
+        <p><strong>아직 골격이 없습니다.</strong></p>
+        <p>항목을 분류한 뒤 '한 장 보고서 골격 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 바버라 민토(Barbara Minto)의 피라미드
+      원칙(Pyramid Principle)과 SCQA 구조, 그리고 결론을 먼저 말하는 두괄식 한 장
+      보고서 관행. 핵심 메시지를 맨 위에 두고, 그 아래에 서로 겹치지 않고 빠짐없는
+      (MECE) 핵심 근거를 3개 내외로 묶는 구성입니다. 역할 분류는 문장의 표현
+      단서를 이용한 추정이며, 최종 판단은 사용자가 조정합니다.
+    </p>
+    <p>
+      이 도구는 생각의 뼈대를 잡아 주는 보조 도구이며, 보고서를 대신 완성하거나
+      내용의 사실 여부를 검증하지 않습니다. 수치·근거는 원본으로 다시 확인하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  var ROLES = ["배경", "결론", "근거", "요청"];
+  var ROLE_LABEL = {
+    배경: "배경",
+    결론: "결론",
+    근거: "근거",
+    요청: "요청",
+  };
+
+  // items: [{ text, role }]
+  var items = [];
+
+  var rawEl = document.getElementById("raw");
+  var classifyEl = document.getElementById("classify");
+  var buildActions = document.getElementById("buildActions");
+  var resultEl = document.getElementById("result");
+  var inputStatus = document.getElementById("inputStatus");
+
+  var EXAMPLE = [
+    "온라인 채널 매출 비중이 12%에 그치고 있다",
+    "경쟁사 A사는 이미 D2C로 전체 매출의 30% 이상을 전환했다",
+    "현재 우리는 대리점 중심 유통에 의존하고 있다",
+    "자사몰 재방문율이 최근 6개월간 8%p 상승했다",
+    "따라서 신규 D2C 채널로의 전환을 제안한다",
+    "초기 구축을 위한 예산 2억 원 승인을 요청드립니다",
+  ].join("\n");
+
+  // ---------- escape ----------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // ---------- auto-grow ----------
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  rawEl.addEventListener("input", function () {
+    grow(rawEl);
+  });
+
+  // ---------- parse ----------
+  function parseRaw(raw) {
+    var lines = String(raw).split(/\r?\n/);
+    var out = [];
+    for (var i = 0; i < lines.length; i++) {
+      var t = lines[i].trim();
+      if (!t) continue;
+      // strip common bullet / numbering markers
+      t = t.replace(/^\s*(?:[-*•·▪◦●]|\d+[.)]|\(\d+\)|[가-힣][.)])\s*/, "");
+      t = t.trim();
+      if (t) out.push(t);
+    }
+    return out;
+  }
+
+  // ---------- heuristic role suggestion ----------
+  function countHits(text, arr) {
+    var c = 0;
+    for (var i = 0; i < arr.length; i++) {
+      if (text.indexOf(arr[i]) > -1) c++;
+    }
+    return c;
+  }
+
+  var ASK_CUES = [
+    "승인",
+    "결재",
+    "재가",
+    "허가",
+    "허락",
+    "요청",
+    "부탁",
+    "협조",
+    "지원 바",
+    "검토 부탁",
+    "결정 바",
+    "결정해",
+    "재가 바",
+    "승인 바",
+    "결정을 요청",
+    "의사결정",
+  ];
+  var CONC_CUES = [
+    "결론",
+    "따라서",
+    "그러므로",
+    "제안",
+    "권고",
+    "추천",
+    "해야 한다",
+    "해야 합니다",
+    "하자",
+    "하는 것이 좋",
+    "도입해야",
+    "전환해야",
+    "확대해야",
+    "중단해야",
+    "선택해야",
+    "집중해야",
+    "방향은",
+    "핵심은",
+    "결국",
+    "한마디로",
+    "결정한다",
+  ];
+  var EVID_CUES = [
+    "때문",
+    "왜냐하면",
+    "로 인해",
+    "덕분",
+    "결과",
+    "조사",
+    "설문",
+    "데이터",
+    "지표",
+    "실적",
+    "증가",
+    "감소",
+    "상승",
+    "하락",
+    "대비",
+    "전년",
+    "경쟁사",
+    "시장",
+    "매출",
+    "비용",
+    "점유율",
+    "전환율",
+    "응답",
+    "달성",
+    "미달",
+    "초과",
+    "기록",
+  ];
+  var BG_CUES = [
+    "현재",
+    "최근",
+    "그동안",
+    "기존",
+    "지금까지",
+    "배경",
+    "상황",
+    "현황",
+    "여태",
+    "이제까지",
+    "의존하",
+  ];
+
+  function suggestRole(text) {
+    var score = { 배경: 0, 결론: 0, 근거: 0, 요청: 0 };
+    score.요청 += countHits(text, ASK_CUES) * 3;
+    score.결론 += countHits(text, CONC_CUES) * 3;
+    score.배경 += countHits(text, BG_CUES) * 2;
+    score.근거 += countHits(text, EVID_CUES) * 2;
+    if (/[0-9]/.test(text)) score.근거 += 2;
+    if (/[%％]|억|만원|천원|백만|건수|[0-9]\s*건|[0-9]\s*명|[0-9]\s*배|개월|포인트|퍼센트|원|%p|%P/.test(text))
+      score.근거 += 1;
+
+    // tie-break priority: 요청 > 결론 > 배경 > 근거
+    var order = ["요청", "결론", "배경", "근거"];
+    var best = "근거";
+    var bestScore = -1;
+    for (var i = 0; i < order.length; i++) {
+      var r = order[i];
+      if (score[r] > bestScore) {
+        bestScore = score[r];
+        best = r;
+      }
+    }
+    if (bestScore <= 0) return "근거"; // no cue -> default supporting evidence
+    return best;
+  }
+
+  // ---------- render classify ----------
+  function renderClassify() {
+    if (!items.length) {
+      classifyEl.innerHTML =
+        '<div class="classify-empty">위에서 내용을 넣고 \'항목 나누고 분류하기\'를 누르면 여기에 나타납니다.</div>';
+      buildActions.style.display = "none";
+      return;
+    }
+    var html = "";
+    html += '<div class="counts" id="counts"></div>';
+    html += '<ul class="citems">';
+    items.forEach(function (it, idx) {
+      html += '<li class="citem" data-idx="' + idx + '">';
+      html += '<p class="ci-text">' + esc(it.text) + "</p>";
+      html += '<div class="ci-roles" role="group" aria-label="역할 선택">';
+      ROLES.forEach(function (r) {
+        var sel = it.role === r;
+        html +=
+          '<button type="button" class="rolebtn' +
+          (sel ? " sel" : "") +
+          '" data-idx="' +
+          idx +
+          '" data-role="' +
+          r +
+          '" aria-pressed="' +
+          (sel ? "true" : "false") +
+          '">' +
+          ROLE_LABEL[r] +
+          "</button>";
+      });
+      html += "</div></li>";
+    });
+    html += "</ul>";
+    classifyEl.innerHTML = html;
+    buildActions.style.display = "flex";
+    updateCounts();
+  }
+
+  function updateCounts() {
+    var el = document.getElementById("counts");
+    if (!el) return;
+    var c = { 배경: 0, 결론: 0, 근거: 0, 요청: 0 };
+    items.forEach(function (it) {
+      c[it.role]++;
+    });
+    el.innerHTML =
+      "<span>결론 <b>" +
+      c.결론 +
+      "</b></span>" +
+      "<span>핵심 근거 <b>" +
+      c.근거 +
+      "</b></span>" +
+      "<span>요청 <b>" +
+      c.요청 +
+      "</b></span>" +
+      "<span>배경 <b>" +
+      c.배경 +
+      "</b></span>";
+  }
+
+  // role reassign (event delegation)
+  classifyEl.addEventListener("click", function (e) {
+    var btn = e.target.closest ? e.target.closest(".rolebtn") : null;
+    if (!btn) return;
+    var idx = parseInt(btn.dataset.idx, 10);
+    var role = btn.dataset.role;
+    if (isNaN(idx) || !items[idx]) return;
+    items[idx].role = role;
+    // update buttons within this row
+    var row = btn.closest("li.citem");
+    Array.prototype.forEach.call(row.querySelectorAll(".rolebtn"), function (b) {
+      var on = b.dataset.role === role;
+      b.classList.toggle("sel", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    updateCounts();
+  });
+
+  // ---------- classify button ----------
+  document.getElementById("classifyBtn").addEventListener("click", function () {
+    var parsed = parseRaw(rawEl.value);
+    if (!parsed.length) {
+      inputStatus.textContent = "먼저 보고할 내용을 한 줄에 하나씩 입력하세요.";
+      return;
+    }
+    inputStatus.textContent = "";
+    items = parsed.map(function (t) {
+      return { text: t, role: suggestRole(t) };
+    });
+    renderClassify();
+    document
+      .getElementById("classify-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- example ----------
+  document.getElementById("exampleBtn").addEventListener("click", function () {
+    rawEl.value = EXAMPLE;
+    grow(rawEl);
+    inputStatus.textContent = "";
+    rawEl.focus();
+  });
+
+  // ---------- reset ----------
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    items = [];
+    rawEl.value = "";
+    grow(rawEl);
+    inputStatus.textContent = "";
+    renderClassify();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+      "<p><strong>아직 골격이 없습니다.</strong></p>" +
+      "<p>항목을 분류한 뒤 '한 장 보고서 골격 만들기'를 누르세요.</p></div>";
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- group helper ----------
+  function groupItems() {
+    var g = { 배경: [], 결론: [], 근거: [], 요청: [] };
+    items.forEach(function (it) {
+      g[it.role].push(it.text);
+    });
+    return g;
+  }
+
+  // ---------- verdict ----------
+  function verdictFor(g) {
+    var nc = g.결론.length,
+      ne = g.근거.length,
+      na = g.요청.length;
+    var have = (nc >= 1 ? 1 : 0) + (ne >= 1 ? 1 : 0) + (na >= 1 ? 1 : 0);
+    if (nc === 1 && ne >= 1 && na >= 1) {
+      return {
+        tone: "good",
+        label: "핵심 3요소 " + have + "/3",
+        title: "한 장 보고서 골격이 갖춰졌습니다",
+        desc: "결론 하나, 이를 떠받치는 근거, 그리고 요청이 모두 있습니다. 아래 순서대로 옮기면 두괄식 한 장 보고서가 됩니다.",
+        have: have,
+      };
+    }
+    if (nc >= 1 && ne >= 1) {
+      return {
+        tone: "mixed",
+        label: "핵심 3요소 " + have + "/3",
+        title: "골격은 잡혔으나 보완이 필요합니다",
+        desc: "결론과 근거는 있으나 몇 칸이 비었습니다. 아래 '보완할 빈칸'을 채우면 완성도가 올라갑니다.",
+        have: have,
+      };
+    }
+    return {
+      tone: "warn",
+      label: "핵심 3요소 " + have + "/3",
+      title: "아직 재배열이 더 필요합니다",
+      desc: "두괄식 보고서의 뼈대(결론·근거·요청) 중 핵심이 비어 있습니다. 아래 빈칸부터 채워 보세요.",
+      have: have,
+    };
+  }
+
+  function gapsFor(g) {
+    var nc = g.결론.length,
+      ne = g.근거.length,
+      na = g.요청.length,
+      nb = g.배경.length;
+    var gaps = [];
+    if (nc === 0)
+      gaps.push(
+        "<b>결론(핵심 메시지)이 없습니다.</b> 두괄식 보고서는 결론부터 시작합니다. 가장 하고 싶은 한 문장을 결론으로 올리세요."
+      );
+    if (nc > 1)
+      gaps.push(
+        "<b>결론이 " +
+          nc +
+          "개입니다.</b> 한 장 보고서의 핵심 메시지는 하나입니다. 나머지는 하위 메시지·근거로 내리거나 하나로 합치세요."
+      );
+    if (ne === 0)
+      gaps.push(
+        "<b>핵심 근거가 없습니다.</b> 결론을 떠받칠 사실·데이터가 필요합니다. 왜 그 결론이 맞는지(Why so?) 근거를 추가하세요."
+      );
+    if (ne > 4)
+      gaps.push(
+        "<b>근거가 " +
+          ne +
+          "개입니다.</b> 3개 내외로 묶으면(MECE) 한 장에 담기 좋습니다. 아래 AI 프롬프트가 겹치는 근거를 묶도록 도와줍니다."
+      );
+    if (na === 0)
+      gaps.push(
+        "<b>요청(다음 액션)이 없습니다.</b> 읽는 사람이 무엇을 결정·승인·실행해야 하는지 한 줄로 넣으세요."
+      );
+    if (nb === 0)
+      gaps.push(
+        "<b>배경은 선택 항목입니다.</b> 필요하면 상황·문제를 1~2줄로 더해 독자가 결론을 받아들일 맥락을 주세요."
+      );
+    return gaps;
+  }
+
+  // ---------- skeleton (plain text for copy) ----------
+  function skeletonText(g) {
+    var out = [];
+    if (g.배경.length) {
+      out.push("[배경]");
+      g.배경.forEach(function (t) {
+        out.push("- " + t);
+      });
+      out.push("");
+    }
+    out.push("[결론 — 핵심 메시지]");
+    if (g.결론.length) {
+      g.결론.forEach(function (t) {
+        out.push("- " + t);
+      });
+    } else {
+      out.push("- (비어 있음 — 가장 하고 싶은 한 문장을 넣으세요)");
+    }
+    out.push("");
+    out.push("[핵심 근거]");
+    if (g.근거.length) {
+      g.근거.forEach(function (t, i) {
+        out.push(i + 1 + ". " + t);
+      });
+    } else {
+      out.push("1. (비어 있음 — 결론을 떠받칠 사실·데이터를 넣으세요)");
+    }
+    out.push("");
+    out.push("[요청 — 다음 액션]");
+    if (g.요청.length) {
+      g.요청.forEach(function (t) {
+        out.push("- " + t);
+      });
+    } else {
+      out.push("- (비어 있음 — 독자가 결정·승인·실행할 일을 넣으세요)");
+    }
+    return out.join("\n");
+  }
+
+  // ---------- skeleton (html) ----------
+  function skeletonHtml(g) {
+    var h = '<div class="skeleton">';
+    // 배경 (only if present)
+    if (g.배경.length) {
+      h += '<div class="sk-part sk-bg"><span class="sk-label">배경 · 상황</span><ul class="sk-list">';
+      g.배경.forEach(function (t) {
+        h += '<li class="sk-line">' + esc(t) + "</li>";
+      });
+      h += "</ul></div>";
+    }
+    // 결론
+    h += '<div class="sk-part sk-conc"><span class="sk-label">결론 · 핵심 메시지</span>';
+    if (g.결론.length) {
+      h += '<ul class="sk-list">';
+      g.결론.forEach(function (t) {
+        h += '<li class="sk-line">' + esc(t) + "</li>";
+      });
+      h += "</ul>";
+    } else {
+      h +=
+        '<p class="sk-empty">비어 있음 — 가장 하고 싶은 한 문장을 결론으로 올리세요.</p>';
+    }
+    h += "</div>";
+    // 근거
+    h += '<div class="sk-part sk-evid"><span class="sk-label">핵심 근거</span>';
+    if (g.근거.length) {
+      h += '<ul class="sk-list">';
+      g.근거.forEach(function (t, i) {
+        h +=
+          '<li class="sk-line"><span class="sk-idx">' +
+          (i + 1) +
+          "</span><span>" +
+          esc(t) +
+          "</span></li>";
+      });
+      h += "</ul>";
+    } else {
+      h +=
+        '<p class="sk-empty">비어 있음 — 결론을 떠받칠 사실·데이터를 넣으세요.</p>';
+    }
+    h += "</div>";
+    // 요청
+    h += '<div class="sk-part sk-ask"><span class="sk-label">요청 · 다음 액션</span>';
+    if (g.요청.length) {
+      h += '<ul class="sk-list">';
+      g.요청.forEach(function (t) {
+        h += '<li class="sk-line">' + esc(t) + "</li>";
+      });
+      h += "</ul>";
+    } else {
+      h +=
+        '<p class="sk-empty">비어 있음 — 독자가 결정·승인·실행할 일을 한 줄로 넣으세요.</p>';
+    }
+    h += "</div></div>";
+    return h;
+  }
+
+  // ---------- AI prompt ----------
+  function buildPrompt(g) {
+    var L = [];
+    L.push(
+      "당신은 바버라 민토의 피라미드 원칙과 두괄식 한 장 보고서에 능한 보고서 코치입니다."
+    );
+    L.push(
+      "아래는 제가 흩어진 메모를 배경/결론/핵심 근거/요청 역할로 분류한 초안 골격입니다. 이 재료로 A4 한 장 분량의 보고서를 완성해 주세요."
+    );
+    L.push("");
+    L.push("【분류된 골격】");
+    L.push("■ 배경(상황)");
+    if (g.배경.length)
+      g.배경.forEach(function (t) {
+        L.push("- " + t);
+      });
+    else L.push("- (없음 · 선택)");
+    L.push("■ 결론(핵심 메시지)");
+    if (g.결론.length)
+      g.결론.forEach(function (t) {
+        L.push("- " + t);
+      });
+    else L.push("- (비어 있음 — 채워야 함)");
+    L.push("■ 핵심 근거");
+    if (g.근거.length)
+      g.근거.forEach(function (t, i) {
+        L.push(i + 1 + ". " + t);
+      });
+    else L.push("1. (비어 있음 — 채워야 함)");
+    L.push("■ 요청(다음 액션)");
+    if (g.요청.length)
+      g.요청.forEach(function (t) {
+        L.push("- " + t);
+      });
+    else L.push("- (비어 있음 — 채워야 함)");
+    L.push("");
+    L.push("【작성 지침】");
+    L.push(
+      "1. 결론(핵심 메시지)을 맨 앞에 두는 두괄식으로 쓰세요. 독자가 첫 문장에서 요점을 알게 하세요."
+    );
+    L.push(
+      "2. 핵심 근거는 3개 내외로 묶고(MECE, 서로 겹치지 않고 빠짐없이), 각 근거가 결론을 직접 떠받치는지(So what? / Why so?) 점검하세요."
+    );
+    L.push(
+      "3. 요청은 독자가 무엇을 결정·승인·실행해야 하는지 한 문장으로 분명히 하세요."
+    );
+    L.push(
+      "4. 골격에서 '비어 있음'으로 표시된 부분은 지어내지 말고, 저에게 필요한 사실을 질문으로 물어봐 주세요."
+    );
+    L.push(
+      "5. 추정·과장된 수치나 근거 없는 표현(시너지·초격차 등)으로 빈칸을 덮지 마세요."
+    );
+    L.push(
+      "6. 최종 출력은 (1) 제목 한 줄 (2) 결론 (3) 핵심 근거 (4) 요청 순서의 한 장 보고서 형식으로 주세요."
+    );
+    return L.join("\n");
+  }
+
+  // ---------- build ----------
+  var lastPrompt = "";
+  var lastSkeleton = "";
+
+  document.getElementById("buildBtn").addEventListener("click", function () {
+    if (!items.length) return;
+    var g = groupItems();
+    var v = verdictFor(g);
+    var gaps = gapsFor(g);
+    lastSkeleton = skeletonText(g);
+    lastPrompt = buildPrompt(g);
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + v.tone + '">';
+    html += '<p class="verdict-label">' + esc(v.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(v.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(v.desc) + "</p>";
+    html +=
+      '<div class="meter" role="img" aria-label="핵심 3요소 ' +
+      v.have +
+      '개 충족">';
+    for (var p = 0; p < 3; p++) {
+      html += '<span class="pip' + (p < v.have ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html += '<p class="meter-caption">결론 · 핵심 근거 · 요청 ' + v.have + " / 3</p>";
+    html += "</div>";
+
+    // skeleton
+    html += '<div class="result-block-title">재배열된 한 장 보고서 골격</div>';
+    html += skeletonHtml(g);
+    html += '<div class="copy-row no-print">';
+    html +=
+      '<button class="btn-copy alt" id="copySkeleton">골격 텍스트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus1" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // gaps
+    if (gaps.length) {
+      html += '<div class="result-block-title">보완할 빈칸</div>';
+      html += '<ul class="gap-list">';
+      gaps.forEach(function (gtxt) {
+        html += '<li class="gap-item">' + gtxt + "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html +=
+        '<p class="clean-note" style="margin-top:16px">빠진 뼈대가 없습니다. 이제 각 항목을 한두 문장으로 살만 붙이면 한 장 보고서가 완성됩니다.</p>';
+    }
+
+    // prompt
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 골격을 바탕으로 두괄식 한 장 보고서를 함께 써 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPrompt">프롬프트 복사</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus2" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- result buttons ----------
+  function wireResultButtons() {
+    var cs = document.getElementById("copySkeleton");
+    var cp = document.getElementById("copyPrompt");
+    var pb = document.getElementById("printBtn");
+    if (cs)
+      cs.addEventListener("click", function () {
+        doCopy(lastSkeleton, "copyStatus1");
+      });
+    if (cp)
+      cp.addEventListener("click", function () {
+        doCopy(lastPrompt, "copyStatus2");
+      });
+    if (pb)
+      pb.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(id, msg) {
+    var s = document.getElementById(id);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  // ---------- copy: 3-tier fallback ----------
+  function doCopy(text, statusId) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(statusId, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusId);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusId);
+  }
+
+  function legacyCopy(text, statusId) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(statusId, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

@@ -1,0 +1,1784 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>딥워크 시간블록 설계기</title>
+<meta
+  name="description"
+  content="반복 일정과 이번 주 집중 과제를 넣으면 딥워크 블록을 배치한 주간 시간표를 그립니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #4b57a6;
+    --accent-strong: #384280;
+    --accent-tint: #eef0fb;
+    --accent-tint-2: #dde1f4;
+    --ink: #201f26;
+    --ink-soft: #47454f;
+    --ink-mute: #6a6774;
+    --paper: #f7f7fb;
+    --card: #ffffff;
+    --line: #e5e4ee;
+    --line-strong: #d3d1e0;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #a35a12;
+    --warn-tint: #fff6ec;
+    --warn-line: #f2ddc4;
+    --shadow: 0 1px 2px rgba(32, 31, 38, 0.05), 0 6px 20px rgba(32, 31, 38, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- controls ---------- */
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 16px;
+  }
+  .ctrl.full {
+    grid-column: 1 / -1;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.96rem;
+    color: var(--ink);
+    background: #fdfdff;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 12px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236a6774' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 34px;
+  }
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .day-pill {
+    position: relative;
+  }
+  .day-pill input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .day-pill span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 46px;
+    height: 44px;
+    padding: 0 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    background: #fff;
+    font-weight: 700;
+    color: var(--ink-mute);
+    cursor: pointer;
+    transition: all 0.13s;
+  }
+  .day-pill input:checked + span {
+    background: var(--accent-tint);
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+  .day-pill input:focus-visible + span {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  /* ---------- textarea ---------- */
+  textarea {
+    width: 100%;
+    min-height: 96px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fdfdff;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a6a3b2;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .field-hint code {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 0.82rem;
+    font-family: inherit;
+    font-weight: 600;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .notice {
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+  .notice.warn {
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    color: var(--warn);
+  }
+  .notice.warn strong {
+    color: #8a4c0f;
+  }
+  .notice ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+  }
+  .notice li {
+    margin: 2px 0;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-full {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-partial {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-low {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-full .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-partial .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-low .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .stat {
+    flex: 1 1 120px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .stat .k {
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin: 0 0 2px;
+  }
+  .stat .v {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* ---------- timetable ---------- */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 0 0 12px;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend i {
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
+    display: inline-block;
+    flex: none;
+  }
+  .scroll-hint {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    margin: 0 0 8px;
+  }
+  .tt-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--card);
+  }
+  .tt {
+    display: flex;
+    min-width: 560px;
+  }
+  .tt-col {
+    flex: 1 1 0;
+    min-width: 108px;
+    border-left: 1px solid var(--line);
+  }
+  .tt-col.axis {
+    flex: none;
+    width: 50px;
+    min-width: 50px;
+    border-left: none;
+  }
+  .tt-head {
+    height: 42px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: var(--ink);
+    background: var(--card);
+  }
+  .tt-head small {
+    font-weight: 600;
+    color: var(--accent-strong);
+    font-size: 0.68rem;
+    margin-top: 1px;
+  }
+  .tt-body {
+    position: relative;
+  }
+  .tt-hr {
+    position: absolute;
+    right: 7px;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: var(--ink-mute);
+    white-space: nowrap;
+  }
+  .ev {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    border-radius: 7px;
+    padding: 3px 7px;
+    font-size: 0.72rem;
+    line-height: 1.25;
+    overflow: hidden;
+  }
+  .ev b {
+    display: block;
+    font-size: 0.73rem;
+    font-weight: 700;
+  }
+  .ev .t {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+  .ev-deep {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent);
+    color: var(--accent-strong);
+  }
+  .ev-fixed {
+    background: #ece9f0;
+    border: 1px solid var(--line-strong);
+    color: var(--ink-soft);
+  }
+  .ev-lunch {
+    background: #f2f0ea;
+    border: 1px dashed var(--line-strong);
+    color: var(--ink-mute);
+  }
+
+  /* ---------- task allocation ---------- */
+  .alloc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .alloc {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 13px 15px;
+    background: #fdfdff;
+  }
+  .alloc.short {
+    border-left: 3px solid var(--warn);
+  }
+  .alloc.done {
+    border-left: 3px solid var(--good);
+  }
+  .alloc-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .alloc-name {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0;
+  }
+  .alloc-name .prio {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 6px;
+    margin-left: 7px;
+    vertical-align: middle;
+  }
+  .prio.p3 {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .prio.p1 {
+    background: #eee;
+    color: var(--ink-mute);
+  }
+  .alloc-figs {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    flex: none;
+  }
+  .bar {
+    height: 8px;
+    border-radius: 5px;
+    background: #e9e7f1;
+    overflow: hidden;
+  }
+  .bar > i {
+    display: block;
+    height: 100%;
+    border-radius: 5px;
+    background: var(--accent);
+  }
+  .alloc.done .bar > i {
+    background: var(--good);
+  }
+  .alloc.short .bar > i {
+    background: var(--warn);
+  }
+  .alloc-note {
+    font-size: 0.84rem;
+    color: var(--warn);
+    margin: 8px 0 0;
+    font-weight: 600;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #262533;
+    color: #eff0fb;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 31, 38, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 160px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.42rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .controls {
+      grid-template-columns: 1fr;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #recurring-panel,
+    #tasks-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    .tt-scroll {
+      overflow: visible;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">딥워크 · 타임블로킹</span>
+    <h1>딥워크 시간블록 설계기</h1>
+    <p class="lede">
+      매주 반복되는 일정과 이번 주 집중해야 할 과제를 넣으면, 빈 시간을 찾아
+      방해받지 않는 딥워크 블록으로 배치한 주간 시간표를 그려 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>근무 조건</h2>
+    </div>
+    <p class="panel-sub">
+      집중 블록을 어디에, 얼마나 넣을지 결정하는 기준입니다.
+    </p>
+
+    <div class="controls">
+      <div class="ctrl full">
+        <label class="field-label" id="days-label">근무 요일</label>
+        <div class="days" role="group" aria-labelledby="days-label" id="days"></div>
+      </div>
+
+      <div class="ctrl">
+        <label class="field-label" for="workStart">업무 시작</label>
+        <select id="workStart"></select>
+      </div>
+      <div class="ctrl">
+        <label class="field-label" for="workEnd">업무 종료</label>
+        <select id="workEnd"></select>
+      </div>
+
+      <div class="ctrl">
+        <label class="field-label" for="blockLen">집중 블록 길이</label>
+        <select id="blockLen">
+          <option value="60">60분</option>
+          <option value="90" selected>90분</option>
+          <option value="120">120분</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label class="field-label" for="dailyCap">하루 최대 딥워크</label>
+        <select id="dailyCap">
+          <option value="120">2시간</option>
+          <option value="180">3시간</option>
+          <option value="240" selected>4시간</option>
+          <option value="0">제한 없음</option>
+        </select>
+      </div>
+
+      <div class="ctrl">
+        <label class="field-label" for="pref">선호 집중 시간대</label>
+        <select id="pref">
+          <option value="am" selected>오전 우선</option>
+          <option value="pm">오후 우선</option>
+          <option value="none">상관없음</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label class="field-label" for="lunch">점심시간 비우기</label>
+        <select id="lunch">
+          <option value="0">비우지 않음</option>
+          <option value="11">11:00–12:00</option>
+          <option value="12" selected>12:00–13:00</option>
+          <option value="13">13:00–14:00</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="recurring-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>반복 일정</h2>
+    </div>
+    <p class="panel-sub">
+      회의·정기 업무 등 매주 고정으로 잡히는 시간입니다. 이 시간은 집중 블록에서
+      비켜 갑니다. 한 줄에 하나씩 적어 주세요.
+    </p>
+    <label class="field-label" for="recurring">고정 일정 (선택)</label>
+    <textarea
+      id="recurring"
+      placeholder="예) 평일 09:30-09:45 데일리 스탠드업&#10;월 14:00-15:00 주간 팀 회의&#10;목 11:00-12:00 부서 정기회의"
+    ></textarea>
+    <p class="field-hint">
+      형식: <code>요일 시작-종료 이름</code> · 요일은
+      <code>월화수목금토일</code>·<code>평일</code>·<code>주말</code>·<code>매일</code>을
+      묶어 쓸 수 있습니다(예: <code>월수금</code>).
+    </p>
+  </section>
+
+  <section class="panel" id="tasks-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>이번 주 집중 과제</h2>
+    </div>
+    <p class="panel-sub">
+      깊은 집중이 필요한 과제와 예상 소요 시간을 적으세요. 우선순위가 높은 과제를
+      선호 시간대에 먼저 배치합니다.
+    </p>
+    <label class="field-label" for="tasks">집중 과제와 소요 시간</label>
+    <textarea
+      id="tasks"
+      placeholder="예) 2분기 사업계획서 작성 6시간 높음&#10;신규 기능 기획안 4시간&#10;경쟁사 분석 리포트 3시간 낮음"
+    ></textarea>
+    <p class="field-hint">
+      형식: <code>과제명 소요시간 [우선순위]</code> · 시간은
+      <code>6시간</code> 또는 <code>6h</code>, 우선순위는
+      <code>높음</code>/<code>낮음</code>(생략 시 보통).
+    </p>
+
+    <div class="actions">
+      <button class="btn-primary" id="build">시간표 그리기</button>
+      <button class="btn-ghost" id="sample">예시로 채우기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 안에서만 계산되며 외부로 전송되지 않습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 4</span>
+      <h2>주간 시간표</h2>
+    </div>
+    <div id="result" role="region" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">🗓️</div>
+        <p><strong>아직 시간표가 없습니다.</strong></p>
+        <p>근무 조건과 집중 과제를 넣고 '시간표 그리기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 칼 뉴포트(Cal Newport)의
+      『딥워크(Deep Work)』가 말하는 방해 없는 집중과 타임블로킹(time-blocking)
+      원칙에 기초합니다. 집중은 무한히 늘릴 수 없으므로 하루 상한과 블록 길이는
+      지속 가능한 기본값으로 두었고, 값은 사용자가 직접 조정합니다. 배치는
+      '통제 가능한 자기 시간'을 먼저 보호한다는 발상입니다.
+    </p>
+    <p>
+      이 도구는 집중 시간을 설계하도록 돕는 보조 도구이며, 실제 실행과 일정
+      확정은 사용자의 판단에 달려 있습니다. 결과는 스스로 조정할 초안으로
+      활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  var DAY_KEYS = ["월", "화", "수", "목", "금", "토", "일"];
+  var DAY_FULL = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"];
+  var PX_PER_HOUR = 54;
+  var MIN_BLOCK = 45; // 딥워크로 인정하는 최소 블록(분)
+
+  /* ---------- helpers ---------- */
+  function pad2(n) {
+    return (n < 10 ? "0" : "") + n;
+  }
+  function fmt(min) {
+    var h = Math.floor(min / 60);
+    var m = min % 60;
+    return h + ":" + pad2(m);
+  }
+  function hoursLabel(min) {
+    var h = min / 60;
+    return (Math.round(h * 10) / 10 + "").replace(/\.0$/, "") + "시간";
+  }
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  /* ---------- build option selects ---------- */
+  (function initSelects() {
+    var ws = document.getElementById("workStart");
+    var we = document.getElementById("workEnd");
+    var h;
+    for (h = 5; h <= 12; h++) {
+      ws.appendChild(new Option(h + ":00", h * 60, h === 9, h === 9));
+    }
+    for (h = 13; h <= 23; h++) {
+      we.appendChild(new Option(h + ":00", h * 60, h === 18, h === 18));
+    }
+  })();
+
+  /* ---------- day pills ---------- */
+  (function initDays() {
+    var box = document.getElementById("days");
+    DAY_KEYS.forEach(function (k, i) {
+      var lbl = document.createElement("label");
+      lbl.className = "day-pill";
+      var on = i < 5; // 월~금 기본
+      lbl.innerHTML =
+        '<input type="checkbox" value="' +
+        i +
+        '"' +
+        (on ? " checked" : "") +
+        ' aria-label="' +
+        DAY_FULL[i] +
+        '" /><span aria-hidden="true">' +
+        k +
+        "</span>";
+      box.appendChild(lbl);
+    });
+  })();
+
+  /* ---------- auto-grow textareas ---------- */
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  ["recurring", "tasks"].forEach(function (id) {
+    var el = document.getElementById(id);
+    el.addEventListener("input", function () {
+      grow(el);
+    });
+  });
+
+  /* ---------- parsing ---------- */
+  function parseDayTokens(tok) {
+    // returns array of day indices 0..6
+    tok = tok.trim();
+    if (tok === "매일") return [0, 1, 2, 3, 4, 5, 6];
+    if (tok === "평일") return [0, 1, 2, 3, 4];
+    if (tok === "주말") return [5, 6];
+    var out = [];
+    for (var i = 0; i < tok.length; i++) {
+      var idx = DAY_KEYS.indexOf(tok[i]);
+      if (idx >= 0 && out.indexOf(idx) < 0) out.push(idx);
+    }
+    return out;
+  }
+
+  function parseRecurring(text) {
+    var events = [];
+    var bad = [];
+    text.split("\n").forEach(function (raw) {
+      var line = raw.trim();
+      if (!line) return;
+      // days token = leading run of day chars / keywords up to first space
+      var m = line.match(
+        /^([월화수목금토일]+|평일|주말|매일)\s+(\d{1,2})(?::(\d{2}))?\s*[-~]\s*(\d{1,2})(?::(\d{2}))?\s*(.*)$/
+      );
+      if (!m) {
+        bad.push(line);
+        return;
+      }
+      var days = parseDayTokens(m[1]);
+      var s = parseInt(m[2], 10) * 60 + (m[3] ? parseInt(m[3], 10) : 0);
+      var e = parseInt(m[4], 10) * 60 + (m[5] ? parseInt(m[5], 10) : 0);
+      var label = (m[6] || "일정").trim() || "일정";
+      if (days.length === 0 || e <= s) {
+        bad.push(line);
+        return;
+      }
+      events.push({ days: days, s: s, e: e, label: label });
+    });
+    return { events: events, bad: bad };
+  }
+
+  function parseTasks(text) {
+    var tasks = [];
+    var bad = [];
+    text.split("\n").forEach(function (raw) {
+      var line = raw.trim();
+      if (!line) return;
+      var prio = 2;
+      var work = line;
+
+      // priority keywords
+      if (/(높음|최우선|urgent|중요|긴급)/i.test(work)) prio = 3;
+      else if (/(낮음|나중|low)/i.test(work)) prio = 1;
+      work = work.replace(/(높음|최우선|urgent|중요|긴급|낮음|나중|low)/gi, " ");
+
+      // pipe form: name | hours | prio
+      var hours = null;
+      if (work.indexOf("|") >= 0) {
+        var parts = work.split("|");
+        var hp = parseFloat((parts[1] || "").replace(/[^\d.]/g, ""));
+        if (!isNaN(hp)) hours = hp;
+        work = parts[0];
+      }
+      if (hours === null) {
+        var hm = work.match(/(\d+(?:\.\d+)?)\s*(?:시간|시|h|hr|hrs)/i);
+        if (hm) {
+          hours = parseFloat(hm[1]);
+          work = work.replace(hm[0], " ");
+        } else {
+          var tn = work.match(/(\d+(?:\.\d+)?)\s*$/);
+          if (tn) {
+            hours = parseFloat(tn[1]);
+            work = work.replace(tn[0], " ");
+          }
+        }
+      }
+
+      var name = work.replace(/\s+/g, " ").trim();
+      var assumed = false;
+      if (hours === null || isNaN(hours) || hours <= 0) {
+        hours = 2;
+        assumed = true;
+      }
+      // round to 0.5h, clamp 0.5..8
+      hours = Math.max(0.5, Math.min(8, Math.round(hours * 2) / 2));
+      if (!name) name = "이름 없는 과제";
+      if (name.length > 40) name = name.slice(0, 40) + "…";
+
+      tasks.push({ name: name, min: Math.round(hours * 60), prio: prio, assumed: assumed });
+    });
+    return tasks;
+  }
+
+  /* ---------- scheduling ---------- */
+  function clipMerge(intervals, lo, hi) {
+    var arr = [];
+    intervals.forEach(function (iv) {
+      var s = Math.max(iv.s, lo);
+      var e = Math.min(iv.e, hi);
+      if (e > s) arr.push({ s: s, e: e });
+    });
+    arr.sort(function (a, b) {
+      return a.s - b.s;
+    });
+    var out = [];
+    arr.forEach(function (iv) {
+      if (out.length && iv.s <= out[out.length - 1].e) {
+        out[out.length - 1].e = Math.max(out[out.length - 1].e, iv.e);
+      } else {
+        out.push({ s: iv.s, e: iv.e });
+      }
+    });
+    return out;
+  }
+
+  function freeGaps(busy, ws, we) {
+    var merged = clipMerge(busy, ws, we);
+    var gaps = [];
+    var cur = ws;
+    merged.forEach(function (b) {
+      if (b.s > cur) gaps.push({ s: cur, e: b.s });
+      cur = Math.max(cur, b.e);
+    });
+    if (cur < we) gaps.push({ s: cur, e: we });
+    return gaps;
+  }
+
+  function carveDay(gaps, target, cap, pref) {
+    // returns blocks {s,e} for one day, respecting daily cap & preference
+    var order = pref === "pm" ? gaps.slice().reverse() : gaps.slice();
+    var used = 0;
+    var blocks = [];
+    for (var g = 0; g < order.length; g++) {
+      var gap = order[g];
+      var pos = gap.s;
+      while (gap.e - pos >= MIN_BLOCK) {
+        if (cap > 0 && used >= cap) break;
+        var len = Math.min(target, gap.e - pos);
+        if (cap > 0) len = Math.min(len, cap - used);
+        if (len < MIN_BLOCK) break;
+        blocks.push({ s: pos, e: pos + len });
+        pos += len;
+        used += len;
+      }
+      if (cap > 0 && used >= cap) break;
+    }
+    return blocks;
+  }
+
+  function schedule(settings, events, tasks) {
+    var workDays = settings.days; // sorted indices
+    var ws = settings.ws,
+      we = settings.we;
+
+    // busy per day (recurring + lunch)
+    var busyByDay = {};
+    var displayByDay = {};
+    workDays.forEach(function (d) {
+      busyByDay[d] = [];
+      displayByDay[d] = [];
+    });
+    events.forEach(function (ev) {
+      ev.days.forEach(function (d) {
+        if (busyByDay[d]) {
+          busyByDay[d].push({ s: ev.s, e: ev.e });
+          displayByDay[d].push({ s: ev.s, e: ev.e, label: ev.label, type: "fixed" });
+        }
+      });
+    });
+    if (settings.lunch) {
+      var ls = settings.lunch,
+        le = settings.lunch + 60;
+      workDays.forEach(function (d) {
+        busyByDay[d].push({ s: ls, e: le });
+        displayByDay[d].push({ s: ls, e: le, label: "점심", type: "lunch" });
+      });
+    }
+
+    // candidate deep blocks per day
+    var allBlocks = [];
+    var spareBlocks = [];
+    workDays.forEach(function (d) {
+      var gaps = freeGaps(busyByDay[d], ws, we);
+      var blocks = carveDay(gaps, settings.target, settings.cap, settings.pref);
+      blocks.forEach(function (b) {
+        b.day = d;
+        allBlocks.push(b);
+      });
+    });
+
+    // assignment order: by day, then preferred time
+    var order = allBlocks.slice().sort(function (a, b) {
+      if (a.day !== b.day) return a.day - b.day;
+      return settings.pref === "pm" ? b.s - a.s : a.s - b.s;
+    });
+
+    // task order: priority desc, then input order
+    var taskState = tasks.map(function (t, i) {
+      return { ref: t, remain: t.min, sched: 0, order: i };
+    });
+    var pick = taskState.slice().sort(function (a, b) {
+      if (a.ref.prio !== b.ref.prio) return b.ref.prio - a.ref.prio;
+      return a.order - b.order;
+    });
+
+    order.forEach(function (block) {
+      var t = null;
+      for (var i = 0; i < pick.length; i++) {
+        if (pick[i].remain > 0) {
+          t = pick[i];
+          break;
+        }
+      }
+      if (!t) {
+        block.spare = true;
+        return;
+      }
+      var dur = block.e - block.s;
+      var give = Math.min(dur, t.remain);
+      block.e = block.s + give; // shrink to actual need
+      block.taskName = t.ref.name;
+      block.prio = t.ref.prio;
+      t.remain -= give;
+      t.sched += give;
+    });
+
+    // collect assigned blocks into display
+    allBlocks.forEach(function (b) {
+      if (b.taskName) {
+        displayByDay[b.day].push({
+          s: b.s,
+          e: b.e,
+          label: b.taskName,
+          type: "deep",
+        });
+      } else {
+        spareBlocks.push(b);
+      }
+    });
+
+    // sort each day's display by start
+    workDays.forEach(function (d) {
+      displayByDay[d].sort(function (a, b) {
+        return a.s - b.s;
+      });
+    });
+
+    // deep minutes per day
+    var deepByDay = {};
+    var totalDeep = 0;
+    workDays.forEach(function (d) {
+      var sum = 0;
+      displayByDay[d].forEach(function (x) {
+        if (x.type === "deep") sum += x.e - x.s;
+      });
+      deepByDay[d] = sum;
+      totalDeep += sum;
+    });
+
+    var spareMin = 0;
+    spareBlocks.forEach(function (b) {
+      spareMin += b.e - b.s;
+    });
+
+    // display window (include out-of-window fixed events)
+    var dispLo = ws,
+      dispHi = we;
+    workDays.forEach(function (d) {
+      displayByDay[d].forEach(function (x) {
+        if (x.s < dispLo) dispLo = x.s;
+        if (x.e > dispHi) dispHi = x.e;
+      });
+    });
+    dispLo = Math.floor(dispLo / 60) * 60;
+    dispHi = Math.ceil(dispHi / 60) * 60;
+
+    var totalReq = 0;
+    taskState.forEach(function (t) {
+      totalReq += t.ref.min;
+    });
+
+    return {
+      displayByDay: displayByDay,
+      deepByDay: deepByDay,
+      taskState: taskState,
+      totalDeep: totalDeep,
+      totalReq: totalReq,
+      spareMin: spareMin,
+      spareCount: spareBlocks.length,
+      dispLo: dispLo,
+      dispHi: dispHi,
+      workDays: workDays,
+    };
+  }
+
+  /* ---------- read settings ---------- */
+  function readSettings() {
+    var days = [];
+    Array.prototype.forEach.call(
+      document.querySelectorAll("#days input:checked"),
+      function (b) {
+        days.push(parseInt(b.value, 10));
+      }
+    );
+    days.sort(function (a, b) {
+      return a - b;
+    });
+    var lunchH = parseInt(document.getElementById("lunch").value, 10);
+    return {
+      days: days,
+      ws: parseInt(document.getElementById("workStart").value, 10),
+      we: parseInt(document.getElementById("workEnd").value, 10),
+      target: parseInt(document.getElementById("blockLen").value, 10),
+      cap: parseInt(document.getElementById("dailyCap").value, 10),
+      pref: document.getElementById("pref").value,
+      lunch: lunchH ? lunchH * 60 : 0,
+    };
+  }
+
+  /* ---------- render ---------- */
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function verdictFor(res) {
+    var req = res.totalReq;
+    var deep = res.totalDeep;
+    var ratio = req > 0 ? deep / req : 1;
+    if (req === 0) {
+      return {
+        tone: "low",
+        label: "집중 과제 없음",
+        title: "배치할 집중 과제가 없습니다",
+        desc: "STEP 3에 이번 주 집중 과제를 한 줄 이상 적어 주세요.",
+      };
+    }
+    if (deep >= req) {
+      return {
+        tone: "full",
+        label: "배치 완료",
+        title: "모든 집중 과제를 시간표에 담았습니다",
+        desc:
+          "요청한 집중 시간을 주간표에 모두 배치했습니다. 이 블록들을 회의처럼 '이미 잡힌 약속'으로 취급해 지키는 것이 핵심입니다.",
+      };
+    }
+    if (ratio >= 0.6) {
+      return {
+        tone: "partial",
+        label: "대부분 배치",
+        title: "대부분 담았지만 일부가 넘쳤습니다",
+        desc:
+          "요청한 집중 시간의 " +
+          Math.round(ratio * 100) +
+          "%를 배치했습니다. 남은 과제는 아래 조정 방법을 참고하세요.",
+      };
+    }
+    return {
+      tone: "low",
+      label: "집중 시간 부족",
+      title: "집중 시간이 부족합니다",
+      desc:
+        "요청한 집중 시간의 " +
+        Math.round(ratio * 100) +
+        "%만 배치됐습니다. 지금 근무 조건에서는 이번 주에 모든 과제를 깊게 다루기 어렵습니다.",
+    };
+  }
+
+  function renderTimetable(res) {
+    var lo = res.dispLo,
+      hi = res.dispHi;
+    var span = hi - lo;
+    var bodyH = (span / 60) * PX_PER_HOUR;
+
+    var html = '<div class="tt-scroll"><div class="tt">';
+
+    // axis column
+    html += '<div class="tt-col axis"><div class="tt-head" aria-hidden="true"></div>';
+    html += '<div class="tt-body tt-axis-body" style="height:' + bodyH + 'px">';
+    for (var h = lo; h <= hi; h += 60) {
+      var top = ((h - lo) / 60) * PX_PER_HOUR;
+      html += '<div class="tt-hr" style="top:' + top + 'px">' + h / 60 + ":00</div>";
+    }
+    html += "</div></div>";
+
+    // grid line background
+    var gridBg =
+      "background-image:repeating-linear-gradient(to bottom,transparent 0," +
+      "transparent " +
+      (PX_PER_HOUR - 1) +
+      "px,var(--line) " +
+      (PX_PER_HOUR - 1) +
+      "px,var(--line) " +
+      PX_PER_HOUR +
+      "px);";
+
+    res.workDays.forEach(function (d) {
+      var deep = res.deepByDay[d];
+      html += '<div class="tt-col">';
+      html +=
+        '<div class="tt-head">' +
+        DAY_KEYS[d] +
+        (deep > 0 ? "<small>집중 " + hoursLabel(deep) + "</small>" : "<small>&nbsp;</small>") +
+        "</div>";
+      html += '<div class="tt-body" style="height:' + bodyH + "px;" + gridBg + '">';
+      res.displayByDay[d].forEach(function (x) {
+        var top = ((x.s - lo) / 60) * PX_PER_HOUR;
+        var hgt = Math.max(18, ((x.e - x.s) / 60) * PX_PER_HOUR - 2);
+        var cls = x.type === "deep" ? "ev-deep" : x.type === "lunch" ? "ev-lunch" : "ev-fixed";
+        var inner =
+          "<b>" + esc(x.label) + "</b>";
+        if (hgt >= 30) inner += '<span class="t">' + fmt(x.s) + "–" + fmt(x.e) + "</span>";
+        html +=
+          '<div class="ev ' +
+          cls +
+          '" style="top:' +
+          top +
+          "px;height:" +
+          hgt +
+          'px" title="' +
+          esc(x.label + " " + fmt(x.s) + "–" + fmt(x.e)) +
+          '">' +
+          inner +
+          "</div>";
+      });
+      html += "</div></div>";
+    });
+
+    html += "</div></div>";
+    return html;
+  }
+
+  function renderAlloc(res) {
+    var html = '<div class="result-block-title">과제별 배치 현황</div>';
+    html += '<ul class="alloc-list">';
+    res.taskState.forEach(function (t) {
+      var done = t.sched >= t.ref.min;
+      var pct = t.ref.min > 0 ? Math.round((t.sched / t.ref.min) * 100) : 0;
+      var cls = done ? "done" : t.sched > 0 ? "short" : "short";
+      var prioTag =
+        t.ref.prio === 3
+          ? '<span class="prio p3">우선</span>'
+          : t.ref.prio === 1
+          ? '<span class="prio p1">나중</span>'
+          : "";
+      html += '<li class="alloc ' + cls + '">';
+      html += '<div class="alloc-top">';
+      html += '<p class="alloc-name">' + esc(t.ref.name) + prioTag + "</p>";
+      html +=
+        '<span class="alloc-figs">' +
+        hoursLabel(t.sched) +
+        " / " +
+        hoursLabel(t.ref.min) +
+        "</span>";
+      html += "</div>";
+      html += '<div class="bar"><i style="width:' + Math.min(100, pct) + '%"></i></div>';
+      if (t.ref.assumed) {
+        html +=
+          '<p class="alloc-note">소요 시간을 못 읽어 2시간으로 가정했습니다. 정확한 시간을 적어 주세요.</p>';
+      }
+      if (!done) {
+        var left = t.ref.min - t.sched;
+        html +=
+          '<p class="alloc-note">' +
+          hoursLabel(left) +
+          "이 아직 배치되지 않았습니다.</p>";
+      }
+      html += "</li>";
+    });
+    html += "</ul>";
+    return html;
+  }
+
+  function buildPrompt(settings, events, res) {
+    var L = [];
+    L.push("당신은 딥워크(Deep Work)와 타임블로킹에 정통한 생산성 코치입니다.");
+    L.push("아래 주간 집중 시간표 초안을 검토하고, 더 지키기 쉽고 현실적인 계획으로 다듬어 주세요.");
+    L.push("");
+    L.push("【근무 조건】");
+    L.push(
+      "- 근무 요일: " +
+        settings.days
+          .map(function (d) {
+            return DAY_KEYS[d];
+          })
+          .join(", ")
+    );
+    L.push("- 업무 시간: " + fmt(settings.ws) + "–" + fmt(settings.we));
+    L.push(
+      "- 집중 블록 길이: " +
+        settings.target +
+        "분 / 하루 최대 딥워크: " +
+        (settings.cap ? settings.cap / 60 + "시간" : "제한 없음") +
+        " / 선호 시간대: " +
+        (settings.pref === "am" ? "오전" : settings.pref === "pm" ? "오후" : "상관없음")
+    );
+    L.push("");
+    L.push("【반복 일정】");
+    if (events.length === 0) L.push("- (없음)");
+    events.forEach(function (ev) {
+      L.push(
+        "- " +
+          ev.days
+            .map(function (d) {
+              return DAY_KEYS[d];
+            })
+            .join("") +
+          " " +
+          fmt(ev.s) +
+          "–" +
+          fmt(ev.e) +
+          " " +
+          ev.label
+      );
+    });
+    L.push("");
+    L.push("【이번 주 집중 과제 (배치 / 요청)】");
+    res.taskState.forEach(function (t) {
+      L.push(
+        "- " +
+          t.ref.name +
+          " : " +
+          hoursLabel(t.sched) +
+          " / " +
+          hoursLabel(t.ref.min) +
+          (t.sched < t.ref.min ? "  ← 미배치 " + hoursLabel(t.ref.min - t.sched) : "") +
+          (t.ref.prio === 3 ? "  [우선]" : t.ref.prio === 1 ? "  [나중]" : "")
+      );
+    });
+    L.push("");
+    L.push("【배치된 주간 시간표 (집중 블록만)】");
+    res.workDays.forEach(function (d) {
+      var deeps = res.displayByDay[d].filter(function (x) {
+        return x.type === "deep";
+      });
+      if (deeps.length === 0) {
+        L.push("- " + DAY_FULL[d] + ": (집중 블록 없음)");
+        return;
+      }
+      L.push(
+        "- " +
+          DAY_FULL[d] +
+          ": " +
+          deeps
+            .map(function (x) {
+              return fmt(x.s) + "–" + fmt(x.e) + " " + x.label;
+            })
+            .join(" · ")
+      );
+    });
+    L.push("");
+    L.push("【요청 사항】");
+    L.push("1. 이 배치가 현실적으로 지켜질 수 있는지, 무리한 부분은 없는지 짚어 주세요.");
+    L.push("2. 집중 블록을 방해로부터 지키는 구체적 방법(알림 차단, 회의 몰기, 시작 의식 등)을 제안해 주세요.");
+    L.push("3. 미배치된 과제가 있다면, 범위 축소·다른 주로 이월·얕은 업무와의 분리 중 무엇이 나을지 조언해 주세요.");
+    L.push("4. 각 집중 블록의 앞뒤에 필요한 준비·마무리 시간이나 휴식을 어떻게 둘지 제안해 주세요.");
+    L.push("5. 근거 없는 수치나 규칙을 지어내지 말고, 판단에 필요한 정보가 부족하면 저에게 먼저 질문해 주세요.");
+    return L.join("\n");
+  }
+
+  /* ---------- main build ---------- */
+  document.getElementById("build").addEventListener("click", function () {
+    var settings = readSettings();
+    var recur = parseRecurring(document.getElementById("recurring").value);
+    var tasks = parseTasks(document.getElementById("tasks").value);
+
+    // validation
+    if (settings.days.length === 0) {
+      showMessage("근무 요일을 최소 하나 선택하세요.");
+      return;
+    }
+    if (settings.we <= settings.ws) {
+      showMessage("업무 종료 시간이 시작 시간보다 늦어야 합니다.");
+      return;
+    }
+    if (tasks.length === 0) {
+      showMessage("STEP 3에 이번 주 집중 과제를 한 줄 이상 입력하세요.");
+      return;
+    }
+
+    var res = schedule(settings, recur.events, tasks);
+    var band = verdictFor(res);
+    lastPrompt = buildPrompt(settings, recur.events, res);
+
+    var html = "";
+
+    // unparsed warning
+    if (recur.bad.length) {
+      html += '<div class="notice warn"><strong>읽지 못한 반복 일정</strong> — 아래 줄은 형식이 맞지 않아 제외했습니다. <code>요일 시작-종료 이름</code> 형식으로 고쳐 주세요.<ul>';
+      recur.bad.forEach(function (b) {
+        html += "<li>" + esc(b) + "</li>";
+      });
+      html += "</ul></div>";
+    }
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html += '<div class="stat-row">';
+    html +=
+      '<div class="stat"><p class="k">배치된 집중 시간</p><p class="v">' +
+      hoursLabel(res.totalDeep) +
+      "</p></div>";
+    html +=
+      '<div class="stat"><p class="k">요청 집중 시간</p><p class="v">' +
+      hoursLabel(res.totalReq) +
+      "</p></div>";
+    html +=
+      '<div class="stat"><p class="k">집중 블록 수</p><p class="v">' +
+      countDeepBlocks(res) +
+      "개</p></div>";
+    html += "</div></div>";
+
+    // low-capacity suggestions
+    if (res.totalDeep < res.totalReq) {
+      html += '<div class="notice warn"><strong>모두 담지 못했습니다.</strong> 다음 중 하나로 조정해 보세요.<ul>';
+      html += "<li>하루 최대 딥워크 상한을 높이거나 근무 요일을 늘립니다.</li>";
+      html += "<li>우선순위가 낮은 과제를 다음 주로 이월합니다.</li>";
+      html += "<li>과제 범위를 쪼개 이번 주에 꼭 필요한 부분만 남깁니다.</li>";
+      html += "</ul></div>";
+    } else if (res.spareMin >= MIN_BLOCK) {
+      html +=
+        '<div class="notice warn" style="background:var(--good-tint);border-color:#cfe4d8;color:var(--good)"><strong>여유 집중 슬롯 ' +
+        res.spareCount +
+        "개(약 " +
+        hoursLabel(res.spareMin) +
+        ")</strong>가 남아 있습니다. 급한 과제가 생기면 이 시간을 쓰거나, 회복·정리 시간으로 비워 두세요.</div>";
+    }
+
+    // timetable
+    html += '<div class="result-block-title">주간 집중 시간표</div>';
+    html +=
+      '<div class="legend"><span><i style="background:var(--accent-tint);border:1px solid var(--accent)"></i>딥워크 블록</span>' +
+      '<span><i style="background:#ece9f0;border:1px solid var(--line-strong)"></i>반복 일정</span>' +
+      '<span><i style="background:#f2f0ea;border:1px dashed var(--line-strong)"></i>점심</span></div>';
+    html += '<p class="scroll-hint no-print">표가 넓으면 좌우로 스크롤하세요.</p>';
+    html += renderTimetable(res);
+
+    // allocation
+    html += renderAlloc(res);
+
+    // prompt
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면 이 시간표를 더 현실적으로 다듬는 코칭을 받을 수 있습니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function countDeepBlocks(res) {
+    var n = 0;
+    res.workDays.forEach(function (d) {
+      res.displayByDay[d].forEach(function (x) {
+        if (x.type === "deep") n++;
+      });
+    });
+    return n;
+  }
+
+  function showMessage(msg) {
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">✍️</div>' +
+      "<p><strong>" +
+      esc(msg) +
+      "</strong></p></div>";
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ---------- sample ---------- */
+  document.getElementById("sample").addEventListener("click", function () {
+    document.getElementById("recurring").value =
+      "평일 09:30-09:45 데일리 스탠드업\n월 14:00-15:00 주간 팀 회의\n화 16:00-17:00 1on1\n목 11:00-12:00 부서 정기회의\n금 15:00-16:30 스프린트 리뷰";
+    document.getElementById("tasks").value =
+      "2분기 사업계획서 작성 6시간 높음\n신규 기능 기획안 4시간\n경쟁사 분석 리포트 3시간 낮음\nAPI 설계 문서 2시간";
+    grow(document.getElementById("recurring"));
+    grow(document.getElementById("tasks"));
+    document.getElementById("build").click();
+  });
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    document.getElementById("recurring").value = "";
+    document.getElementById("tasks").value = "";
+    grow(document.getElementById("recurring"));
+    grow(document.getElementById("tasks"));
+    // reset day pills to 월~금
+    Array.prototype.forEach.call(
+      document.querySelectorAll("#days input"),
+      function (b, i) {
+        b.checked = i < 5;
+      }
+    );
+    document.getElementById("workStart").value = "540";
+    document.getElementById("workEnd").value = "1080";
+    document.getElementById("blockLen").value = "90";
+    document.getElementById("dailyCap").value = "240";
+    document.getElementById("pref").value = "am";
+    document.getElementById("lunch").value = "12";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">🗓️</div>' +
+      "<p><strong>아직 시간표가 없습니다.</strong></p>" +
+      "<p>근무 조건과 집중 과제를 넣고 '시간표 그리기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ---------- copy (3-tier) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

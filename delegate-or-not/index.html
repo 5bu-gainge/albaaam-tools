@@ -1,0 +1,1533 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>내가 할까 남 줄까: 위임 결정기</title>
+<meta
+  name="description"
+  content="업무 특성을 넣으면 위임할지 직접 할지 판별하고, 위임 시 인수인계 체크리스트까지 만들어 드립니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #35618e;
+    --accent-strong: #274a70;
+    --accent-tint: #eaf1f8;
+    --accent-tint-2: #d5e2f0;
+    --ink: #1f2429;
+    --ink-soft: #454c54;
+    --ink-mute: #6a717a;
+    --paper: #f7f8fa;
+    --card: #ffffff;
+    --line: #e4e7ec;
+    --line-strong: #d3d8e0;
+    --good: #2f6f4f;
+    --good-tint: #e7f1ec;
+    --warn: #a35a12;
+    --warn-tint: #fff6ec;
+    --warn-line: #f2ddc4;
+    --keep-tint: #eef0f2;
+    --keep-line: #dee2e7;
+    --shadow: 0 1px 2px rgba(31, 36, 41, 0.05),
+      0 6px 20px rgba(31, 36, 41, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 66px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfcfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a3aab3;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- question groups ---------- */
+  .q {
+    padding: 16px 0;
+    border-top: 1px solid var(--line);
+  }
+  .q:first-child {
+    padding-top: 2px;
+    border-top: none;
+  }
+  .q-label {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0 0 4px;
+    display: flex;
+    gap: 9px;
+    align-items: baseline;
+  }
+  .q-num {
+    flex: none;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    min-width: 16px;
+  }
+  .q-hint {
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    margin: 0 0 11px;
+    padding-left: 25px;
+  }
+  .seg {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    padding-left: 25px;
+  }
+  .seg-btn {
+    border: 1px solid var(--line-strong);
+    background: #fbfcfd;
+    border-radius: 11px;
+    padding: 11px 9px;
+    min-height: 56px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.32;
+    transition: border-color 0.14s, background 0.14s, color 0.14s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+  .seg-btn small {
+    font-weight: 500;
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+    display: block;
+  }
+  .seg-btn:hover {
+    border-color: var(--ink-mute);
+  }
+  .seg-btn.sel {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+  .seg-btn.sel small {
+    color: var(--accent-strong);
+  }
+  .seg-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+  .q.missing .seg {
+    outline: 2px dashed #cf7d4a;
+    outline-offset: 6px;
+    border-radius: 12px;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 22px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .validate-msg {
+    font-size: 0.88rem;
+    color: #b25a17;
+    font-weight: 700;
+    margin: 12px 0 0;
+    min-height: 1em;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-keep {
+    background: var(--keep-tint);
+    border-color: var(--keep-line);
+  }
+  .verdict.tone-go {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-accent {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-warn {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-keep .verdict-title {
+    color: var(--ink);
+  }
+  .verdict.tone-go .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-accent .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-warn .verdict-title {
+    color: var(--warn);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .verdict-task {
+    margin: 12px 0 0;
+    font-size: 0.88rem;
+    color: var(--ink-mute);
+    border-top: 1px dashed rgba(0, 0, 0, 0.12);
+    padding-top: 10px;
+  }
+  .verdict-task b {
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+
+  /* ---------- score bars ---------- */
+  .scores {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 6px;
+  }
+  .score-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .score-head .s-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .score-head .s-num {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .bar {
+    height: 11px;
+    border-radius: 6px;
+    background: #e5e8ec;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.4s ease;
+  }
+  .bar-fill.lv-accent {
+    background: var(--accent);
+  }
+  .bar-fill.lv-go {
+    background: var(--good);
+  }
+  .bar-fill.lv-warn {
+    background: #cf8420;
+  }
+  .bar-fill.lv-keep {
+    background: #98a0a9;
+  }
+  .score-cap {
+    font-size: 0.83rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* ---------- drivers ---------- */
+  ul.drivers {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  ul.drivers li {
+    position: relative;
+    padding-left: 22px;
+    font-size: 0.93rem;
+    color: var(--ink-soft);
+  }
+  ul.drivers li::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 0.62em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  ul.drivers li.neg::before {
+    background: #cf8420;
+  }
+
+  /* ---------- handover checklist ---------- */
+  ol.ho-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: ho;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  li.ho-item {
+    counter-increment: ho;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 13px 15px 13px 46px;
+    background: #fbfcfd;
+    position: relative;
+  }
+  li.ho-item::before {
+    content: counter(ho);
+    position: absolute;
+    left: 13px;
+    top: 12px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+  }
+  .ho-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 3px;
+  }
+  .ho-body {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .ho-tag {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--keep-tint);
+    border: 1px solid var(--keep-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* ---------- prompt box ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #232a31;
+    color: #eef2f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 36, 41, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .seg {
+      grid-template-columns: 1fr;
+      padding-left: 0;
+    }
+    .q-hint {
+      padding-left: 0;
+    }
+    .seg-btn {
+      min-height: 48px;
+      flex-direction: row;
+      gap: 6px;
+      justify-content: flex-start;
+      text-align: left;
+      padding: 11px 14px;
+    }
+    .seg-btn small {
+      display: inline;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #q-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">위임 결정 · Delegation Decision</span>
+    <h1>내가 할까 남 줄까: 위임 결정기</h1>
+    <p class="lede">
+      일이 몰릴 때 이 업무를 직접 할지 넘길지 8가지 특성으로 판별하고, 위임이라면
+      바로 쓰는 인수인계 체크리스트까지 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>어떤 업무인가요? (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      판단할 업무를 한 줄로 적으면 결과와 인수인계 문구에 반영됩니다. 비워 두어도
+      판정은 됩니다.
+    </p>
+    <label class="field-label" for="task">업무 한 줄</label>
+    <textarea
+      id="task"
+      placeholder="예) 매주 월요일 팀 주간보고 자료 취합·정리"
+    ></textarea>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="q-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>업무 특성 8가지</h2>
+    </div>
+    <p class="panel-sub">
+      각 항목에서 지금 이 업무에 가장 가까운 하나를 고르세요. 8개 모두 골라야
+      판정됩니다.
+    </p>
+    <div id="questions"></div>
+
+    <div class="actions">
+      <button class="btn-primary" id="diagnose">판정하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+    <p class="validate-msg" id="validate" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>판정 결과</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">⇄</div>
+        <p><strong>아직 판정 전입니다.</strong></p>
+        <p>업무 특성 8가지를 고르고 '판정하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 아이젠하워 매트릭스(중요도·긴급도)의
+      위임 관점, 위임의 7단계(Jurgen Appelo, <em>Management 3.0</em>)의 권한
+      수준, 그리고 '남이 할 수 있는 일은 넘기고 나만 할 수 있는 일에 집중한다'는
+      리더십 레버리지 원칙을 종합했습니다.
+    </p>
+    <p>
+      이 도구는 판단을 돕는 보조 도구이며, 위임 여부를 대신 확정해 주지 않습니다.
+      맡길 사람의 상황과 조직 맥락을 함께 고려해 스스로 결정하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------------------------------------------------------
+   * 위임 결정 모델
+   * 두 축을 계산한다.
+   *  - value(위임 가치)  : 이 일이 내 손을 떠나야 하는 정도
+   *  - readiness(준비도) : 지금 안전하게 넘길 수 있는 정도
+   * 각 축은 기준점 + 선택지별 가중치의 합, 0~100로 clamp.
+   * 반복업무 + 인수인계 비용 큼 → 교육비용 상각 보정.
+   * ------------------------------------------------------------- */
+
+  var QUESTIONS = [
+    {
+      id: "repeat",
+      label: "이 업무는 얼마나 자주 발생하나요?",
+      hint: "반복될수록 한 번 가르쳐 두면 위임·시스템화의 가치가 커집니다.",
+      options: [
+        { t: "일회성", d: "한 번 하고 끝", v: 0, r: 0, key: "once" },
+        { t: "가끔", d: "이따금 발생", v: 10, r: 0, key: "sometimes" },
+        {
+          t: "정기 반복",
+          d: "주기적으로 발생",
+          v: 22,
+          r: 0,
+          key: "recurring",
+          driver: "반복 업무라 위임·시스템화 가치가 큼",
+        },
+      ],
+    },
+    {
+      id: "unique",
+      label: "이 일을 잘 하려면 나만의 권한·전문성·관계가 꼭 필요한가요?",
+      hint: "정말 '나만' 할 수 있는 일인지 냉정하게 보세요. 리더는 이걸 과대평가하기 쉽습니다.",
+      options: [
+        {
+          t: "나만 가능",
+          d: "내 권한·전문성 필수",
+          v: -30,
+          r: 0,
+          key: "onlyme",
+          driver: "고유 권한·전문성이 필요해 직접 손이 필요함",
+        },
+        { t: "내가 더 나음", d: "남도 가능은 함", v: -5, r: 0, key: "betterme" },
+        {
+          t: "누구나 가능",
+          d: "배우면 됨",
+          v: 18,
+          r: 0,
+          key: "anyone",
+          driver: "특별한 권한 없이도 할 수 있어 넘기기 좋음",
+        },
+      ],
+    },
+    {
+      id: "leverage",
+      label: "이 업무가 더 중요한 일에 쓸 내 시간을 뺏고 있나요?",
+      hint: "리더의 시간은 가장 비싼 자원입니다. 기회비용을 봅니다.",
+      options: [
+        {
+          t: "크게 뺏김",
+          d: "더 큰 일을 못 함",
+          v: 20,
+          r: 0,
+          key: "high",
+          driver: "더 중요한 일에 쓸 시간을 뺏기고 있음",
+        },
+        { t: "보통", d: "그럭저럭", v: 6, r: 0, key: "mid" },
+        { t: "부담 없음", d: "여유 있음", v: 0, r: 0, key: "low" },
+      ],
+    },
+    {
+      id: "growth",
+      label: "이 업무가 팀원에게 좋은 성장·학습 기회가 되나요?",
+      hint: "위임은 일을 던지는 게 아니라 사람을 키우는 수단이기도 합니다.",
+      options: [
+        {
+          t: "훌륭한 기회",
+          d: "실력이 큼",
+          v: 16,
+          r: 6,
+          key: "great",
+          driver: "팀원에게 좋은 성장 기회가 됨",
+        },
+        { t: "약간", d: "조금 도움", v: 6, r: 2, key: "some" },
+        { t: "단순 잡무", d: "성장과 무관", v: 2, r: 0, key: "little" },
+      ],
+    },
+    {
+      id: "person",
+      label: "지금 맡길 만한 팀원의 준비도는 어떤가요?",
+      hint: "넘길 가치가 커도, 받을 사람이 없으면 지금은 못 넘깁니다.",
+      options: [
+        {
+          t: "바로 가능",
+          d: "준비된 사람 있음",
+          v: 0,
+          r: 30,
+          key: "ready",
+          driver: "바로 맡을 준비된 사람이 있음",
+        },
+        { t: "배우면 가능", d: "잠재력 있음", v: 0, r: 12, key: "learnable" },
+        {
+          t: "사람 없음",
+          d: "지금은 마땅치 않음",
+          v: 0,
+          r: -8,
+          key: "none",
+          driver: "지금 맡길 준비된 사람이 없음",
+        },
+      ],
+    },
+    {
+      id: "risk",
+      label: "실패하면 파장이 크고 되돌리기 어렵나요?",
+      hint: "위험이 클수록 완전 위임보다 곁에서 받치는 코칭 위임이 안전합니다.",
+      options: [
+        {
+          t: "크고 비가역",
+          d: "되돌리기 어려움",
+          v: 0,
+          r: -28,
+          key: "high",
+          driver: "실패 시 파장이 크고 되돌리기 어려움",
+        },
+        { t: "보통", d: "수습 가능", v: 0, r: -8, key: "mid" },
+        {
+          t: "작음",
+          d: "실수해도 회복 쉬움",
+          v: 0,
+          r: 14,
+          key: "low",
+          driver: "실수해도 회복이 쉬움",
+        },
+      ],
+    },
+    {
+      id: "teach",
+      label: "인수인계·설명에 드는 비용은 어느 정도인가요?",
+      hint: "설명이 오래 걸려도, 반복 업무라면 한 번 문서로 남겨 상각할 수 있습니다.",
+      options: [
+        {
+          t: "큼",
+          d: "설명이 오래 걸림",
+          v: 0,
+          r: -18,
+          key: "high",
+          driver: "인수인계 설명 비용이 큼",
+        },
+        { t: "보통", d: "어느 정도", v: 0, r: -4, key: "mid" },
+        { t: "작음", d: "금방 설명됨", v: 0, r: 12, key: "low" },
+      ],
+    },
+    {
+      id: "urgency",
+      label: "마감이 임박했나요?",
+      hint: "지금 당장 급하고 받을 사람이 없으면, 이번엔 직접 하고 다음을 준비합니다.",
+      options: [
+        {
+          t: "지금 당장",
+          d: "곧 마감",
+          v: 0,
+          r: -16,
+          key: "urgent",
+          driver: "마감이 임박함",
+        },
+        { t: "여유 있음", d: "며칠~몇 주", v: 0, r: 6, key: "soon" },
+        { t: "마감 유동", d: "정해지지 않음", v: 0, r: 2, key: "none" },
+      ],
+    },
+  ];
+
+  var answers = {}; // qi -> oi
+
+  // ---------- render questions ----------
+  var qEl = document.getElementById("questions");
+
+  QUESTIONS.forEach(function (q, qi) {
+    var block = document.createElement("div");
+    block.className = "q";
+    block.dataset.qi = qi;
+    var opts = q.options
+      .map(function (o, oi) {
+        return (
+          '<button type="button" class="seg-btn" role="radio" ' +
+          'aria-checked="false" data-qi="' +
+          qi +
+          '" data-oi="' +
+          oi +
+          '"><span class="seg-t">' +
+          o.t +
+          "</span>" +
+          (o.d ? "<small>" + o.d + "</small>" : "") +
+          "</button>"
+        );
+      })
+      .join("");
+    block.innerHTML =
+      '<p class="q-label"><span class="q-num" aria-hidden="true">' +
+      (qi + 1) +
+      "</span>" +
+      q.label +
+      "</p>" +
+      (q.hint ? '<p class="q-hint">' + q.hint + "</p>" : "") +
+      '<div class="seg" role="radiogroup" aria-label="' +
+      q.label +
+      '">' +
+      opts +
+      "</div>";
+    qEl.appendChild(block);
+  });
+
+  qEl.addEventListener("click", function (e) {
+    var btn = e.target.closest(".seg-btn");
+    if (!btn) return;
+    var qi = +btn.dataset.qi;
+    var oi = +btn.dataset.oi;
+    answers[qi] = oi;
+    var group = btn.parentNode;
+    Array.prototype.forEach.call(group.children, function (b) {
+      var on = b === btn;
+      b.classList.toggle("sel", on);
+      b.setAttribute("aria-checked", on ? "true" : "false");
+    });
+    var block = btn.closest(".q");
+    if (block) block.classList.remove("missing");
+  });
+
+  // keyboard: arrow keys move selection within a radiogroup
+  qEl.addEventListener("keydown", function (e) {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft" &&
+        e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    var btn = e.target.closest(".seg-btn");
+    if (!btn) return;
+    e.preventDefault();
+    var group = btn.parentNode;
+    var btns = Array.prototype.slice.call(group.children);
+    var idx = btns.indexOf(btn);
+    var dir = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
+    var next = btns[(idx + dir + btns.length) % btns.length];
+    next.focus();
+    next.click();
+  });
+
+  // ---------- auto-grow textarea ----------
+  var taskEl = document.getElementById("task");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  taskEl.addEventListener("input", function () {
+    grow(taskEl);
+  });
+
+  // ---------- helpers ----------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function clamp(n) {
+    return n < 0 ? 0 : n > 100 ? 100 : n;
+  }
+  function selKey(id) {
+    for (var i = 0; i < QUESTIONS.length; i++) {
+      if (QUESTIONS[i].id === id) {
+        var oi = answers[i];
+        return oi == null ? null : QUESTIONS[i].options[oi].key;
+      }
+    }
+    return null;
+  }
+
+  function computeScores() {
+    var value = 40;
+    var readiness = 45;
+    QUESTIONS.forEach(function (q, qi) {
+      var o = q.options[answers[qi]];
+      value += o.v;
+      readiness += o.r;
+    });
+    // amortize teaching cost on recurring work
+    if (selKey("repeat") === "recurring" && selKey("teach") === "high") {
+      readiness += 12;
+      value += 8;
+    }
+    return { value: Math.round(clamp(value)), readiness: Math.round(clamp(readiness)) };
+  }
+
+  function decide(s) {
+    if (s.value < 48) return "keep";
+    if (s.readiness >= 60) return "full";
+    if (s.readiness >= 38) return "coach";
+    return "donow";
+  }
+
+  var VERDICTS = {
+    keep: {
+      tone: "keep",
+      label: "위임 가치 낮음",
+      title: "직접 하세요 — 당신의 일입니다",
+      desc: "이 업무는 당신의 고유한 권한·전문성이나 큰 레버리지를 요구합니다. 남에게 통째로 넘기기보다, 이 일에 집중할 시간을 지키는 편이 낫습니다.",
+    },
+    full: {
+      tone: "go",
+      label: "위임 가치 높음 · 준비도 높음",
+      title: "위임하세요 — 완전히 넘겨도 됩니다",
+      desc: "넘길 가치가 크고 맡을 사람과 여건도 준비됐습니다. 결과 기준만 합의하고 실행 권한을 넘기세요.",
+    },
+    coach: {
+      tone: "accent",
+      label: "위임 가치 높음 · 준비도 중간",
+      title: "코칭하며 위임하세요",
+      desc: "넘길 가치는 크지만 아직 밀착 지원이 필요합니다. 권한을 단계적으로 넘기고, 초반에는 곁에서 받쳐주세요.",
+    },
+    donow: {
+      tone: "warn",
+      label: "위임 가치 높음 · 준비도 낮음",
+      title: "이번엔 직접, 다음을 위해 시스템화하세요",
+      desc: "넘길 가치는 크지만 지금은 여건이 안 됩니다. 이번 건은 직접 처리하되, 사람·문서·안전장치를 준비해 다음엔 넘길 수 있게 만드세요.",
+    },
+  };
+
+  // authority level per verdict + risk
+  function authorityFor(verdict, risk) {
+    if (verdict === "full") {
+      return risk === "low"
+        ? { lv: "Lv 7 · 위탁", text: "결과 기준만 합의하고, 방법과 판단은 온전히 맡깁니다." }
+        : { lv: "Lv 6 · 맡기고 묻기", text: "실행은 맡기되, 진행 상황을 물어 확인합니다." };
+    }
+    if (verdict === "coach") {
+      return risk === "high"
+        ? { lv: "Lv 3 · 상의", text: "결정은 함께 내리고, 실행을 팀원이 맡습니다." }
+        : { lv: "Lv 4~5 · 합의·조언", text: "방향을 함께 정하고, 필요할 때 조언으로 받칩니다." };
+    }
+    return {
+      lv: "다음 목표 Lv 2~4",
+      text: "지금은 알리고 설득하며 조금씩 참여시켜, 다음 사이클에 넘길 준비를 합니다.",
+    };
+  }
+
+  function cadenceFor(verdict, risk, readiness) {
+    if (risk === "high" || readiness < 38)
+      return "초반에는 짧은 주기(매일~격일)로 밀착 확인하고, 신뢰가 쌓이면 간격을 넓힙니다.";
+    if (readiness >= 60 && risk !== "high")
+      return "완료 시점에 결과를 1회 확인합니다. 과한 중간 개입은 오히려 방해가 됩니다.";
+    return "핵심 마일스톤마다 짧게 점검합니다(주 1~2회).";
+  }
+
+  // build the handover checklist (array of {title, body, tag})
+  function buildHandover(verdict, s, taskText) {
+    var risk = selKey("risk");
+    var teach = selKey("teach");
+    var repeat = selKey("repeat");
+    var person = selKey("person");
+    var auth = authorityFor(verdict, risk);
+    var t = taskText && taskText.trim() ? taskText.trim() : "";
+    var items = [];
+
+    items.push({
+      title: "맥락과 목적 (Why)",
+      body: t
+        ? "'" + t + "'가 왜 중요한지, 어떤 목표·성과에 연결되는지 한 문장으로 전합니다. 방법이 아니라 '무엇을 위해'를 먼저 공유합니다."
+        : "이 업무가 왜 중요한지, 어떤 목표·성과에 연결되는지 한 문장으로 전합니다. 방법이 아니라 '무엇을 위해'를 먼저 공유합니다.",
+    });
+    items.push({
+      title: "완료의 정의 (Definition of Done)",
+      body: "무엇이 '잘 된 것'인지 산출물의 형태·품질 기준·마감으로 구체화합니다. 말로 뭉뚱그리지 말고 예시나 샘플을 보여줍니다.",
+    });
+    items.push({
+      title: "권한 수준 (Level of Authority)",
+      body: auth.text,
+      tag: "위임의 7단계 · " + auth.lv,
+    });
+    items.push({
+      title: "경계와 제약",
+      body: "예산·기한·반드시 지킬 규칙·손대면 안 되는 것을 미리 못 박습니다. 재량의 범위를 넓게, 그러나 경계는 분명하게.",
+    });
+    items.push({
+      title: "필요한 자원과 접근권",
+      body: "관련 문서·계정·도구·핵심 연락처를 착수 전에 함께 넘겨, 막혀서 되돌아오는 일을 줄입니다.",
+    });
+    items.push({
+      title: "체크인 리듬",
+      body: cadenceFor(verdict, risk, s.readiness),
+    });
+    items.push({
+      title: "에스컬레이션 기준",
+      body:
+        risk === "high"
+          ? "되돌릴 수 없는 결정(발송·계약·대외 공개 등) 직전에는 반드시 승인을 받도록 선을 정합니다."
+          : "예상 밖의 장애물이나 기준을 벗어난 상황이 생기면 즉시 나에게 가져오도록 선을 정합니다.",
+    });
+    items.push({
+      title: "성공 지표와 피드백",
+      body: "무엇으로 성공을 판단할지 합의하고, 끝난 뒤 무엇이 잘됐고 무엇을 다음에 바꿀지 5분간 되짚습니다.",
+    });
+
+    // conditional items
+    if (teach === "high") {
+      items.push({
+        title: "1회 시연 후 문서화",
+        body: "처음 한 번은 함께 하며 시연하고, 그 과정을 체크리스트·SOP로 남깁니다. 두 번째부터는 설명이 필요 없어집니다.",
+        tag: "인수인계 비용 큼",
+      });
+    }
+    if (repeat === "recurring") {
+      items.push({
+        title: "재위임 가능하게 시스템화",
+        body: "반복 업무이므로 템플릿·절차서로 남겨 자산화합니다. 다음엔 사람이 바뀌어도 같은 문서로 넘길 수 있습니다.",
+        tag: "반복 업무",
+      });
+    }
+    if (verdict === "donow" && person === "none") {
+      items.unshift({
+        title: "맡을 사람부터 정하기",
+        body: "후보를 한 명 정하고, 작은 조각 업무로 먼저 맡겨 준비도를 키웁니다. 사람이 준비되면 다음 사이클에 본 업무를 넘깁니다.",
+        tag: "준비 우선",
+      });
+    }
+    return items;
+  }
+
+  function collectDrivers() {
+    var out = [];
+    QUESTIONS.forEach(function (q, qi) {
+      var o = q.options[answers[qi]];
+      if (o.driver) {
+        var neg =
+          (q.id === "unique" && o.key === "onlyme") ||
+          (q.id === "person" && o.key === "none") ||
+          (q.id === "risk" && o.key === "high") ||
+          (q.id === "teach" && o.key === "high") ||
+          (q.id === "urgency" && o.key === "urgent");
+        out.push({ text: o.driver, neg: neg });
+      }
+    });
+    return out;
+  }
+
+  function answerLine(id, label) {
+    for (var i = 0; i < QUESTIONS.length; i++) {
+      if (QUESTIONS[i].id === id) {
+        var o = QUESTIONS[i].options[answers[i]];
+        return label + ": " + o.t + (o.d ? " (" + o.d + ")" : "");
+      }
+    }
+    return "";
+  }
+
+  function buildPrompt(verdict, s, taskText, handover) {
+    var v = VERDICTS[verdict];
+    var L = [];
+    L.push(
+      "당신은 팀리더의 위임(delegation)을 돕는 실무 코치입니다. 아래 자가 진단 결과를 바탕으로, 위임을 실제로 실행하도록 구체적으로 도와주세요."
+    );
+    L.push("");
+    L.push("【대상 업무】");
+    L.push(taskText && taskText.trim() ? taskText.trim() : "(업무 설명 미입력 — 먼저 무슨 업무인지 물어봐 주세요.)");
+    L.push("");
+    L.push("【업무 특성】");
+    L.push("- " + answerLine("repeat", "발생 빈도"));
+    L.push("- " + answerLine("unique", "고유성"));
+    L.push("- " + answerLine("leverage", "내 시간 기회비용"));
+    L.push("- " + answerLine("growth", "팀원 성장 기회"));
+    L.push("- " + answerLine("person", "맡길 사람 준비도"));
+    L.push("- " + answerLine("risk", "실패 리스크·가역성"));
+    L.push("- " + answerLine("teach", "인수인계 비용"));
+    L.push("- " + answerLine("urgency", "긴급성"));
+    L.push("");
+    L.push("【자가 진단】");
+    L.push("- 위임 가치: " + s.value + "/100");
+    L.push("- 위임 준비도: " + s.readiness + "/100");
+    L.push("- 판정: " + v.title);
+    L.push("");
+
+    if (verdict === "keep") {
+      L.push("【요청 사항】");
+      L.push("1. 이 업무가 정말 '나만 할 수 있는 일'인지 날카롭게 되물어, 내가 과대평가하고 있지 않은지 점검해 주세요.");
+      L.push("2. 통째로 안더라도, 준비·조사·초안·후속 정리처럼 떼어 위임할 수 있는 조각이 있는지 찾아 주세요.");
+      L.push("3. 내가 이 일에 집중할 시간을 지키기 위해 줄이거나 거절할 것들을 제안해 주세요.");
+      L.push("4. 결론을 대신 내리지 말고, 먼저 판단 근거와 질문을 주고 마지막에 당신의 의견을 비교용으로 덧붙여 주세요.");
+    } else {
+      L.push("【인수인계 체크리스트 초안】");
+      handover.forEach(function (it, i) {
+        L.push(i + 1 + ". " + it.title + (it.tag ? " [" + it.tag + "]" : ""));
+        L.push("   " + it.body);
+      });
+      L.push("");
+      L.push("【요청 사항】");
+      L.push("1. 위 체크리스트를 이 업무에 맞게 다듬고, 빠진 항목이 있으면 채워 주세요.");
+      L.push("2. 팀원에게 실제로 건넬 '위임 대화 스크립트'를 3~5문장으로 써 주세요. (맥락 → 기대 결과 → 권한 범위 → 지원 약속 순)");
+      L.push("3. 완료의 정의(Definition of Done)를 확인 가능한 체크 항목으로 구체화해 주세요.");
+      L.push("4. 결론을 강요하지 말고, 제가 상황을 더 잘 알 수 있게 필요한 정보는 먼저 저에게 물어봐 주세요.");
+      L.push("5. 근거 없는 낙관이나 막연한 조언 대신, 바로 실행할 수 있는 문장으로 써 주세요.");
+    }
+    return L.join("\n");
+  }
+
+  // ---------- diagnose ----------
+  var resultEl = document.getElementById("result");
+  var validateEl = document.getElementById("validate");
+  var lastPrompt = "";
+
+  document.getElementById("diagnose").addEventListener("click", function () {
+    // validation: all 8 answered
+    var missing = [];
+    QUESTIONS.forEach(function (q, qi) {
+      var block = qEl.querySelector('.q[data-qi="' + qi + '"]');
+      if (answers[qi] == null) {
+        missing.push(qi);
+        if (block) block.classList.add("missing");
+      } else if (block) {
+        block.classList.remove("missing");
+      }
+    });
+    if (missing.length) {
+      validateEl.textContent =
+        "아직 " + missing.length + "개 항목이 남았습니다. 모두 선택해 주세요.";
+      var first = qEl.querySelector('.q[data-qi="' + missing[0] + '"]');
+      if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    validateEl.textContent = "";
+
+    var s = computeScores();
+    var verdict = decide(s);
+    var v = VERDICTS[verdict];
+    var taskText = taskEl.value;
+    var handover =
+      verdict === "keep" ? [] : buildHandover(verdict, s, taskText);
+    lastPrompt = buildPrompt(verdict, s, taskText, handover);
+
+    var html = "";
+
+    // verdict card
+    html += '<div class="verdict tone-' + v.tone + '">';
+    html += '<p class="verdict-label">' + esc(v.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(v.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(v.desc) + "</p>";
+    if (taskText && taskText.trim()) {
+      html +=
+        '<p class="verdict-task"><b>대상 업무</b> · ' +
+        esc(taskText.trim()) +
+        "</p>";
+    }
+    html += "</div>";
+
+    // score bars
+    var valLv = s.value >= 48 ? "lv-accent" : "lv-keep";
+    var rdyLv =
+      s.readiness >= 60 ? "lv-go" : s.readiness >= 38 ? "lv-accent" : "lv-warn";
+    var valCap =
+      s.value >= 48 ? "손을 떠나보낼 가치가 큰 편" : "당신이 직접 할 일에 가까움";
+    var rdyCap =
+      s.readiness >= 60
+        ? "지금 넘겨도 안전한 편"
+        : s.readiness >= 38
+        ? "넘기려면 지원이 필요"
+        : "지금은 넘길 준비가 부족";
+    html += '<div class="scores">';
+    html += scoreBar("위임 가치", s.value, valLv, valCap);
+    html += scoreBar("위임 준비도", s.readiness, rdyLv, rdyCap);
+    html += "</div>";
+
+    // drivers
+    var drivers = collectDrivers();
+    if (drivers.length) {
+      html += '<div class="result-block-title">이렇게 판단했어요</div>';
+      html += '<ul class="drivers">';
+      drivers.forEach(function (d) {
+        html +=
+          '<li class="' + (d.neg ? "neg" : "") + '">' + esc(d.text) + "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // handover checklist OR keep note
+    if (verdict === "keep") {
+      html +=
+        '<p class="clean-note" style="margin-top:22px">이 업무는 당신이 직접 맡되, 통째로 끌어안지는 마세요. 준비·조사·초안·후속 정리 같은 주변 작업은 떼어 위임하고, 당신은 판단과 결정에 집중하세요. 아래 프롬프트가 이를 도와줍니다.</p>';
+    } else {
+      var title =
+        verdict === "donow"
+          ? "위임 준비 체크리스트 (다음 사이클)"
+          : "인수인계 체크리스트";
+      html += '<div class="result-block-title">' + title + "</div>";
+      html += '<ol class="ho-list">';
+      handover.forEach(function (it) {
+        html += '<li class="ho-item">';
+        html += '<p class="ho-title">' + esc(it.title) + "</p>";
+        html += '<p class="ho-body">' + esc(it.body) + "</p>";
+        if (it.tag) html += '<span class="ho-tag">' + esc(it.tag) + "</span>";
+        html += "</li>";
+      });
+      html += "</ol>";
+    }
+
+    // prompt
+    html += '<div class="result-block-title">AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 판정을 바탕으로 ' +
+      (verdict === "keep"
+        ? "시간을 지키는 방법과 떼어낼 조각을 찾아 줍니다."
+        : "체크리스트를 다듬고 위임 대화 스크립트까지 만들어 줍니다.") +
+      "</p>";
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function scoreBar(name, num, lv, cap) {
+    return (
+      '<div class="score">' +
+      '<div class="score-head"><span class="s-name">' +
+      name +
+      '</span><span class="s-num">' +
+      num +
+      "</span></div>" +
+      '<div class="bar"><div class="bar-fill ' +
+      lv +
+      '" style="width:' +
+      num +
+      '%"></div></div>' +
+      '<p class="score-cap">' +
+      cap +
+      "</p></div>"
+    );
+  }
+
+  // ---------- reset ----------
+  document.getElementById("reset").addEventListener("click", function () {
+    answers = {};
+    taskEl.value = "";
+    grow(taskEl);
+    validateEl.textContent = "";
+    Array.prototype.forEach.call(qEl.querySelectorAll(".seg-btn"), function (b) {
+      b.classList.remove("sel");
+      b.setAttribute("aria-checked", "false");
+    });
+    Array.prototype.forEach.call(qEl.querySelectorAll(".q"), function (q) {
+      q.classList.remove("missing");
+    });
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">⇄</div>' +
+      "<p><strong>아직 판정 전입니다.</strong></p>" +
+      "<p>업무 특성 8가지를 고르고 '판정하기'를 누르세요.</p></div>";
+    document.getElementById("q-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var st = document.getElementById("copyStatus");
+    if (!st) return;
+    st.textContent = msg;
+    setTimeout(function () {
+      if (st) st.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

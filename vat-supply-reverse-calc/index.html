@@ -1,0 +1,1057 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>부가세·공급가액 역산 계산기</title>
+<meta
+  name="description"
+  content="공급가액·부가세·합계 중 하나만 넣으면 나머지를 역산하고 세금계산서 발행 형태로 보여줍니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #14746a;
+    --accent-strong: #0e5a52;
+    --accent-tint: #e6f2f0;
+    --accent-tint-2: #d2e8e4;
+    --ink: #1b2523;
+    --ink-soft: #414a48;
+    --ink-mute: #667370;
+    --paper: #f6f9f8;
+    --card: #ffffff;
+    --line: #e3ebe9;
+    --line-strong: #cdd8d5;
+    --seg-bg: #eef3f2;
+    --shadow: 0 1px 2px rgba(20, 40, 37, 0.05),
+      0 6px 20px rgba(20, 40, 37, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+  .field-block {
+    margin-bottom: 18px;
+  }
+  .field-block:last-child {
+    margin-bottom: 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- segmented control ---------- */
+  .seg {
+    display: flex;
+    gap: 6px;
+    background: var(--seg-bg);
+    padding: 5px;
+    border-radius: 12px;
+  }
+  .seg label {
+    flex: 1 1 0;
+    margin: 0;
+    position: relative;
+  }
+  .seg input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .seg .seg-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 44px;
+    padding: 10px 6px;
+    border-radius: 9px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  }
+  .seg input:checked + .seg-btn {
+    background: #fff;
+    color: var(--accent-strong);
+    box-shadow: 0 1px 3px rgba(20, 40, 37, 0.12);
+  }
+  .seg input:focus-visible + .seg-btn {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .seg.seg-sm .seg-btn {
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+
+  /* ---------- amount input ---------- */
+  .amount-field {
+    position: relative;
+  }
+  .amount-field input {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-align: right;
+    padding: 15px 48px 15px 16px;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: #fbfdfc;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .amount-field input::placeholder {
+    color: #a9b5b2;
+    font-weight: 700;
+  }
+  .amount-field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .amount-field .won {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-mute);
+    font-weight: 700;
+    pointer-events: none;
+    font-size: 1.05rem;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s,
+      color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* ---------- invoice card ---------- */
+  .invoice {
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .inv-head {
+    background: var(--accent-strong);
+    color: #fff;
+    padding: 12px 16px;
+    font-weight: 800;
+    font-size: 0.98rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .inv-head .rate {
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.18);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  .inv-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .inv-label {
+    color: var(--ink-soft);
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .inv-val {
+    font-weight: 800;
+    font-size: 1.08rem;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .inv-row.total {
+    background: var(--accent-tint);
+    border-top: 1px solid var(--accent-tint-2);
+  }
+  .inv-row.total .inv-label {
+    color: var(--accent-strong);
+    font-weight: 800;
+  }
+  .inv-row.total .inv-val {
+    color: var(--accent-strong);
+    font-size: 1.28rem;
+  }
+  .tag {
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 5px;
+    letter-spacing: 0.02em;
+  }
+  .tag-input {
+    color: #fff;
+    background: var(--accent);
+  }
+  .tag-calc {
+    color: var(--ink-mute);
+    background: var(--line);
+  }
+  .hangul-amount {
+    margin: 13px 2px 0;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    text-align: right;
+    font-weight: 700;
+  }
+  .round-note {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    background: #fbfdfc;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    line-height: 1.55;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* prompt / copy blocks */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #1f2b29;
+    color: #eef4f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .btn-copy.alt {
+    background: var(--accent);
+  }
+  .btn-copy.alt:hover {
+    background: var(--accent-strong);
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--accent-strong);
+    font-weight: 700;
+    min-height: 1.1em;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 30, 28, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    width: 100%;
+    min-height: 150px;
+    overflow-y: auto;
+    resize: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .amount-field input {
+      font-size: 1.3rem;
+    }
+    .btn-copy,
+    .actions button {
+      flex: 1 1 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    .inv-head {
+      background: #eee;
+      color: #000;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">부가세 계산 · 세금계산서</span>
+    <h1>부가세·공급가액 역산 계산기</h1>
+    <p class="lede">
+      공급가액·부가세·합계 중 아는 값 하나만 넣으면, 나머지 둘을 부가세율 10%로
+      역산해 세금계산서 발행 형태로 보여 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>아는 값 하나만 입력</h2>
+    </div>
+    <p class="panel-sub">
+      먼저 입력할 값의 종류를 고르고 금액을 적으면, 나머지 두 값이 자동으로
+      계산됩니다.
+    </p>
+
+    <div class="field-block">
+      <span class="field-label" id="mode-label-title">입력 기준</span>
+      <div class="seg" role="radiogroup" aria-labelledby="mode-label-title" id="mode-seg">
+        <label>
+          <input type="radio" name="mode" value="supply" checked />
+          <span class="seg-btn">공급가액</span>
+        </label>
+        <label>
+          <input type="radio" name="mode" value="vat" />
+          <span class="seg-btn">부가세</span>
+        </label>
+        <label>
+          <input type="radio" name="mode" value="total" />
+          <span class="seg-btn">합계</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="field-block">
+      <label class="field-label" for="amount" id="amount-label">공급가액 입력</label>
+      <div class="amount-field">
+        <input
+          id="amount"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="0"
+          aria-describedby="amount-hint"
+        />
+        <span class="won">원</span>
+      </div>
+      <p class="field-hint" id="amount-hint">
+        원 단위 정수로 입력하세요. 입력값은 이 브라우저 밖으로 전송되지 않습니다.
+      </p>
+    </div>
+
+    <div class="field-block">
+      <span class="field-label" id="round-label-title">
+        원 단위 처리 (역산 시)
+      </span>
+      <div class="seg seg-sm" role="radiogroup" aria-labelledby="round-label-title" id="round-seg">
+        <label>
+          <input type="radio" name="round" value="round" checked />
+          <span class="seg-btn">반올림</span>
+        </label>
+        <label>
+          <input type="radio" name="round" value="ceil" />
+          <span class="seg-btn">올림</span>
+        </label>
+        <label>
+          <input type="radio" name="round" value="floor" />
+          <span class="seg-btn">버림</span>
+        </label>
+      </div>
+      <p class="field-hint">
+        합계에서 공급가액을 역산할 때 1원 단위를 어떻게 처리할지 정합니다. 나머지
+        값은 세 항목의 합이 정확히 맞도록 자동 보정됩니다.
+      </p>
+    </div>
+
+    <div class="actions no-print">
+      <button class="btn-ghost" id="reset" type="button">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>세금계산서 발행 형태</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">₩</div>
+        <p><strong>아직 입력 전입니다.</strong></p>
+        <p>기준을 고르고 금액을 입력하면 여기에 결과가 나타납니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 대한민국 부가가치세법상 일반세율
+      <strong>10%</strong>. 세금계산서의 세 필수 금액은 공급가액, 세액(부가세),
+      합계금액이며 <em>합계 = 공급가액 × 1.1</em>,
+      <em>부가세 = 공급가액 × 0.1</em> 의 관계를 따릅니다. 세 항목의 합이 정확히
+      일치하도록 역산 결과를 자기 검증합니다(가인지 invoice-schedule-builder의
+      금액·합계 검증 규칙 준용).
+    </p>
+    <p>
+      이 도구는 금액 산정을 돕는 계산 보조 도구입니다. 원 단위 처리 관행과 실제
+      세금계산서 발행 기준은 거래처·세무 담당자와 확인하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-copy alt" id="modal-select" type="button">전체 선택</button>
+      <button class="btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  var VAT_RATE = 0.1;
+
+  var amountEl = document.getElementById("amount");
+  var amountLabel = document.getElementById("amount-label");
+  var resultEl = document.getElementById("result");
+
+  var MODE_LABEL = {
+    supply: "공급가액 입력",
+    vat: "부가세 입력",
+    total: "합계 금액 입력",
+  };
+  var MODE_NAME = {
+    supply: "공급가액",
+    vat: "부가세",
+    total: "합계",
+  };
+
+  // ---------- helpers ----------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function comma(n) {
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function getMode() {
+    var el = document.querySelector('input[name="mode"]:checked');
+    return el ? el.value : "supply";
+  }
+  function getRound() {
+    var el = document.querySelector('input[name="round"]:checked');
+    return el ? el.value : "round";
+  }
+
+  function roundBy(x, mode) {
+    if (mode === "ceil") return Math.ceil(x);
+    if (mode === "floor") return Math.floor(x);
+    return Math.round(x);
+  }
+
+  // parse the raw amount input into a non-negative integer (won)
+  function readAmount() {
+    var digits = amountEl.value.replace(/[^\d]/g, "");
+    if (digits.length > 15) digits = digits.slice(0, 15);
+    return digits === "" ? null : parseInt(digits, 10);
+  }
+
+  // ---------- core reverse-calc logic ----------
+  // Given the entered value + which field it is, derive the other two so that
+  // supply + vat === total exactly.
+  function compute(mode, value, rm) {
+    var supply, vat, total;
+    if (mode === "supply") {
+      supply = value;
+      vat = roundBy(value * VAT_RATE, rm);
+      total = supply + vat;
+    } else if (mode === "vat") {
+      // vat = supply * 0.1  ->  supply = vat * 10 (exact)
+      vat = value;
+      supply = value * 10;
+      total = supply + vat;
+    } else {
+      // total = supply * 1.1 -> supply = total / 1.1, vat = total - supply
+      total = value;
+      supply = roundBy(value / (1 + VAT_RATE), rm);
+      vat = total - supply;
+    }
+    return { supply: supply, vat: vat, total: total };
+  }
+
+  // ---------- Korean amount in words (formal 원정 style) ----------
+  function toKorean(n) {
+    n = Math.round(n);
+    if (n === 0) return "영";
+    var digits = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
+    var small = ["", "십", "백", "천"];
+    var big = ["", "만", "억", "조", "경"];
+    var s = String(n);
+    var groups = [];
+    while (s.length > 0) {
+      groups.unshift(s.slice(-4));
+      s = s.slice(0, -4);
+    }
+    var out = "";
+    var count = groups.length;
+    groups.forEach(function (g, gi) {
+      var val = parseInt(g, 10);
+      if (val === 0) return;
+      var gg = ("0000" + g).slice(-4);
+      var gstr = "";
+      for (var i = 0; i < 4; i++) {
+        var d = parseInt(gg[i], 10);
+        if (d === 0) continue;
+        gstr += digits[d] + small[3 - i];
+      }
+      out += gstr + big[count - 1 - gi];
+    });
+    return out;
+  }
+
+  function koreanAmount(n) {
+    return "일금 " + toKorean(n) + "원정";
+  }
+
+  // ---------- summary + prompt text builders ----------
+  function buildSummary(r, mode) {
+    var tag = function (m) {
+      return mode === m ? "(입력)" : "(역산)";
+    };
+    var lines = [];
+    lines.push("[부가세·공급가액 역산 결과]");
+    lines.push("공급가액  : " + comma(r.supply) + "원  " + tag("supply"));
+    lines.push("부가세(10%): " + comma(r.vat) + "원  " + tag("vat"));
+    lines.push("합계금액  : " + comma(r.total) + "원  " + tag("total"));
+    lines.push("한글표기  : " + koreanAmount(r.total));
+    return lines.join("\n");
+  }
+
+  function buildPrompt(r) {
+    var lines = [];
+    lines.push(
+      "당신은 세무·경리 실무에 밝은 도우미입니다. 아래 거래 금액으로 거래처에 보낼 '세금계산서 발행 안내' 메시지를 정중하고 간결하게 작성해 주세요."
+    );
+    lines.push("");
+    lines.push("- 공급가액: " + comma(r.supply) + "원");
+    lines.push("- 부가세(10%): " + comma(r.vat) + "원");
+    lines.push("- 합계금액: " + comma(r.total) + "원 (" + koreanAmount(r.total) + ")");
+    lines.push("");
+    lines.push("요구사항:");
+    lines.push("1. 존댓말로 3~5문장.");
+    lines.push("2. 합계금액과 공급가액·부가세 내역을 명확히 표기.");
+    lines.push("3. 세금계산서 발행에 필요한 정보(사업자등록증·담당자 이메일 등)를 정중히 요청.");
+    lines.push("4. 과장이나 불필요한 수식어 없이 담백하게.");
+    return lines.join("\n");
+  }
+
+  var lastSummary = "";
+  var lastPrompt = "";
+
+  // ---------- render ----------
+  function renderEmpty(msg) {
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">₩</div>' +
+      "<p><strong>" +
+      esc(msg || "아직 입력 전입니다.") +
+      "</strong></p>" +
+      "<p>기준을 고르고 금액을 입력하면 여기에 결과가 나타납니다.</p></div>";
+  }
+
+  function rowHtml(name, label, value, mode, isTotal) {
+    var isInput = mode === name;
+    var tagCls = isInput ? "tag tag-input" : "tag tag-calc";
+    var tagTxt = isInput ? "입력" : "역산";
+    return (
+      '<div class="inv-row' +
+      (isTotal ? " total" : "") +
+      '"><div class="inv-label">' +
+      esc(label) +
+      ' <span class="' +
+      tagCls +
+      '">' +
+      tagTxt +
+      "</span></div>" +
+      '<div class="inv-val">' +
+      comma(value) +
+      " 원</div></div>"
+    );
+  }
+
+  function render() {
+    var mode = getMode();
+    var rm = getRound();
+    var value = readAmount();
+
+    if (value === null) {
+      renderEmpty("아직 입력 전입니다.");
+      return;
+    }
+    if (value <= 0) {
+      renderEmpty("0보다 큰 금액을 입력하세요.");
+      return;
+    }
+
+    var r = compute(mode, value, rm);
+
+    var html = "";
+    html += '<div class="invoice">';
+    html +=
+      '<div class="inv-head"><span>세금계산서 금액</span><span class="rate">부가세율 10%</span></div>';
+    html += rowHtml("supply", "공급가액", r.supply, mode, false);
+    html += rowHtml("vat", "세액 (부가세)", r.vat, mode, false);
+    html += rowHtml("total", "합계금액", r.total, mode, true);
+    html += "</div>";
+
+    html += '<p class="hangul-amount">' + esc(koreanAmount(r.total)) + "</p>";
+
+    // rounding note only where rounding could actually bite
+    if (mode !== "vat") {
+      var rmName = rm === "ceil" ? "올림" : rm === "floor" ? "버림" : "반올림";
+      var note;
+      if (mode === "total") {
+        note =
+          "합계 " +
+          comma(r.total) +
+          "원을 1.1로 나눠 공급가액을 " +
+          rmName +
+          " 처리했고, 부가세는 합계에서 공급가액을 뺀 값으로 맞췄습니다. 세 값의 합은 정확히 일치합니다.";
+      } else {
+        note =
+          "부가세를 공급가액의 10%로 " +
+          rmName +
+          " 처리했습니다. 공급가액 + 부가세 = 합계로 정확히 일치합니다.";
+      }
+      html += '<p class="round-note">' + esc(note) + "</p>";
+    }
+
+    // build copy payloads
+    lastSummary = buildSummary(r, mode);
+    lastPrompt = buildPrompt(r);
+
+    // summary copy
+    html += '<div class="result-block-title">결과 복사</div>';
+    html += '<div class="copy-row no-print">';
+    html +=
+      '<button class="btn-copy" id="copySummary" type="button">계산 결과 복사</button>';
+    html +=
+      '<button class="btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // AI prompt
+    html +=
+      '<div class="result-block-title">발행 안내문 AI 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 금액으로 거래처에 보낼 세금계산서 발행 안내 메시지를 대신 써 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html +=
+      '<button class="btn-copy alt" id="copyPrompt" type="button">프롬프트 복사</button>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+  }
+
+  // ---------- input formatting (live thousands separators) ----------
+  amountEl.addEventListener("input", function () {
+    var digits = amountEl.value.replace(/[^\d]/g, "");
+    if (digits.length > 15) digits = digits.slice(0, 15);
+    // strip leading zeros but keep a single 0 while typing
+    digits = digits.replace(/^0+(?=\d)/, "");
+    amountEl.value = digits === "" ? "" : comma(parseInt(digits, 10));
+    render();
+  });
+
+  document.getElementById("mode-seg").addEventListener("change", function () {
+    var mode = getMode();
+    amountLabel.textContent = MODE_LABEL[mode];
+    render();
+  });
+  document.getElementById("round-seg").addEventListener("change", render);
+
+  // ---------- reset ----------
+  document.getElementById("reset").addEventListener("click", function () {
+    amountEl.value = "";
+    var supplyRadio = document.querySelector('input[name="mode"][value="supply"]');
+    if (supplyRadio) supplyRadio.checked = true;
+    var roundRadio = document.querySelector('input[name="round"][value="round"]');
+    if (roundRadio) roundRadio.checked = true;
+    amountLabel.textContent = MODE_LABEL.supply;
+    renderEmpty("아직 입력 전입니다.");
+    amountEl.focus();
+  });
+
+  // ---------- copy (3-tier fallback) ----------
+  function wireResultButtons() {
+    var cs = document.getElementById("copySummary");
+    var cp = document.getElementById("copyPrompt");
+    var pb = document.getElementById("printBtn");
+    if (cs)
+      cs.addEventListener("click", function () {
+        doCopy(lastSummary);
+      });
+    if (cp)
+      cp.addEventListener("click", function () {
+        doCopy(lastPrompt);
+      });
+    if (pb)
+      pb.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy(text) {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // initial state
+  renderEmpty("아직 입력 전입니다.");
+</script>

@@ -1,0 +1,1598 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>전환·평가 점수 판정 계산기</title>
+<meta
+  name="description"
+  content="평가 문항 점수를 입력하면 총점 대비 비율로 S~D 등급과 전환 기준선(70%) 통과 여부를 즉시 계산합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #4655a3;
+    --accent-strong: #35418a;
+    --accent-tint: #eef0fb;
+    --accent-tint-2: #dde2f5;
+    --ink: #212024;
+    --ink-soft: #494750;
+    --ink-mute: #6b6873;
+    --paper: #f8f8fb;
+    --card: #ffffff;
+    --line: #e6e5ee;
+    --line-strong: #d5d3e2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #9a5a12;
+    --warn-tint: #fbf1e0;
+    --warn-line: #eddcbe;
+    --bad: #ad3838;
+    --bad-tint: #fbecec;
+    --bad-line: #f0d2d2;
+    --shadow: 0 1px 2px rgba(33, 32, 36, 0.05), 0 6px 20px rgba(33, 32, 36, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- item rows ---------- */
+  .items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0 0 14px;
+  }
+  .item-row {
+    display: grid;
+    gap: 8px 10px;
+    grid-template-columns: 152px minmax(0, 1fr) 130px 44px;
+    grid-template-areas: "kind name score rm";
+    align-items: center;
+    padding: 10px 11px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--line-strong);
+    border-radius: 12px;
+    background: #fcfcff;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .item-row.k-value {
+    border-left-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .item-row .kind {
+    grid-area: kind;
+  }
+  .item-row .iname {
+    grid-area: name;
+  }
+  .item-row .score-wrap {
+    grid-area: score;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .item-row .rm {
+    grid-area: rm;
+  }
+
+  select,
+  input.iname,
+  input.iscore,
+  input.baseline {
+    font-family: inherit;
+    font-size: 0.96rem;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 0 12px;
+    min-height: 44px;
+    width: 100%;
+  }
+  select {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.5L6 6.5L11 1.5' stroke='%236b6873' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 30px;
+    cursor: pointer;
+  }
+  input.iscore {
+    text-align: right;
+    padding: 0 10px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+  .score-wrap .smax {
+    flex: none;
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  select:focus,
+  input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input::placeholder {
+    color: #a6a3b0;
+    font-weight: 400;
+  }
+  .rm {
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink-mute);
+    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .rm:hover {
+    color: var(--bad);
+    border-color: var(--bad-line);
+    background: var(--bad-tint);
+  }
+
+  .add-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .btn-add {
+    background: #fff;
+    border: 1px dashed var(--line-strong);
+    color: var(--accent-strong);
+    border-radius: 11px;
+    padding: 11px 15px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    min-height: 44px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .btn-add:hover {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+
+  .anchor-note {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    background: #f4f4f9;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 13px;
+    margin: 14px 0 0;
+    line-height: 1.7;
+  }
+  .anchor-note b {
+    color: var(--ink-soft);
+  }
+
+  .maxbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 16px 0 0;
+    padding: 12px 14px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 11px;
+  }
+  .maxbar .mb-label {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+  .maxbar .mb-val {
+    font-size: 1.02rem;
+    color: var(--accent-strong);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  .maxbar .mb-split {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+
+  /* baseline control */
+  .baseline-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 16px 0 0;
+  }
+  .baseline-box label {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .baseline-inline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  input.baseline {
+    width: 82px;
+    text-align: right;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .baseline-inline .pct {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .baseline-hint {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    flex-basis: 100%;
+    margin: 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button.btn {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 46px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  button.btn:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .notice {
+    text-align: center;
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 12px;
+    padding: 18px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+    display: flex;
+    gap: 18px;
+    align-items: center;
+  }
+  .verdict.tone-pass {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict.tone-fail {
+    background: var(--bad-tint);
+    border-color: var(--bad-line);
+  }
+  .grade-badge {
+    flex: none;
+    width: 92px;
+    height: 92px;
+    border-radius: 20px;
+    display: grid;
+    place-items: center;
+    background: #fff;
+    border: 2px solid var(--line);
+    text-align: center;
+    line-height: 1;
+  }
+  .grade-badge .g-letter {
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .grade-badge.g-good {
+    border-color: var(--good-line);
+  }
+  .grade-badge.g-good .g-letter {
+    color: var(--good);
+  }
+  .grade-badge.g-accent {
+    border-color: var(--accent-tint-2);
+  }
+  .grade-badge.g-accent .g-letter {
+    color: var(--accent-strong);
+  }
+  .grade-badge.g-warn {
+    border-color: var(--warn-line);
+  }
+  .grade-badge.g-warn .g-letter {
+    color: var(--warn);
+  }
+  .grade-badge.g-bad {
+    border-color: var(--bad-line);
+  }
+  .grade-badge.g-bad .g-letter {
+    color: var(--bad);
+  }
+  .verdict-main {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .verdict-pass {
+    font-size: 1.24rem;
+    font-weight: 800;
+    margin: 0 0 4px;
+    line-height: 1.3;
+  }
+  .verdict.tone-pass .verdict-pass {
+    color: var(--good);
+  }
+  .verdict.tone-fail .verdict-pass {
+    color: var(--bad);
+  }
+  .verdict-figures {
+    margin: 0;
+    font-size: 0.98rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .verdict-figures .big-ratio {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .verdict-grade-name {
+    margin: 6px 0 0;
+    font-size: 0.92rem;
+    color: var(--ink-mute);
+  }
+
+  /* scale bar */
+  .scale-wrap {
+    margin: 4px 0 18px;
+  }
+  .bar-track {
+    position: relative;
+    height: 16px;
+    border-radius: 9px;
+    background: #e9e8f1;
+    overflow: hidden;
+  }
+  .bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 9px;
+    transition: width 0.4s ease;
+  }
+  .bar-fill.pass {
+    background: var(--good);
+  }
+  .bar-fill.fail {
+    background: var(--bad);
+  }
+  .bar-ticks {
+    position: relative;
+    height: 34px;
+    margin-top: 2px;
+  }
+  .tick {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .tick::before {
+    content: "";
+    display: block;
+    width: 1px;
+    height: 6px;
+    background: var(--line-strong);
+    margin: 0 auto 3px;
+  }
+  .tick.baseline {
+    color: var(--accent-strong);
+    font-weight: 800;
+  }
+  .tick.baseline::before {
+    background: var(--accent);
+    height: 9px;
+    width: 2px;
+  }
+
+  /* breakdown cards */
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+  .break-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .break-card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 15px;
+    background: #fcfcff;
+  }
+  .break-card.value {
+    border-left: 3px solid var(--accent);
+  }
+  .break-card.comp {
+    border-left: 3px solid var(--line-strong);
+  }
+  .break-card .bc-name {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 0 0 6px;
+  }
+  .break-card .bc-score {
+    font-size: 1.24rem;
+    font-weight: 800;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+  }
+  .break-card .bc-score span {
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  .break-card .bc-ratio {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 4px 0 0;
+    font-weight: 600;
+  }
+  .weight-note {
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 10px;
+    padding: 11px 13px;
+    margin: 12px 0 0;
+    line-height: 1.65;
+  }
+
+  /* tables */
+  .tbl-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  table.grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 320px;
+  }
+  table.grid th,
+  table.grid td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  table.grid th {
+    background: #f4f4f9;
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+  }
+  table.grid td.num,
+  table.grid th.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  table.grid tr:last-child td {
+    border-bottom: none;
+  }
+  table.grid tr.is-current {
+    background: var(--accent-tint);
+  }
+  table.grid tr.is-current td {
+    font-weight: 800;
+    color: var(--accent-strong);
+  }
+  .g-tag {
+    display: inline-block;
+    font-weight: 800;
+    width: 22px;
+    text-align: center;
+  }
+  td.cat-value {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #24242c;
+    color: #eeeaf5;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(33, 32, 36, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fdfdff;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    resize: vertical;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 560px) {
+    .item-row {
+      grid-template-columns: 1fr 44px;
+      grid-template-areas: "kind rm" "name name" "score score";
+    }
+    .break-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .verdict {
+      gap: 14px;
+    }
+    .grade-badge {
+      width: 76px;
+      height: 76px;
+    }
+    .grade-badge .g-letter {
+      font-size: 2.1rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #baseline-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">정규직 전환 평가 · 점수 판정</span>
+    <h1>전환·평가 점수 판정 계산기</h1>
+    <p class="lede">
+      평가 문항 점수를 입력하면 총점 대비 비율로 <strong>S~D 등급</strong>과
+      <strong>전환 기준선(기본 70%)</strong> 통과 여부를 즉시 계산합니다. 핵심가치
+      실천은 문항당 20점으로 업무역량(10점)의 2배 비중이 자동 반영됩니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>평가 문항 점수 입력</h2>
+    </div>
+    <p class="panel-sub">
+      구분(업무역량 · 핵심가치 실천)을 고르고 각 문항의 획득 점수를 넣으세요.
+      만점은 구분에 따라 자동으로 정해집니다. 문항은 자유롭게 추가·삭제할 수
+      있습니다.
+    </p>
+
+    <div class="items" id="items"></div>
+
+    <div class="add-row no-print">
+      <button type="button" class="btn-add" id="addComp">+ 업무역량 문항</button>
+      <button type="button" class="btn-add" id="addValue">
+        + 핵심가치 실천 문항
+      </button>
+    </div>
+
+    <p class="anchor-note">
+      <b>5단계 채점 기준(권장 앵커).</b><br />
+      업무역량(만점 10): 매우 우수 10 · 우수 8 · 보통 6 · 부족 4 · 매우 부족 2<br />
+      핵심가치(만점 20): 매우 우수 20 · 우수 16 · 보통 12 · 부족 8 · 매우 부족 4
+      <span style="color: var(--accent-strong); font-weight: 700"
+        >(가중 x2)</span
+      >
+    </p>
+
+    <div class="maxbar" aria-live="polite">
+      <span class="mb-label">현재 만점 합계</span>
+      <span>
+        <span class="mb-val" id="maxTotal">0</span>
+        <span class="mb-split" id="maxSplit"></span>
+      </span>
+    </div>
+
+    <p class="field-hint anchor-note" style="margin-top: 12px">
+      입력한 점수와 항목명은 이 브라우저 밖으로 전송되지 않습니다. 계산은 모두 이
+      페이지 안에서만 이루어지며 서버·외부 API 호출이 없습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="baseline-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>전환 기준선 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      기본값은 총점의 70%(B등급 이상)입니다. 고객사 정책에 따라 조정할 수
+      있습니다.
+    </p>
+    <div class="baseline-box">
+      <label for="baseline">전환 기준선</label>
+      <span class="baseline-inline">
+        <input
+          type="number"
+          class="baseline"
+          id="baseline"
+          value="70"
+          min="1"
+          max="100"
+          step="1"
+          inputmode="numeric"
+        />
+        <span class="pct">%</span>
+      </span>
+      <p class="baseline-hint">
+        비율이 이 값 이상이면 전환 기준선 통과로 판정합니다. (1~100)
+      </p>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="calcBtn">점수 판정하기</button>
+      <button class="btn btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>판정 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▤</div>
+        <p><strong>아직 판정 전입니다.</strong></p>
+        <p>문항 점수를 입력하고 '점수 판정하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 가인지 <em>정규직 전환 평가</em>
+      설계 기준(핵심가치 기반 전환 평가표). 업무역량은 문항당 10점, 핵심가치
+      실천은 문항당 20점(가중 x2)으로 채점하며, 총점 대비 비율로 등급을 매깁니다.
+      S 90% 이상 · A 80% 이상 · B 70% 이상 · C 60% 이상 · D 59% 이하이고, 전환
+      기준선은 B등급 이상(총점의 70%)을 기본으로 합니다.
+    </p>
+    <p>
+      이 도구는 채점 결과를 등급·통과 여부로 정리해 주는 계산 보조 도구이며, 전환
+      여부를 대신 확정해 주지 않습니다. 최종 판단은 행동 관찰과 평가 의견을 함께
+      두고 스스로 내리세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---- domain constants (sourced from conversion-eval-builder SKILL.md) ----
+  // 업무역량 문항 = 10점 만점, 핵심가치 실천 문항 = 20점 만점(가중 x2)
+  var KIND = {
+    comp: { label: "업무역량", max: 10 },
+    value: { label: "핵심가치 실천", max: 20 },
+  };
+
+  // 등급 기준 (총점 대비 비율) — S 90+ / A 80+ / B 70+ / C 60+ / D else
+  var GRADES = [
+    { g: "S", min: 90, tier: "g-good", name: "탁월 — 조직 기대를 크게 상회" },
+    { g: "A", min: 80, tier: "g-good", name: "우수 — 전환에 충분한 역량·태도" },
+    { g: "B", min: 70, tier: "g-accent", name: "양호 — 전환 기준선 충족, 일부 보완" },
+    { g: "C", min: 60, tier: "g-warn", name: "미흡 — 기준선 미달, 재검토 필요" },
+    { g: "D", min: 0, tier: "g-bad", name: "부족 — 전환 부적합, 근본 재검토" },
+  ];
+
+  function gradeFor(ratio) {
+    for (var i = 0; i < GRADES.length; i++) {
+      if (ratio >= GRADES[i].min) return GRADES[i];
+    }
+    return GRADES[GRADES.length - 1];
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function fmt(n) {
+    var r = Math.round(n * 10) / 10;
+    return r % 1 === 0 ? String(r) : r.toFixed(1);
+  }
+
+  // ---- item rows ----
+  var itemsEl = document.getElementById("items");
+
+  function makeRow(kind, name, score) {
+    var k = KIND[kind] ? kind : "comp";
+    var max = KIND[k].max;
+    var row = document.createElement("div");
+    row.className = "item-row" + (k === "value" ? " k-value" : "");
+    row.innerHTML =
+      '<select class="kind" aria-label="구분">' +
+      '<option value="comp"' +
+      (k === "comp" ? " selected" : "") +
+      ">업무역량 (10점)</option>" +
+      '<option value="value"' +
+      (k === "value" ? " selected" : "") +
+      ">핵심가치 실천 (20점)</option>" +
+      "</select>" +
+      '<input class="iname" type="text" maxlength="40" placeholder="항목명 (선택)" value="' +
+      esc(name || "") +
+      '" aria-label="항목명" />' +
+      '<span class="score-wrap">' +
+      '<input class="iscore" type="number" inputmode="numeric" min="0" step="1" max="' +
+      max +
+      '" placeholder="0" value="' +
+      (score === 0 || score ? esc(score) : "") +
+      '" aria-label="획득 점수" />' +
+      '<span class="smax">/ ' +
+      max +
+      "</span>" +
+      "</span>" +
+      '<button type="button" class="rm" aria-label="문항 삭제">&times;</button>';
+    itemsEl.appendChild(row);
+    return row;
+  }
+
+  function addRow(kind, name, score) {
+    makeRow(kind, name, score);
+    refreshMax();
+  }
+
+  // delegated events on items container
+  itemsEl.addEventListener("change", function (e) {
+    var t = e.target;
+    if (t.classList.contains("kind")) {
+      var row = t.closest(".item-row");
+      var k = t.value;
+      var max = KIND[k].max;
+      row.classList.toggle("k-value", k === "value");
+      var sc = row.querySelector(".iscore");
+      sc.setAttribute("max", max);
+      if (sc.value !== "" && Number(sc.value) > max) sc.value = max;
+      row.querySelector(".smax").textContent = "/ " + max;
+      refreshMax();
+    }
+    if (t.classList.contains("iscore")) {
+      clampScore(t);
+      refreshMax();
+    }
+  });
+
+  itemsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest(".rm");
+    if (!btn) return;
+    var row = btn.closest(".item-row");
+    if (row) row.parentNode.removeChild(row);
+    refreshMax();
+  });
+
+  function clampScore(input) {
+    if (input.value === "") return;
+    var max = Number(input.getAttribute("max")) || 0;
+    var v = Number(input.value);
+    if (isNaN(v) || v < 0) v = 0;
+    if (v > max) v = max;
+    input.value = v;
+  }
+
+  function readRows() {
+    var out = [];
+    var rows = itemsEl.querySelectorAll(".item-row");
+    Array.prototype.forEach.call(rows, function (row) {
+      var kind = row.querySelector(".kind").value;
+      var max = KIND[kind].max;
+      var nameRaw = row.querySelector(".iname").value.trim();
+      var scoreEl = row.querySelector(".iscore");
+      var entered = scoreEl.value !== "";
+      var score = entered ? Number(scoreEl.value) : 0;
+      if (isNaN(score) || score < 0) score = 0;
+      if (score > max) score = max;
+      out.push({ kind: kind, max: max, name: nameRaw, score: score, entered: entered });
+    });
+    return out;
+  }
+
+  function refreshMax() {
+    var rows = readRows();
+    var total = 0,
+      compMax = 0,
+      valMax = 0,
+      compN = 0,
+      valN = 0;
+    rows.forEach(function (r) {
+      total += r.max;
+      if (r.kind === "value") {
+        valMax += r.max;
+        valN++;
+      } else {
+        compMax += r.max;
+        compN++;
+      }
+    });
+    document.getElementById("maxTotal").textContent = total + "점";
+    document.getElementById("maxSplit").textContent =
+      "업무역량 " + compN + "문항 " + compMax + "점 · 핵심가치 " + valN + "문항 " + valMax + "점";
+  }
+
+  // ---- add buttons ----
+  document.getElementById("addComp").addEventListener("click", function () {
+    addRow("comp", "", "");
+  });
+  document.getElementById("addValue").addEventListener("click", function () {
+    addRow("value", "", "");
+  });
+
+  // ---- seed default template ----
+  makeRow("comp", "근무태도", "");
+  makeRow("comp", "업무처리능력", "");
+  makeRow("comp", "인성", "");
+  makeRow("value", "핵심가치 실천 ①", "");
+  makeRow("value", "핵심가치 실천 ②", "");
+  refreshMax();
+
+  // ---- compute / judge ----
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function showNotice(msg) {
+    resultEl.innerHTML = '<p class="notice">' + esc(msg) + "</p>";
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("calcBtn").addEventListener("click", function () {
+    var rows = readRows();
+    if (rows.length === 0) {
+      showNotice("평가할 문항이 없습니다. 먼저 문항을 추가하세요.");
+      return;
+    }
+    var enteredCount = rows.filter(function (r) {
+      return r.entered;
+    }).length;
+    if (enteredCount === 0) {
+      showNotice("아직 점수가 입력되지 않았습니다. 문항 점수를 입력한 뒤 판정하세요.");
+      return;
+    }
+
+    var total = 0,
+      maxTotal = 0,
+      compS = 0,
+      compM = 0,
+      valS = 0,
+      valM = 0;
+    rows.forEach(function (r) {
+      total += r.score;
+      maxTotal += r.max;
+      if (r.kind === "value") {
+        valS += r.score;
+        valM += r.max;
+      } else {
+        compS += r.score;
+        compM += r.max;
+      }
+    });
+
+    if (maxTotal === 0) {
+      showNotice("만점이 0점입니다. 문항 구분을 확인하세요.");
+      return;
+    }
+
+    var baseline = Number(document.getElementById("baseline").value);
+    if (isNaN(baseline) || baseline < 1) baseline = 70;
+    if (baseline > 100) baseline = 100;
+    document.getElementById("baseline").value = baseline;
+
+    var ratio = (total / maxTotal) * 100;
+    var grade = gradeFor(ratio);
+    var pass = ratio >= baseline;
+    var baselinePts = (maxTotal * baseline) / 100;
+
+    render({
+      rows: rows,
+      total: total,
+      maxTotal: maxTotal,
+      ratio: ratio,
+      grade: grade,
+      pass: pass,
+      baseline: baseline,
+      baselinePts: baselinePts,
+      compS: compS,
+      compM: compM,
+      valS: valS,
+      valM: valM,
+    });
+  });
+
+  function pct(part, whole) {
+    return whole > 0 ? (part / whole) * 100 : 0;
+  }
+
+  function render(d) {
+    var html = "";
+
+    // verdict
+    var tone = d.pass ? "tone-pass" : "tone-fail";
+    var passLabel = d.pass ? "전환 기준선 통과" : "전환 기준선 미달";
+    var passSub = d.pass
+      ? "기준선 " + fmt(d.baseline) + "%(" + fmt(d.baselinePts) + "점) 이상입니다."
+      : "기준선 " + fmt(d.baseline) + "%(" + fmt(d.baselinePts) + "점)에 " +
+        fmt(d.baselinePts - d.total) + "점 미달입니다.";
+    html += '<div class="verdict ' + tone + '">';
+    html +=
+      '<div class="grade-badge ' +
+      d.grade.tier +
+      '" role="img" aria-label="등급 ' +
+      d.grade.g +
+      '"><span class="g-letter">' +
+      d.grade.g +
+      "</span></div>";
+    html += '<div class="verdict-main">';
+    html += '<p class="verdict-pass">' + passLabel + "</p>";
+    html +=
+      '<p class="verdict-figures"><span class="big-ratio">' +
+      fmt(d.ratio) +
+      "%</span> &nbsp;·&nbsp; 총점 " +
+      d.total +
+      " / " +
+      d.maxTotal +
+      "점</p>";
+    html += '<p class="verdict-grade-name">등급 ' + d.grade.g + " — " + esc(d.grade.name) + "</p>";
+    html += '<p class="verdict-grade-name">' + esc(passSub) + "</p>";
+    html += "</div></div>";
+
+    // scale bar
+    html += '<div class="scale-wrap">';
+    html += '<div class="bar-track">';
+    html +=
+      '<div class="bar-fill ' +
+      (d.pass ? "pass" : "fail") +
+      '" style="width:' +
+      Math.max(0, Math.min(100, d.ratio)).toFixed(1) +
+      '%"></div>';
+    html += "</div>";
+    html += '<div class="bar-ticks">';
+    var ticks = [
+      { v: 60, cls: "" },
+      { v: 70, cls: "" },
+      { v: 80, cls: "" },
+      { v: 90, cls: "" },
+    ];
+    // baseline tick (if distinct from standard ones)
+    var baseTick = { v: d.baseline, cls: "baseline" };
+    var allTicks = ticks.slice();
+    var dupe = false;
+    allTicks.forEach(function (t) {
+      if (t.v === d.baseline) {
+        t.cls = "baseline";
+        dupe = true;
+      }
+    });
+    if (!dupe) allTicks.push(baseTick);
+    allTicks.forEach(function (t) {
+      var label = t.cls === "baseline" ? "기준 " + fmt(t.v) : String(t.v);
+      html +=
+        '<span class="tick ' +
+        t.cls +
+        '" style="left:' +
+        Math.max(0, Math.min(100, t.v)) +
+        '%">' +
+        esc(label) +
+        "</span>";
+    });
+    // current ratio marker
+    html +=
+      '<span class="tick" style="left:' +
+      Math.max(0, Math.min(100, d.ratio)) +
+      "%;color:var(--ink);font-weight:800\">▲</span>";
+    html += "</div></div>";
+
+    // category breakdown
+    html += '<div class="result-block-title">영역별 소계</div>';
+    html += '<div class="break-grid">';
+    html += '<div class="break-card comp"><p class="bc-name">업무역량</p>';
+    html +=
+      '<p class="bc-score">' +
+      d.compS +
+      ' <span>/ ' +
+      d.compM +
+      "점</span></p>";
+    html +=
+      '<p class="bc-ratio">' + (d.compM > 0 ? fmt(pct(d.compS, d.compM)) + "%" : "문항 없음") + "</p></div>";
+    html += '<div class="break-card value"><p class="bc-name">핵심가치 실천 (가중 x2)</p>';
+    html +=
+      '<p class="bc-score">' +
+      d.valS +
+      ' <span>/ ' +
+      d.valM +
+      "점</span></p>";
+    html +=
+      '<p class="bc-ratio">' + (d.valM > 0 ? fmt(pct(d.valS, d.valM)) + "%" : "문항 없음") + "</p></div>";
+    html += "</div>";
+    html +=
+      '<p class="weight-note">핵심가치 실천은 문항당 20점으로 업무역량(10점)의 2배 비중이 자동 반영되어 있습니다. 조직의 핵심가치에 부합하는 태도·행동은 단기 훈련으로 바뀌기 어렵기 때문에 전환 판단에서 가장 높은 비중을 둡니다.</p>';
+
+    // per-item table
+    html += '<div class="result-block-title">문항별 점수</div>';
+    html += '<div class="tbl-scroll"><table class="grid">';
+    html +=
+      "<thead><tr><th>구분</th><th>항목</th><th class=\"num\">획득</th><th class=\"num\">만점</th><th class=\"num\">비율</th></tr></thead><tbody>";
+    d.rows.forEach(function (r, i) {
+      var nm = r.name || (r.kind === "value" ? "핵심가치 문항 " + (i + 1) : "업무역량 문항 " + (i + 1));
+      html += "<tr>";
+      html +=
+        '<td class="' +
+        (r.kind === "value" ? "cat-value" : "") +
+        '">' +
+        KIND[r.kind].label +
+        "</td>";
+      html += "<td>" + esc(nm) + (r.entered ? "" : ' <span style="color:var(--ink-mute);font-size:0.82rem">(미입력)</span>') + "</td>";
+      html += '<td class="num">' + r.score + "</td>";
+      html += '<td class="num">' + r.max + "</td>";
+      html += '<td class="num">' + fmt(pct(r.score, r.max)) + "%</td>";
+      html += "</tr>";
+    });
+    html += "</tbody></table></div>";
+
+    // grade scale table
+    html += '<div class="result-block-title">등급 기준표 (만점 ' + d.maxTotal + "점 기준)</div>";
+    html += '<div class="tbl-scroll"><table class="grid">';
+    html +=
+      "<thead><tr><th>등급</th><th>비율</th><th class=\"num\">점수 구간</th></tr></thead><tbody>";
+    var bounds = [
+      { g: "S", lo: 90, hi: 100 },
+      { g: "A", lo: 80, hi: 90 },
+      { g: "B", lo: 70, hi: 80 },
+      { g: "C", lo: 60, hi: 70 },
+      { g: "D", lo: 0, hi: 60 },
+    ];
+    bounds.forEach(function (b) {
+      var loPts = (d.maxTotal * b.lo) / 100;
+      var hiPts = (d.maxTotal * b.hi) / 100;
+      var rangeTxt, ratioTxt;
+      if (b.g === "S") {
+        ratioTxt = "90% 이상";
+        rangeTxt = fmt(loPts) + "점 이상";
+      } else if (b.g === "D") {
+        ratioTxt = "59% 이하";
+        rangeTxt = fmt(hiPts) + "점 미만";
+      } else {
+        ratioTxt = b.lo + "% 이상 " + b.hi + "% 미만";
+        rangeTxt = fmt(loPts) + " ~ " + fmt(hiPts) + "점 미만";
+      }
+      var cur = b.g === d.grade.g ? ' class="is-current"' : "";
+      html +=
+        "<tr" +
+        cur +
+        '><td><span class="g-tag">' +
+        b.g +
+        "</span></td><td>" +
+        ratioTxt +
+        '</td><td class="num">' +
+        rangeTxt +
+        "</td></tr>";
+    });
+    html += "</tbody></table></div>";
+    html +=
+      '<p class="weight-note" style="background:#f4f4f9;border-color:var(--line);color:var(--ink-soft)">전환 기준선: <b>' +
+      fmt(d.baseline) +
+      "%</b> 이상(" +
+      fmt(d.baselinePts) +
+      "점 이상). 기본값은 B등급 이상(70%)이며 고객사 정책에 따라 조정할 수 있습니다.</p>";
+
+    // AI prompt
+    lastPrompt = buildPrompt(d);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 채점 결과를 바탕으로 평가 의견과 전환 판단 코멘트 초안을 작성해 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function buildPrompt(d) {
+    var L = [];
+    L.push(
+      "당신은 핵심가치 기반 정규직 전환 평가를 설계·해석하는 HR 전문가입니다."
+    );
+    L.push(
+      "아래 채점 결과를 바탕으로, 평가자가 참고할 평가 의견과 전환 판단 코멘트 초안을 작성해 주세요."
+    );
+    L.push("");
+    L.push("【채점 요약】");
+    L.push("- 총점: " + d.total + " / " + d.maxTotal + "점 (" + fmt(d.ratio) + "%)");
+    L.push("- 등급: " + d.grade.g + " (" + d.grade.name + ")");
+    L.push(
+      "- 전환 기준선: " +
+        fmt(d.baseline) +
+        "% (" +
+        fmt(d.baselinePts) +
+        "점) → " +
+        (d.pass ? "통과" : "미달")
+    );
+    L.push(
+      "- 업무역량 소계: " +
+        d.compS +
+        " / " +
+        d.compM +
+        "점" +
+        (d.compM > 0 ? " (" + fmt(pct(d.compS, d.compM)) + "%)" : "")
+    );
+    L.push(
+      "- 핵심가치 실천 소계(가중 x2): " +
+        d.valS +
+        " / " +
+        d.valM +
+        "점" +
+        (d.valM > 0 ? " (" + fmt(pct(d.valS, d.valM)) + "%)" : "")
+    );
+    L.push("");
+    L.push("【문항별 점수】");
+    d.rows.forEach(function (r, i) {
+      var nm =
+        r.name ||
+        (r.kind === "value" ? "핵심가치 문항 " + (i + 1) : "업무역량 문항 " + (i + 1));
+      L.push(
+        "- [" +
+          KIND[r.kind].label +
+          "] " +
+          nm +
+          ": " +
+          r.score +
+          "/" +
+          r.max +
+          "점" +
+          (r.entered ? "" : " (미입력)")
+      );
+    });
+    L.push("");
+    L.push("【요청 사항】");
+    L.push("1. 이 대상자의 강점과 보완이 필요한 영역을 문항 점수 근거로 짚어 주세요.");
+    L.push(
+      "2. 핵심가치 실천 소계를 가장 무겁게 해석하고, 업무역량과 분리해 평가 의견 3~4문장을 써 주세요."
+    );
+    L.push(
+      "3. 전환 기준선(" +
+        fmt(d.baseline) +
+        "%) 통과 여부를 근거로 전환 판단 코멘트를 제시하되, 결론을 단정하기보다 평가자가 확인할 관찰 포인트를 함께 제안해 주세요."
+    );
+    L.push(
+      "4. 점수가 낮은 문항은 다음 기간에 관찰·코칭할 구체적 행동 목표로 바꿔 주세요."
+    );
+    L.push(
+      "5. 제공된 점수에 없는 사실을 지어내지 말고, 추가로 필요한 정보가 있으면 저에게 먼저 물어봐 주세요."
+    );
+    return L.join("\n");
+  }
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    itemsEl.innerHTML = "";
+    makeRow("comp", "근무태도", "");
+    makeRow("comp", "업무처리능력", "");
+    makeRow("comp", "인성", "");
+    makeRow("value", "핵심가치 실천 ①", "");
+    makeRow("value", "핵심가치 실천 ②", "");
+    document.getElementById("baseline").value = 70;
+    refreshMax();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+      "<p><strong>아직 판정 전입니다.</strong></p>" +
+      "<p>문항 점수를 입력하고 '점수 판정하기'를 누르세요.</p></div>";
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

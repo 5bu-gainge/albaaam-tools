@@ -1,0 +1,1618 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>회의 아젠다 타임박스 빌더</title>
+<meta name="description" content="안건과 목표 시간을 넣으면 안건별 타임박스와 '결정 필요/공유/논의' 태그가 붙은 아젠다를 만듭니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2f6d78;
+    --accent-strong: #235761;
+    --accent-tint: #e7f1f2;
+    --accent-tint-2: #cfe4e6;
+    --ink: #1f2523;
+    --ink-soft: #45504d;
+    --ink-mute: #667069;
+    --paper: #f6f8f7;
+    --card: #ffffff;
+    --line: #e2e8e6;
+    --line-strong: #cdd6d3;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #b23b3b;
+    --warn-tint: #fbecec;
+    --warn-tint-2: #f1d6d6;
+    --caution: #b5791f;
+    --shadow: 0 1px 2px rgba(31, 37, 35, 0.05), 0 6px 20px rgba(31, 37, 35, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  input[type="text"],
+  input[type="number"],
+  input[type="time"],
+  select,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    min-height: 46px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    resize: none;
+    overflow: hidden;
+    line-height: 1.55;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #9aa5a1;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  .setup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 16px;
+  }
+  .setup-grid .full {
+    grid-column: 1 / -1;
+  }
+
+  /* ---------- agenda rows ---------- */
+  ul.ag-list {
+    list-style: none;
+    margin: 0 0 14px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  li.ag-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: start;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfdfc;
+    padding: 12px;
+  }
+  .ag-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+  }
+  .ag-num {
+    flex: none;
+    width: 24px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .ag-name {
+    min-height: 46px;
+  }
+  .ag-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .ag-min-wrap {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .ag-min {
+    width: 74px;
+    text-align: right;
+    -moz-appearance: textfield;
+  }
+  .ag-min::-webkit-outer-spin-button,
+  .ag-min::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .ag-unit {
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  .ag-tag {
+    width: auto;
+    min-width: 116px;
+    padding-right: 30px;
+  }
+  .ag-del {
+    flex: none;
+    width: 46px;
+    min-width: 46px;
+    height: 46px;
+    padding: 0;
+    font-size: 1.3rem;
+    line-height: 1;
+    color: var(--ink-mute);
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    cursor: pointer;
+  }
+  .ag-del:hover {
+    color: var(--warn);
+    border-color: var(--warn);
+    background: var(--warn-tint);
+  }
+
+  /* ---------- buttons ---------- */
+  .row-actions {
+    margin-bottom: 4px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s, color 0.15s;
+    min-height: 46px;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 170px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .btn-add {
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border-color: var(--accent-tint-2);
+    font-size: 0.94rem;
+    width: 100%;
+  }
+  .btn-add:hover {
+    background: var(--accent-tint-2);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .inline-warn {
+    color: var(--warn);
+    font-weight: 700;
+    font-size: 0.92rem;
+    margin: 10px 0 0;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-over {
+    background: var(--warn-tint);
+    border-color: var(--warn-tint-2);
+  }
+  .verdict.tone-tight {
+    background: #fff6ea;
+    border-color: #f2ddc0;
+  }
+  .verdict.tone-ok {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.36rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-over .verdict-title {
+    color: #9c2f2f;
+  }
+  .verdict.tone-tight .verdict-title {
+    color: #a05e12;
+  }
+  .verdict.tone-ok .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .usebar {
+    position: relative;
+    height: 12px;
+    border-radius: 7px;
+    background: #e6ece9;
+    margin: 16px 0 6px;
+    overflow: hidden;
+  }
+  .usebar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 7px;
+    background: var(--accent);
+  }
+  .verdict.tone-over .usebar-fill {
+    background: var(--warn);
+  }
+  .verdict.tone-tight .usebar-fill {
+    background: var(--caution);
+  }
+  .verdict.tone-ok .usebar-fill {
+    background: var(--good);
+  }
+  .usebar-caption {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  /* ---------- summary cells ---------- */
+  .sum-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 18px 0 4px;
+  }
+  .sum-cell {
+    text-align: center;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 12px 6px;
+    background: #fbfdfc;
+  }
+  .sum-num {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .sum-num.tag-decision {
+    color: #9a3d18;
+  }
+  .sum-num.tag-share {
+    color: #2f5c8a;
+  }
+  .sum-num.tag-discuss {
+    color: #5f4b93;
+  }
+  .sum-lab {
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* ---------- timebox list ---------- */
+  ul.tb-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  li.tb-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 13px;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 12px 14px;
+    background: #fbfdfc;
+  }
+  li.tb-item.is-decision {
+    border-left-color: #b4552e;
+  }
+  .tb-time {
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    color: var(--accent-strong);
+    font-size: 0.86rem;
+    white-space: nowrap;
+    text-align: right;
+    min-width: 88px;
+  }
+  .tb-body {
+    min-width: 0;
+  }
+  .tb-name {
+    font-weight: 700;
+    font-size: 0.99rem;
+    margin: 0 0 5px;
+  }
+  .tb-tags {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .tb-dur {
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .tb-share {
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .tag-decision {
+    color: #9a3d18;
+    background: #fbeade;
+    border-color: #f0d2bd;
+  }
+  .tag-share {
+    color: #2f5c8a;
+    background: #e9f1fa;
+    border-color: #d1e0f1;
+  }
+  .tag-discuss {
+    color: #5f4b93;
+    background: #efeafb;
+    border-color: #ddd2f2;
+  }
+
+  /* ---------- decision callout ---------- */
+  .decide-box {
+    border: 1px solid #f0d2bd;
+    background: #fdf3ec;
+    border-radius: 12px;
+    padding: 14px 15px;
+    margin: 0;
+  }
+  .decide-box .db-head {
+    font-weight: 800;
+    font-size: 0.94rem;
+    color: #9a3d18;
+    margin: 0 0 8px;
+  }
+  .decide-box ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .decide-box li {
+    margin: 3px 0;
+  }
+  .decide-box li b {
+    color: var(--ink);
+  }
+
+  /* ---------- insights ---------- */
+  ul.ins-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  li.ins-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 14px;
+    background: #fbfdfc;
+  }
+  li.ins-item.warn {
+    border-left-color: var(--warn);
+    background: var(--warn-tint);
+  }
+  li.ins-item.caution {
+    border-left-color: var(--caution);
+    background: #fff8ee;
+  }
+  li.ins-item.info {
+    border-left-color: var(--accent);
+  }
+  li.ins-item.good {
+    border-left-color: var(--good);
+    background: var(--good-tint);
+  }
+  .ins-title {
+    font-weight: 700;
+    font-size: 0.93rem;
+    margin: 0 0 3px;
+  }
+  .ins-body {
+    font-size: 0.87rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* ---------- prompt ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23302f;
+    color: #eef4f2;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 37, 35, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 560px) {
+    li.ag-row {
+      grid-template-columns: 1fr;
+    }
+    .ag-meta {
+      padding-left: 34px;
+    }
+    .ag-tag {
+      flex: 1 1 auto;
+    }
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .setup-grid {
+      grid-template-columns: 1fr;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .sum-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    li.tb-item {
+      grid-template-columns: auto 1fr;
+    }
+    .tb-dur {
+      grid-column: 2;
+      justify-self: start;
+      margin-top: 2px;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #setup-panel,
+    #agenda-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">회의 설계 · 타임박스</span>
+    <h1>회의 아젠다 타임박스 빌더</h1>
+    <p class="lede">
+      안건과 목표 시간을 넣으면, 안건별 시간표(타임박스)와 '결정 필요 / 공유 /
+      논의' 태그가 붙은 아젠다를 만들어 드립니다. 배정 합계가 목표를 넘는지도
+      바로 짚어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="setup-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>회의 기본 정보</h2>
+    </div>
+    <p class="panel-sub">
+      목표 시간은 꼭 넣어 주세요. 안건 배정의 합이 이 시간을 넘으면 경고합니다.
+      시작 시각을 넣으면 안건마다 실제 시계 시간이 표시됩니다.
+    </p>
+    <div class="setup-grid">
+      <div class="full">
+        <label class="field-label" for="meetTitle">회의명 (선택)</label>
+        <input type="text" id="meetTitle" placeholder="예) 3분기 마케팅 주간 회의" />
+      </div>
+      <div>
+        <label class="field-label" for="targetMin">목표 시간 (분)</label>
+        <input type="number" id="targetMin" min="1" step="5" value="60" inputmode="numeric" />
+      </div>
+      <div>
+        <label class="field-label" for="startTime">시작 시각 (선택)</label>
+        <input type="time" id="startTime" />
+      </div>
+    </div>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="agenda-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>안건 · 배정 시간 · 태그</h2>
+    </div>
+    <p class="panel-sub">
+      안건마다 이름, 배정 시간(분), 성격 태그를 정하세요. 태그는
+      <b>결정 필요</b>(회의에서 결론을 내야 함), <b>공유</b>(정보 전달),
+      <b>논의</b>(의견 수렴)로 나뉩니다.
+    </p>
+
+    <ul class="ag-list" id="agList" aria-label="안건 목록"></ul>
+
+    <div class="row-actions">
+      <button class="btn-add" id="addRow" type="button">+ 안건 추가</button>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="buildBtn" type="button">타임박스 만들기</button>
+      <button class="btn-ghost" id="sampleBtn" type="button">예시로 채우기</button>
+      <button class="btn-ghost" id="resetBtn" type="button">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>타임박스 아젠다</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◷</div>
+        <p><strong>아직 만들기 전입니다.</strong></p>
+        <p>안건과 배정 시간을 넣고 '타임박스 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 타임박스(Timeboxing)와 목적별 안건 분류는
+      애자일·퍼실리테이션에서 널리 쓰이는 회의 설계 관행입니다. 안건을
+      <em>결정(Decide) · 공유(Inform) · 논의(Discuss)</em> 로 나누고 각 안건에
+      시간 상자를 두면, 회의가 목적을 잃고 늘어지는 것을 막을 수 있습니다. 이
+      도구가 쓰는 임계값(단일 안건 40% 초과, 버퍼 10~15% 등)은 고정된 법칙이
+      아니라 흔히 통용되는 어림 기준이며, 회의 성격에 맞게 조정하세요.
+    </p>
+    <p>
+      이 도구는 회의 설계를 돕는 보조 도구이며, 시간 배분과 우선순위의 최종
+      판단은 주관자의 몫입니다. 결과는 스스로 다듬을 초안으로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select" type="button">전체 선택</button>
+      <button class="btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  var TAGS = {
+    decision: { label: "결정 필요", cls: "tag-decision" },
+    share: { label: "공유", cls: "tag-share" },
+    discuss: { label: "논의", cls: "tag-discuss" },
+  };
+
+  var SAMPLE = {
+    title: "3분기 마케팅 주간 회의",
+    target: 40,
+    start: "14:00",
+    rows: [
+      { name: "지난주 액션 아이템 점검", min: 5, tag: "share" },
+      { name: "3분기 캠페인 예산 배정 확정", min: 20, tag: "decision" },
+      { name: "신규 협업 툴 도입 논의", min: 12, tag: "discuss" },
+      { name: "채용 진행 현황 공유", min: 8, tag: "share" },
+    ],
+  };
+
+  var agList = document.getElementById("agList");
+  var resultEl = document.getElementById("result");
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // ---- auto-grow textareas ----
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  // ---- build a single agenda row ----
+  function tagOptions(sel) {
+    var out = "";
+    for (var k in TAGS) {
+      if (!TAGS.hasOwnProperty(k)) continue;
+      out +=
+        '<option value="' +
+        k +
+        '"' +
+        (k === sel ? " selected" : "") +
+        ">" +
+        TAGS[k].label +
+        "</option>";
+    }
+    return out;
+  }
+
+  function makeRow(data) {
+    data = data || {};
+    var li = document.createElement("li");
+    li.className = "ag-row";
+    li.innerHTML =
+      '<div class="ag-main">' +
+      '<span class="ag-num" aria-hidden="true"></span>' +
+      '<textarea class="ag-name" rows="1" placeholder="안건 이름 (예: 3분기 예산 배정 확정)"></textarea>' +
+      "</div>" +
+      '<div class="ag-meta">' +
+      '<span class="ag-min-wrap"><input type="number" class="ag-min" min="1" step="1" inputmode="numeric" placeholder="분" aria-label="배정 시간(분)" /><span class="ag-unit">분</span></span>' +
+      '<select class="ag-tag" aria-label="안건 태그">' +
+      tagOptions(data.tag || "discuss") +
+      "</select>" +
+      '<button class="ag-del" type="button" aria-label="이 안건 삭제" title="삭제">&times;</button>' +
+      "</div>";
+    agList.appendChild(li);
+
+    var nameEl = li.querySelector(".ag-name");
+    if (data.name) nameEl.value = data.name;
+    if (data.min != null) li.querySelector(".ag-min").value = data.min;
+    renumber();
+    // grow after it is in the DOM
+    grow(nameEl);
+    return li;
+  }
+
+  function renumber() {
+    var nums = agList.querySelectorAll(".ag-num");
+    Array.prototype.forEach.call(nums, function (n, i) {
+      n.textContent = i + 1;
+    });
+  }
+
+  // delegated: auto-grow + delete
+  agList.addEventListener("input", function (e) {
+    if (e.target.classList.contains("ag-name")) grow(e.target);
+  });
+  agList.addEventListener("click", function (e) {
+    var del = e.target.closest(".ag-del");
+    if (!del) return;
+    var rows = agList.querySelectorAll("li.ag-row");
+    if (rows.length <= 1) {
+      // clear the last row instead of removing it
+      var li = del.closest("li.ag-row");
+      li.querySelector(".ag-name").value = "";
+      li.querySelector(".ag-min").value = "";
+      li.querySelector(".ag-tag").value = "discuss";
+      grow(li.querySelector(".ag-name"));
+    } else {
+      del.closest("li.ag-row").remove();
+      renumber();
+    }
+  });
+
+  document.getElementById("addRow").addEventListener("click", function () {
+    var li = makeRow();
+    li.querySelector(".ag-name").focus();
+  });
+
+  // ---- read rows ----
+  function readRows() {
+    var rows = [];
+    Array.prototype.forEach.call(agList.querySelectorAll("li.ag-row"), function (li) {
+      var name = li.querySelector(".ag-name").value.trim();
+      var min = parseInt(li.querySelector(".ag-min").value, 10);
+      var tag = li.querySelector(".ag-tag").value;
+      if (!TAGS[tag]) tag = "discuss";
+      rows.push({ name: name, min: isNaN(min) ? 0 : min, tag: tag, hasName: !!name });
+    });
+    return rows;
+  }
+
+  // ---- time helpers ----
+  function parseStart(str) {
+    if (!str) return null;
+    var m = /^(\d{1,2}):(\d{2})$/.exec(str.trim());
+    if (!m) return null;
+    var h = parseInt(m[1], 10);
+    var mi = parseInt(m[2], 10);
+    if (h < 0 || h > 23 || mi < 0 || mi > 59) return null;
+    return h * 60 + mi;
+  }
+  function pad2(n) {
+    return (n < 10 ? "0" : "") + n;
+  }
+  function fmtHM(totalMin) {
+    var t = ((totalMin % 1440) + 1440) % 1440;
+    var h = Math.floor(t / 60);
+    var mi = t % 60;
+    return h + ":" + pad2(mi);
+  }
+  function fmtDur(min) {
+    if (min < 60) return min + "분";
+    var h = Math.floor(min / 60);
+    var mi = min % 60;
+    return mi === 0 ? h + "시간" : h + "시간 " + mi + "분";
+  }
+
+  // ---- insight engine ----
+  function computeInsights(items, target, allocated, decMin, shareMin, startAbs) {
+    var out = [];
+    var over = allocated - target;
+    var buffer = target - allocated;
+    var decCount = 0,
+      shareCount = 0,
+      discussCount = 0;
+    items.forEach(function (it) {
+      if (it.tag === "decision") decCount++;
+      else if (it.tag === "share") shareCount++;
+      else discussCount++;
+    });
+
+    // 1. over / buffer
+    if (over > 0) {
+      out.push({
+        sev: "warn",
+        title: "목표 시간을 " + fmtDur(over) + " 초과했습니다",
+        body:
+          "안건 배정 합계가 목표(" +
+          fmtDur(target) +
+          ")를 " +
+          fmtDur(over) +
+          " 넘습니다. 가장 긴 안건부터 시간을 줄이거나, 성격상 미룰 수 있는 안건을 다음 회의나 비동기 채널로 넘기세요.",
+      });
+    } else if (buffer > 0 && buffer < Math.max(5, Math.round(target * 0.1))) {
+      out.push({
+        sev: "caution",
+        title: "예비 시간이 거의 없습니다 (" + fmtDur(buffer) + ")",
+        body:
+          "회의는 대개 예정보다 길어집니다. 목표의 10~15%(약 " +
+          fmtDur(Math.max(5, Math.round(target * 0.12))) +
+          ")를 질의·초과분 대비 버퍼로 남겨 두는 편이 안전합니다.",
+      });
+    } else if (allocated > 0 && allocated < target * 0.7) {
+      out.push({
+        sev: "info",
+        title: "여유 시간이 " + fmtDur(buffer) + " 남습니다",
+        body:
+          "목표 대비 배정이 적습니다. 질의응답·회고에 배분하거나, 굳이 시간을 채우지 말고 회의를 일찍 마쳐 참석자 시간을 돌려주세요.",
+      });
+    }
+
+    // 2. single item too large
+    if (items.length >= 2 && allocated > 0) {
+      var bigs = items
+        .filter(function (it) {
+          return it.min >= allocated * 0.4;
+        })
+        .slice(0, 2);
+      bigs.forEach(function (it) {
+        var pct = Math.round((it.min / allocated) * 100);
+        out.push({
+          sev: "caution",
+          title: "'" + it.name + "'이(가) 전체의 " + pct + "%입니다",
+          body:
+            "한 안건이 회의 시간을 크게 차지합니다. 하위 안건으로 쪼개거나, 배경 설명은 사전 자료로 미리 공유해 회의에서는 결정·논의에 집중하세요.",
+        });
+      });
+    }
+
+    // 3. no decision item
+    if (decCount === 0 && items.length > 0) {
+      out.push({
+        sev: "caution",
+        title: "'결정 필요' 안건이 없습니다",
+        body:
+          "공유·논의만 있는 회의라면, 문서 배포나 비동기 채널(메신저·댓글)로 대체할 수 있는지 검토해 보세요. 모두의 시간을 같은 자리에 묶을 이유가 분명한지 점검하는 것이 좋습니다.",
+      });
+    }
+
+    // 4. decision item with too little time
+    var thinDec = items
+      .filter(function (it) {
+        return it.tag === "decision" && it.min > 0 && it.min < 5;
+      })
+      .slice(0, 2);
+    thinDec.forEach(function (it) {
+      out.push({
+        sev: "caution",
+        title: "'" + it.name + "' 결정에 " + fmtDur(it.min) + "은 촉박합니다",
+        body:
+          "합의까지 가야 하는 결정 안건에 5분 미만은 대개 부족합니다. 사전에 선택지를 좁혀 오거나 시간을 늘리는 편이 실제 결론을 낼 확률을 높입니다.",
+      });
+    });
+
+    // 5. share-heavy
+    if (allocated > 0 && shareMin >= allocated * 0.5 && shareCount >= 1) {
+      var sp = Math.round((shareMin / allocated) * 100);
+      out.push({
+        sev: "info",
+        title: "'공유' 안건이 회의 시간의 " + sp + "%입니다",
+        body:
+          "단순 정보 공유는 문서·녹화로 사전 배포하면 실시간 회의 시간을 아낄 수 있습니다. 회의에서는 질문과 결정에 시간을 쓰는 것이 밀도를 높입니다.",
+      });
+    }
+
+    // 6. too many / too fragmented items
+    var avg = items.length ? allocated / items.length : 0;
+    if (items.length >= 7 || (items.length >= 5 && avg < 5)) {
+      out.push({
+        sev: "caution",
+        title: "안건이 " + items.length + "개로 많습니다",
+        body:
+          "안건이 바뀔 때마다 집중이 끊깁니다. 핵심 3~5개로 좁히거나 성격이 비슷한 안건을 하나로 묶으면 회의 흐름이 매끄러워집니다.",
+      });
+    }
+
+    // 7. decision item placed late
+    if (decCount >= 1 && items.length >= 3) {
+      var firstDecIdx = -1;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].tag === "decision") {
+          firstDecIdx = i;
+          break;
+        }
+      }
+      if (firstDecIdx >= Math.ceil(items.length / 2)) {
+        out.push({
+          sev: "info",
+          title: "결정 안건이 회의 뒤쪽에 있습니다",
+          body:
+            "참석자 집중도가 가장 높은 회의 전반부에 '결정 필요' 안건을 배치하면 결론의 질이 올라갑니다. 공유성 안건은 뒤로 미뤄도 무방한 경우가 많습니다.",
+        });
+      }
+    }
+
+    // positive note when clean
+    var hasHardWarn = out.some(function (o) {
+      return o.sev === "warn" || o.sev === "caution";
+    });
+    if (!hasHardWarn) {
+      out.unshift({
+        sev: "good",
+        title: "균형 잡힌 아젠다입니다",
+        body:
+          "시간 초과나 과대 안건 같은 위험 신호가 잡히지 않았습니다. 시작 전에 각 안건의 '이 안건이 끝나면 무엇이 정해져 있어야 하는가'만 한 줄로 적어 두면 완성도가 더 올라갑니다.",
+      });
+    }
+
+    return out;
+  }
+
+  // ---- prompt builder ----
+  function buildPrompt(meta, items, startAbs) {
+    var L = [];
+    L.push(
+      "당신은 회의 설계와 퍼실리테이션에 능숙한 진행 코치입니다. 아래 회의 아젠다를 검토하고, 시간 안에 목적을 달성하도록 다듬어 주세요."
+    );
+    L.push("");
+    L.push("【회의 정보】");
+    L.push("- 회의명: " + (meta.title || "(미입력)"));
+    L.push(
+      "- 목표 시간: " +
+        fmtDur(meta.target) +
+        (startAbs != null ? " (시작 " + fmtHM(startAbs) + ")" : "")
+    );
+    var over = meta.allocated - meta.target;
+    L.push(
+      "- 총 배정: " +
+        fmtDur(meta.allocated) +
+        " (" +
+        (over > 0
+          ? fmtDur(over) + " 초과"
+          : over < 0
+          ? "여유 " + fmtDur(-over)
+          : "목표와 동일") +
+        ")"
+    );
+    L.push("");
+    L.push("【타임박스 아젠다】");
+    var cursor = startAbs;
+    var elapsed = 0;
+    items.forEach(function (it, i) {
+      var s, e;
+      if (startAbs != null) {
+        s = fmtHM(cursor);
+        e = fmtHM(cursor + it.min);
+        cursor += it.min;
+      } else {
+        s = fmtHM(elapsed);
+        e = fmtHM(elapsed + it.min);
+        elapsed += it.min;
+      }
+      L.push(
+        i +
+          1 +
+          ". " +
+          s +
+          "–" +
+          e +
+          " (" +
+          fmtDur(it.min) +
+          ") [" +
+          TAGS[it.tag].label +
+          "] " +
+          it.name
+      );
+    });
+    L.push("");
+    L.push("【요청 사항】");
+    L.push("1. 위 타임박스가 현실적인지 점검하고, 초과나 과대 안건이 있으면 어떤 안건을 어떻게 조정할지 제안해 주세요.");
+    L.push("2. 안건 순서를 검토해 주세요. 결정 필요 안건을 참석자 집중도가 높은 전반부에 두는 것을 기본 원칙으로 삼습니다.");
+    L.push("3. '결정 필요'로 표시된 각 안건마다: (a) 정확히 무엇을 결정하는지 한 문장, (b) 누가 최종 결정하는지, (c) 결정 전에 참석자가 미리 봐야 할 정보/자료를 정리해 주세요.");
+    L.push("4. '공유' 안건 중 사전 배포(문서·녹화)로 대체해 회의 시간을 줄일 수 있는 것을 골라 주세요.");
+    L.push("5. 참석자에게 그대로 보낼 수 있는 최종 아젠다(안건명 · 시간 · 목적 한 줄)를 정리해 주세요.");
+    L.push("6. 사실을 지어내지 말고, 맥락이 더 필요하면 저에게 먼저 질문해 주세요.");
+    return L.join("\n");
+  }
+
+  var lastPrompt = "";
+
+  // ---- main build ----
+  function build() {
+    var rows = readRows();
+    var meta = {
+      title: document.getElementById("meetTitle").value.trim(),
+    };
+    var target = parseInt(document.getElementById("targetMin").value, 10);
+    var startAbs = parseStart(document.getElementById("startTime").value);
+
+    var items = rows.filter(function (r) {
+      return r.hasName && r.min > 0;
+    });
+
+    // validation
+    if (items.length === 0) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">◷</div>' +
+        "<p><strong>아직 만들 수 없습니다.</strong></p>" +
+        '<p class="inline-warn">이름과 배정 시간(1분 이상)이 있는 안건을 최소 1개 입력하세요.</p></div>';
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (isNaN(target) || target <= 0) {
+      // fall back to the allocated sum so the tool still works, and note it
+      target = 0;
+    }
+
+    var allocated = items.reduce(function (a, b) {
+      return a + b.min;
+    }, 0);
+    if (target <= 0) target = allocated;
+
+    var decMin = 0,
+      shareMin = 0,
+      discussMin = 0,
+      decCount = 0,
+      shareCount = 0,
+      discussCount = 0;
+    items.forEach(function (it) {
+      if (it.tag === "decision") {
+        decMin += it.min;
+        decCount++;
+      } else if (it.tag === "share") {
+        shareMin += it.min;
+        shareCount++;
+      } else {
+        discussMin += it.min;
+        discussCount++;
+      }
+    });
+
+    var over = allocated - target;
+    var buffer = target - allocated;
+    var tone, vlabel, vtitle, vdesc;
+    if (over > 0) {
+      tone = "over";
+      vlabel = "시간 초과";
+      vtitle = "배정 합계가 목표를 넘습니다";
+      vdesc =
+        "총 " +
+        fmtDur(allocated) +
+        "을 배정해 목표 " +
+        fmtDur(target) +
+        "보다 " +
+        fmtDur(over) +
+        " 많습니다. 조정이 필요합니다.";
+    } else if (buffer < Math.max(5, Math.round(target * 0.1))) {
+      tone = "tight";
+      vlabel = buffer === 0 ? "버퍼 없음" : "버퍼 부족";
+      vtitle = "예정대로면 시간이 빠듯합니다";
+      vdesc =
+        "총 " +
+        fmtDur(allocated) +
+        " 배정, 예비 시간은 " +
+        fmtDur(buffer) +
+        "뿐입니다. 회의가 조금만 늘어져도 목표를 넘깁니다.";
+    } else {
+      tone = "ok";
+      vlabel = "여유 있음";
+      vtitle = "시간 배분이 안정적입니다";
+      vdesc =
+        "총 " +
+        fmtDur(allocated) +
+        " 배정, 예비 시간 " +
+        fmtDur(buffer) +
+        "을 확보했습니다.";
+    }
+
+    var pct = allocated / target;
+    var fillW = Math.min(pct, 1) * 100;
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + tone + '">';
+    html += '<p class="verdict-label">' + esc(vlabel) + "</p>";
+    html += '<p class="verdict-title">' + esc(vtitle) + "</p>";
+    html += '<p class="verdict-desc">' + esc(vdesc) + "</p>";
+    html +=
+      '<div class="usebar" role="img" aria-label="목표 대비 배정 ' +
+      Math.round(pct * 100) +
+      '퍼센트"><div class="usebar-fill" style="width:' +
+      fillW.toFixed(1) +
+      '%"></div></div>';
+    html +=
+      '<p class="usebar-caption">배정 ' +
+      fmtDur(allocated) +
+      " / 목표 " +
+      fmtDur(target) +
+      " · " +
+      (over > 0
+        ? fmtDur(over) + " 초과"
+        : over < 0
+        ? "여유 " + fmtDur(-over)
+        : "정확히 일치") +
+      "</p>";
+    html += "</div>";
+
+    // summary cells
+    html += '<div class="sum-grid">';
+    html +=
+      '<div class="sum-cell"><div class="sum-num">' +
+      items.length +
+      '</div><div class="sum-lab">안건 수</div></div>';
+    html +=
+      '<div class="sum-cell"><div class="sum-num tag-decision">' +
+      decCount +
+      '</div><div class="sum-lab">결정 필요</div></div>';
+    html +=
+      '<div class="sum-cell"><div class="sum-num tag-share">' +
+      shareCount +
+      '</div><div class="sum-lab">공유</div></div>';
+    html +=
+      '<div class="sum-cell"><div class="sum-num tag-discuss">' +
+      discussCount +
+      '</div><div class="sum-lab">논의</div></div>';
+    html += "</div>";
+
+    // timebox list
+    html += '<div class="result-block-title">안건별 타임박스</div>';
+    html += '<ul class="tb-list">';
+    var cursor = startAbs;
+    var elapsed = 0;
+    items.forEach(function (it) {
+      var s, e;
+      if (startAbs != null) {
+        s = fmtHM(cursor);
+        e = fmtHM(cursor + it.min);
+        cursor += it.min;
+      } else {
+        s = fmtHM(elapsed);
+        e = fmtHM(elapsed + it.min);
+        elapsed += it.min;
+      }
+      var share = allocated > 0 ? Math.round((it.min / allocated) * 100) : 0;
+      html +=
+        '<li class="tb-item' +
+        (it.tag === "decision" ? " is-decision" : "") +
+        '">';
+      html += '<div class="tb-time">' + esc(s) + "<br>" + esc(e) + "</div>";
+      html += '<div class="tb-body">';
+      html += '<p class="tb-name">' + esc(it.name) + "</p>";
+      html += '<div class="tb-tags">';
+      html +=
+        '<span class="tag ' +
+        TAGS[it.tag].cls +
+        '">' +
+        TAGS[it.tag].label +
+        "</span>";
+      html += '<span class="tb-share">전체의 ' + share + "%</span>";
+      html += "</div></div>";
+      html += '<div class="tb-dur">' + esc(fmtDur(it.min)) + "</div>";
+      html += "</li>";
+    });
+    html += "</ul>";
+
+    // decision callout
+    var decItems = items.filter(function (it) {
+      return it.tag === "decision";
+    });
+    if (decItems.length) {
+      html += '<div class="result-block-title">이 회의에서 확정할 결정</div>';
+      html += '<div class="decide-box">';
+      html +=
+        '<p class="db-head">아래 ' +
+        decItems.length +
+        "개 안건은 회의가 끝날 때 결론이 나 있어야 합니다</p>";
+      html += "<ul>";
+      decItems.forEach(function (it) {
+        html +=
+          "<li><b>" +
+          esc(it.name) +
+          "</b> · " +
+          esc(fmtDur(it.min)) +
+          "</li>";
+      });
+      html += "</ul></div>";
+    }
+
+    // insights
+    var insights = computeInsights(
+      items,
+      target,
+      allocated,
+      decMin,
+      shareMin,
+      startAbs
+    );
+    html += '<div class="result-block-title">점검 포인트</div>';
+    html += '<ul class="ins-list">';
+    insights.forEach(function (o) {
+      html += '<li class="ins-item ' + o.sev + '">';
+      html += '<p class="ins-title">' + esc(o.title) + "</p>";
+      html += '<p class="ins-body">' + esc(o.body) + "</p>";
+      html += "</li>";
+    });
+    html += "</ul>";
+
+    // prompt
+    lastPrompt = buildPrompt(
+      { title: meta.title, target: target, allocated: allocated },
+      items,
+      startAbs
+    );
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 타임박스를 바탕으로 순서·결정 안건·최종 아젠다를 함께 다듬어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn" type="button">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("buildBtn").addEventListener("click", build);
+
+  // ---- sample ----
+  document.getElementById("sampleBtn").addEventListener("click", function () {
+    document.getElementById("meetTitle").value = SAMPLE.title;
+    document.getElementById("targetMin").value = SAMPLE.target;
+    document.getElementById("startTime").value = SAMPLE.start;
+    agList.innerHTML = "";
+    SAMPLE.rows.forEach(function (r) {
+      makeRow(r);
+    });
+    build();
+  });
+
+  // ---- reset ----
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    document.getElementById("meetTitle").value = "";
+    document.getElementById("targetMin").value = "60";
+    document.getElementById("startTime").value = "";
+    agList.innerHTML = "";
+    makeRow();
+    makeRow();
+    makeRow();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◷</div>' +
+      "<p><strong>아직 만들기 전입니다.</strong></p>" +
+      "<p>안건과 배정 시간을 넣고 '타임박스 만들기'를 누르세요.</p></div>";
+    document
+      .getElementById("agenda-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- copy (3-tier) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // ---- init: 3 empty rows ----
+  makeRow();
+  makeRow();
+  makeRow();
+</script>

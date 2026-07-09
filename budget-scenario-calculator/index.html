@@ -1,0 +1,1540 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>예산 시나리오 계산기 (낙관/기본/보수)</title>
+<meta name="description" content="수입·비용 항목을 넣으면 낙관·기본·보수 세 가지 시나리오로 손익과 현금 여유를 동시에 비교합니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #1f6f6b;
+    --accent-strong: #155450;
+    --accent-tint: #e7f2f1;
+    --accent-tint-2: #d1e6e4;
+    --ink: #21221f;
+    --ink-soft: #464943;
+    --ink-mute: #676b64;
+    --paper: #f6f8f7;
+    --card: #ffffff;
+    --line: #e2e7e3;
+    --line-strong: #cfd6d0;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn: #9a5713;
+    --warn-tint: #fff6ea;
+    --loss: #b3261e;
+    --loss-tint: #fbe9e7;
+    --shadow: 0 1px 2px rgba(33, 34, 31, 0.05), 0 6px 20px rgba(33, 34, 31, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- inputs ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  input[type="text"],
+  textarea {
+    font-family: inherit;
+    color: var(--ink);
+    background: #fcfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    min-height: 46px;
+  }
+  input[type="text"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #a2a89f;
+  }
+  textarea {
+    width: 100%;
+    min-height: 76px;
+    resize: none;
+    overflow: hidden;
+  }
+
+  /* item rows */
+  .item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .item-row {
+    display: flex;
+    gap: 9px;
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+  .item-row .it-name {
+    flex: 3 1 150px;
+    min-width: 0;
+  }
+  .item-row .it-amt {
+    flex: 2 1 120px;
+    min-width: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .row-del {
+    flex: none;
+    width: 46px;
+    min-height: 46px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink-mute);
+    border-radius: 11px;
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .row-del:hover {
+    border-color: var(--loss);
+    color: var(--loss);
+    background: var(--loss-tint);
+  }
+  .add-row {
+    background: transparent;
+    color: var(--accent-strong);
+    border: 1px dashed var(--line-strong);
+    border-radius: 11px;
+    padding: 10px 14px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    cursor: pointer;
+    width: 100%;
+  }
+  .add-row:hover {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .sum-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line);
+    font-size: 0.95rem;
+  }
+  .sum-line .sum-val {
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+
+  /* assumption controls */
+  .opt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .mini {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 13px 15px;
+    background: #fcfdfc;
+  }
+  .mini h3 {
+    margin: 0 0 3px;
+    font-size: 0.98rem;
+    font-weight: 800;
+  }
+  .mini .mini-sub {
+    margin: 0 0 11px;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+  }
+  .mini.opt {
+    border-top: 3px solid var(--good);
+  }
+  .mini.cons {
+    border-top: 3px solid var(--warn);
+  }
+  .mult-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .mult-field label {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    flex: 1 1 auto;
+    font-weight: 600;
+  }
+  .mult-field .mx {
+    color: var(--ink-mute);
+    font-weight: 700;
+    font-size: 0.86rem;
+  }
+  input.mult {
+    flex: none;
+    width: 74px;
+    text-align: center;
+    padding: 9px 6px;
+    min-height: 42px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+  .base-note {
+    grid-column: 1 / -1;
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 10px;
+    padding: 10px 13px;
+    margin: 0;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .cash-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-top: 16px;
+  }
+  .cash-row .cash-field {
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+  .cash-row .unit-field {
+    flex: 1 1 120px;
+    min-width: 0;
+  }
+  select {
+    font-family: inherit;
+    font-size: 0.98rem;
+    color: var(--ink);
+    background: #fcfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    width: 100%;
+    min-height: 46px;
+    cursor: pointer;
+  }
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .cash-row .it-amt {
+    width: 100%;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s, color 0.15s;
+    min-height: 46px;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .inline-warn {
+    background: var(--warn-tint);
+    border: 1px solid #f0dcbe;
+    color: #7a4610;
+    border-radius: 11px;
+    padding: 14px 15px;
+    font-size: 0.94rem;
+    margin: 0;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-strategy {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-mixed {
+    background: var(--warn-tint);
+    border-color: #f0dcbe;
+  }
+  .verdict.tone-plan {
+    background: var(--loss-tint);
+    border-color: #f3cdc8;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.32;
+  }
+  .verdict.tone-strategy .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-plan .verdict-title {
+    color: var(--loss);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .cash-alert {
+    margin: 12px 0 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--loss);
+    background: #fff;
+    border: 1px solid #f3cdc8;
+    border-radius: 9px;
+    padding: 10px 12px;
+  }
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #e2e6df;
+  }
+  .pip.lit {
+    background: var(--good);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  /* scenario cards */
+  .sc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .sc-card {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    padding: 15px 15px 16px;
+    background: #fcfdfc;
+    border-top-width: 3px;
+  }
+  .sc-card.sc-opt {
+    border-top-color: var(--good);
+  }
+  .sc-card.sc-base {
+    border-top-color: var(--ink-mute);
+  }
+  .sc-card.sc-cons {
+    border-top-color: var(--warn);
+  }
+  .sc-name {
+    font-size: 1.02rem;
+    font-weight: 800;
+    margin: 0 0 1px;
+  }
+  .sc-card.sc-opt .sc-name {
+    color: var(--good);
+  }
+  .sc-card.sc-cons .sc-name {
+    color: var(--warn);
+  }
+  .sc-tag {
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    margin: 0 0 12px;
+  }
+  .sc-profit {
+    font-size: 1.28rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    margin: 0 0 2px;
+    line-height: 1.2;
+  }
+  .sc-profit-label {
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+    margin: 0 0 12px;
+    font-weight: 600;
+  }
+  .sc-metrics {
+    margin: 0;
+    padding: 12px 0 0;
+    border-top: 1px dashed var(--line);
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .sc-metrics li {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.86rem;
+  }
+  .sc-metrics .m-k {
+    color: var(--ink-mute);
+  }
+  .sc-metrics .m-v {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .num-pos {
+    color: var(--good);
+  }
+  .num-neg {
+    color: var(--loss);
+  }
+
+  /* comparison bars */
+  .bars {
+    margin: 4px 0 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .bar-item {
+    display: grid;
+    grid-template-columns: 54px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    font-size: 0.86rem;
+  }
+  .bar-name {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .bar-track {
+    position: relative;
+    height: 22px;
+    background: #eef1ee;
+    border-radius: 6px;
+  }
+  .bar-zero {
+    position: absolute;
+    left: 50%;
+    top: -2px;
+    bottom: -2px;
+    width: 1px;
+    background: var(--line-strong);
+  }
+  .bar-fill {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    border-radius: 4px;
+    min-width: 2px;
+  }
+  .bar-fill.pos {
+    background: var(--good);
+  }
+  .bar-fill.neg {
+    background: var(--loss);
+  }
+  .bar-val {
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+  .insight-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .insight-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fcfdfc;
+  }
+  .insight-item .ii-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 4px;
+  }
+  .insight-item .ii-body {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23302f;
+    color: #eef4f3;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(33, 34, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 560px) {
+    .sc-grid {
+      grid-template-columns: 1fr;
+    }
+    .opt-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .bar-item {
+      grid-template-columns: 46px 1fr;
+    }
+    .bar-val {
+      grid-column: 2;
+      text-align: right;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-income,
+    #input-cost,
+    #input-scenario,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">예산 계획 · 시나리오 플래닝</span>
+    <h1>예산 시나리오 계산기 (낙관 · 기본 · 보수)</h1>
+    <p class="lede">
+      수입과 비용 항목을 넣으면 세 가지 가정으로 손익과 현금 여유를 동시에
+      비교합니다. 잘될 때만이 아니라, 나빠졌을 때 버틸 수 있는지를 미리 확인하세요.
+    </p>
+  </header>
+
+  <section class="panel" id="input-income">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>수입 항목</h2>
+    </div>
+    <p class="panel-sub">
+      한 기간(예: 월 또는 분기) 기준의 수입 항목을 적으세요. 금액 단위는 아래
+      STEP 3에서 한 번에 지정합니다.
+    </p>
+    <div class="item-list" id="income-list"></div>
+    <button type="button" class="add-row" data-add="income">+ 수입 항목 추가</button>
+    <div class="sum-line">
+      <span>수입 합계 (기본 가정)</span>
+      <span class="sum-val" id="income-sum">0</span>
+    </div>
+  </section>
+
+  <section class="panel" id="input-cost">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>비용 항목</h2>
+    </div>
+    <p class="panel-sub">
+      같은 기간의 지출 항목을 적으세요. 인건비·임대료·마케팅처럼 나눌수록 아래
+      진단이 정확해집니다.
+    </p>
+    <div class="item-list" id="cost-list"></div>
+    <button type="button" class="add-row" data-add="cost">+ 비용 항목 추가</button>
+    <div class="sum-line">
+      <span>비용 합계 (기본 가정)</span>
+      <span class="sum-val" id="cost-sum">0</span>
+    </div>
+  </section>
+
+  <section class="panel" id="input-scenario">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>시나리오 가정 · 단위</h2>
+    </div>
+    <p class="panel-sub">
+      기본 대비 수입·비용에 곱할 배수를 조정하세요. 기본값은 낙관(수입↑·비용↓),
+      보수(수입↓·비용↑)로 잡혀 있습니다.
+    </p>
+
+    <div class="opt-grid">
+      <div class="mini opt">
+        <h3>낙관 시나리오</h3>
+        <p class="mini-sub">일이 잘 풀릴 때</p>
+        <div class="mult-field">
+          <label for="opt-inc">수입 배수</label>
+          <span class="mx">×</span>
+          <input type="text" class="mult" id="opt-inc" inputmode="decimal" value="1.2" />
+        </div>
+        <div class="mult-field">
+          <label for="opt-cost">비용 배수</label>
+          <span class="mx">×</span>
+          <input type="text" class="mult" id="opt-cost" inputmode="decimal" value="0.95" />
+        </div>
+      </div>
+
+      <div class="mini cons">
+        <h3>보수 시나리오</h3>
+        <p class="mini-sub">일이 어긋날 때</p>
+        <div class="mult-field">
+          <label for="cons-inc">수입 배수</label>
+          <span class="mx">×</span>
+          <input type="text" class="mult" id="cons-inc" inputmode="decimal" value="0.8" />
+        </div>
+        <div class="mult-field">
+          <label for="cons-cost">비용 배수</label>
+          <span class="mx">×</span>
+          <input type="text" class="mult" id="cons-cost" inputmode="decimal" value="1.1" />
+        </div>
+      </div>
+
+      <p class="base-note">
+        기본 시나리오는 입력한 값 그대로(수입 ×1.0, 비용 ×1.0)를 기준선으로
+        사용합니다.
+      </p>
+    </div>
+
+    <div class="cash-row">
+      <div class="cash-field">
+        <label class="field-label" for="opening-cash">현재 보유 현금 (선택)</label>
+        <input type="text" class="it-amt" id="opening-cash" inputmode="decimal" placeholder="0" />
+      </div>
+      <div class="unit-field">
+        <label class="field-label" for="unit">금액 단위</label>
+        <select id="unit">
+          <option value="원">원</option>
+          <option value="만원">만원</option>
+          <option value="백만원">백만원</option>
+          <option value="억원">억원</option>
+        </select>
+      </div>
+    </div>
+    <p class="field-hint">
+      보유 현금을 넣으면 시나리오별로 기간 말 남는 현금(현금 여유)까지 계산합니다.
+    </p>
+
+    <label class="field-label" for="memo" style="margin-top:16px">가정 메모 (선택)</label>
+    <textarea
+      id="memo"
+      placeholder="예) 낙관은 신규 계약 2건 성사 전제. 보수는 최대 거래처 이탈 가정. 마케팅비는 성과 없으면 즉시 절반 삭감 가능 ..."
+    ></textarea>
+    <p class="field-hint">여기 적은 가정은 아래 AI 프롬프트에 함께 담깁니다.</p>
+
+    <div class="actions">
+      <button class="btn-primary" id="calc">시나리오 계산하기</button>
+      <button class="btn-ghost" id="example">예시 채우기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+    <p class="field-hint" style="margin-top:14px">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않으며, 서버나 외부 API를 호출하지
+      않습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 4</span>
+      <h2>비교 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◑</div>
+        <p><strong>아직 계산 전입니다.</strong></p>
+        <p>수입·비용을 넣고 '시나리오 계산하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 재무 계획의 표준 기법인 시나리오
+      플래닝(낙관 · 기본 · 보수 3안 비교)과 손익분기(BEP) · 현금 완충(cash
+      buffer) 개념을 따릅니다. 손익 = 수입 합계 − 비용 합계, 현금 여유 = 보유 현금
+      + 손익으로 계산하며, 각 시나리오는 사용자가 정한 배수를 기본값에 곱해
+      만듭니다. 실제 세율 · 이자 · 감가상각 등은 반영하지 않은 단순 모델입니다.
+    </p>
+    <p>
+      이 도구는 예산 감각을 잡아 주는 보조 도구이며, 재무 · 세무 자문을 대신하지
+      않습니다. 중요한 의사결정 전에는 정본 회계 자료와 전문가 검토를 거치세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function parseNum(str) {
+    if (str == null) return 0;
+    var n = parseFloat(String(str).replace(/[,\s￦₩원]/g, ""));
+    return isFinite(n) ? n : 0;
+  }
+  function unitLabel() {
+    return document.getElementById("unit").value || "원";
+  }
+  function fmt(n, signed) {
+    var r = Math.round(n);
+    var sign = "";
+    if (signed && r > 0) sign = "+";
+    if (r < 0) {
+      sign = "-";
+      r = Math.abs(r);
+    }
+    return sign + r.toLocaleString("ko-KR") + " " + unitLabel();
+  }
+
+  /* ---------- dynamic item rows ---------- */
+  function rowTemplate(kind, name, amt) {
+    var isInc = kind === "income";
+    var namePh = isInc ? "항목명 (예: 제품 매출)" : "항목명 (예: 인건비)";
+    var div = document.createElement("div");
+    div.className = "item-row";
+    div.innerHTML =
+      '<input type="text" class="it-name" placeholder="' +
+      namePh +
+      '" aria-label="' +
+      (isInc ? "수입" : "비용") +
+      ' 항목명" />' +
+      '<input type="text" class="it-amt" inputmode="decimal" placeholder="0" aria-label="' +
+      (isInc ? "수입" : "비용") +
+      ' 금액" />' +
+      '<button type="button" class="row-del" aria-label="이 항목 삭제" title="삭제">&times;</button>';
+    if (name != null) div.querySelector(".it-name").value = name;
+    if (amt != null) div.querySelector(".it-amt").value = amt;
+    return div;
+  }
+
+  var incomeList = document.getElementById("income-list");
+  var costList = document.getElementById("cost-list");
+
+  function addRow(kind, name, amt) {
+    var list = kind === "income" ? incomeList : costList;
+    list.appendChild(rowTemplate(kind, name, amt));
+  }
+
+  // seed one empty row each
+  addRow("income");
+  addRow("cost");
+
+  document.querySelectorAll("[data-add]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      addRow(btn.getAttribute("data-add"));
+    });
+  });
+
+  // delegated delete + live sum + amount pretty-format on blur
+  function wireList(list, kind) {
+    list.addEventListener("click", function (e) {
+      var del = e.target.closest(".row-del");
+      if (!del) return;
+      var rows = list.querySelectorAll(".item-row");
+      if (rows.length <= 1) {
+        // keep at least one row; just clear it
+        var r = del.closest(".item-row");
+        r.querySelector(".it-name").value = "";
+        r.querySelector(".it-amt").value = "";
+      } else {
+        del.closest(".item-row").remove();
+      }
+      updateSums();
+    });
+    list.addEventListener("input", function (e) {
+      if (e.target.classList.contains("it-amt")) updateSums();
+    });
+    list.addEventListener(
+      "blur",
+      function (e) {
+        if (e.target.classList.contains("it-amt")) {
+          var v = parseNum(e.target.value);
+          e.target.value = v ? v.toLocaleString("ko-KR") : "";
+        }
+      },
+      true
+    );
+  }
+  wireList(incomeList, "income");
+  wireList(costList, "cost");
+
+  function collect(list) {
+    var items = [];
+    list.querySelectorAll(".item-row").forEach(function (row) {
+      var name = row.querySelector(".it-name").value.trim();
+      var amt = parseNum(row.querySelector(".it-amt").value);
+      if (amt !== 0 || name) items.push({ name: name, amt: amt });
+    });
+    return items;
+  }
+  function sumItems(items) {
+    return items.reduce(function (a, b) {
+      return a + b.amt;
+    }, 0);
+  }
+
+  function updateSums() {
+    document.getElementById("income-sum").textContent = fmt(
+      sumItems(collect(incomeList))
+    );
+    document.getElementById("cost-sum").textContent = fmt(
+      sumItems(collect(costList))
+    );
+  }
+  document.getElementById("unit").addEventListener("change", updateSums);
+  updateSums();
+
+  /* ---------- multiplier reading ---------- */
+  function readMult(id, fallback) {
+    var v = parseFloat(String(document.getElementById(id).value).replace(/[^\d.]/g, ""));
+    if (!isFinite(v) || v < 0) v = fallback;
+    return v;
+  }
+
+  /* ---------- opening cash pretty-format ---------- */
+  var cashInput = document.getElementById("opening-cash");
+  cashInput.addEventListener("blur", function () {
+    var v = parseNum(cashInput.value);
+    cashInput.value = v ? v.toLocaleString("ko-KR") : "";
+  });
+
+  /* ---------- auto-grow memo ---------- */
+  var memo = document.getElementById("memo");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  memo.addEventListener("input", function () {
+    grow(memo);
+  });
+
+  /* ---------- scenario config ---------- */
+  var SCEN = [
+    { key: "opt", name: "낙관", tag: "일이 잘 풀릴 때", cls: "sc-opt", incId: "opt-inc", costId: "opt-cost", incDef: 1.2, costDef: 0.95 },
+    { key: "base", name: "기본", tag: "입력값 기준선", cls: "sc-base", inc: 1.0, cost: 1.0 },
+    { key: "cons", name: "보수", tag: "일이 어긋날 때", cls: "sc-cons", incId: "cons-inc", costId: "cons-cost", incDef: 0.8, costDef: 1.1 }
+  ];
+
+  function computeAll() {
+    var incItems = collect(incomeList);
+    var costItems = collect(costList);
+    var incSum = sumItems(incItems);
+    var costSum = sumItems(costItems);
+    var cash0 = parseNum(cashInput.value);
+
+    var rows = SCEN.map(function (s) {
+      var im = s.inc != null ? s.inc : readMult(s.incId, s.incDef);
+      var cm = s.cost != null ? s.cost : readMult(s.costId, s.costDef);
+      var adjInc = incSum * im;
+      var adjCost = costSum * cm;
+      var profit = adjInc - adjCost;
+      var margin = adjInc > 0 ? profit / adjInc : null;
+      var cash = cash0 + profit;
+      return {
+        key: s.key, name: s.name, tag: s.tag, cls: s.cls,
+        im: im, cm: cm, adjInc: adjInc, adjCost: adjCost,
+        profit: profit, margin: margin, cash: cash
+      };
+    });
+
+    return {
+      incItems: incItems, costItems: costItems,
+      incSum: incSum, costSum: costSum, cash0: cash0,
+      rows: rows
+    };
+  }
+
+  /* ---------- verdict ---------- */
+  function verdictFor(d) {
+    var base = d.rows[1].profit;
+    var cons = d.rows[2].profit;
+    var consCash = d.rows[2].cash;
+    var profitable = d.rows.filter(function (r) { return r.profit >= 0; }).length;
+    var out = { profitable: profitable };
+
+    if (cons >= 0) {
+      out.tone = "strategy";
+      out.title = "하방에서도 흑자 구조";
+      out.desc =
+        "가장 보수적인 가정에서도 손익이 흑자입니다. 예산의 하방 리스크가 크지 않습니다. 다만 낙관에 기대 비용을 늘리기보다, 여유분을 재투자할지 현금 완충으로 쌓을지를 미리 정해 두세요.";
+    } else if (base >= 0) {
+      out.tone = "mixed";
+      out.title = "하방 리스크 주의: 보수 시 적자 전환";
+      out.desc =
+        "기본 가정에서는 흑자지만, 수입이 줄고 비용이 늘면 적자로 돌아섭니다. 보수 시나리오의 적자 폭만큼 현금 완충 또는 비용 유연성을 확보해 두는 것이 안전합니다.";
+    } else {
+      out.tone = "plan";
+      out.title = "구조적 적자 경고: 기본 가정도 적자";
+      out.desc =
+        "기준선(기본) 가정에서도 비용이 수입을 넘습니다. 낙관 시나리오에만 기대는 것은 위험합니다. 수입 확대책 또는 고정비 재구조화를 먼저 검토해야 합니다.";
+    }
+    out.cashWarn =
+      consCash < 0
+        ? "보수 시나리오에서는 보유 현금까지 소진되어 기간 말 현금이 마이너스(" +
+          fmt(consCash) +
+          ")가 됩니다. 자금 조달이나 지출 이연 계획이 필요합니다."
+        : "";
+    return out;
+  }
+
+  /* ---------- actionable insights ---------- */
+  function insightsFor(d) {
+    var out = [];
+    var base = d.rows[1].profit;
+    var cons = d.rows[2].profit;
+    var opt = d.rows[0].profit;
+
+    // break-even
+    if (base < 0) {
+      out.push({
+        title: "손익분기까지의 거리 (기본 기준)",
+        body:
+          "기본 가정에서 손익을 0으로 맞추려면 수입 " +
+          fmt(-base) +
+          " 증가, 또는 비용 " +
+          fmt(-base) +
+          " 절감이 필요합니다."
+      });
+    } else if (cons < 0) {
+      out.push({
+        title: "보수 적자를 흡수할 완충",
+        body:
+          "보수 가정의 적자 폭은 " +
+          fmt(cons) +
+          "입니다. 이만큼의 현금 완충을 확보하거나, 보수 상황이 오면 즉시 줄일 수 있는 유동 비용을 미리 정해 두세요."
+      });
+    }
+
+    // sensitivity spread
+    out.push({
+      title: "가정 민감도 (손익 스프레드)",
+      body:
+        "낙관과 보수의 손익 차이는 " +
+        fmt(opt - cons) +
+        "입니다. 이 폭이 클수록 결과가 가정에 민감하므로, 가장 흔들리는 항목(예: 최대 매출처, 변동비)을 먼저 관리해야 합니다."
+    });
+
+    // cost structure hint
+    if (d.incSum > 0) {
+      var ratio = d.costSum / d.incSum;
+      out.push({
+        title: "비용 구조",
+        body:
+          "기본 가정에서 비용은 수입의 " +
+          Math.round(ratio * 100) +
+          "% 수준입니다." +
+          (ratio >= 0.9
+            ? " 여유가 얇습니다. 작은 수입 감소에도 적자로 기울 수 있으니 고정비 비중을 점검하세요."
+            : " 여유가 있는 편이지만, 보수 시나리오 기준으로 다시 확인하세요.")
+      });
+    }
+    return out;
+  }
+
+  /* ---------- AI prompt ---------- */
+  function buildPrompt(d, v) {
+    var L = [];
+    var u = unitLabel();
+    L.push("당신은 중소기업과 1인 사업자의 예산을 함께 검토하는 재무 자문가입니다.");
+    L.push("아래는 사용자가 낙관·기본·보수 세 시나리오로 계산한 예산입니다. (금액 단위: " + u + ")");
+    L.push("");
+    L.push("【수입 항목】");
+    if (d.incItems.length) {
+      d.incItems.forEach(function (it) {
+        L.push("- " + (it.name || "(이름 없음)") + ": " + Math.round(it.amt).toLocaleString("ko-KR") + " " + u);
+      });
+    } else {
+      L.push("- (입력 없음)");
+    }
+    L.push("수입 합계: " + Math.round(d.incSum).toLocaleString("ko-KR") + " " + u);
+    L.push("");
+    L.push("【비용 항목】");
+    if (d.costItems.length) {
+      d.costItems.forEach(function (it) {
+        L.push("- " + (it.name || "(이름 없음)") + ": " + Math.round(it.amt).toLocaleString("ko-KR") + " " + u);
+      });
+    } else {
+      L.push("- (입력 없음)");
+    }
+    L.push("비용 합계: " + Math.round(d.costSum).toLocaleString("ko-KR") + " " + u);
+    if (d.cash0) L.push("현재 보유 현금: " + Math.round(d.cash0).toLocaleString("ko-KR") + " " + u);
+    L.push("");
+    L.push("【시나리오 결과】");
+    d.rows.forEach(function (r) {
+      L.push(
+        "- " + r.name + " (수입 ×" + r.im + ", 비용 ×" + r.cm + "): " +
+          "손익 " + fmt(r.profit, true) +
+          (r.margin != null ? " (손익률 " + Math.round(r.margin * 1000) / 10 + "%)" : "") +
+          ", 현금 여유 " + fmt(r.cash)
+      );
+    });
+    L.push("");
+    L.push("【진단 요약】 " + v.title);
+    var memoText = document.getElementById("memo").value.trim();
+    if (memoText) {
+      L.push("");
+      L.push("【사용자가 밝힌 가정】");
+      L.push(memoText);
+    }
+    L.push("");
+    L.push("【요청 사항】");
+    L.push("1. 위 세 시나리오의 배수 가정(낙관/보수)이 이 사업 특성에 비해 낙관적이거나 보수적이지 않은지 짚어 주세요.");
+    L.push("2. 비용 항목 중 빠지기 쉬운 숨은 비용(세금·4대보험·수수료·감가상각·예비비 등)이 있는지 점검 질문을 던져 주세요.");
+    L.push("3. 보수 시나리오에서도 흑자를 지키려면 어떤 수입·비용 레버를 먼저 움직여야 하는지 우선순위를 제안해 주세요.");
+    L.push("4. 보유 현금 대비 몇 개 기간을 버틸 수 있는지(런웨이) 관점에서도 조언해 주세요.");
+    L.push("5. 수치를 임의로 지어내지 말고, 판단에 필요한 정보가 부족하면 저에게 먼저 질문해 주세요.");
+    return L.join("\n");
+  }
+
+  /* ---------- render ---------- */
+  var resultEl = document.getElementById("result");
+  var lastPrompt = "";
+
+  function barMarkup(rows) {
+    var maxAbs = Math.max(1, Math.max.apply(null, rows.map(function (r) { return Math.abs(r.profit); })));
+    var html = '<div class="bars">';
+    rows.forEach(function (r) {
+      var w = (Math.abs(r.profit) / maxAbs) * 50;
+      var pos = r.profit >= 0;
+      var style = pos
+        ? "left:50%;width:" + w + "%"
+        : "left:" + (50 - w) + "%;width:" + w + "%";
+      html +=
+        '<div class="bar-item">' +
+        '<span class="bar-name">' + esc(r.name) + "</span>" +
+        '<span class="bar-track"><span class="bar-zero"></span>' +
+        '<span class="bar-fill ' + (pos ? "pos" : "neg") + '" style="' + style + '"></span></span>' +
+        '<span class="bar-val ' + (pos ? "num-pos" : "num-neg") + '">' + fmt(r.profit, true) + "</span>" +
+        "</div>";
+    });
+    html += "</div>";
+    return html;
+  }
+
+  function render() {
+    var d = computeAll();
+
+    if (d.incSum === 0 && d.costSum === 0) {
+      resultEl.innerHTML =
+        '<p class="inline-warn">수입이나 비용 항목에 금액을 하나 이상 입력해 주세요. 아래 <strong>예시 채우기</strong> 버튼으로 샘플을 넣어 볼 수도 있습니다.</p>';
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var v = verdictFor(d);
+    var insights = insightsFor(d);
+    lastPrompt = buildPrompt(d, v);
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + v.tone + '">';
+    html += '<p class="verdict-label">종합 진단</p>';
+    html += '<p class="verdict-title">' + esc(v.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(v.desc) + "</p>";
+    html += '<div class="meter" role="img" aria-label="3개 시나리오 중 ' + v.profitable + '개 흑자">';
+    for (var p = 0; p < 3; p++) {
+      html += '<span class="pip' + (p < v.profitable ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html += '<p class="meter-caption">3개 시나리오 중 ' + v.profitable + "개 흑자</p>";
+    if (v.cashWarn) html += '<p class="cash-alert">' + esc(v.cashWarn) + "</p>";
+    html += "</div>";
+
+    // scenario cards
+    html += '<div class="sc-grid">';
+    d.rows.forEach(function (r) {
+      var pc = r.profit >= 0 ? "num-pos" : "num-neg";
+      var cc = r.cash >= 0 ? "" : "num-neg";
+      html += '<div class="sc-card ' + r.cls + '">';
+      html += '<p class="sc-name">' + esc(r.name) + "</p>";
+      html += '<p class="sc-tag">' + esc(r.tag) + " · 수입 ×" + r.im + " / 비용 ×" + r.cm + "</p>";
+      html += '<p class="sc-profit ' + pc + '">' + fmt(r.profit, true) + "</p>";
+      html += '<p class="sc-profit-label">손익 (수입 − 비용)</p>';
+      html += '<ul class="sc-metrics">';
+      html += '<li><span class="m-k">조정 수입</span><span class="m-v">' + fmt(r.adjInc) + "</span></li>";
+      html += '<li><span class="m-k">조정 비용</span><span class="m-v">' + fmt(r.adjCost) + "</span></li>";
+      html += '<li><span class="m-k">손익률</span><span class="m-v">' + (r.margin != null ? Math.round(r.margin * 1000) / 10 + "%" : "—") + "</span></li>";
+      html += '<li><span class="m-k">현금 여유</span><span class="m-v ' + cc + '">' + fmt(r.cash) + "</span></li>";
+      html += "</ul>";
+      html += "</div>";
+    });
+    html += "</div>";
+
+    // comparison bars
+    html += '<div class="result-block-title">시나리오별 손익 비교</div>';
+    html += barMarkup(d.rows);
+
+    // insights
+    html += '<div class="result-block-title">읽어야 할 신호</div>';
+    html += '<ul class="insight-list">';
+    insights.forEach(function (it) {
+      html += '<li class="insight-item">';
+      html += '<p class="ii-title">' + esc(it.title) + "</p>";
+      html += '<p class="ii-body">' + esc(it.body) + "</p>";
+      html += "</li>";
+    });
+    html += "</ul>";
+
+    // prompt
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 계산을 바탕으로 가정을 압박 검증하고 숨은 비용·개선 레버를 함께 찾아 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("calc").addEventListener("click", render);
+
+  /* ---------- example ---------- */
+  document.getElementById("example").addEventListener("click", function () {
+    incomeList.innerHTML = "";
+    costList.innerHTML = "";
+    addRow("income", "제품 매출", "8,000,000");
+    addRow("income", "서비스 매출", "3,000,000");
+    addRow("cost", "인건비", "5,000,000");
+    addRow("cost", "임대료", "1,500,000");
+    addRow("cost", "마케팅비", "1,200,000");
+    addRow("cost", "기타 운영비", "800,000");
+    cashInput.value = (10000000).toLocaleString("ko-KR");
+    document.getElementById("unit").value = "원";
+    document.getElementById("opt-inc").value = "1.2";
+    document.getElementById("opt-cost").value = "0.95";
+    document.getElementById("cons-inc").value = "0.8";
+    document.getElementById("cons-cost").value = "1.1";
+    memo.value = "낙관은 신규 계약 1건 성사 전제. 보수는 최대 거래처 매출 20% 감소 가정. 마케팅비는 성과 없으면 즉시 절반 삭감 가능.";
+    grow(memo);
+    updateSums();
+    render();
+  });
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    incomeList.innerHTML = "";
+    costList.innerHTML = "";
+    addRow("income");
+    addRow("cost");
+    cashInput.value = "";
+    memo.value = "";
+    grow(memo);
+    document.getElementById("unit").value = "원";
+    document.getElementById("opt-inc").value = "1.2";
+    document.getElementById("opt-cost").value = "0.95";
+    document.getElementById("cons-inc").value = "0.8";
+    document.getElementById("cons-cost").value = "1.1";
+    updateSums();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◑</div>' +
+      "<p><strong>아직 계산 전입니다.</strong></p>" +
+      "<p>수입·비용을 넣고 '시나리오 계산하기'를 누르세요.</p></div>";
+    document.getElementById("input-income").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

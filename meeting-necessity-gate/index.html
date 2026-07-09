@@ -1,0 +1,1728 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>이 회의 꼭 필요한가: 회의 소집 게이트</title>
+<meta
+  name="description"
+  content="회의를 잡기 전에 정말 회의가 필요한지 판별하고, 아니면 비동기 문서·메시지 같은 대체 방식을 제안합니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #35657f;
+    --accent-strong: #274d61;
+    --accent-tint: #e9f0f4;
+    --accent-tint-2: #d6e3ea;
+    --ink: #20242a;
+    --ink-soft: #454b53;
+    --ink-mute: #676e78;
+    --paper: #f6f7f9;
+    --card: #ffffff;
+    --line: #e3e6ea;
+    --line-strong: #cfd5dc;
+    --good: #2f6f4f;
+    --good-tint: #e7f2ec;
+    --warn: #a5661a;
+    --warn-tint: #fff5ea;
+    --warn-line: #f0dcc0;
+    --shadow: 0 1px 2px rgba(32, 36, 42, 0.05), 0 6px 20px rgba(32, 36, 42, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 78px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfcfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa2ac;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- meta numeric inputs ---------- */
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .meta-field {
+    flex: 1 1 160px;
+    min-width: 140px;
+  }
+  .meta-field label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .meta-field input {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    color: var(--ink);
+    background: #fbfcfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 11px 12px;
+  }
+  .meta-field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  /* ---------- questions ---------- */
+  .q-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  fieldset.q {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  legend.q-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--ink);
+    padding: 0;
+    margin: 0 0 4px;
+  }
+  .q-help {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 0 0 10px;
+  }
+  .opts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  label.opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fbfcfd;
+    padding: 12px 13px;
+    cursor: pointer;
+    min-height: 44px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  label.opt:hover {
+    border-color: var(--line-strong);
+  }
+  label.opt.sel {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .opt input.native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .opt-mark {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    border: 2px solid var(--line-strong);
+    border-radius: 50%;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    transition: border-color 0.15s;
+  }
+  label.opt.sel .opt-mark {
+    border-color: var(--accent);
+  }
+  .opt-mark::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: scale(0);
+    transition: transform 0.15s;
+  }
+  label.opt.sel .opt-mark::after {
+    transform: scale(1);
+  }
+  .opt-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.96rem;
+    color: var(--ink);
+  }
+  label.opt:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .notice {
+    text-align: center;
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: 12px;
+    padding: 18px 14px;
+    font-size: 0.94rem;
+    font-weight: 600;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-async {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict.tone-meet {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-trim {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-async .verdict-title {
+    color: var(--good);
+  }
+  .verdict.tone-meet .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-trim .verdict-title {
+    color: var(--warn);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .gauge {
+    margin: 15px 0 0;
+  }
+  .gauge-track {
+    height: 12px;
+    border-radius: 7px;
+    background: #e2ddd4;
+    overflow: hidden;
+  }
+  .verdict.tone-async .gauge-track {
+    background: #d3e4da;
+  }
+  .verdict.tone-meet .gauge-track {
+    background: #d3dfe6;
+  }
+  .verdict.tone-trim .gauge-track {
+    background: #eaddc9;
+  }
+  .gauge-fill {
+    height: 100%;
+    border-radius: 7px;
+    background: var(--accent);
+    transition: width 0.45s ease;
+  }
+  .verdict.tone-async .gauge-fill {
+    background: var(--good);
+  }
+  .verdict.tone-trim .gauge-fill {
+    background: #c9862f;
+  }
+  .gauge-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 7px 0 0;
+    font-weight: 600;
+  }
+  .cost-chip {
+    display: inline-block;
+    margin-top: 13px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 11px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* signals */
+  ul.signals {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  li.sig {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  li.sig .tag {
+    flex: none;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-top: 1px;
+    white-space: nowrap;
+  }
+  li.sig .tag.sync {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+  }
+  li.sig .tag.async {
+    color: var(--good);
+    background: var(--good-tint);
+  }
+  li.sig .tag.note {
+    color: var(--ink-mute);
+    background: #edeef1;
+  }
+
+  /* alternatives */
+  ul.alt-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  li.alt-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fbfcfd;
+  }
+  li.alt-item .ai-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+  li.alt-item .ai-how {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+
+  /* meeting design card */
+  .design {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fbfcfd;
+    overflow: hidden;
+  }
+  .design dl {
+    margin: 0;
+  }
+  .drow {
+    display: flex;
+    gap: 12px;
+    padding: 12px 15px;
+    border-top: 1px solid var(--line);
+  }
+  .drow:first-child {
+    border-top: 0;
+  }
+  .drow dt {
+    flex: none;
+    width: 92px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    padding-top: 1px;
+  }
+  .drow dd {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    min-width: 0;
+  }
+  .drow dd ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .drow dd ul li {
+    margin: 2px 0;
+  }
+
+  /* prompt / copyable block */
+  .copy-block + .copy-block {
+    margin-top: 20px;
+  }
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23282e;
+    color: #eef1f4;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  pre.draft {
+    background: #fbfcfd;
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(32, 36, 42, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .meta-field {
+      flex-basis: 100%;
+    }
+    .drow {
+      flex-direction: column;
+      gap: 3px;
+    }
+    .drow dt {
+      width: auto;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #checklist-panel .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">회의 효율 · 비동기 우선</span>
+    <h1>이 회의 꼭 필요한가: 회의 소집 게이트</h1>
+    <p class="lede">
+      캘린더에 초대장을 보내기 전에 통과해야 할 관문입니다. 정말 실시간 회의가
+      필요한지 판별하고, 아니라면 비동기 문서·메시지 같은 대체 방식과 바로 보낼 수
+      있는 초안을 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>회의 정보 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      주제와 규모를 적으면 결과가 맞춤형으로 나오고, 참석자 수와 시간을 넣으면
+      회의의 실제 시간 비용까지 계산합니다. 비워 두어도 판정은 됩니다.
+    </p>
+    <label class="field-label" for="topic">회의 주제 · 안건</label>
+    <textarea
+      id="topic"
+      placeholder="예) 3분기 신제품 출시 일정 확정 및 부서별 역할 분담"
+    ></textarea>
+    <div class="meta-row">
+      <div class="meta-field">
+        <label for="people-n">예상 참석자 수 (명)</label>
+        <input
+          id="people-n"
+          type="number"
+          inputmode="numeric"
+          min="1"
+          max="200"
+          placeholder="예) 6"
+        />
+      </div>
+      <div class="meta-field">
+        <label for="minutes-n">예상 회의 시간 (분)</label>
+        <input
+          id="minutes-n"
+          type="number"
+          inputmode="numeric"
+          min="1"
+          max="600"
+          placeholder="예) 60"
+        />
+      </div>
+    </div>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="checklist-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>회의 소집 게이트 8문항</h2>
+    </div>
+    <p class="panel-sub">
+      각 문항에서 지금 상황에 가장 가까운 답을 하나씩 고르세요. 실시간 상호작용이
+      꼭 필요한 신호가 많을수록 회의가 정당해집니다.
+    </p>
+    <div class="q-list" id="questions"></div>
+
+    <div class="actions">
+      <button class="btn-primary" id="judge">회의 필요성 판정</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>판정 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">&#9719;</div>
+        <p><strong>아직 판정 전입니다.</strong></p>
+        <p>8문항에 답하고 '회의 필요성 판정'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 회의 효과성의 일반 원칙(명확한 목적과
+      원하는 결과, 꼭 필요한 참석자, 실시간 상호작용이 필요한 논의만 동기 회의로
+      다룬다)과 비동기 우선(async-first) 협업 관행(한 방향 정보 공유나 단독 결정은
+      문서·메시지로 대체한다)에 기반합니다. 회의 유형을 나누는 관점은 패트릭
+      렌시오니의 <em>회의의 죽음(Death by Meeting)</em> 논의를 참고했습니다.
+    </p>
+    <p>
+      이 도구는 회의 여부를 스스로 판단하도록 돕는 보조 도구이며, 대신 결정을
+      내려 주지 않습니다. 팀의 맥락과 관계를 함께 고려하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------------------------------------------------------
+     회의 소집 게이트 — 8문항 가중 점수(실시간 필요도) + 목적/의사결정자
+     override로 회의/조건부/비동기 판정, 답변 태그로 대체안 생성.
+  ---------------------------------------------------------------- */
+
+  var QUESTIONS = [
+    {
+      id: "purpose",
+      legend: "1. 이 모임에서 얻으려는 결과를 한 문장으로 쓸 수 있나요?",
+      help: "목적이 없으면 회의는 시간만 씁니다.",
+      opts: [
+        { val: "a", label: "네, 원하는 결과가 뚜렷합니다", w: 0, dir: "note", sig: "목적이 명확함", tags: [] },
+        { val: "b", label: "대략 방향만 있습니다", w: 0, dir: "note", sig: "목적이 다소 흐릿함", tags: [] },
+        { val: "c", label: "아직 목적이 모호합니다", w: 0, dir: "note", sig: "목적이 정의되지 않음", tags: ["no-purpose"] },
+      ],
+    },
+    {
+      id: "flow",
+      legend: "2. 핵심 정보 흐름은 어느 쪽에 가깝나요?",
+      opts: [
+        { val: "a", label: "대부분 한 방향 전달 (공지 · 공유 · 보고)", w: 0, dir: "async", sig: "한 방향 전달 위주", tags: ["broadcast"] },
+        { val: "b", label: "질문과 답이 오가는 정도", w: 1, dir: "sync", sig: "가벼운 문답 필요", tags: [] },
+        { val: "c", label: "활발한 토론 · 논쟁 · 공동 작업이 필요", w: 3, dir: "sync", sig: "실시간 토론 필요", tags: ["debate"] },
+      ],
+    },
+    {
+      id: "decision",
+      legend: "3. 이 자리에서 어떤 결정이 필요한가요?",
+      opts: [
+        { val: "a", label: "결정 없음 (정보 공유가 목적)", w: 0, dir: "async", sig: "내릴 결정이 없음", tags: ["status"] },
+        { val: "b", label: "한 사람이 내릴 수 있는 결정 (승인 · 재가)", w: 1, dir: "async", sig: "단독 승인으로 가능한 결정", tags: ["single-decision"] },
+        { val: "c", label: "여러 사람의 토론으로 합의할 결정", w: 3, dir: "sync", sig: "집단 합의가 필요한 결정", tags: ["group-decision"] },
+      ],
+    },
+    {
+      id: "realtime",
+      legend: "4. 실시간으로 주고받아야 결과가 나오나요?",
+      opts: [
+        { val: "a", label: "문서 · 메시지로 비동기여도 충분", w: 0, dir: "async", sig: "비동기로 충분", tags: ["preread"] },
+        { val: "b", label: "있으면 빠르지만 필수는 아님", w: 1, dir: "sync", sig: "실시간이면 더 빠름", tags: [] },
+        { val: "c", label: "즉답 · 즉흥 전개가 반드시 필요", w: 3, dir: "sync", sig: "실시간 상호작용이 필수", tags: ["debate"] },
+      ],
+    },
+    {
+      id: "urgency",
+      legend: "5. 얼마나 급한가요?",
+      opts: [
+        { val: "a", label: "며칠 정도 여유가 있음", w: 0, dir: "async", sig: "시간 여유 있음", tags: [] },
+        { val: "b", label: "24시간 안에 정리해야 함", w: 1, dir: "sync", sig: "하루 안에 처리 필요", tags: ["urgent"] },
+        { val: "c", label: "지금 당장 (수 시간 내) 조율해야 함", w: 2, dir: "sync", sig: "즉시 조율 필요", tags: ["urgent"] },
+      ],
+    },
+    {
+      id: "sensitive",
+      legend: "6. 주제가 민감하거나 오해 위험이 큰가요?",
+      help: "갈등 · 피드백 · 나쁜 소식 · 복잡한 맥락 등.",
+      opts: [
+        { val: "a", label: "아니오, 사실 전달 위주", w: 0, dir: "async", sig: "민감도 낮음", tags: [] },
+        { val: "b", label: "다소 조심스러움", w: 1, dir: "sync", sig: "다소 민감함", tags: [] },
+        { val: "c", label: "네, 관계 · 감정 · 뉘앙스가 중요", w: 3, dir: "sync", sig: "민감 · 뉘앙스가 중요", tags: ["sensitive"] },
+      ],
+    },
+    {
+      id: "people",
+      legend: "7. 결정에 꼭 필요한 사람이 참석 가능한가요?",
+      opts: [
+        { val: "a", label: "네, 핵심 인원 모두 가능", w: 0, dir: "note", sig: "핵심 인원 참석 가능", tags: [] },
+        { val: "b", label: "일부만 가능", w: 0, dir: "async", sig: "핵심 인원 일부 불참", tags: ["partial-absent"] },
+        { val: "c", label: "핵심 의사결정자가 불참", w: 0, dir: "note", sig: "의사결정자 불참", tags: ["decider-absent"] },
+      ],
+    },
+    {
+      id: "preread",
+      legend: "8. 사전 문서를 공유 · 숙독하면 회의가 짧아지거나 없어지나요?",
+      opts: [
+        { val: "a", label: "네, 대부분 문서로 해결됨", w: -2, dir: "async", sig: "사전 문서로 대체 가능", tags: ["preread"] },
+        { val: "b", label: "일부 줄어듦", w: 0, dir: "note", sig: "문서로 부분 단축", tags: [] },
+        { val: "c", label: "아니오, 읽어도 논의가 필요", w: 1, dir: "sync", sig: "문서로도 논의 필요", tags: [] },
+      ],
+    },
+  ];
+
+  var MAX_SCORE = 15; // Q2(3)+Q3(3)+Q4(3)+Q5(2)+Q6(3)+Q8(1)
+
+  var ALT = {
+    broadcast: {
+      title: "녹화 또는 문서 공지 + 질문은 댓글로",
+      how: "전달할 내용을 짧은 녹화나 1페이지 문서로 공유하고, 질문은 지정 스레드에서 비동기로 받으세요. 모두의 시간을 같은 시각에 묶지 않아도 됩니다.",
+    },
+    status: {
+      title: "비동기 상태 업데이트 스레드",
+      how: "각자 정해진 양식(한 일 / 할 일 / 막힌 것)으로 공유 문서나 스레드에 남기게 하세요. 필요한 사람만 읽고 개별로 확인하면 됩니다.",
+    },
+    "single-decision": {
+      title: "비동기 승인 요청",
+      how: "배경 · 선택지 · 추천안 · 기한을 한 문서에 담아 결정권자에게 보내세요. 기한까지 이견이 없으면 추천안으로 진행한다고 명시하면 회의가 필요 없습니다.",
+    },
+    preread: {
+      title: "사전 문서 회람(pre-read)",
+      how: "핵심을 1페이지로 정리해 미리 읽게 하고 코멘트로 의견을 모으세요. 남은 쟁점만 있을 때 짧게 모이면 됩니다.",
+    },
+    "decider-absent": {
+      title: "연기 또는 비동기 승인",
+      how: "핵심 의사결정자가 없으면 결론이 나지 않습니다. 그 사람 기준으로 일정을 다시 잡거나, 정리된 안을 문서로 보내 비동기 승인을 받으세요.",
+    },
+    "partial-absent": {
+      title: "불참자에게는 요약 · 녹화 공유",
+      how: "핵심 인원만으로 진행하고 나머지에게는 결정 요약과 녹화를 공유해, 모두를 같은 시간에 묶지 마세요.",
+    },
+    sensitive: {
+      title: "큰 회의보다 1:1 또는 짧은 통화",
+      how: "민감한 주제는 큰 회의보다 당사자와의 1:1이나 짧은 통화가 오해를 줄입니다. 글보다 목소리 · 표정이 필요한 경우입니다.",
+    },
+    "no-purpose": {
+      title: "목적부터 한 문장으로",
+      how: "'이 논의로 무엇을 결정하거나 산출할지'를 먼저 적으세요. 목적이 서면 회의가 필요한지 여부도 저절로 드러납니다.",
+    },
+  };
+
+  var answers = {}; // id -> val
+
+  // ---- escape ----
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // ---- render questions ----
+  var qWrap = document.getElementById("questions");
+  QUESTIONS.forEach(function (q) {
+    var fs = document.createElement("fieldset");
+    fs.className = "q";
+    fs.dataset.id = q.id;
+    var html = "";
+    html += '<legend class="q-title">' + esc(q.legend) + "</legend>";
+    if (q.help) html += '<p class="q-help">' + esc(q.help) + "</p>";
+    html += '<div class="opts">';
+    q.opts.forEach(function (o) {
+      html +=
+        '<label class="opt">' +
+        '<input type="radio" class="native" name="q-' +
+        q.id +
+        '" value="' +
+        o.val +
+        '" data-q="' +
+        q.id +
+        '" />' +
+        '<span class="opt-mark" aria-hidden="true"></span>' +
+        '<span class="opt-label">' +
+        esc(o.label) +
+        "</span>" +
+        "</label>";
+    });
+    html += "</div>";
+    fs.innerHTML = html;
+    qWrap.appendChild(fs);
+  });
+
+  qWrap.addEventListener("change", function (e) {
+    var box = e.target;
+    if (!box.classList.contains("native")) return;
+    var qid = box.dataset.q;
+    answers[qid] = box.value;
+    // update selected styling within this group
+    var group = qWrap.querySelectorAll('input[name="q-' + qid + '"]');
+    Array.prototype.forEach.call(group, function (b) {
+      var lab = b.closest("label.opt");
+      if (lab) lab.classList.toggle("sel", b.checked);
+    });
+  });
+
+  // ---- auto-grow textarea ----
+  var topic = document.getElementById("topic");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  topic.addEventListener("input", function () {
+    grow(topic);
+  });
+
+  // ---- helpers ----
+  function optOf(qid) {
+    var val = answers[qid];
+    if (!val) return null;
+    var q = QUESTIONS.filter(function (x) {
+      return x.id === qid;
+    })[0];
+    var found = q.opts.filter(function (o) {
+      return o.val === val;
+    })[0];
+    return found || null;
+  }
+
+  function parseIntSafe(v, min, max) {
+    var n = parseInt(String(v).replace(/[^0-9]/g, ""), 10);
+    if (isNaN(n)) return null;
+    if (n < min) return null;
+    if (n > max) n = max;
+    return n;
+  }
+
+  function costInfo() {
+    var p = parseIntSafe(document.getElementById("people-n").value, 1, 200);
+    var m = parseIntSafe(document.getElementById("minutes-n").value, 1, 600);
+    if (p === null || m === null) return null;
+    var pm = p * m;
+    var ph = pm / 60;
+    var phs = ph >= 10 ? Math.round(ph) : Math.round(ph * 10) / 10;
+    return {
+      people: p,
+      minutes: m,
+      personMinutes: pm,
+      personHours: phs,
+      text: p + "명 × " + m + "분 = " + pm + " 인분 (약 " + phs + " 인시)",
+    };
+  }
+
+  function computeScore() {
+    var s = 0;
+    QUESTIONS.forEach(function (q) {
+      var o = optOf(q.id);
+      if (o) s += o.w;
+    });
+    if (s < 0) s = 0;
+    if (s > MAX_SCORE) s = MAX_SCORE;
+    return s;
+  }
+
+  function collectTags() {
+    var tags = {};
+    QUESTIONS.forEach(function (q) {
+      var o = optOf(q.id);
+      if (o) o.tags.forEach(function (t) {
+        tags[t] = true;
+      });
+    });
+    return tags;
+  }
+
+  function bandFor(s) {
+    if (s >= 8)
+      return {
+        tone: "meet",
+        label: "실시간 필요도 " + s + "/" + MAX_SCORE + " · 높음",
+        title: "회의를 여세요 (정당함)",
+        desc: "실시간으로 함께 있어야 결론이 나는 신호가 충분합니다. 다만 목적과 참석자를 좁혀 짧게 설계하세요. 아래 회의 설계 카드를 참고하세요.",
+      };
+    if (s >= 4)
+      return {
+        tone: "trim",
+        label: "실시간 필요도 " + s + "/" + MAX_SCORE + " · 중간",
+        title: "회의를 줄이거나 대체하세요",
+        desc: "실시간이 꼭 필요한 부분은 일부입니다. 상당 부분은 비동기로 옮길 수 있습니다. 정말 실시간이 필요한 쟁점만 남겨 짧은 회의로, 나머지는 아래 대체안으로 처리하세요.",
+      };
+    return {
+      tone: "async",
+      label: "실시간 필요도 " + s + "/" + MAX_SCORE + " · 낮음",
+      title: "회의 없이 비동기로 처리하세요",
+      desc: "실시간 상호작용이 필요하다는 신호가 약합니다. 이 사안은 회의를 잡지 않고 문서 · 메시지로 처리하는 편이 팀의 시간을 아낍니다. 아래에 바로 보낼 초안을 준비했습니다.",
+    };
+  }
+
+  // ---- signals list ----
+  function signalsHtml() {
+    var rows = "";
+    QUESTIONS.forEach(function (q) {
+      var o = optOf(q.id);
+      if (!o) return;
+      var tagClass =
+        o.dir === "sync" ? "sync" : o.dir === "async" ? "async" : "note";
+      var tagText =
+        o.dir === "sync" ? "실시간 쪽" : o.dir === "async" ? "비동기 쪽" : "참고";
+      rows +=
+        '<li class="sig"><span class="tag ' +
+        tagClass +
+        '">' +
+        tagText +
+        "</span><span>" +
+        esc(o.sig) +
+        "</span></li>";
+    });
+    return '<ul class="signals">' + rows + "</ul>";
+  }
+
+  // ---- alternatives ----
+  function altsFor(tags) {
+    var order = [
+      "no-purpose",
+      "decider-absent",
+      "single-decision",
+      "status",
+      "broadcast",
+      "preread",
+      "sensitive",
+      "partial-absent",
+    ];
+    var picked = [];
+    order.forEach(function (t) {
+      if (tags[t] && ALT[t]) picked.push(ALT[t]);
+    });
+    if (picked.length === 0) {
+      picked.push(ALT.preread);
+      picked.push(ALT["single-decision"]);
+    }
+    return picked;
+  }
+
+  function altListHtml(list) {
+    var html = '<ul class="alt-list">';
+    list.forEach(function (a) {
+      html +=
+        '<li class="alt-item"><p class="ai-title">' +
+        esc(a.title) +
+        '</p><p class="ai-how">' +
+        esc(a.how) +
+        "</p></li>";
+    });
+    return html + "</ul>";
+  }
+
+  // ---- meeting design (for tone-meet) ----
+  function meetingDesign(topicText, tags, s) {
+    var decision = answers.decision;
+    var sensitive = tags["sensitive"];
+    var timebox;
+    if (sensitive) timebox = "30~45분, 가급적 소규모 또는 1:1";
+    else if (decision === "c" && answers.realtime === "c")
+      timebox = "45~60분 (사전 문서 필수)";
+    else if (tags["broadcast"]) timebox = "15~20분";
+    else timebox = "25~30분";
+
+    var attendees;
+    if (decision === "c")
+      attendees = "결정에 실제로 관여하는 사람만. 참관자는 녹화로 대체하세요.";
+    else if (decision === "b")
+      attendees = "결정권자 + 안을 설명할 1인. 나머지는 비동기로 공유하세요.";
+    else attendees = "꼭 필요한 사람만. 정보 전달 대상은 문서로 돌리세요.";
+
+    var preread =
+      answers.preread === "c"
+        ? "1페이지 사전 브리프 필수. 읽고 와야 논의가 시작됩니다."
+        : "핵심 배경을 1페이지로 미리 공유해 회의 도입부를 없애세요.";
+
+    var outcome;
+    if (decision === "c") outcome = "합의된 결정 1건과 담당 · 기한";
+    else if (decision === "b") outcome = "명확한 승인 1건과 다음 단계";
+    else outcome = "정렬(같은 이해)과 이후 각자의 실행 항목";
+
+    var core;
+    if (decision === "c") core = "쟁점별 토론과 합의 (핵심 시간)";
+    else if (sensitive) core = "맥락 공유와 상호 이해 (핵심 시간)";
+    else if (tags["broadcast"]) core = "핵심 전달 후 즉석 Q&A (핵심 시간)";
+    else core = "핵심 안건 논의 (핵심 시간)";
+
+    var agenda =
+      "<ul><li>원하는 결과 확인 (약 5분)</li><li>" +
+      esc(core) +
+      "</li><li>결정 · 담당 · 기한 확정 (마지막 약 5분)</li></ul>";
+
+    var purposeLine = topicText
+      ? esc(topicText)
+      : "(회의 주제를 STEP 1에 적으면 여기에 반영됩니다)";
+
+    var html = '<div class="design"><dl>';
+    html +=
+      '<div class="drow"><dt>주제</dt><dd>' + purposeLine + "</dd></div>";
+    html +=
+      '<div class="drow"><dt>원하는 결과</dt><dd>' + esc(outcome) + "</dd></div>";
+    html +=
+      '<div class="drow"><dt>시간 상자</dt><dd>' + esc(timebox) + "</dd></div>";
+    html +=
+      '<div class="drow"><dt>참석 범위</dt><dd>' + esc(attendees) + "</dd></div>";
+    html +=
+      '<div class="drow"><dt>사전 준비</dt><dd>' + esc(preread) + "</dd></div>";
+    html += '<div class="drow"><dt>안건</dt><dd>' + agenda + "</dd></div>";
+    html +=
+      '<div class="drow"><dt>마지막 점검</dt><dd>이 안건 중 비동기로 옮길 수 있는 항목은 없나요? 있으면 그것부터 빼세요.</dd></div>';
+    html += "</dl></div>";
+    return { html: html, timebox: timebox };
+  }
+
+  // ---- text artifacts ----
+  function signalsText() {
+    var out = [];
+    QUESTIONS.forEach(function (q) {
+      var o = optOf(q.id);
+      if (!o) return;
+      var side =
+        o.dir === "sync" ? "실시간" : o.dir === "async" ? "비동기" : "참고";
+      out.push("- (" + side + ") " + o.sig);
+    });
+    return out.join("\n");
+  }
+
+  function asyncDraft(topicText, cost) {
+    var t = topicText || "(회의 주제)";
+    var readMin = cost ? Math.max(3, Math.round(cost.minutes / 6)) : 5;
+    var lines = [];
+    lines.push("[비동기로 처리합니다] " + t);
+    lines.push("");
+    lines.push("■ 목적 (이 논의로 얻으려는 결과 한 문장)");
+    lines.push("- ");
+    lines.push("");
+    lines.push("■ 맥락 (배경 2~3줄)");
+    lines.push("- ");
+    lines.push("");
+    lines.push("■ 여러분께 필요한 것");
+    lines.push("- 무엇을: (결정 / 피드백 / 확인 중 택1)");
+    lines.push("- 언제까지: (예) 0월 0일(요일) 00:00");
+    lines.push("- 방식: 이 문서(스레드)에 코멘트로 남겨 주세요.");
+    lines.push(
+      "- 기본 진행안: 기한까지 반대 의견이 없으면 '(기본안)'으로 진행합니다. (동의는 침묵으로 갈음)"
+    );
+    lines.push("");
+    lines.push("■ 읽고 답하는 데: 약 " + readMin + "분");
+    lines.push("");
+    lines.push("정말 실시간 논의가 필요한 쟁점만 남으면, 그때 15~20분만 모이겠습니다.");
+    return lines.join("\n");
+  }
+
+  function purposeTemplate(topicText) {
+    var t = topicText || "(회의 주제)";
+    var lines = [];
+    lines.push("[회의 전 목적 정의] " + t);
+    lines.push("");
+    lines.push("1. 이 논의로 내려야 할 결정 / 만들어야 할 산출물:");
+    lines.push("   - ");
+    lines.push("2. 그것이 필요한 이유 (안 하면 생기는 문제):");
+    lines.push("   - ");
+    lines.push("3. 성공 기준 (끝났을 때 손에 남아야 하는 것):");
+    lines.push("   - ");
+    lines.push("4. 이 목적에 실제로 필요한 사람:");
+    lines.push("   - ");
+    lines.push("");
+    lines.push("※ 네 칸이 채워지면, 회의가 필요한 일인지 이 게이트로 다시 판정하세요.");
+    return lines.join("\n");
+  }
+
+  function aiPrompt(mode, ctx) {
+    var t = ctx.topic || "(회의 주제 미입력)";
+    var costLine = ctx.cost ? ctx.cost.text : "미입력";
+    var lines = [];
+    if (mode === "purpose") {
+      lines.push("당신은 회의를 잡기 전에 목적을 명확히 하도록 돕는 코치입니다.");
+      lines.push("저는 아래 주제로 회의를 고려 중인데 목적이 아직 모호합니다.");
+      lines.push("");
+      lines.push("[주제] " + t);
+      lines.push("");
+      lines.push("[요청]");
+      lines.push(
+        "1. 이 논의로 무엇을 결정하거나 산출해야 하는지 한 문장으로 정리하도록 3~4개의 날카로운 질문을 던져 주세요."
+      );
+      lines.push(
+        "2. 목적이 서면, 이게 회의가 필요한 일인지 아니면 비동기(문서 · 메시지)로 될 일인지 함께 판단해 주세요."
+      );
+      lines.push("3. 결론을 대신 내리지 말고 제가 스스로 정리하도록 도와주세요.");
+      return lines.join("\n");
+    }
+    if (mode === "meet") {
+      lines.push(
+        "당신은 회의를 짧고 결론 있게 설계하도록 돕는 퍼실리테이션 코치입니다."
+      );
+      lines.push(
+        "아래는 '회의 소집 게이트' 진단에서 실시간 회의가 정당하다고 나온 사안입니다."
+      );
+      lines.push("");
+      lines.push("[회의 주제] " + t);
+      lines.push(
+        "[게이트 판정] 실시간 필요도 " + ctx.score + "/" + MAX_SCORE + " (회의 필요)"
+      );
+      lines.push("[시간 비용] " + costLine);
+      lines.push("[감지된 신호]");
+      lines.push(ctx.signals);
+      lines.push("");
+      lines.push("[요청]");
+      lines.push("1. 이 회의의 목적을 '원하는 결과 한 문장'으로 더 날카롭게 다듬어 주세요.");
+      lines.push(
+        "2. " + ctx.timebox + " 안에 끝낼 수 있는 안건을 시간 배분과 함께 설계해 주세요."
+      );
+      lines.push("3. 회의 전 참석자가 읽을 1페이지 사전 브리프의 목차를 제안해 주세요.");
+      lines.push(
+        "4. 이 회의에서 비동기로 옮겨도 되는 부분이 있으면 골라내 회의를 더 짧게 만들어 주세요."
+      );
+      lines.push("5. 결론을 대신 내리지 말고 선택지와 그 근거를 제시해 주세요.");
+      return lines.join("\n");
+    }
+    // async / trim
+    lines.push("당신은 회의 문화를 비동기 우선으로 바꾸도록 돕는 생산성 코치입니다.");
+    lines.push(
+      "아래는 한 팀리더가 잡으려던 회의를 '회의 소집 게이트'로 진단한 결과입니다."
+    );
+    lines.push("");
+    lines.push("[회의 주제] " + t);
+    lines.push(
+      "[게이트 판정] 실시간 필요도 " +
+        ctx.score +
+        "/" +
+        MAX_SCORE +
+        " · " +
+        ctx.verdictTitle
+    );
+    lines.push("[시간 비용] " + costLine);
+    lines.push("[감지된 신호]");
+    lines.push(ctx.signals);
+    lines.push("");
+    lines.push("[요청]");
+    lines.push(
+      "1. 이 사안을 회의 없이 처리할 '비동기 대체안'을 구체적으로 설계해 주세요. (어떤 형식으로, 누구에게, 무엇을, 언제까지, 무응답 시 진행 규칙 포함)"
+    );
+    lines.push("2. 아래 초안을 우리 팀 상황에 맞게 더 명확하고 정중하게 다듬어 주세요.");
+    lines.push("---");
+    lines.push(ctx.draft);
+    lines.push("---");
+    lines.push(
+      "3. 혹시 비동기로 부족한 지점이 있다면, 회의를 15~30분으로 최소화하는 안건도 제안해 주세요."
+    );
+    lines.push(
+      "4. 결론을 단정하지 말고, 제가 최종 결정을 내릴 수 있도록 대안의 장단점을 함께 제시해 주세요."
+    );
+    return lines.join("\n");
+  }
+
+  // ---- copyable block builder ----
+  function copyBlock(opts) {
+    // opts: {id, title, sub, text, draft(bool)}
+    var html = '<div class="copy-block">';
+    html += '<div class="result-block-title">' + esc(opts.title) + "</div>";
+    if (opts.sub)
+      html +=
+        '<p class="panel-sub" style="margin-bottom:11px">' +
+        esc(opts.sub) +
+        "</p>";
+    html += '<div class="prompt-wrap">';
+    html +=
+      '<pre class="prompt' +
+      (opts.draft ? " draft" : "") +
+      '" id="' +
+      opts.id +
+      '">' +
+      esc(opts.text) +
+      "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html +=
+      '<button class="btn-copy" data-target="' +
+      opts.id +
+      '">' +
+      esc(opts.btn || "복사") +
+      "</button>";
+    html +=
+      '<span class="copy-status" role="status" aria-live="polite"></span>';
+    html += "</div></div>";
+    return html;
+  }
+
+  // ---- verdict card ----
+  function verdictCard(band, s, cost) {
+    var pct = Math.round((s / MAX_SCORE) * 100);
+    var html = '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html += '<div class="gauge">';
+    html +=
+      '<div class="gauge-track" role="img" aria-label="실시간 필요도 ' +
+      s +
+      " / " +
+      MAX_SCORE +
+      '"><div class="gauge-fill" style="width:' +
+      pct +
+      '%"></div></div>';
+    html +=
+      '<p class="gauge-caption">실시간 필요도 ' +
+      s +
+      " / " +
+      MAX_SCORE +
+      "</p>";
+    html += "</div>";
+    if (cost)
+      html +=
+        '<span class="cost-chip">이 회의의 시간 비용: ' +
+        esc(cost.text) +
+        "</span>";
+    html += "</div>";
+    return html;
+  }
+
+  // ---- main judge ----
+  var resultEl = document.getElementById("result");
+
+  function showNotice(msg) {
+    resultEl.innerHTML = '<div class="notice">' + esc(msg) + "</div>";
+  }
+
+  document.getElementById("judge").addEventListener("click", function () {
+    var topicText = topic.value.trim();
+    var answered = Object.keys(answers).length;
+
+    if (!answers.purpose) {
+      showNotice("먼저 1번(목적)에 답해 주세요. 목적이 게이트의 출발점입니다.");
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (answered < 4) {
+      showNotice(
+        "정확한 판정을 위해 최소 4개 문항에 답해 주세요. (현재 " +
+          answered +
+          "개)"
+      );
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var s = computeScore();
+    var tags = collectTags();
+    var cost = costInfo();
+    var sig = signalsText();
+
+    var decisionNeeded =
+      answers.decision === "b" || answers.decision === "c";
+    var deciderAbsent = answers.people === "c";
+    var purposeVague = answers.purpose === "c";
+
+    var html = "";
+    var mode;
+    var band;
+
+    if (purposeVague) {
+      // override: define purpose first
+      band = {
+        tone: "trim",
+        label: "게이트 보류",
+        title: "아직 회의를 잡지 마세요",
+        desc: "목적과 원하는 결과가 정의되지 않았습니다. 목적 없는 회의는 시간만 씁니다. 먼저 '이 논의로 무엇을 결정하거나 산출할지'를 한 문장으로 적으세요.",
+      };
+      html += verdictCard(band, s, cost);
+      html += '<div class="result-block-title">감지된 신호</div>';
+      html += signalsHtml();
+      html += '<div class="result-block-title">먼저 할 일</div>';
+      html += altListHtml([ALT["no-purpose"]]);
+      html += copyBlock({
+        id: "art-purpose",
+        title: "목적 정의 템플릿",
+        sub: "이 네 칸을 채운 뒤 게이트를 다시 통과시키세요.",
+        text: purposeTemplate(topicText),
+        draft: true,
+        btn: "템플릿 복사",
+      });
+      html += copyBlock({
+        id: "art-prompt",
+        title: "심화: AI에 붙여넣을 프롬프트",
+        sub: "목적 정의를 도와줄 프롬프트입니다.",
+        text: aiPrompt("purpose", { topic: topicText }),
+        btn: "프롬프트 복사",
+      });
+    } else if (deciderAbsent && decisionNeeded) {
+      // override: key decision-maker absent
+      band = {
+        tone: "trim",
+        label: "실시간 필요도 " + s + "/" + MAX_SCORE + " · 의사결정자 불참",
+        title: "지금 모여도 결론이 안 납니다",
+        desc: "결정이 필요한 사안인데 핵심 의사결정자가 참석할 수 없습니다. 이 상태의 회의는 재소집을 부릅니다. 일정을 미루거나, 정리된 안을 문서로 보내 비동기 승인을 받으세요.",
+      };
+      var draftA = asyncDraft(topicText, cost);
+      html += verdictCard(band, s, cost);
+      html += '<div class="result-block-title">감지된 신호</div>';
+      html += signalsHtml();
+      html += '<div class="result-block-title">권장 대체안</div>';
+      html += altListHtml(altsFor(tags));
+      html += copyBlock({
+        id: "art-draft",
+        title: "바로 보낼 비동기 승인 초안",
+        sub: "빈칸을 채워 결정권자에게 보내세요.",
+        text: draftA,
+        draft: true,
+        btn: "초안 복사",
+      });
+      html += copyBlock({
+        id: "art-prompt",
+        title: "심화: AI에 붙여넣을 프롬프트",
+        sub: "이 진단을 바탕으로 대체안을 설계해 줍니다.",
+        text: aiPrompt("async", {
+          topic: topicText,
+          score: s,
+          cost: cost,
+          signals: sig,
+          draft: draftA,
+          verdictTitle: band.title,
+        }),
+        btn: "프롬프트 복사",
+      });
+    } else {
+      band = bandFor(s);
+      html += verdictCard(band, s, cost);
+      html += '<div class="result-block-title">감지된 신호</div>';
+      html += signalsHtml();
+
+      if (band.tone === "meet") {
+        mode = "meet";
+        var design = meetingDesign(topicText, tags, s);
+        html += '<div class="result-block-title">회의 설계 카드</div>';
+        html += design.html;
+        // still surface any async-movable parts
+        if (tags["broadcast"] || tags["status"] || tags["single-decision"]) {
+          html +=
+            '<div class="result-block-title">회의 밖으로 뺄 수 있는 부분</div>';
+          html += altListHtml(altsFor(tags));
+        }
+        html += copyBlock({
+          id: "art-prompt",
+          title: "심화: AI에 붙여넣을 프롬프트",
+          sub: "이 판정을 바탕으로 짧은 안건과 사전 브리프를 설계해 줍니다.",
+          text: aiPrompt("meet", {
+            topic: topicText,
+            score: s,
+            cost: cost,
+            signals: sig,
+            timebox: design.timebox,
+          }),
+          btn: "프롬프트 복사",
+        });
+      } else {
+        // trim or async
+        var draftB = asyncDraft(topicText, cost);
+        html += '<div class="result-block-title">권장 대체안</div>';
+        html += altListHtml(altsFor(tags));
+        html += copyBlock({
+          id: "art-draft",
+          title: "바로 보낼 비동기 초안",
+          sub: "회의 초대장 대신 이 초안의 빈칸을 채워 보내세요.",
+          text: draftB,
+          draft: true,
+          btn: "초안 복사",
+        });
+        html += copyBlock({
+          id: "art-prompt",
+          title: "심화: AI에 붙여넣을 프롬프트",
+          sub: "이 진단과 초안을 바탕으로 대체안을 다듬어 줍니다.",
+          text: aiPrompt("async", {
+            topic: topicText,
+            score: s,
+            cost: cost,
+            signals: sig,
+            draft: draftB,
+            verdictTitle: band.title,
+          }),
+          btn: "프롬프트 복사",
+        });
+      }
+    }
+
+    // print button row
+    html +=
+      '<div class="copy-row no-print" style="margin-top:18px"><button class="btn-ghost" id="printBtn">인쇄 / PDF로 저장</button></div>';
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    answers = {};
+    topic.value = "";
+    grow(topic);
+    document.getElementById("people-n").value = "";
+    document.getElementById("minutes-n").value = "";
+    Array.prototype.forEach.call(
+      qWrap.querySelectorAll("input.native"),
+      function (b) {
+        b.checked = false;
+        var lab = b.closest("label.opt");
+        if (lab) lab.classList.remove("sel");
+      }
+    );
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">&#9719;</div>' +
+      "<p><strong>아직 판정 전입니다.</strong></p>" +
+      "<p>8문항에 답하고 '회의 필요성 판정'을 누르세요.</p></div>";
+    document.getElementById("checklist-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  // ---- result buttons (copy + print) ----
+  function wireResultButtons() {
+    Array.prototype.forEach.call(
+      resultEl.querySelectorAll(".btn-copy"),
+      function (btn) {
+        btn.addEventListener("click", function () {
+          var target = btn.getAttribute("data-target");
+          var pre = document.getElementById(target);
+          if (!pre) return;
+          var text = pre.textContent;
+          var statusEl = btn.parentNode.querySelector(".copy-status");
+          doCopy(text, statusEl);
+        });
+      }
+    );
+    var printBtn = document.getElementById("printBtn");
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(statusEl, msg) {
+    if (!statusEl) return;
+    statusEl.textContent = msg;
+    setTimeout(function () {
+      if (statusEl) statusEl.textContent = "";
+    }, 2600);
+  }
+
+  // ---- copy: 3-tier fallback ----
+  function doCopy(text, statusEl) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus(statusEl, "복사되었습니다");
+        },
+        function () {
+          legacyCopy(text, statusEl);
+        }
+      );
+      return;
+    }
+    legacyCopy(text, statusEl);
+  }
+
+  function legacyCopy(text, statusEl) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus(statusEl, "복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

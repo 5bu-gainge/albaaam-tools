@@ -1,0 +1,1461 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RICE 우선순위 계산기 (비PM용)</title>
+<meta
+  name="description"
+  content="여러 과제를 도달범위·임팩트·확신·노력으로 점수화해 자동으로 순위표를 만듭니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #10736b;
+    --accent-strong: #0b564f;
+    --accent-tint: #e6f2f0;
+    --accent-tint-2: #cfe6e2;
+    --ink: #1f2422;
+    --ink-soft: #45504c;
+    --ink-mute: #667069;
+    --paper: #f6f9f8;
+    --card: #ffffff;
+    --line: #e2e8e5;
+    --line-strong: #cdd7d3;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --warn-ink: #8a5a00;
+    --warn-tint: #fdf1d8;
+    --warn-line: #f0dcae;
+    --shadow: 0 1px 2px rgba(15, 40, 36, 0.05), 0 6px 20px rgba(15, 40, 36, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- factor legend ---------- */
+  .legend {
+    list-style: none;
+    margin: 0 0 18px;
+    padding: 14px 15px;
+    background: #f3f8f7;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    display: grid;
+    gap: 9px;
+  }
+  .legend li {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .legend b {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  .legend .formula {
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line-strong);
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* ---------- task rows ---------- */
+  .rows {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .task-row {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfdfd;
+    padding: 14px 14px 16px;
+  }
+  .tr-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 11px;
+  }
+  .tr-label {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    letter-spacing: 0.02em;
+  }
+  .tr-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tr-score {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .tr-score b {
+    color: var(--accent-strong);
+    font-size: 1rem;
+    font-weight: 800;
+  }
+  .btn-remove {
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    color: var(--ink-mute);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    line-height: 1;
+    min-height: 34px;
+  }
+  .btn-remove:hover {
+    border-color: #c9908c;
+    color: #a2413b;
+  }
+
+  .name-input {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 13px;
+    min-height: 46px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  .name-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .name-input::placeholder {
+    color: #9aa8a3;
+  }
+
+  .factor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 11px;
+  }
+  .factor {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+  .factor > label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .factor .sub {
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    font-weight: 500;
+  }
+  input.num,
+  select.sel {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 0 12px;
+    min-height: 46px;
+  }
+  select.sel {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23667069' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+  input.num:focus,
+  select.sel:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  .row-add {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  /* ---------- optional memo ---------- */
+  .memo-block {
+    margin-top: 20px;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea.memo {
+    width: 100%;
+    min-height: 70px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.96rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fdfefe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 13px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea.memo:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea.memo::placeholder {
+    color: #9aa8a3;
+  }
+  .field-hint {
+    font-size: 0.83rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    min-height: 46px;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+  .btn-sm {
+    font-size: 0.9rem;
+    padding: 10px 15px;
+    min-height: 42px;
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .summary {
+    border-radius: 14px;
+    padding: 18px 17px;
+    margin-bottom: 18px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+  }
+  .summary-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .summary-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.32;
+    color: var(--accent-strong);
+  }
+  .summary-title .name-hl {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 3px;
+  }
+  .summary-desc {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  .rank-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .rank-item {
+    display: flex;
+    gap: 13px;
+    align-items: flex-start;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    padding: 14px 15px;
+    background: #fdfefe;
+  }
+  .rank-item.top {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .rank-badge {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    border: 1px solid var(--accent-tint-2);
+    font-weight: 800;
+    font-size: 1rem;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+  }
+  .rank-item.top .rank-badge {
+    background: var(--accent-strong);
+    color: #fff;
+    border-color: var(--accent-strong);
+  }
+  .rank-main {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .rank-top-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .rank-name {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0;
+    color: var(--ink);
+  }
+  .rank-score {
+    font-weight: 800;
+    font-size: 1.12rem;
+    color: var(--accent-strong);
+    white-space: nowrap;
+    flex: none;
+  }
+  .rank-score .unit {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin-left: 2px;
+  }
+  .badge-quickwin {
+    display: inline-block;
+    margin-left: 7px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--warn-ink);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    padding: 2px 7px;
+    border-radius: 6px;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .rank-bar-track {
+    height: 8px;
+    background: #e4efec;
+    border-radius: 5px;
+    margin: 10px 0 8px;
+    overflow: hidden;
+  }
+  .rank-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 5px;
+  }
+  .rank-item.top .rank-bar-fill {
+    background: var(--accent-strong);
+  }
+  .rank-breakdown {
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .rank-breakdown span {
+    white-space: nowrap;
+  }
+  .rank-breakdown .dot {
+    color: var(--line-strong);
+    margin: 0 6px;
+  }
+
+  .inc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .inc-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid #c99a2e;
+    border-radius: 9px;
+    padding: 10px 13px;
+    background: #fffdf7;
+    font-size: 0.9rem;
+  }
+  .inc-item b {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .inc-reason {
+    color: var(--ink-mute);
+    font-size: 0.84rem;
+  }
+
+  /* ---------- prompt ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #1e2624;
+    color: #eef3f1;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 40, 36, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 12px;
+    overflow-y: auto;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .rank-top-line {
+      flex-wrap: wrap;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">우선순위 스코어링 · RICE</span>
+    <h1>RICE 우선순위 계산기 (비PM용)</h1>
+    <p class="lede">
+      할 일이 넘칠 때 감으로 고르지 마세요. 여러 과제를 도달범위·임팩트·확신·노력
+      네 가지로 점수화하면, 지금 무엇부터 해야 할지 순위표가 자동으로 나옵니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>과제 입력</h2>
+    </div>
+    <p class="panel-sub">
+      비교하고 싶은 일들을 적고, 네 항목을 채우세요. 점수는 입력하는 즉시 각 과제
+      옆에 계산됩니다.
+    </p>
+
+    <ul class="legend">
+      <li>
+        <b>도달범위 (Reach)</b> — 이 일이 영향을 주는 사람 수 또는 처리 건수.
+        모든 과제를 같은 기간(예: 한 달) 기준으로 통일하세요.
+      </li>
+      <li>
+        <b>임팩트 (Impact)</b> — 한 명·한 건당 효과의 크기. 아주 큼(3)부터
+        미미(0.25)까지.
+      </li>
+      <li>
+        <b>확신 (Confidence)</b> — 내 추정에 대한 확신. 근거·데이터가 있으면 높음,
+        추측이면 낮음.
+      </li>
+      <li>
+        <b>노력 (Effort)</b> — 드는 시간(사람-주). 하루면 0.2, 한 주면 1, 한 달이면
+        4 정도.
+      </li>
+      <li class="formula">
+        RICE 점수 = (도달범위 × 임팩트 × 확신) ÷ 노력 — 점수가 높을수록 먼저.
+      </li>
+    </ul>
+
+    <ul class="rows" id="rows"></ul>
+
+    <div class="row-add">
+      <button class="btn-ghost btn-sm" id="addRow" type="button">
+        + 과제 추가
+      </button>
+      <button class="btn-ghost btn-sm" id="fillExample" type="button">
+        예시로 채우기
+      </button>
+    </div>
+
+    <div class="memo-block">
+      <label class="field-label" for="memo">판단에 도움이 될 맥락 (선택)</label>
+      <textarea
+        id="memo"
+        class="memo"
+        placeholder="예) 이번 분기 목표는 반복 업무 자동화. 인력은 나 혼자, 마감은 다음 달 말."
+      ></textarea>
+      <p class="field-hint">
+        입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+        전혀 없습니다.
+      </p>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="calc" type="button">순위 계산하기</button>
+      <button class="btn-ghost" id="reset" type="button">전체 초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>우선순위 순위표</h2>
+    </div>
+    <div id="result" role="region" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▤</div>
+        <p><strong>아직 계산 전입니다.</strong></p>
+        <p>과제와 네 항목을 채운 뒤 '순위 계산하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> RICE는 인터콤(Intercom)이 공개한 제품
+      우선순위 프레임워크로, 점수 = (Reach 도달범위 × Impact 임팩트 × Confidence
+      확신) ÷ Effort 노력 으로 계산합니다. 임팩트 척도(3 / 2 / 1 / 0.5 / 0.25)와
+      확신 척도(100% / 80% / 50%)는 RICE 표준 값을 따릅니다. '빠른 성과' 표시는
+      임팩트가 크고 노력이 적은 항목을 짚어 주는 보조 신호입니다.
+    </p>
+    <p>
+      이 도구는 판단을 돕는 보조 도구이며, 점수가 결정을 대신하지 않습니다. 입력한
+      값의 질이 곧 결과의 질이니, 순위는 스스로 판단할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select" type="button">
+        전체 선택
+      </button>
+      <button class="btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------- RICE scales (Intercom standard) ---------- */
+  var IMPACT_OPTS = [
+    { v: "3", label: "아주 큼 (3)" },
+    { v: "2", label: "큼 (2)" },
+    { v: "1", label: "보통 (1)" },
+    { v: "0.5", label: "작음 (0.5)" },
+    { v: "0.25", label: "미미 (0.25)" },
+  ];
+  var CONF_OPTS = [
+    { v: "1", label: "높음 · 100%" },
+    { v: "0.8", label: "보통 · 80%" },
+    { v: "0.5", label: "낮음 · 50%" },
+  ];
+  var DEFAULT_IMPACT = "1";
+  var DEFAULT_CONF = "0.8";
+
+  var IMPACT_LABEL = {
+    "3": "아주 큼",
+    "2": "큼",
+    "1": "보통",
+    "0.5": "작음",
+    "0.25": "미미",
+  };
+
+  var EXAMPLE = [
+    { name: "반복 문의 답변 템플릿 만들기", reach: "120", impact: "2", conf: "1", effort: "0.5" },
+    { name: "재고 정리 자동화 스크립트", reach: "30", impact: "1", conf: "0.5", effort: "1" },
+    { name: "신규 입사자 온보딩 문서 정리", reach: "12", impact: "2", conf: "0.8", effort: "3" },
+    { name: "주간 보고서 양식 개선", reach: "4", impact: "1", conf: "0.8", effort: "2" },
+  ];
+
+  var LSKEY = "albaaam.rice.v1";
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function fmtScore(x) {
+    if (!isFinite(x)) return "—";
+    if (x >= 100) return Math.round(x).toLocaleString("ko-KR");
+    return (Math.round(x * 10) / 10).toLocaleString("ko-KR", {
+      maximumFractionDigits: 1,
+    });
+  }
+
+  function numFmt(x) {
+    if (!isFinite(x)) return "?";
+    return x.toLocaleString("ko-KR", { maximumFractionDigits: 2 });
+  }
+
+  var rowsEl = document.getElementById("rows");
+  var memoEl = document.getElementById("memo");
+  var resultEl = document.getElementById("result");
+
+  /* ---------- build a row ---------- */
+  function optionHtml(opts, selected) {
+    return opts
+      .map(function (o) {
+        return (
+          '<option value="' +
+          o.v +
+          '"' +
+          (o.v === selected ? " selected" : "") +
+          ">" +
+          o.label +
+          "</option>"
+        );
+      })
+      .join("");
+  }
+
+  function makeRow(data) {
+    data = data || {};
+    var li = document.createElement("li");
+    li.className = "task-row";
+    li.innerHTML =
+      '<div class="tr-head">' +
+      '<span class="tr-label">과제</span>' +
+      '<div class="tr-right">' +
+      '<span class="tr-score">RICE <b class="tr-score-val">—</b></span>' +
+      '<button class="btn-remove" type="button" aria-label="이 과제 삭제">삭제</button>' +
+      "</div>" +
+      "</div>" +
+      '<input class="name-input" type="text" maxlength="120" placeholder="과제 이름 (예: 반복 문의 답변 템플릿 만들기)" value="' +
+      esc(data.name || "") +
+      '" />' +
+      '<div class="factor-grid">' +
+      '<div class="factor">' +
+      "<label>도달범위 <span class=\"sub\">사람·건수</span></label>" +
+      '<input class="num reach" type="number" inputmode="decimal" min="0" step="any" placeholder="예: 120" value="' +
+      esc(data.reach || "") +
+      '" />' +
+      "</div>" +
+      '<div class="factor">' +
+      "<label>임팩트</label>" +
+      '<select class="sel impact">' +
+      optionHtml(IMPACT_OPTS, data.impact || DEFAULT_IMPACT) +
+      "</select>" +
+      "</div>" +
+      '<div class="factor">' +
+      "<label>확신</label>" +
+      '<select class="sel conf">' +
+      optionHtml(CONF_OPTS, data.conf || DEFAULT_CONF) +
+      "</select>" +
+      "</div>" +
+      '<div class="factor">' +
+      "<label>노력 <span class=\"sub\">사람-주</span></label>" +
+      '<input class="num effort" type="number" inputmode="decimal" min="0" step="any" placeholder="예: 0.5" value="' +
+      esc(data.effort || "") +
+      '" />' +
+      "</div>" +
+      "</div>";
+    return li;
+  }
+
+  function readRow(row) {
+    var reachRaw = row.querySelector(".reach").value.trim();
+    var effortRaw = row.querySelector(".effort").value.trim();
+    var reach = parseFloat(reachRaw);
+    var effort = parseFloat(effortRaw);
+    return {
+      name: row.querySelector(".name-input").value.trim(),
+      reachRaw: reachRaw,
+      effortRaw: effortRaw,
+      reach: reach,
+      effort: effort,
+      impact: parseFloat(row.querySelector(".impact").value),
+      conf: parseFloat(row.querySelector(".conf").value),
+      impactRaw: row.querySelector(".impact").value,
+      confRaw: row.querySelector(".conf").value,
+    };
+  }
+
+  function scoreOf(r) {
+    if (
+      r.reachRaw === "" ||
+      r.effortRaw === "" ||
+      !isFinite(r.reach) ||
+      r.reach <= 0 ||
+      !isFinite(r.effort) ||
+      r.effort <= 0
+    ) {
+      return null;
+    }
+    return (r.reach * r.impact * r.conf) / r.effort;
+  }
+
+  function updateRowScore(row) {
+    if (!row) return;
+    var r = readRow(row);
+    var s = scoreOf(r);
+    row.querySelector(".tr-score-val").textContent = s === null ? "—" : fmtScore(s);
+  }
+
+  function renumber() {
+    var rows = rowsEl.querySelectorAll(".task-row");
+    Array.prototype.forEach.call(rows, function (row, i) {
+      row.querySelector(".tr-label").textContent = "과제 " + (i + 1);
+    });
+  }
+
+  function addRow(data, skipSave) {
+    var li = makeRow(data);
+    rowsEl.appendChild(li);
+    updateRowScore(li);
+    renumber();
+    if (!skipSave) save();
+    return li;
+  }
+
+  /* ---------- delegation ---------- */
+  rowsEl.addEventListener("input", function (e) {
+    var row = e.target.closest(".task-row");
+    if (row) updateRowScore(row);
+    debouncedSave();
+  });
+  rowsEl.addEventListener("change", function (e) {
+    var row = e.target.closest(".task-row");
+    if (row) updateRowScore(row);
+    save();
+  });
+  rowsEl.addEventListener("click", function (e) {
+    if (!e.target.closest(".btn-remove")) return;
+    var row = e.target.closest(".task-row");
+    if (!row) return;
+    var rows = rowsEl.querySelectorAll(".task-row");
+    if (rows.length <= 1) {
+      // keep at least one row: clear it instead of removing
+      row.querySelector(".name-input").value = "";
+      row.querySelector(".reach").value = "";
+      row.querySelector(".effort").value = "";
+      row.querySelector(".impact").value = DEFAULT_IMPACT;
+      row.querySelector(".conf").value = DEFAULT_CONF;
+      updateRowScore(row);
+    } else {
+      row.parentNode.removeChild(row);
+    }
+    renumber();
+    save();
+  });
+
+  memoEl.addEventListener("input", function () {
+    grow(memoEl);
+    debouncedSave();
+  });
+
+  /* ---------- auto-grow memo ---------- */
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  /* ---------- persistence ---------- */
+  var saveTimer = null;
+  function debouncedSave() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 350);
+  }
+  function collectState() {
+    var rows = [];
+    Array.prototype.forEach.call(
+      rowsEl.querySelectorAll(".task-row"),
+      function (row) {
+        var r = readRow(row);
+        rows.push({
+          name: r.name,
+          reach: r.reachRaw,
+          impact: r.impactRaw,
+          conf: r.confRaw,
+          effort: r.effortRaw,
+        });
+      }
+    );
+    return { v: 1, rows: rows, memo: memoEl.value };
+  }
+  function save() {
+    try {
+      localStorage.setItem(LSKEY, JSON.stringify(collectState()));
+    } catch (e) {
+      /* storage unavailable — silent, non-fatal */
+    }
+  }
+  function load() {
+    var raw = null;
+    try {
+      raw = localStorage.getItem(LSKEY);
+    } catch (e) {
+      raw = null;
+    }
+    if (!raw) return false;
+    var data;
+    try {
+      data = JSON.parse(raw);
+    } catch (e) {
+      return false;
+    }
+    if (!data || !Array.isArray(data.rows) || data.rows.length === 0) return false;
+    data.rows.forEach(function (d) {
+      addRow(d, true);
+    });
+    if (typeof data.memo === "string") memoEl.value = data.memo;
+    return true;
+  }
+
+  /* ---------- init ---------- */
+  function startFresh() {
+    rowsEl.innerHTML = "";
+    for (var i = 0; i < 3; i++) addRow({}, true);
+  }
+  if (!load()) startFresh();
+  grow(memoEl);
+
+  /* ---------- add / example / reset ---------- */
+  document.getElementById("addRow").addEventListener("click", function () {
+    var li = addRow({});
+    li.querySelector(".name-input").focus();
+    li.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+
+  document.getElementById("fillExample").addEventListener("click", function () {
+    rowsEl.innerHTML = "";
+    EXAMPLE.forEach(function (d) {
+      addRow(d, true);
+    });
+    save();
+    rowsEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+
+  document.getElementById("reset").addEventListener("click", function () {
+    try {
+      localStorage.removeItem(LSKEY);
+    } catch (e) {}
+    memoEl.value = "";
+    grow(memoEl);
+    startFresh();
+    save();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+      "<p><strong>아직 계산 전입니다.</strong></p>" +
+      "<p>과제와 네 항목을 채운 뒤 '순위 계산하기'를 누르세요.</p></div>";
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------- prompt ---------- */
+  function buildPrompt(scored, incomplete, memo) {
+    var out = [];
+    out.push(
+      "당신은 실무 우선순위를 함께 점검하는 냉정하고 정직한 코치입니다."
+    );
+    out.push(
+      "아래는 RICE 프레임워크(점수 = 도달범위 × 임팩트 × 확신 ÷ 노력)로 제가 직접 매긴 과제 우선순위입니다."
+    );
+    out.push("");
+    out.push("【내가 매긴 순위】");
+    scored.forEach(function (r, i) {
+      out.push(
+        i +
+          1 +
+          ". " +
+          r.name +
+          " — RICE " +
+          fmtScore(r.score) +
+          " (도달 " +
+          numFmt(r.reach) +
+          ", 임팩트 " +
+          IMPACT_LABEL[r.impactRaw] +
+          "×" +
+          r.impact +
+          ", 확신 " +
+          Math.round(r.conf * 100) +
+          "%, 노력 " +
+          numFmt(r.effort) +
+          "사람-주)" +
+          (r.quickWin ? " [빠른 성과 후보]" : "")
+      );
+    });
+    if (incomplete.length) {
+      out.push("");
+      out.push("【입력이 더 필요해 순위에서 뺀 과제】");
+      incomplete.forEach(function (r) {
+        out.push("- " + (r.name || "(이름 없음)") + " : " + r.reason);
+      });
+    }
+    out.push("");
+    out.push("【맥락 / 메모】");
+    out.push(memo && memo.trim() ? memo.trim() : "(없음)");
+    out.push("");
+    out.push("【요청 사항】");
+    out.push(
+      "1. 이 순위가 합리적인지 짚어 주세요. 특히 확신(Confidence)을 부풀렸거나 노력(Effort)을 과소평가한 항목이 있는지 의심해 주세요."
+    );
+    out.push(
+      "2. 임팩트가 크고 노력이 적은 '빠른 성과' 1~2개를 골라, 지금 당장 시작할 것을 추천해 주세요."
+    );
+    out.push(
+      "3. 점수는 높지만 지금은 미루거나 아예 접어도 되는 항목이 있으면 이유와 함께 알려 주세요."
+    );
+    out.push(
+      "4. 결론을 대신 확정하지 말고, 제가 다시 판단할 수 있도록 근거와 되물을 질문을 함께 제시해 주세요."
+    );
+    out.push(
+      "5. 수치를 지어내지 말고, 추가로 알아야 할 정보가 있으면 저에게 먼저 물어봐 주세요."
+    );
+    return out.join("\n");
+  }
+
+  var lastPrompt = "";
+
+  /* ---------- calculate ---------- */
+  document.getElementById("calc").addEventListener("click", function () {
+    var scored = [];
+    var incomplete = [];
+
+    Array.prototype.forEach.call(
+      rowsEl.querySelectorAll(".task-row"),
+      function (row) {
+        var r = readRow(row);
+        var isEmpty =
+          r.name === "" && r.reachRaw === "" && r.effortRaw === "";
+        if (isEmpty) return; // skip untouched rows silently
+
+        var s = scoreOf(r);
+        if (r.name !== "" && s !== null) {
+          r.score = s;
+          r.quickWin = r.impact >= 2 && r.effort <= 1;
+          scored.push(r);
+        } else {
+          var reasons = [];
+          if (r.name === "") reasons.push("과제 이름");
+          if (r.reachRaw === "" || !isFinite(r.reach) || r.reach <= 0)
+            reasons.push("도달범위(0보다 큰 수)");
+          if (r.effortRaw === "" || !isFinite(r.effort) || r.effort <= 0)
+            reasons.push("노력(0보다 큰 수)");
+          r.reason = reasons.join(", ") + " 필요";
+          incomplete.push(r);
+        }
+      }
+    );
+
+    scored.sort(function (a, b) {
+      return b.score - a.score;
+    });
+
+    renderResult(scored, incomplete);
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function renderResult(scored, incomplete) {
+    if (scored.length === 0 && incomplete.length === 0) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+        "<p><strong>입력된 과제가 없습니다.</strong></p>" +
+        "<p>과제 이름과 도달범위·노력을 채운 뒤 다시 눌러 주세요.</p></div>";
+      return;
+    }
+
+    var html = "";
+
+    if (scored.length > 0) {
+      var top = scored[0];
+      var quickCount = scored.filter(function (r) {
+        return r.quickWin;
+      }).length;
+      var desc =
+        "총 " +
+        scored.length +
+        "개 과제를 점수로 줄 세웠습니다." +
+        (quickCount > 0
+          ? " 이 중 '빠른 성과' 후보가 " + quickCount + "개 있습니다."
+          : "") +
+        " 점수는 입력값에서 나온 상대 순위이니, 가장 위험한 가정부터 되짚어 보세요.";
+      html += '<div class="summary">';
+      html += '<p class="summary-label">지금 가장 먼저 할 일</p>';
+      html +=
+        '<p class="summary-title"><span class="name-hl">' +
+        esc(top.name) +
+        "</span></p>";
+      html += '<p class="summary-desc">' + esc(desc) + "</p>";
+      html += "</div>";
+
+      var maxScore = scored[0].score || 1;
+
+      html += '<div class="result-block-title">우선순위 순위표</div>';
+      html += '<ol class="rank-list">';
+      scored.forEach(function (r, i) {
+        var pct = Math.max(4, Math.round((r.score / maxScore) * 100));
+        html += '<li class="rank-item' + (i === 0 ? " top" : "") + '">';
+        html += '<span class="rank-badge">' + (i + 1) + "</span>";
+        html += '<div class="rank-main">';
+        html += '<div class="rank-top-line">';
+        html +=
+          '<p class="rank-name">' +
+          esc(r.name) +
+          (r.quickWin
+            ? '<span class="badge-quickwin">빠른 성과</span>'
+            : "") +
+          "</p>";
+        html +=
+          '<span class="rank-score">' +
+          fmtScore(r.score) +
+          '<span class="unit">점</span></span>';
+        html += "</div>";
+        html +=
+          '<div class="rank-bar-track"><div class="rank-bar-fill" style="width:' +
+          pct +
+          '%"></div></div>';
+        html +=
+          '<p class="rank-breakdown">' +
+          '<span>도달 ' +
+          esc(numFmt(r.reach)) +
+          "</span>" +
+          '<span class="dot">·</span>' +
+          "<span>임팩트 " +
+          esc(IMPACT_LABEL[r.impactRaw]) +
+          "</span>" +
+          '<span class="dot">·</span>' +
+          "<span>확신 " +
+          Math.round(r.conf * 100) +
+          "%</span>" +
+          '<span class="dot">·</span>' +
+          "<span>노력 " +
+          esc(numFmt(r.effort)) +
+          "</span>" +
+          "</p>";
+        html += "</div></li>";
+      });
+      html += "</ol>";
+    }
+
+    if (incomplete.length > 0) {
+      html += '<div class="result-block-title">입력이 더 필요한 과제</div>';
+      html += '<ul class="inc-list">';
+      incomplete.forEach(function (r) {
+        html +=
+          '<li class="inc-item"><b>' +
+          esc(r.name || "(이름 없는 과제)") +
+          "</b> <span class=\"inc-reason\">— " +
+          esc(r.reason) +
+          "</span></li>";
+      });
+      html += "</ul>";
+    }
+
+    if (scored.length > 0) {
+      lastPrompt = buildPrompt(scored, incomplete, memoEl.value);
+      html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+      html +=
+        '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 순위를 바탕으로 확신 과대평가와 빠른 성과를 함께 점검해 줍니다.</p>';
+      html += '<div class="prompt-wrap">';
+      html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+      html += "</div>";
+      html += '<div class="copy-row no-print">';
+      html += '<button class="btn-copy" id="copyBtn" type="button">프롬프트 복사</button>';
+      html += '<button class="btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>';
+      html +=
+        '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+      html += "</div>";
+    }
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+  }
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>
