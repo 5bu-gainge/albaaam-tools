@@ -1,0 +1,1403 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>차별점 vs 기본기 분류기</title>
+<meta name="description" content="강점 목록을 필수 기본기와 진짜 차별점으로 갈라, 마케팅에서 리드할 하나를 골라줍니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #7b3fa0;
+    --accent-strong: #653484;
+    --accent-tint: #f4edfb;
+    --accent-tint-2: #e6d6f4;
+    --ink: #221f26;
+    --ink-soft: #4a4551;
+    --ink-mute: #6b6672;
+    --paper: #faf8fc;
+    --card: #ffffff;
+    --line: #e7e1ec;
+    --line-strong: #d6cee0;
+    --basics: #6a6a75;
+    --basics-strong: #52525c;
+    --basics-tint: #eeeef1;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #9a6410;
+    --warn-tint: #fdf3e2;
+    --warn-line: #f2ddc0;
+    --shadow: 0 1px 2px rgba(34, 31, 38, 0.05), 0 6px 20px rgba(34, 31, 38, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 116px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: var(--ink);
+    background: #fdfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a79fae;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- distinction guide ---------- */
+  .guide {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .guide-card {
+    flex: 1 1 220px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 14px;
+    background: #fdfcfe;
+  }
+  .guide-card.g-basics {
+    border-left: 3px solid var(--basics);
+  }
+  .guide-card.g-diff {
+    border-left: 3px solid var(--accent);
+  }
+  .guide-tag {
+    display: inline-block;
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 2px 9px;
+    border-radius: 6px;
+    margin-bottom: 7px;
+  }
+  .g-basics .guide-tag {
+    color: var(--basics-strong);
+    background: var(--basics-tint);
+  }
+  .g-diff .guide-tag {
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+  }
+  .guide-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- classify items ---------- */
+  .items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .item {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fdfcfe;
+    padding: 13px 14px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    flex-wrap: wrap;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .item.is-diff {
+    border-color: var(--accent-tint-2);
+    background: var(--accent-tint);
+  }
+  .item.is-basics {
+    border-color: var(--line-strong);
+    background: var(--basics-tint);
+  }
+  .item-text {
+    flex: 1 1 200px;
+    min-width: 0;
+    margin: 0;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .seg {
+    flex: none;
+    display: inline-flex;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .seg-btn {
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+    color: var(--ink-mute);
+    padding: 0 15px;
+    min-height: 44px;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+  }
+  .seg-btn + .seg-btn {
+    border-left: 1px solid var(--line-strong);
+  }
+  .seg-btn:hover {
+    background: #f5f2f8;
+  }
+  .seg-btn.on[data-cls="basics"] {
+    background: var(--basics);
+    color: #fff;
+  }
+  .seg-btn.on[data-cls="diff"] {
+    background: var(--accent);
+    color: #fff;
+  }
+  .seg-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  .items-empty {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 20px 12px;
+    font-size: 0.92rem;
+  }
+
+  /* ---------- tally ---------- */
+  .tally {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 16px 0 4px;
+  }
+  .tally-pill {
+    flex: 1 1 90px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 9px 12px;
+    text-align: center;
+    background: #fff;
+  }
+  .tally-pill .num {
+    font-size: 1.28rem;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+  .tally-pill .lab {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+  .tally-pill.t-diff .num {
+    color: var(--accent);
+  }
+  .tally-pill.t-basics .num {
+    color: var(--basics-strong);
+  }
+  .tally-pill.t-unc .num {
+    color: var(--ink-mute);
+  }
+
+  /* ---------- lead selector ---------- */
+  #leadwrap {
+    margin-top: 18px;
+    border-top: 1px dashed var(--line-strong);
+    padding-top: 16px;
+  }
+  .lead-head {
+    font-size: 0.95rem;
+    font-weight: 800;
+    margin: 0 0 3px;
+  }
+  .lead-note {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 0 0 12px;
+  }
+  .lead-opts {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .lead-opt {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 12px 14px;
+    min-height: 44px;
+    cursor: pointer;
+    background: #fff;
+    transition: border-color 0.12s, background 0.12s;
+  }
+  .lead-opt:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .lead-opt:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+  .lead-opt input {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .lead-opt span {
+    font-size: 0.96rem;
+    font-weight: 600;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button.big {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 44px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button.big:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-none {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-focus {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-ideal {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-none .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-focus .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-ideal .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .split-bar {
+    display: flex;
+    gap: 4px;
+    margin: 15px 0 9px;
+    height: 12px;
+  }
+  .split-bar span {
+    border-radius: 4px;
+    min-width: 10px;
+  }
+  .sb-diff {
+    background: var(--accent);
+  }
+  .sb-basics {
+    background: var(--basics);
+  }
+  .sb-unc {
+    background: #ded8e4;
+  }
+  .split-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin: 0;
+  }
+  .split-legend .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .dot.d-diff {
+    background: var(--accent);
+  }
+  .dot.d-basics {
+    background: var(--basics);
+  }
+  .dot.d-unc {
+    background: #ded8e4;
+  }
+
+  /* lead callout */
+  .lead-card {
+    border: 1px solid var(--accent-tint-2);
+    background: linear-gradient(180deg, #fbf7ff 0%, #f6eefb 100%);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+  .lead-card .lc-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    margin: 0 0 6px;
+  }
+  .lead-card .lc-pick {
+    font-size: 1.28rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0 0 12px;
+    line-height: 1.32;
+  }
+  .lead-card .lc-sentence {
+    margin: 0;
+    font-size: 0.98rem;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--accent-tint-2);
+    padding-top: 12px;
+  }
+  .lead-card .lc-sentence b {
+    color: var(--accent-strong);
+  }
+  .lc-auto {
+    display: block;
+    margin-top: 9px;
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  ul.chips {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  ul.chips li {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 14px;
+    background: #fdfcfe;
+    font-size: 0.95rem;
+  }
+  ul.chips.c-basics li {
+    border-left: 3px solid var(--basics);
+  }
+  ul.chips.c-diff li {
+    border-left: 3px solid var(--accent);
+  }
+  .note-box {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin: 10px 0 0;
+  }
+  .note-box.n-basics {
+    background: var(--basics-tint);
+    border: 1px solid var(--line-strong);
+  }
+  .note-box.n-warn {
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+  }
+  .note-box.n-good {
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+  }
+  .note-box b {
+    color: var(--ink);
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #2a2431;
+    color: #f1ecf5;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+    min-height: 44px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(34, 31, 38, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .item {
+      align-items: stretch;
+    }
+    .seg {
+      width: 100%;
+    }
+    .seg-btn {
+      flex: 1 1 0;
+    }
+    .item-text {
+      flex: 1 1 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #classify-panel .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">포지셔닝 진단 · 기본기 vs 차별점</span>
+    <h1>차별점 vs 기본기 분류기</h1>
+    <p class="lede">
+      가진 강점을 다 늘어놓으면 오히려 아무것도 기억되지 않습니다. 고객이
+      당연히 기대하는 '기본기'와 경쟁사가 못 따라오는 '차별점'을 갈라, 마케팅에서
+      앞세울 단 하나를 골라 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>강점 적기</h2>
+    </div>
+    <p class="panel-sub">
+      우리의 강점·장점을 한 줄에 하나씩 적으세요. 적는 즉시 아래 STEP 2에 분류할
+      카드로 정리됩니다.
+    </p>
+    <label class="field-label" for="src">강점 목록 (한 줄에 하나)</label>
+    <textarea
+      id="src"
+      placeholder="예)&#10;10년 축적한 현장 데이터&#10;24시간 고객 응대&#10;합리적인 가격&#10;업계 유일의 맞춤 알고리즘&#10;친절한 상담"
+      aria-describedby="src-hint"
+    ></textarea>
+    <p class="field-hint" id="src-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+      전혀 없습니다.
+    </p>
+
+    <div class="guide" aria-hidden="false">
+      <div class="guide-card g-basics">
+        <span class="guide-tag">기본기 (Points of Parity)</span>
+        <p>
+          고객이 <b>당연히</b> 기대하는 필수 요건. 없으면 후보에서 탈락하지만,
+          있다고 선택 이유가 되지는 않습니다. 충족은 필수, 리드로는 쓰지 않습니다.
+        </p>
+      </div>
+      <div class="guide-card g-diff">
+        <span class="guide-tag">차별점 (Points of Difference)</span>
+        <p>
+          경쟁사가 쉽게 못 따라오고, 고객이 실제로 중요히 여기는 우위. 지금
+          사실이어야 하고, 마케팅에서 앞세울 '리드'는 여기서 나옵니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="classify-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>기본기 · 차별점 분류</h2>
+    </div>
+    <p class="panel-sub">
+      각 강점을 <b>기본기</b> 또는 <b>차별점</b>으로 나누세요. 같은 버튼을 다시
+      누르면 미분류로 돌아갑니다. 차별점이 여럿이면 그중 '리드할 하나'를 고릅니다.
+    </p>
+
+    <div class="items" id="items">
+      <div class="items-empty" id="items-empty">
+        위에 강점을 입력하면 여기에 분류 카드가 나타납니다.
+      </div>
+    </div>
+
+    <div class="tally" id="tally" aria-live="polite">
+      <div class="tally-pill t-diff">
+        <div class="num" id="cnt-diff">0</div>
+        <div class="lab">차별점</div>
+      </div>
+      <div class="tally-pill t-basics">
+        <div class="num" id="cnt-basics">0</div>
+        <div class="lab">기본기</div>
+      </div>
+      <div class="tally-pill t-unc">
+        <div class="num" id="cnt-unc">0</div>
+        <div class="lab">미분류</div>
+      </div>
+    </div>
+
+    <div id="leadwrap" style="display: none">
+      <p class="lead-head">리드할 하나 고르기</p>
+      <p class="lead-note">
+        차별점이 여럿이어도 마케팅에서 앞세우는 건 하나입니다. 고객이 일주일 뒤에도
+        기억할 단 하나를 고르세요.
+      </p>
+      <div class="lead-opts" id="lead-opts" role="radiogroup" aria-label="리드할 차별점"></div>
+    </div>
+
+    <div class="actions">
+      <button class="big btn-primary" id="run">리드 문장 만들기</button>
+      <button class="big btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◑</div>
+        <p><strong>아직 결과가 없습니다.</strong></p>
+        <p>강점을 분류하고 '리드 문장 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 마케팅 포지셔닝의 <em>기본기(points of
+      parity)</em>와 <em>차별점(points of difference)</em> 구분 논리. 기본기는
+      "충족은 필수, 앞세우지는 말 것", 차별점은 "지금 사실이고 · 고객이 중요히
+      여기며 · 경쟁사가 쉽게 못 베끼는 것 하나로 리드"라는 기준을 따릅니다.
+      리드는 여럿이 아니라 <em>하나</em>여야 기억됩니다.
+    </p>
+    <p>
+      이 도구는 스스로 강점을 갈라 보는 사고를 돕는 보조 도구이며, 포지셔닝을
+      대신 확정해 주지 않습니다. 결과는 판단할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="big btn-primary" id="modal-select">전체 선택</button>
+      <button class="big btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---- state ----
+  var clsState = Object.create(null); // trimmed text -> 'basics' | 'diff'
+  var leadText = null; // chosen lead differentiator (text)
+  var items = []; // [{ text, cls }]
+  var lastPrompt = "";
+
+  var ta = document.getElementById("src");
+  var itemsEl = document.getElementById("items");
+  var emptyEl = document.getElementById("items-empty");
+  var leadWrap = document.getElementById("leadwrap");
+  var leadOpts = document.getElementById("lead-opts");
+  var resultEl = document.getElementById("result");
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  // ---- parse textarea into unique, marker-stripped lines ----
+  function parseLines() {
+    var raw = ta.value.split(/\r?\n/);
+    var seen = Object.create(null);
+    var out = [];
+    for (var i = 0; i < raw.length; i++) {
+      var t = raw[i]
+        .replace(/^\s*(?:[-*•·▪◦●]|\d{1,2}[.)])\s+/, "")
+        .trim();
+      if (!t) continue;
+      var key = t.toLowerCase();
+      if (seen[key]) continue;
+      seen[key] = 1;
+      out.push(t);
+    }
+    return out;
+  }
+
+  // ---- auto-grow textarea ----
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  // ---- rebuild items from current textarea, preserving classification ----
+  function rebuild() {
+    var lines = parseLines();
+    items = lines.map(function (text) {
+      return { text: text, cls: clsState[text] || null };
+    });
+    // drop a stale lead selection if it is no longer a differentiator
+    if (leadText) {
+      var stillDiff = items.some(function (it) {
+        return it.text === leadText && it.cls === "diff";
+      });
+      if (!stillDiff) leadText = null;
+    }
+    renderItems();
+    renderLead();
+    updateTally();
+  }
+
+  function renderItems() {
+    if (items.length === 0) {
+      itemsEl.innerHTML = "";
+      itemsEl.appendChild(emptyEl);
+      emptyEl.style.display = "";
+      return;
+    }
+    var html = "";
+    items.forEach(function (it, i) {
+      var stateClass =
+        it.cls === "diff" ? " is-diff" : it.cls === "basics" ? " is-basics" : "";
+      html +=
+        '<div class="item' + stateClass + '" data-idx="' + i + '">' +
+        '<p class="item-text">' + esc(it.text) + "</p>" +
+        '<div class="seg" role="group" aria-label="분류: ' + esc(it.text) + '">' +
+        '<button type="button" class="seg-btn' +
+        (it.cls === "basics" ? " on" : "") +
+        '" data-cls="basics" data-idx="' + i + '" aria-pressed="' +
+        (it.cls === "basics") + '">기본기</button>' +
+        '<button type="button" class="seg-btn' +
+        (it.cls === "diff" ? " on" : "") +
+        '" data-cls="diff" data-idx="' + i + '" aria-pressed="' +
+        (it.cls === "diff") + '">차별점</button>' +
+        "</div>" +
+        "</div>";
+    });
+    itemsEl.innerHTML = html;
+  }
+
+  function renderLead() {
+    var diffs = items.filter(function (it) {
+      return it.cls === "diff";
+    });
+    if (diffs.length === 0) {
+      leadWrap.style.display = "none";
+      leadOpts.innerHTML = "";
+      return;
+    }
+    leadWrap.style.display = "";
+    var html = "";
+    diffs.forEach(function (it) {
+      var checked = it.text === leadText;
+      html +=
+        '<label class="lead-opt">' +
+        '<input type="radio" name="lead" value="' + esc(it.text) + '"' +
+        (checked ? " checked" : "") + " />" +
+        "<span>" + esc(it.text) + "</span>" +
+        "</label>";
+    });
+    leadOpts.innerHTML = html;
+  }
+
+  function updateTally() {
+    var d = 0, b = 0, u = 0;
+    items.forEach(function (it) {
+      if (it.cls === "diff") d++;
+      else if (it.cls === "basics") b++;
+      else u++;
+    });
+    document.getElementById("cnt-diff").textContent = d;
+    document.getElementById("cnt-basics").textContent = b;
+    document.getElementById("cnt-unc").textContent = u;
+  }
+
+  // ---- events: textarea ----
+  var growPending = null;
+  ta.addEventListener("input", function () {
+    grow(ta);
+    if (growPending) clearTimeout(growPending);
+    growPending = setTimeout(rebuild, 140);
+  });
+
+  // ---- events: classify toggle (delegated) ----
+  itemsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest(".seg-btn");
+    if (!btn) return;
+    var idx = parseInt(btn.getAttribute("data-idx"), 10);
+    var cls = btn.getAttribute("data-cls");
+    var it = items[idx];
+    if (!it) return;
+    if (it.cls === cls) {
+      // toggle off -> unclassified
+      it.cls = null;
+      delete clsState[it.text];
+    } else {
+      it.cls = cls;
+      clsState[it.text] = cls;
+    }
+    if (it.text === leadText && it.cls !== "diff") leadText = null;
+    renderItems();
+    renderLead();
+    updateTally();
+  });
+
+  // ---- events: lead radio (delegated) ----
+  leadOpts.addEventListener("change", function (e) {
+    if (e.target && e.target.name === "lead") {
+      leadText = e.target.value;
+    }
+  });
+
+  // ---- verdict band ----
+  function bandFor(d, total) {
+    if (d === 0) {
+      return {
+        tone: "none",
+        label: "차별점 0개",
+        title: "앞세울 차별점이 없습니다",
+        desc:
+          "지금 목록은 전부 기본기에 가깝습니다. 기본기만으로는 경쟁사와 같은 축에서 싸우게 되어 선택 이유가 되지 못합니다. '경쟁사가 못 따라오고 고객이 중요히 여기는' 진짜 차별점을 하나 찾아야 합니다.",
+      };
+    }
+    if (d === 1) {
+      return {
+        tone: "ideal",
+        label: "차별점 1개",
+        title: "리드가 명확합니다",
+        desc:
+          "앞세울 하나가 분명합니다. 이 차별점을 마케팅의 리드로 두고, 기본기는 '충족되어 있다'는 안심 신호로만 받쳐 주세요.",
+      };
+    }
+    return {
+      tone: "focus",
+      label: "차별점 " + d + "개",
+      title: "하나로 좁히세요",
+      desc:
+        "차별점이 여럿입니다. 다 앞세우면 아무것도 기억되지 않습니다. 고객이 일주일 뒤에도 기억할 단 하나를 리드로, 나머지는 뒷받침 근거로 배치하세요.",
+    };
+  }
+
+  function leadSentence(lead) {
+    return (
+      "고객이 경쟁사가 아니라 우리를 선택하는 단 하나의 이유 — <b>" +
+      esc(lead) +
+      "</b>."
+    );
+  }
+
+  function buildPrompt(basicsArr, diffArr, lead) {
+    var L = [];
+    L.push(
+      "당신은 마케팅 포지셔닝에 정통한 코치입니다. 아래는 우리 강점을 '기본기(고객이 당연히 기대하는 필수 요건, points of parity)'와 '차별점(경쟁사가 쉽게 못 따라오고 고객이 중요히 여기는 우위, points of difference)'으로 나눈 자가 분류 결과입니다."
+    );
+    L.push("");
+    L.push("【기본기 · 충족은 필수, 마케팅 리드로 쓰지 말 것】");
+    if (basicsArr.length === 0) {
+      L.push("- (기본기로 분류한 항목 없음)");
+    } else {
+      basicsArr.forEach(function (t) {
+        L.push("- " + t);
+      });
+    }
+    L.push("");
+    L.push("【차별점 · 이 중 하나로 리드】");
+    if (diffArr.length === 0) {
+      L.push("- (차별점 없음 — 아직 진짜 차별점을 찾지 못함)");
+    } else {
+      diffArr.forEach(function (t) {
+        L.push((t === lead ? "★ " : "- ") + t);
+      });
+    }
+    L.push("");
+    if (lead) {
+      L.push("【내가 리드로 고른 하나】");
+      L.push(lead);
+      L.push("");
+    }
+    L.push("【요청 사항】");
+    L.push(
+      "1. 리드로 고른 차별점이 진짜 '차별점의 조건'을 만족하는지 세 가지로 검증해 주세요: (1) 지금 사실인가(약속·희망이 아니라), (2) 고객이 실제로 그 축에서 선택하는가, (3) 경쟁사가 빠르게 베끼거나 따라오기 어려운가. 하나라도 아니라면 어떤 항목이 더 나은 리드인지 제안해 주세요."
+    );
+    L.push(
+      "2. 기본기 항목은 리드로 쓰지 말되, 고객이 당연히 기대하는데 목록에서 빠진 필수 기본기가 없는지 점검해 주세요."
+    );
+    L.push(
+      "3. 아래 구조로 포지셔닝 문장을 한국어로 완성해 주세요. 모르는 빈칸은 지어내지 말고 저에게 사실을 물어 채우세요:"
+    );
+    L.push(
+      "   \"[핵심 고객]에게 / [상황·필요]인 그들에게 / 우리는 [카테고리]로서 / [리드 차별점]을 제공한다 / [주요 대안]과 달리 / 그 이유는 [믿을 근거]이기 때문이다.\""
+    );
+    L.push("4. 대비(contrast) 문장 하나: \"___와 달리, 우리는 ___.\"");
+    L.push("5. 고객이 일주일 뒤에도 기억할 '한 가지'를 한 문장으로 정리해 주세요.");
+    L.push("6. 이 포지셔닝을 날카롭게 지키기 위해 '앞으로 경쟁하지 않고 포기할 것' 하나를 제안해 주세요.");
+    L.push(
+      "7. '초격차·업계 최고·최적화·시너지' 같은 근거 없는 강점어로 빈칸을 덮지 마세요. 근거가 없으면 저에게 사실을 물어 주세요."
+    );
+    return L.join("\n");
+  }
+
+  // ---- run ----
+  document.getElementById("run").addEventListener("click", function () {
+    rebuild(); // ensure current textarea is parsed
+
+    if (items.length === 0) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">◑</div>' +
+        "<p><strong>먼저 강점을 입력하세요.</strong></p>" +
+        "<p>STEP 1에 강점을 한 줄에 하나씩 적어 주세요.</p></div>";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var basicsArr = items
+      .filter(function (it) { return it.cls === "basics"; })
+      .map(function (it) { return it.text; });
+    var diffArr = items
+      .filter(function (it) { return it.cls === "diff"; })
+      .map(function (it) { return it.text; });
+    var uncCount = items.filter(function (it) { return !it.cls; }).length;
+
+    var total = items.length;
+    var d = diffArr.length;
+    var b = basicsArr.length;
+    var band = bandFor(d, total);
+
+    // resolve lead
+    var lead = null;
+    var autoLead = false;
+    if (d >= 1) {
+      if (leadText && diffArr.indexOf(leadText) !== -1) {
+        lead = leadText;
+      } else {
+        lead = diffArr[0];
+        autoLead = true;
+      }
+    }
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    // split bar
+    html +=
+      '<div class="split-bar" role="img" aria-label="차별점 ' + d +
+      "개, 기본기 " + b + "개, 미분류 " + uncCount + '개">';
+    if (d > 0) html += '<span class="sb-diff" style="flex-grow:' + d + '"></span>';
+    if (b > 0) html += '<span class="sb-basics" style="flex-grow:' + b + '"></span>';
+    if (uncCount > 0)
+      html += '<span class="sb-unc" style="flex-grow:' + uncCount + '"></span>';
+    html += "</div>";
+    html += '<p class="split-legend">';
+    html += '<span><span class="dot d-diff"></span>차별점 ' + d + "</span>";
+    html += '<span><span class="dot d-basics"></span>기본기 ' + b + "</span>";
+    if (uncCount > 0)
+      html += '<span><span class="dot d-unc"></span>미분류 ' + uncCount + "</span>";
+    html += "</p>";
+    html += "</div>";
+
+    // lead card OR no-diff alert
+    if (d >= 1) {
+      html += '<div class="lead-card">';
+      html += '<p class="lc-label">리드할 하나</p>';
+      html += '<p class="lc-pick">' + esc(lead) + "</p>";
+      html += '<p class="lc-sentence">' + leadSentence(lead);
+      if (autoLead) {
+        html +=
+          '<span class="lc-auto">리드를 직접 고르지 않아 첫 차별점으로 잡았습니다. STEP 2에서 다른 항목을 선택할 수 있습니다.</span>';
+      }
+      html += "</p>";
+      html += "</div>";
+    } else {
+      html +=
+        '<div class="note-box n-warn"><b>차별점을 먼저 확보하세요.</b> 차별점은 ' +
+        "(1) 지금 사실이고, (2) 고객이 그 축에서 실제로 선택하며, (3) 경쟁사가 빠르게 못 베끼는 것입니다. " +
+        "지금 기본기로 분류한 항목 중 이 세 조건을 만족하도록 다시 벼릴 수 있는 게 있는지, 혹은 새로 찾을 게 있는지 점검하세요.</div>";
+    }
+
+    // basics list + guidance
+    html += '<div class="result-block-title">기본기 · 충족은 필수, 앞세우지 말 것</div>';
+    if (b > 0) {
+      html += '<ul class="chips c-basics">';
+      basicsArr.forEach(function (t) {
+        html += "<li>" + esc(t) + "</li>";
+      });
+      html += "</ul>";
+      html +=
+        '<p class="note-box n-basics">이 항목들은 <b>충족되어야</b> 하지만 마케팅 리드로 쓰면 진짜 차별점이 묻힙니다. ' +
+        "리드가 아니라 '당연히 갖췄다'는 안심 신호로만 배치하세요.</p>";
+    } else {
+      html +=
+        '<p class="note-box n-basics">기본기로 분류한 항목이 없습니다. 고객이 <b>당연히</b> 기대하는 요건(가격·품질·납기·응대 등)을 놓치지 않았는지 점검하세요. 기본기가 무너지면 차별점도 소용없습니다.</p>';
+    }
+
+    // supporting diffs (non-lead)
+    if (d >= 2) {
+      var supporting = diffArr.filter(function (t) {
+        return t !== lead;
+      });
+      html += '<div class="result-block-title">뒷받침 차별점 · 리드는 하나, 나머지는 근거</div>';
+      html += '<ul class="chips c-diff">';
+      supporting.forEach(function (t) {
+        html += "<li>" + esc(t) + "</li>";
+      });
+      html += "</ul>";
+      html +=
+        '<p class="note-box n-good">이들은 리드를 <b>뒷받침</b>하는 근거로 쓰세요. 동시에 여러 개를 앞세우면 기억점이 흩어집니다.</p>';
+    }
+
+    if (uncCount > 0) {
+      html +=
+        '<p class="note-box n-basics" style="margin-top:14px">아직 <b>' +
+        uncCount +
+        "개</b>가 미분류입니다. 기본기인지 차별점인지 정하면 판정이 더 정확해집니다.</p>";
+    }
+
+    // prompt
+    lastPrompt = buildPrompt(basicsArr, diffArr, lead);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 분류를 바탕으로 리드 차별점 검증과 포지셔닝 문장을 함께 다듬어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="big btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    clsState = Object.create(null);
+    leadText = null;
+    items = [];
+    ta.value = "";
+    grow(ta);
+    rebuild();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◑</div>' +
+      "<p><strong>아직 결과가 없습니다.</strong></p>" +
+      "<p>강점을 분류하고 '리드 문장 만들기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var tmp = document.createElement("textarea");
+    tmp.value = text;
+    tmp.setAttribute("readonly", "");
+    tmp.style.position = "fixed";
+    tmp.style.top = "-1000px";
+    tmp.style.opacity = "0";
+    document.body.appendChild(tmp);
+    tmp.select();
+    tmp.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(tmp);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      // tier 3: manual modal
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

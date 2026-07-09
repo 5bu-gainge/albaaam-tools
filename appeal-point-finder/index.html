@@ -1,0 +1,1147 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>어필 포인트 파인더</title>
+<meta
+  name="description"
+  content="문제·상태·해방·기준·정체성·타이밍·대조·실질이득 8종 어필 중 가장 강한 어필을 골라 헤드라인 프롬프트까지 만들어 줍니다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #c2591f;
+    --accent-strong: #9c4415;
+    --accent-tint: #fceee6;
+    --accent-tint-2: #f6ddcd;
+    --ink: #23211f;
+    --ink-soft: #4c4843;
+    --ink-mute: #6d6862;
+    --paper: #fbf8f4;
+    --card: #ffffff;
+    --line: #e7e0d7;
+    --line-strong: #d8cfc2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --shadow: 0 1px 2px rgba(35, 33, 31, 0.05), 0 6px 20px rgba(35, 33, 31, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 74px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fdfbf9;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a79f95;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- appeal cards (step 2) ---------- */
+  ul.appeals {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  li.appeal {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fdfbf9;
+    padding: 15px 15px 16px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  li.appeal.filled {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .appeal-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 3px;
+  }
+  .appeal-num {
+    flex: none;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent);
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+  }
+  .appeal-title {
+    font-weight: 800;
+    font-size: 1.04rem;
+    margin: 0;
+  }
+  .appeal-def {
+    margin: 2px 0 3px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .appeal-probe {
+    margin: 0 0 10px;
+    font-size: 0.86rem;
+    color: var(--accent-strong);
+    font-weight: 600;
+  }
+  li.appeal textarea {
+    min-height: 46px;
+    background: #fff;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .count-chip {
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 999px;
+    padding: 4px 13px;
+    margin-bottom: 15px;
+  }
+
+  /* criteria panel */
+  .criteria {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 13px;
+    padding: 15px 16px;
+    margin-bottom: 18px;
+  }
+  .criteria h3 {
+    margin: 0 0 4px;
+    font-size: 0.98rem;
+  }
+  .criteria .c-sub {
+    margin: 0 0 10px;
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+  }
+  .crit-item {
+    display: flex;
+    gap: 9px;
+    margin: 9px 0 0;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .crit-key {
+    flex: none;
+    font-weight: 800;
+    color: var(--accent-strong);
+    min-width: 62px;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* candidate cards */
+  ul.cand-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+  li.cand {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--card);
+    padding: 14px 15px;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  }
+  li.cand.rec {
+    border-color: var(--accent);
+  }
+  li.cand.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    background: var(--accent-tint);
+  }
+  .cand-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 7px;
+  }
+  .cand-badge {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 6px;
+    padding: 3px 9px;
+  }
+  .rec-badge {
+    display: none;
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 6px;
+    padding: 3px 9px;
+  }
+  li.cand.rec .rec-badge {
+    display: inline-block;
+  }
+  .cand-text {
+    margin: 0 0 12px;
+    font-size: 0.98rem;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .cand-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .pill {
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 8px 13px;
+    border-radius: 9px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink-soft);
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .pill:hover {
+    border-color: var(--ink-mute);
+  }
+  .pill.on {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .pill.on:hover {
+    background: var(--accent-strong);
+  }
+  .pick-btn {
+    margin-left: auto;
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 9px 16px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .pick-btn:hover {
+    background: #000;
+  }
+  .pick-btn[aria-pressed="true"] {
+    background: var(--accent);
+  }
+  .rec-cap {
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    margin: 13px 0 0;
+    font-weight: 600;
+  }
+
+  /* prompt box */
+  #promptArea {
+    scroll-margin-top: 16px;
+  }
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #2a2724;
+    color: #f3ede4;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(35, 33, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .pick-btn {
+      margin-left: 0;
+      width: 100%;
+    }
+    .pill {
+      flex: 1 1 auto;
+      text-align: center;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    #appeal-panel,
+    .actions,
+    .cand-controls,
+    .copy-row {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">고객 가치 정렬 · Appeal Point Finder</span>
+    <h1>어필 포인트 파인더</h1>
+    <p class="lede">
+      제품 하나에도 고객이 반응하는 지점은 여러 개입니다. 8종 어필 유형에 각각 한
+      줄씩 써 보고, 고객 긴급성과 구체성을 기준으로 가장 강한 어필을 골라 헤드라인
+      후보를 뽑는 프롬프트까지 만들어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>제품 · 고객 맥락 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      무엇을 파는지, 누구를 위한 것인지 한두 줄로 적으면 마지막 헤드라인
+      프롬프트에 함께 담깁니다. 비워 두어도 진행됩니다.
+    </p>
+    <label class="field-label" for="context">제품/서비스와 타겟 고객</label>
+    <textarea
+      id="context"
+      placeholder="예) 중소기업 대표를 위한 '검증된 면접 질문 세트'. 채용은 중요한 걸 알지만 매번 감으로 뽑고 후회하는 대표가 대상."
+    ></textarea>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="appeal-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>8종 어필, 해당하는 것에 한 줄씩</h2>
+    </div>
+    <p class="panel-sub">
+      내 제품에 맞는 유형에만 어필 문구를 써 보세요. 전부 채울 필요는 없습니다.
+      어필은 멋진 슬로건이 아니라 '고객의 실제 상황과 제품 가치를 잇는 한 줄'입니다.
+    </p>
+    <ul class="appeals" id="appeals"></ul>
+
+    <div class="actions">
+      <button class="btn-primary" id="analyze">어필 정리하고 후보 고르기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>가장 강한 어필 고르기</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◎</div>
+        <p><strong>아직 정리 전입니다.</strong></p>
+        <p>어필을 한 줄이라도 쓰고 '어필 정리하고 후보 고르기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 고객 가치 정렬(customer-value-alignment)
+      프레임워크의 <em>어필 포인트 8종</em>(문제 · 이상적 상태 · 해방 · 기준제시 ·
+      정체성 · 타이밍 · 대조 · 실질이득)과 "어필 포인트는 슬로건이 아니라 고객의
+      실제 상황과 제품 가치를 잇는 날카로운 연결"이라는 원칙을 그대로 사용합니다.
+      후보 선별 기준(고객 긴급성 · 구체성)도 같은 프레임워크에서 왔습니다.
+    </p>
+    <p>
+      이 도구는 어필을 대신 확정해 주지 않는, 사고를 돕는 보조 도구입니다. 최종
+      선택과 문구는 스스로 판단할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // 8 appeal types — sourced verbatim in intent from customer-value-alignment
+  // SKILL.md "Appeal Point Discovery" (Problem, Desired State, Relief,
+  // Standard, Identity, Timing, Contrast, Practical Gain).
+  var APPEALS = [
+    {
+      id: "problem",
+      label: "문제 어필",
+      def: "고객이 스스로 표현하지 못한 문제를, 고객보다 더 또렷하게 보여준다.",
+      probe: "고객이 매일 겪지만 말로 정리하지 못한 그 문제는?",
+      ph: "예) 채용이 중요한 걸 알면서도, 면접 기준이 없어 매번 감으로 뽑고 후회하고 있지 않나요?",
+    },
+    {
+      id: "desired",
+      label: "이상적 상태 어필",
+      def: "고객이 도달하고 싶어 하는 더 나은 상태를 보여준다.",
+      probe: "이 제품을 쓴 뒤, 고객의 일은 어떻게 달라지나?",
+      ph: "예) 다음 채용부터는 같은 질문지로, 누가 봐도 납득되는 기준으로 사람을 뽑습니다.",
+    },
+    {
+      id: "relief",
+      label: "해방 어필",
+      def: "덜어낼 부담·혼란·위험·낭비·마찰을 보여준다.",
+      probe: "고객이 이제 더 이상 안 해도 되는 것은?",
+      ph: "예) 이력서를 눈대중으로 훑으며 불안해하던 그 시간을 없앱니다.",
+    },
+    {
+      id: "standard",
+      label: "기준제시 어필",
+      def: "고객에게 더 나은 선택 기준을 제시한다.",
+      probe: "고객이 '이걸로 골라야 한다'고 알게 될 새 판단 기준은?",
+      ph: "예) 좋은 인재는 스펙이 아니라 '검증된 질문 5개'로 가려집니다.",
+    },
+    {
+      id: "identity",
+      label: "정체성 어필",
+      def: "고객이 되고 싶어 하는 사람·팀·회사의 모습과 연결한다.",
+      probe: "이 제품을 쓰는 고객은 어떤 사람/조직이 되는가?",
+      ph: "예) 감이 아니라 시스템으로 사람을 뽑는 조직이 됩니다.",
+    },
+    {
+      id: "timing",
+      label: "타이밍 어필",
+      def: "왜 지금 중요한지를 설명한다.",
+      probe: "왜 나중이 아니라 지금이어야 하나?",
+      ph: "예) 지금 채용 기준을 세워두지 않으면, 성장기의 잘못된 채용 비용이 눈덩이처럼 커집니다.",
+    },
+    {
+      id: "contrast",
+      label: "대조 어필",
+      def: "지금의 대안들이 왜 불완전·비효율·부적합한지 보여준다.",
+      probe: "기존 방식이나 경쟁 대안의 결정적 빈틈은?",
+      ph: "예) 채용 대행은 사람을 넘겨줄 뿐, 우리 회사만의 판단 기준은 남겨주지 않습니다.",
+    },
+    {
+      id: "gain",
+      label: "실질이득 어필",
+      def: "무엇이 더 쉬워지고·빨라지고·명확해지고·싸지고·안전해지고·효과적이 되는지 보여준다.",
+      probe: "숫자나 사실로 말할 수 있는 구체적 이득은?",
+      ph: "예) 면접 준비 시간을 절반으로 줄이고, 재채용률을 낮춥니다.",
+    },
+  ];
+
+  function byId(id) {
+    return document.getElementById(id);
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  // ---- auto-grow helper ----
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  // ---- render appeal cards (STEP 2) ----
+  var appealsEl = byId("appeals");
+  APPEALS.forEach(function (a, i) {
+    var li = document.createElement("li");
+    li.className = "appeal";
+    li.dataset.id = a.id;
+    li.innerHTML =
+      '<div class="appeal-head">' +
+      '<span class="appeal-num" aria-hidden="true">' + (i + 1) + "</span>" +
+      '<p class="appeal-title">' + esc(a.label) + "</p>" +
+      "</div>" +
+      '<p class="appeal-def">' + esc(a.def) + "</p>" +
+      '<p class="appeal-probe">' + esc(a.probe) + "</p>" +
+      '<label class="field-label" for="ap-' + a.id + '">이 유형의 어필 한 줄</label>' +
+      '<textarea id="ap-' + a.id + '" data-id="' + a.id + '" placeholder="' +
+      esc(a.ph) + '"></textarea>';
+    appealsEl.appendChild(li);
+  });
+
+  // context textarea auto-grow
+  var contextEl = byId("context");
+  contextEl.addEventListener("input", function () {
+    grow(contextEl);
+  });
+
+  // appeal textareas: auto-grow + filled state + live count
+  var apCountChip = null;
+  appealsEl.addEventListener("input", function (e) {
+    var ta = e.target;
+    if (ta.tagName !== "TEXTAREA") return;
+    grow(ta);
+    var li = ta.closest("li.appeal");
+    if (li) li.classList.toggle("filled", ta.value.trim().length > 0);
+  });
+
+  // ---- state ----
+  var ratings = {}; // id -> { urgent:bool, concrete:bool }
+  var current = []; // appeals written this round
+  var selectedId = null;
+  var lastPrompt = "";
+  var contextText = "";
+
+  var resultEl = byId("result");
+
+  function readWritten() {
+    var out = [];
+    APPEALS.forEach(function (a) {
+      var v = byId("ap-" + a.id).value.trim();
+      if (v) out.push({ id: a.id, label: a.label, def: a.def, text: v });
+    });
+    return out;
+  }
+
+  // ---- analyze ----
+  byId("analyze").addEventListener("click", function () {
+    current = readWritten();
+    ratings = {};
+    selectedId = null;
+    contextText = contextEl.value.trim();
+
+    if (current.length === 0) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+        "<p><strong>아직 작성된 어필이 없습니다.</strong></p>" +
+        "<p>위에서 내 제품에 맞는 유형에 어필을 한 줄이라도 적어 주세요.</p></div>";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var html = "";
+    html +=
+      '<span class="count-chip">작성한 어필 ' + current.length + " / 8</span>";
+
+    // criteria panel
+    html += '<div class="criteria">';
+    html += "<h3>어떤 어필이 가장 강한가?</h3>";
+    html +=
+      '<p class="c-sub">두 기준으로 각 어필을 저울질하세요. 최종 선택은 직접 합니다.</p>';
+    html +=
+      '<div class="crit-item"><span class="crit-key">긴급성</span>' +
+      "<span>고객이 <strong>지금 당장</strong> 해결하고 싶어 하는 것을 건드리는가? 나중으로 미룰 수 없는 이유가 담겼는가?</span></div>";
+    html +=
+      '<div class="crit-item"><span class="crit-key">구체성</span>' +
+      "<span>두루뭉술한 슬로건이 아니라, 고객의 <strong>실제 상황</strong>과 제품 가치를 날카롭게 잇는가? 사실·장면·숫자로 잡히는가?</span></div>";
+    html += "</div>";
+
+    // candidate cards
+    html += '<div class="result-block-title">작성한 어필 후보</div>';
+    html += '<ul class="cand-list">';
+    current.forEach(function (a) {
+      html += '<li class="cand" data-id="' + a.id + '">';
+      html += '<div class="cand-top">';
+      html += '<span class="cand-badge">' + esc(a.label) + "</span>";
+      html +=
+        '<span class="rec-badge">유력 후보</span>';
+      html += "</div>";
+      html += '<p class="cand-text">' + esc(a.text) + "</p>";
+      html += '<div class="cand-controls">';
+      html +=
+        '<button type="button" class="pill" data-id="' + a.id +
+        '" data-axis="urgent" aria-pressed="false" title="고객이 지금 당장 원하는가">긴급성 높음</button>';
+      html +=
+        '<button type="button" class="pill" data-id="' + a.id +
+        '" data-axis="concrete" aria-pressed="false" title="구체적이고 날카로운가">구체성 높음</button>';
+      html +=
+        '<button type="button" class="pick-btn" data-id="' + a.id +
+        '" aria-pressed="false">이 어필로 헤드라인 뽑기</button>';
+      html += "</div>";
+      html += "</li>";
+    });
+    html += "</ul>";
+    html +=
+      '<p class="rec-cap" id="recCap">각 어필을 긴급성·구체성 두 기준으로 평가해 보세요. 두 기준을 모두 만족하는 어필이 가장 강한 후보입니다.</p>';
+
+    // prompt area (filled on pick)
+    html += '<div id="promptArea"></div>';
+
+    resultEl.innerHTML = html;
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- result interactions (event delegation) ----
+  resultEl.addEventListener("click", function (e) {
+    var pillBtn = e.target.closest ? e.target.closest(".pill") : null;
+    if (pillBtn) {
+      togglePill(pillBtn);
+      return;
+    }
+    var pickBtn = e.target.closest ? e.target.closest(".pick-btn") : null;
+    if (pickBtn) {
+      selectAppeal(pickBtn.dataset.id);
+      return;
+    }
+    if (e.target.id === "copyBtn") {
+      doCopy();
+      return;
+    }
+    if (e.target.id === "printBtn") {
+      window.print();
+      return;
+    }
+  });
+
+  function togglePill(pill) {
+    var id = pill.dataset.id;
+    var axis = pill.dataset.axis;
+    if (!ratings[id]) ratings[id] = { urgent: false, concrete: false };
+    ratings[id][axis] = !ratings[id][axis];
+    pill.classList.toggle("on", ratings[id][axis]);
+    pill.setAttribute("aria-pressed", ratings[id][axis] ? "true" : "false");
+    updateRec();
+  }
+
+  function scoreOf(id) {
+    var r = ratings[id];
+    if (!r) return 0;
+    return (r.urgent ? 1 : 0) + (r.concrete ? 1 : 0);
+  }
+
+  function updateRec() {
+    var cards = resultEl.querySelectorAll("li.cand");
+    var max = 0;
+    var anyRated = false;
+    current.forEach(function (a) {
+      var s = scoreOf(a.id);
+      if (s > 0) anyRated = true;
+      if (s > max) max = s;
+    });
+    var recCount = 0;
+    Array.prototype.forEach.call(cards, function (card) {
+      var s = scoreOf(card.dataset.id);
+      var isRec = max > 0 && s === max;
+      card.classList.toggle("rec", isRec);
+      if (isRec) recCount++;
+    });
+    var cap = byId("recCap");
+    if (!cap) return;
+    if (!anyRated) {
+      cap.textContent =
+        "각 어필을 긴급성·구체성 두 기준으로 평가해 보세요. 두 기준을 모두 만족하는 어필이 가장 강한 후보입니다.";
+    } else if (max === 2) {
+      cap.innerHTML =
+        "긴급성·구체성을 모두 만족하는 <strong>유력 후보 " +
+        recCount +
+        "개</strong>가 표시됐습니다. 그중 하나를 골라 '이 어필로 헤드라인 뽑기'를 누르세요.";
+    } else {
+      cap.innerHTML =
+        "현재 가장 높은 점수의 <strong>후보 " +
+        recCount +
+        "개</strong>가 표시됐습니다. 두 기준을 모두 채우는 어필이 있는지 더 살펴보세요.";
+    }
+  }
+
+  function selectAppeal(id) {
+    selectedId = id;
+    var cards = resultEl.querySelectorAll("li.cand");
+    Array.prototype.forEach.call(cards, function (card) {
+      var on = card.dataset.id === id;
+      card.classList.toggle("selected", on);
+      var pb = card.querySelector(".pick-btn");
+      if (pb) {
+        pb.setAttribute("aria-pressed", on ? "true" : "false");
+        pb.textContent = on ? "선택된 어필" : "이 어필로 헤드라인 뽑기";
+      }
+    });
+
+    var sel = null;
+    current.forEach(function (a) {
+      if (a.id === id) sel = a;
+    });
+    if (!sel) return;
+
+    lastPrompt = buildPrompt(sel, current, contextText);
+
+    var area = byId("promptArea");
+    var html = "";
+    html += '<div class="result-block-title">선택한 어필: ' + esc(sel.label) + "</div>";
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 어필을 중심축으로 헤드라인 후보를 뽑아 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+    area.innerHTML = html;
+    area.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function buildPrompt(sel, all, ctx) {
+    var lines = [];
+    lines.push(
+      "당신은 고객 가치 정렬(customer value alignment) 관점에 능숙한 카피라이터입니다."
+    );
+    lines.push(
+      "아래 '핵심 어필'을 조직의 중심축으로 삼아, 고객에게 가치가 분명히 전달되는 헤드라인 후보를 뽑아 주세요."
+    );
+    lines.push("");
+
+    lines.push("【제품 · 고객 맥락】");
+    if (ctx) {
+      lines.push(ctx);
+    } else {
+      lines.push("(사용자가 이어서 붙여넣을 예정입니다. 필요하면 먼저 물어봐 주세요.)");
+    }
+    lines.push("");
+
+    lines.push("【핵심 어필 — 이 축으로 헤드라인을 만든다】");
+    lines.push("유형: " + sel.label + " (" + sel.def + ")");
+    lines.push("내용: " + sel.text);
+    lines.push("");
+
+    var others = all.filter(function (a) {
+      return a.id !== sel.id;
+    });
+    if (others.length) {
+      lines.push("【참고 — 함께 검토한 다른 어필】");
+      others.forEach(function (a) {
+        lines.push("- " + a.label + ": " + a.text);
+      });
+      lines.push("");
+    }
+
+    lines.push("【작성 요청】");
+    lines.push(
+      "1. 핵심 어필을 중심으로 헤드라인 후보 7개를 뽑아 주세요. 톤을 다양하게(직설형 / 질문형 / 대비형 / 수치형 / 선언형 등)."
+    );
+    lines.push("2. 각 헤드라인마다 어떤 고객 상황을 전제하는지 한 줄로 밝혀 주세요.");
+    lines.push(
+      "3. 어필 포인트는 슬로건이 아니라 '고객의 실제 상황과 제품 가치의 날카로운 연결'입니다. 두루뭉술한 미사여구와 근거 없는 과장은 빼 주세요."
+    );
+    lines.push(
+      "4. 가장 강한 헤드라인 1개를 고르고, 그 이유를 '고객 긴급성'과 '구체성' 두 기준으로 설명해 주세요."
+    );
+    lines.push("5. 선택한 헤드라인에 어울리는 서브헤드라인 한 줄도 제안해 주세요.");
+    lines.push(
+      "6. 사실을 모르면 지어내지 말고, 필요한 정보는 저에게 먼저 물어봐 주세요."
+    );
+    return lines.join("\n");
+  }
+
+  // ---- reset ----
+  byId("reset").addEventListener("click", function () {
+    ratings = {};
+    current = [];
+    selectedId = null;
+    lastPrompt = "";
+    contextEl.value = "";
+    grow(contextEl);
+    APPEALS.forEach(function (a) {
+      var ta = byId("ap-" + a.id);
+      ta.value = "";
+      grow(ta);
+      var li = ta.closest("li.appeal");
+      if (li) li.classList.remove("filled");
+    });
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◎</div>' +
+      "<p><strong>아직 정리 전입니다.</strong></p>" +
+      "<p>어필을 한 줄이라도 쓰고 '어필 정리하고 후보 고르기'를 누르세요.</p></div>";
+    byId("appeal-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- copy (3-tier fallback) ----
+  function flashStatus(msg) {
+    var s = byId("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (err) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = byId("modal");
+  var modalText = byId("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  byId("modal-close").addEventListener("click", closeModal);
+  byId("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

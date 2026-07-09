@@ -1,0 +1,1268 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>포지셔닝 한 문장 빌더</title>
+<meta name="description" content="8개 포지셔닝 결정으로 For/who/is/that/unlike/because 한 문장과 차별점·대조·기억할 한 가지를 뽑는다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3949ab;
+    --accent-strong: #2a3690;
+    --accent-tint: #eef1fc;
+    --accent-tint-2: #dbe1f6;
+    --ink: #1e1f26;
+    --ink-soft: #45474f;
+    --ink-mute: #6a6c76;
+    --paper: #f6f6fb;
+    --card: #ffffff;
+    --line: #e3e3ee;
+    --line-strong: #d0d1e0;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --shadow: 0 1px 2px rgba(30, 31, 38, 0.05), 0 6px 20px rgba(30, 31, 38, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field {
+    margin-bottom: 17px;
+  }
+  .field:last-of-type {
+    margin-bottom: 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+  }
+  .scaffold {
+    display: inline-block;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 6px;
+    padding: 1px 7px;
+    margin-left: 7px;
+    letter-spacing: 0.02em;
+    vertical-align: middle;
+  }
+  textarea,
+  input[type="text"] {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfbfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 52px;
+    resize: none;
+    overflow: hidden;
+  }
+  textarea:focus,
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder,
+  input[type="text"]::placeholder {
+    color: #a3a4b4;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 7px 0 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 44px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state svg {
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-plan {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-mixed {
+    background: #fff6ec;
+    border-color: #f2ddc4;
+  }
+  .verdict.tone-strategy {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.32;
+  }
+  .verdict.tone-plan .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: #a35a12;
+  }
+  .verdict.tone-strategy .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .meter {
+    display: flex;
+    gap: 5px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #e2e2ee;
+  }
+  .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-strategy .pip.lit {
+    background: var(--good);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* ---------- statement hero ---------- */
+  .statement {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 14px;
+    padding: 20px 18px;
+    font-size: 1.16rem;
+    line-height: 1.72;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 8px;
+  }
+  .s-fill {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  .s-blank {
+    color: var(--ink-mute);
+    font-weight: 600;
+    background: #fff;
+    border: 1px dashed var(--line-strong);
+    border-radius: 5px;
+    padding: 0 5px;
+  }
+  .statement-tag {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    color: var(--ink-soft);
+  }
+  .statement-tag strong {
+    color: var(--accent-strong);
+  }
+
+  /* ---------- 6-clause scaffold ---------- */
+  .clause-subject {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+  }
+  .clause-subject span {
+    color: var(--accent-strong);
+  }
+  .clause-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .clause {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    background: #fbfbfe;
+    padding: 11px 14px;
+  }
+  .clause .clabel {
+    font-size: 0.77rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    margin: 0 0 3px;
+  }
+  .clause .clabel .en {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    letter-spacing: 0.01em;
+  }
+  .clause .cval {
+    margin: 0;
+    font-size: 0.98rem;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .clause .cval.empty {
+    color: var(--ink-mute);
+    font-weight: 500;
+  }
+
+  /* ---------- derived cards ---------- */
+  .derived {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .dcard {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 15px;
+    background: #fbfbfe;
+  }
+  .dcard .dt {
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--accent);
+    margin: 0 0 7px;
+  }
+  .dcard .db {
+    font-size: 1.04rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 5px;
+    line-height: 1.5;
+  }
+  .dcard .db.empty {
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+  .dcard .ds {
+    font-size: 0.87rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* ---------- blanks ---------- */
+  .blank-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .blank-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid #d99a2b;
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fffaf1;
+  }
+  .blank-item .bi-title {
+    font-weight: 700;
+    font-size: 0.96rem;
+    margin: 0 0 3px;
+    color: #8a5a12;
+  }
+  .blank-item .bi-why {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* ---------- stress test ---------- */
+  .stress {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .stress li {
+    position: relative;
+    padding-left: 24px;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .stress li::before {
+    content: "?";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 17px;
+    height: 17px;
+    line-height: 17px;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 5px;
+  }
+
+  /* ---------- prompt box ---------- */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #23242e;
+    color: #eef0f7;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 31, 38, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (min-width: 600px) {
+    .derived {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .statement {
+      font-size: 1.08rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    .statement {
+      background: #f4f5fb;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">포지셔닝 · market-positioning</span>
+    <h1>포지셔닝 한 문장 빌더</h1>
+    <p class="lede">
+      8개의 포지셔닝 결정을 채우면, For / who / is / that / unlike / because
+      구조의 한 문장이 조립됩니다. 차별점, 대조축, 기억할 한 가지까지 분리해
+      벼려 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>8개 포지셔닝 결정</h2>
+    </div>
+    <p class="panel-sub">
+      한 명의 구체적 고객을 떠올리며 채우세요. 비워 두면 문장에 빈칸으로
+      표시되고, 무엇이 빠졌는지 짚어 드립니다.
+    </p>
+    <div id="fields"></div>
+    <p class="field-hint" style="margin-top: 16px">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버나 외부 API를
+      호출하지 않습니다.
+    </p>
+
+    <div class="actions">
+      <button class="btn-primary" id="build">문장 만들기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>포지셔닝 문장</h2>
+    </div>
+    <div id="result" role="region" aria-live="polite" aria-label="포지셔닝 결과">
+      <div class="empty-state">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 48 48"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <rect x="7" y="14" width="34" height="4" rx="2" fill="currentColor" opacity="0.32" />
+          <rect x="7" y="23" width="26" height="4" rx="2" fill="currentColor" opacity="0.32" />
+          <rect x="7" y="32" width="18" height="5" rx="2.5" fill="currentColor" />
+        </svg>
+        <p><strong>아직 문장을 만들기 전입니다.</strong></p>
+        <p>위 8개 칸을 채우고 '문장 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> market-positioning 프레임워크의 8개
+      포지셔닝 결정(카테고리 · 경쟁 대안 · 포지셔닝 축 · 차별점 · 전략적 대조 ·
+      가격/가치 인식 · 기억할 한 가지 · 경쟁할 것과 하지 않을 것)과 For / who /
+      is / that / unlike / because 포지셔닝 문장 템플릿을 따릅니다. 포지셔닝은
+      제품 설명이 아니라 고객의 머릿속에서 차지하는 자리를 정하는 하나의
+      결정입니다.
+    </p>
+    <p>
+      이 도구는 포지셔닝을 대신 확정해 주지 않는, 생각을 벼리는 보조
+      도구입니다. 완성된 문장은 시장에서 한 명의 고객으로 검증할 재료로
+      쓰세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // 8 positioning decisions, sourced from market-positioning SKILL.md
+  // ("What Positioning Decides" + the For/who/is/that/unlike/because statement).
+  var FIELDS = [
+    {
+      id: "brand",
+      scaffold: "브랜드",
+      label: "제품 / 브랜드명",
+      el: "input",
+      token: "제품",
+      ph: "예) 알밤, 가인지경영",
+      hint: "포지셔닝 문장의 주어입니다.",
+      why: "문장의 주어가 없으면 누구의 포지션인지 알 수 없습니다.",
+    },
+    {
+      id: "target",
+      scaffold: "For",
+      label: "대상 고객",
+      el: "textarea",
+      token: "대상 고객",
+      ph: "예) 30명 안팎 언더백 제조기업 대표",
+      hint: "한 명의 구체적 고객. '모두'는 아무도 아닙니다.",
+      why: "'모두'를 위한 포지션은 아무도 위한 것이 아닙니다. 한 명을 정하세요.",
+    },
+    {
+      id: "situation",
+      scaffold: "who",
+      label: "고객 상황 / 문제",
+      el: "textarea",
+      token: "고객 상황",
+      ph: "예) 전략은 세우지만 실행이 매번 멈추는",
+      hint: "그 고객이 지금 겪는 상황이나 풀리지 않는 문제.",
+      why: "상황이 없으면 편익이 왜 중요한지 설명되지 않습니다.",
+    },
+    {
+      id: "category",
+      scaffold: "is a",
+      label: "카테고리",
+      el: "input",
+      token: "카테고리",
+      ph: "예) 실행 중심 경영 컨설팅",
+      hint: "고객이 당신을 넣는 칸. 여기서 비교 대상이 정해집니다.",
+      why: "고객이 당신을 어느 칸에 넣을지가 비교 대상을 결정합니다.",
+    },
+    {
+      id: "benefit",
+      scaffold: "that",
+      label: "핵심 편익 / 차별점",
+      el: "textarea",
+      token: "핵심 편익",
+      ph: "예) 컨설팅이 끝나도 실행이 굴러가게 만든다",
+      hint: "고객이 중요하게 여기고, 경쟁자가 쉽게 못 따라 하는 단 하나.",
+      why: "경쟁자가 못 따라 하고 고객이 중요하게 여기는 단 하나가 없으면 차별점이 없습니다.",
+    },
+    {
+      id: "alternative",
+      scaffold: "unlike",
+      label: "주요 대안",
+      el: "textarea",
+      token: "주요 대안",
+      ph: "예) 보고서만 주고 떠나는 대형 컨설팅, 또는 그냥 두는 것",
+      hint: "경쟁사뿐 아니라 현상유지 · 수작업 · '아무것도 안 하기'까지.",
+      why: "맞설 대상이 흐릿하면 대조가 서지 않습니다. 현상유지까지 포함하세요.",
+    },
+    {
+      id: "reason",
+      scaffold: "because",
+      label: "우리를 고를 이유",
+      el: "textarea",
+      token: "고를 이유",
+      ph: "예) 5,000개 기업 실행 데이터와 현장 코치가 있다",
+      hint: "지금 '사실'이어야 합니다(약속이 아니라). 믿을 근거.",
+      why: "믿을 근거가 없으면 편익은 희망일 뿐입니다.",
+    },
+    {
+      id: "memory",
+      scaffold: "기억",
+      label: "기억할 한 가지",
+      el: "textarea",
+      token: "기억할 한 가지",
+      ph: "예) 실행까지 책임지는 컨설팅",
+      hint: "일주일 뒤 고객 머릿속에 남을 단 하나의 문장.",
+      why: "기억할 것이 없으면 문장은 남지 않습니다.",
+    },
+  ];
+
+  // stress-test questions, from SKILL "Stress-Test" + "Anti-positioning" + "Final Rule"
+  var STRESS = [
+    "경쟁사도 이 문장을 그대로 주장할 수 있나요? 그렇다면 포지션이 아니라 형용사입니다.",
+    "고객이 이 축(핵심 편익)으로 실제로 선택하나요? 아무도 그 축으로 사지 않으면 소용이 없습니다.",
+    "차별점이 지금 '사실'인가요, 아니면 '희망'인가요? 희망이면 목표라고 표시하세요.",
+    "기억할 것이 정확히 하나인가요? 다섯 가지로 알려지면 아무것으로도 안 알려집니다.",
+    "이 포지션이 '포기하는 것'은 무엇인가요? 포기 없는 포지션은 대개 진짜 포지션이 아닙니다.",
+  ];
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // ---- render input fields ----
+  var fieldsEl = document.getElementById("fields");
+  FIELDS.forEach(function (f) {
+    var block = document.createElement("div");
+    block.className = "field";
+    var control =
+      f.el === "input"
+        ? '<input type="text" id="f_' + f.id + '" placeholder="' + esc(f.ph) + '" />'
+        : '<textarea id="f_' + f.id + '" placeholder="' + esc(f.ph) + '"></textarea>';
+    block.innerHTML =
+      '<label class="field-label" for="f_' + f.id + '">' +
+      esc(f.label) +
+      '<span class="scaffold">' + esc(f.scaffold) + "</span>" +
+      "</label>" +
+      control +
+      '<p class="field-hint">' + esc(f.hint) + "</p>";
+    fieldsEl.appendChild(block);
+  });
+
+  // ---- auto-grow textareas ----
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  var growables = [];
+  FIELDS.forEach(function (f) {
+    if (f.el !== "textarea") return;
+    var el = document.getElementById("f_" + f.id);
+    growables.push(el);
+    el.addEventListener("input", function () {
+      grow(el);
+    });
+  });
+
+  function vals() {
+    var v = {};
+    FIELDS.forEach(function (f) {
+      v[f.id] = document.getElementById("f_" + f.id).value.trim();
+    });
+    return v;
+  }
+
+  // ---- Korean particle helper (batchim-aware) ----
+  function hasJong(word) {
+    if (!word) return null;
+    var s = String(word).trim();
+    if (!s) return null;
+    var code = s.charCodeAt(s.length - 1);
+    if (code >= 0xac00 && code <= 0xd7a3) return (code - 0xac00) % 28 !== 0;
+    return null; // non-Hangul ending: ambiguous
+  }
+  function par(word, withJong, withoutJong) {
+    var j = hasJong(word);
+    if (j === null) return withJong + "(" + withoutJong + ")";
+    return j ? withJong : withoutJong;
+  }
+
+  // token renderers (HTML for display, text for copy/prompt)
+  function fillHtml(v, ph) {
+    return v ? '<span class="s-fill">' + esc(v) + "</span>" : '<span class="s-blank">[' + esc(ph) + "]</span>";
+  }
+  function fillText(v, ph) {
+    return v ? v : "[" + ph + "]";
+  }
+  function ftOrEmpty(v) {
+    return v ? v : "(비어 있음)";
+  }
+
+  // build the assembled positioning sentence
+  function sentence(v, mode) {
+    var f = mode === "html" ? fillHtml : fillText;
+    return (
+      f(v.situation, "고객 상황") +
+      ", 이런 상황의 " +
+      f(v.target, "대상 고객") +
+      par(v.target, "을", "를") +
+      " 위한 " +
+      f(v.category, "카테고리") +
+      ". " +
+      f(v.brand, "제품") +
+      par(v.brand, "은", "는") +
+      " " +
+      f(v.benefit, "핵심 편익") +
+      par(v.benefit, "을", "를") +
+      " 제공합니다. " +
+      f(v.alternative, "주요 대안") +
+      par(v.alternative, "과", "와") +
+      " 달리, " +
+      f(v.reason, "고를 이유") +
+      " 때문입니다."
+    );
+  }
+
+  function bandFor(n) {
+    if (n >= 8)
+      return {
+        tone: "strategy",
+        label: "8개 결정 모두 채움",
+        title: "포지셔닝 문장이 완성됐습니다",
+        desc: "여덟 결정이 모두 채워졌습니다. 이제 아래 스트레스 테스트로 경쟁자가 똑같이 주장할 수 없는지 확인하고, 한 명의 고객에게 검증하세요.",
+      };
+    if (n >= 5)
+      return {
+        tone: "mixed",
+        label: n + " / 8 채움",
+        title: "거의 왔습니다. 몇 칸이 비어 있어요",
+        desc: "문장의 골격은 섰습니다. 아래 비어 있는 결정을 채우면 소유 가능한 한 문장에 더 가까워집니다.",
+      };
+    if (n >= 1)
+      return {
+        tone: "plan",
+        label: n + " / 8 채움",
+        title: "핵심 결정이 아직 비어 있습니다",
+        desc: "지금은 문장이라기보다 빈칸이 많은 틀입니다. 특히 대상 · 차별점 · 대안이 비면 포지션이 서지 않습니다.",
+      };
+    return {
+      tone: "plan",
+      label: "0 / 8",
+      title: "아직 입력이 없습니다",
+      desc: "위 여덟 칸을 채우면 포지셔닝 한 문장이 조립됩니다. 한 명의 구체적 고객부터 시작하세요.",
+    };
+  }
+
+  // clause scaffold rows (For/who/is a/that/unlike/because)
+  var CLAUSES = [
+    { en: "For", ko: "대상 고객", id: "target" },
+    { en: "who", ko: "고객 상황 / 문제", id: "situation" },
+    { en: "is a", ko: "카테고리", id: "category" },
+    { en: "that", ko: "핵심 편익 / 차별점", id: "benefit" },
+    { en: "unlike", ko: "주요 대안", id: "alternative" },
+    { en: "because", ko: "우리를 고를 이유", id: "reason" },
+  ];
+
+  function buildStatementCopy(v) {
+    var lines = [];
+    lines.push("[포지셔닝 한 문장]");
+    lines.push(sentence(v, "text"));
+    lines.push("");
+    lines.push("기억할 한 가지: " + ftOrEmpty(v.memory));
+    lines.push("");
+    lines.push("[6개 구성요소]");
+    lines.push("For (대상 고객): " + ftOrEmpty(v.target));
+    lines.push("who (고객 상황/문제): " + ftOrEmpty(v.situation));
+    lines.push("is a (카테고리): " + ftOrEmpty(v.category));
+    lines.push("that (핵심 편익/차별점): " + ftOrEmpty(v.benefit));
+    lines.push("unlike (주요 대안): " + ftOrEmpty(v.alternative));
+    lines.push("because (우리를 고를 이유): " + ftOrEmpty(v.reason));
+    lines.push("브랜드: " + ftOrEmpty(v.brand));
+    return lines.join("\n");
+  }
+
+  function buildPrompt(v) {
+    var L = [];
+    L.push(
+      "당신은 market-positioning 프레임워크(포지셔닝은 고객의 머릿속에서 차지하는 자리를 정하는 하나의 '결정'이다)에 정통한 브랜드 포지셔닝 코치입니다."
+    );
+    L.push("아래 포지셔닝 문장 초안을 진단하고, 경쟁자가 똑같이 주장할 수 없는 날카로운 한 문장으로 벼려 주세요.");
+    L.push("");
+    L.push("[포지셔닝 문장 초안]");
+    L.push(sentence(v, "text"));
+    L.push("");
+    L.push("[8개 결정 입력값]");
+    L.push("- 브랜드: " + ftOrEmpty(v.brand));
+    L.push("- For (대상 고객): " + ftOrEmpty(v.target));
+    L.push("- who (고객 상황/문제): " + ftOrEmpty(v.situation));
+    L.push("- is a (카테고리): " + ftOrEmpty(v.category));
+    L.push("- that (핵심 편익/차별점): " + ftOrEmpty(v.benefit));
+    L.push("- unlike (주요 대안): " + ftOrEmpty(v.alternative));
+    L.push("- because (우리를 고를 이유): " + ftOrEmpty(v.reason));
+    L.push("- 기억할 한 가지: " + ftOrEmpty(v.memory));
+    L.push("");
+    L.push("[요청 사항]");
+    L.push("1. 카테고리가 고객의 언어로 적절한지, 비교 대상(대안)이 현상유지 · 수작업 · '아무것도 안 하기'까지 포함하는지 점검해 주세요.");
+    L.push("2. 핵심 편익이 소유 가능한 '차별점(point of difference)'인지, 아니면 누구나 갖춘 '기본 요건(point of parity)'인지 판정해 주세요.");
+    L.push("3. 경쟁사가 이 문장을 그대로 주장할 수 있는지 테스트해, 가능하면 소유 가능한 축으로 다시 좁혀 주세요.");
+    L.push("4. 더 날카로운 차별점 · 대조('~와 달리') · 기억할 한 가지를 각각 한 줄로 제안해 주세요.");
+    L.push("5. 이 포지션이 '포기하는 것(concession)'을 명시해 주세요. 포기 없는 포지션은 대개 진짜 포지션이 아닙니다.");
+    L.push("6. 결론을 대신 확정하지 말고, 먼저 증거와 질문을 제시한 뒤 당신의 해석을 비교용으로 덧붙여 주세요.");
+    L.push("7. 시너지 · 초격차 · 최고 · 혁신 같은 근거 없는 전략어로 빈칸을 덮지 말고, 모르면 저에게 사실을 되물어 주세요.");
+    return L.join("\n");
+  }
+
+  var lastStatementCopy = "";
+  var lastPrompt = "";
+
+  var resultEl = document.getElementById("result");
+
+  document.getElementById("build").addEventListener("click", function () {
+    var v = vals();
+    var filled = FIELDS.filter(function (f) {
+      return v[f.id];
+    }).length;
+    var band = bandFor(filled);
+
+    var html = "";
+
+    // verdict + completeness meter
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html += '<div class="meter" role="img" aria-label="8개 결정 중 ' + filled + '개 채움">';
+    for (var p = 0; p < 8; p++) {
+      html += '<span class="pip' + (p < filled ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html += '<p class="meter-caption">' + filled + " / 8 결정</p>";
+    html += "</div>";
+
+    // assembled sentence
+    html += '<div class="result-block-title">완성된 한 문장</div>';
+    html += '<p class="statement">' + sentence(v, "html") + "</p>";
+    if (v.memory) {
+      html += '<p class="statement-tag">기억할 한 가지: <strong>' + esc(v.memory) + "</strong></p>";
+    }
+
+    // 6-clause scaffold
+    html += '<div class="result-block-title">For / who / is / that / unlike / because</div>';
+    html +=
+      '<p class="clause-subject">주어(브랜드): <span>' +
+      (v.brand ? esc(v.brand) : "(비어 있음)") +
+      "</span></p>";
+    html += '<ul class="clause-list">';
+    CLAUSES.forEach(function (c) {
+      var val = v[c.id];
+      html += '<li class="clause">';
+      html += '<p class="clabel"><span class="en">' + esc(c.en) + "</span> · " + esc(c.ko) + "</p>";
+      html += '<p class="cval' + (val ? "" : " empty") + '">' + (val ? esc(val) : "비어 있음") + "</p>";
+      html += "</li>";
+    });
+    html += "</ul>";
+
+    // derived cards: 차별점 / 대조축 / 기억할 한 가지
+    html += '<div class="result-block-title">도출된 핵심</div>';
+    html += '<div class="derived">';
+    // 차별점
+    html += '<div class="dcard">';
+    html += '<p class="dt">차별점</p>';
+    html += '<p class="db' + (v.benefit ? "" : " empty") + '">' + (v.benefit ? esc(v.benefit) : "핵심 편익을 채우세요") + "</p>";
+    html +=
+      '<p class="ds">' +
+      (v.reason ? "믿을 근거: " + esc(v.reason) : "믿을 근거(우리를 고를 이유)로 뒷받침하세요.") +
+      "</p>";
+    html += "</div>";
+    // 대조축
+    html += '<div class="dcard">';
+    html += '<p class="dt">대조축</p>';
+    html +=
+      '<p class="db' + (v.alternative ? "" : " empty") + '">' +
+      (v.alternative ? esc(v.alternative) + par(v.alternative, "과", "와") + " 달리" : "주요 대안을 채우세요") +
+      "</p>";
+    html += '<p class="ds">이 대안 대신 우리를 골라야 하는 이유를 한 줄로 벼리세요.</p>';
+    html += "</div>";
+    // 기억할 한 가지
+    html += '<div class="dcard">';
+    html += '<p class="dt">기억할 한 가지</p>';
+    html += '<p class="db' + (v.memory ? "" : " empty") + '">' + (v.memory ? esc(v.memory) : "단 하나의 문장을 정하세요") + "</p>";
+    html += '<p class="ds">일주일 뒤에도 남을 단 하나입니다.</p>';
+    html += "</div>";
+    html += "</div>";
+
+    // blanks
+    var blanks = FIELDS.filter(function (f) {
+      return !v[f.id];
+    });
+    if (blanks.length === 0) {
+      html +=
+        '<p class="clean-note" style="margin-top:22px">여덟 결정이 모두 채워졌습니다. 남은 일은 채우는 것이 아니라 벼리는 것입니다. 아래 스트레스 테스트로 문장을 시험하세요.</p>';
+    } else {
+      html += '<div class="result-block-title">채워야 할 빈칸 (' + blanks.length + "개)</div>";
+      html += '<ul class="blank-list">';
+      blanks.forEach(function (f) {
+        html += '<li class="blank-item">';
+        html += '<p class="bi-title">' + esc(f.label) + " (" + esc(f.scaffold) + ")</p>";
+        html += '<p class="bi-why">' + esc(f.why) + "</p>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // stress test
+    html += '<div class="result-block-title">스트레스 테스트</div>';
+    html += '<ul class="stress">';
+    STRESS.forEach(function (q) {
+      html += "<li>" + esc(q) + "</li>";
+    });
+    html += "</ul>";
+
+    // AI prompt
+    lastStatementCopy = buildStatementCopy(v);
+    lastPrompt = buildPrompt(v);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT · Claude 등에 붙여넣으면, 이 초안을 바탕으로 포지셔닝을 진단하고 더 날카롭게 벼려 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyStmtBtn">문장 복사</button>';
+    html += '<button class="btn-copy" id="copyPromptBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    FIELDS.forEach(function (f) {
+      document.getElementById("f_" + f.id).value = "";
+    });
+    growables.forEach(grow);
+    lastStatementCopy = "";
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state">' +
+      '<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<rect x="7" y="14" width="34" height="4" rx="2" fill="currentColor" opacity="0.32" />' +
+      '<rect x="7" y="23" width="26" height="4" rx="2" fill="currentColor" opacity="0.32" />' +
+      '<rect x="7" y="32" width="18" height="5" rx="2.5" fill="currentColor" />' +
+      "</svg>" +
+      "<p><strong>아직 문장을 만들기 전입니다.</strong></p>" +
+      "<p>위 8개 칸을 채우고 '문장 만들기'를 누르세요.</p></div>";
+    document.getElementById("input-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var s = document.getElementById("copyStmtBtn");
+    var p = document.getElementById("copyPromptBtn");
+    var pr = document.getElementById("printBtn");
+    if (s) s.addEventListener("click", function () { copyText(lastStatementCopy); });
+    if (p) p.addEventListener("click", function () { copyText(lastPrompt); });
+    if (pr) pr.addEventListener("click", function () { window.print(); });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function copyText(text) {
+    if (!text) return;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      // tier 3: manual modal
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

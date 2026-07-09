@@ -1,0 +1,1288 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>핵심습관 킹핀 설계기</title>
+<meta
+  name="description"
+  content="핵심가치별 신호에서 행동, 보상으로 이어지는 습관을 설계하고 연쇄효과 큰 킹핀 습관 하나를 고른다"
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #b5852a;
+    --accent-strong: #855f18;
+    --accent-tint: #f8efdb;
+    --accent-tint-2: #efe0c1;
+    --ink: #241f17;
+    --ink-soft: #4c4436;
+    --ink-mute: #6f6552;
+    --paper: #faf7f1;
+    --card: #ffffff;
+    --line: #e9e1d2;
+    --line-strong: #d8ccb6;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --shadow: 0 1px 2px rgba(36, 31, 23, 0.05), 0 6px 20px rgba(36, 31, 23, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 22px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0 0 16px;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- concept strip ---------- */
+  .concept {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 14px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+  }
+  .concept .c-step {
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 8px;
+  }
+  .concept .c-arrow {
+    color: var(--accent);
+    font-weight: 800;
+  }
+  .concept .c-loop {
+    margin-left: auto;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+    margin-top: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- habit rows ---------- */
+  .habit {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fdfbf7;
+    padding: 15px 15px 16px;
+    margin-bottom: 14px;
+  }
+  .habit-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 11px;
+  }
+  .habit-tag {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--accent-strong);
+  }
+  .row-remove {
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    padding: 6px 11px;
+    min-height: 32px;
+    cursor: pointer;
+  }
+  .row-remove:hover {
+    color: #a3421f;
+    border-color: #d9a996;
+  }
+
+  input.val-name,
+  textarea.grow {
+    width: 100%;
+    font-family: inherit;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 12px 13px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  input.val-name {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    min-height: 46px;
+  }
+  textarea.grow {
+    font-size: 0.96rem;
+    line-height: 1.55;
+    min-height: 46px;
+    resize: none;
+    overflow: hidden;
+    display: block;
+  }
+  input.val-name:focus,
+  textarea.grow:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  ::placeholder {
+    color: #a99d84;
+  }
+
+  .loop-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .lf-label {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .lf-label span {
+    font-weight: 600;
+    color: var(--ink-mute);
+    font-size: 0.78rem;
+  }
+
+  .casc-wrap {
+    margin-top: 14px;
+  }
+  .casc {
+    display: flex;
+    gap: 7px;
+  }
+  .casc-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+    font-family: inherit;
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--ink-mute);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .casc-btn.on {
+    background: var(--accent);
+    border-color: var(--accent-strong);
+    color: #fff;
+  }
+  .casc-btn:focus-visible {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: 2px;
+  }
+  .casc-scale {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  .add-row {
+    font-family: inherit;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px dashed var(--accent-strong);
+    border-radius: 11px;
+    padding: 12px 16px;
+    width: 100%;
+    min-height: 46px;
+    cursor: pointer;
+    margin-top: 2px;
+  }
+  .add-row:hover {
+    background: var(--accent-tint-2);
+  }
+
+  .privacy-hint {
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    margin: 14px 0 0;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button {
+    font-family: inherit;
+  }
+  .btn-primary,
+  .btn-ghost,
+  .btn-copy {
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 46px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  .btn-primary:active,
+  .btn-ghost:active,
+  .btn-copy:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent-strong);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: #6f4e12;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 2rem;
+    margin-bottom: 6px;
+    color: var(--accent);
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  /* kingpin banner */
+  .kingpin {
+    background: var(--accent-strong);
+    color: #fff;
+    border-radius: 14px;
+    padding: 18px 17px;
+    margin-bottom: 16px;
+  }
+  .kp-eyebrow {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #f1dcae;
+    margin: 0 0 6px;
+    text-transform: uppercase;
+  }
+  .kp-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    line-height: 1.3;
+    margin: 0 0 12px;
+    color: #fff;
+  }
+  .kp-meter {
+    display: flex;
+    gap: 6px;
+    margin: 0 0 10px;
+    max-width: 240px;
+  }
+  .kp-meter .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.28);
+  }
+  .kp-meter .pip.lit {
+    background: #fff;
+  }
+  .kp-why {
+    margin: 0;
+    font-size: 0.94rem;
+    color: #f6ecd7;
+  }
+  .kp-tie {
+    margin: 10px 0 0;
+    font-size: 0.85rem;
+    color: #ecdcb4;
+  }
+
+  .summary {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 0 0 4px;
+  }
+  .summary b {
+    color: var(--accent-strong);
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* habit result card */
+  .hcard {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 15px 15px 14px;
+    background: var(--card);
+    margin-bottom: 13px;
+  }
+  .hcard.is-king {
+    border: 2px solid var(--accent);
+    background: var(--accent-tint);
+  }
+  .hcard-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .hcard-value {
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+  .badge-king {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: var(--accent-strong);
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .hcard-casc {
+    margin-left: auto;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+
+  .loop {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .loop-step {
+    background: #fdfbf7;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .is-king .loop-step {
+    background: #fff;
+    border-color: var(--accent-tint-2);
+  }
+  .ls-label {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--accent-strong);
+    margin-bottom: 3px;
+  }
+  .ls-text {
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+  .ls-empty {
+    color: var(--ink-mute);
+    font-style: normal;
+  }
+  .loop-arrow {
+    align-self: center;
+    color: var(--accent);
+    font-weight: 800;
+    line-height: 1;
+    transform: rotate(90deg);
+  }
+
+  .hcard-hints {
+    margin-top: 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    background: #fff6ea;
+    border: 1px solid #f0dcbc;
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 9px 11px;
+  }
+  .is-king .hint {
+    background: #fffdf8;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #2a2620;
+    color: #f3ecdd;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(36, 31, 23, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 12px 13px;
+    overflow-y: auto;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (min-width: 560px) {
+    .loop {
+      flex-direction: row;
+      align-items: stretch;
+    }
+    .loop-step {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .loop-arrow {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .concept .c-loop {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #design-panel,
+    .concept,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    .kingpin {
+      background: #fff;
+      color: #000;
+      border: 2px solid #855f18;
+    }
+    .kp-eyebrow,
+    .kp-title,
+    .kp-why {
+      color: #000;
+    }
+    pre.prompt {
+      background: #f4f2ee;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">핵심습관 설계 · 킹핀</span>
+    <h1>핵심습관 킹핀 설계기</h1>
+    <p class="lede">
+      핵심가치를 매일 실천하는 행동은 <strong>신호 → 행동 → 보상</strong>의 루프로
+      정착됩니다. 가치별 습관 루프를 설계하고, 다른 행동을 가장 크게 끌어당기는
+      <strong>킹핀(keystone) 습관</strong> 하나를 골라 먼저 집중하세요.
+    </p>
+    <div class="concept" aria-hidden="true">
+      <span class="c-step">신호</span>
+      <span class="c-arrow">&rarr;</span>
+      <span class="c-step">행동</span>
+      <span class="c-arrow">&rarr;</span>
+      <span class="c-step">보상</span>
+      <span class="c-loop">&#8635; 반복되며 습관으로 정착</span>
+    </div>
+  </header>
+
+  <section class="panel" id="design-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>가치별 습관 루프 설계</h2>
+    </div>
+    <p class="panel-sub">
+      핵심가치마다 그 가치를 매일 실천하는 습관을 하나씩 설계합니다. 각 습관을
+      신호(언제·어디서 촉발되나) &middot; 행동(반복할 구체적 행동) &middot;
+      보상(행동 직후의 긍정적 결과)으로 채우고, 이 습관이 다른 행동을 얼마나
+      끌어당기는지 연쇄효과를 1~5로 평가하세요.
+    </p>
+
+    <div id="habits"></div>
+
+    <button type="button" class="add-row" id="addRow">+ 핵심가치 추가</button>
+
+    <p class="privacy-hint">
+      입력한 내용은 이 브라우저 안에서만 처리되며, 밖으로 전송되지 않습니다.
+      서버·외부 API 호출이 없습니다.
+    </p>
+
+    <div class="actions">
+      <button class="btn-primary" id="design">킹핀 설계하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>킹핀 습관 &amp; 정착 설계</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">&#8635;</div>
+        <p><strong>아직 설계 전입니다.</strong></p>
+        <p>가치별 신호·행동·보상을 채우고 '킹핀 설계하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 가인지 value-system-coach의 핵심습관 설계
+      원칙과, 찰스 두히그(Charles Duhigg)의 습관 루프 모델(신호 Cue &rarr; 행동
+      Routine &rarr; 보상 Reward) 및 킹핀 습관(keystone habit) 개념. 킹핀 습관은
+      볼링에서 킹핀을 맞히면 나머지 핀이 함께 쓰러지듯, 하나의 습관이 여러 행동의
+      연쇄 변화를 일으킨다는 아이디어입니다. 우리 일상의 상당 부분은 습관이
+      결정하므로, 올해는 최대 3개의 습관에만 집중하기를 권합니다.
+    </p>
+    <p>
+      이 도구는 습관 설계를 돕는 사고 보조 도구이며, 습관을 대신 정착시켜 주지
+      않습니다. 회고·평가 같은 별도 관리 의례를 더하기보다, 신호 &rarr; 행동
+      &rarr; 보상 루프 자체를 선명하고 반복 가능하게 만드는 데 집중하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택한 뒤 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  var habitsEl = document.getElementById("habits");
+  var resultEl = document.getElementById("result");
+  var rowSeq = 0;
+  var MAX_ROWS = 8;
+
+  var EMPTY_HTML =
+    '<div class="empty-state"><div class="big" aria-hidden="true">&#8635;</div>' +
+    "<p><strong>아직 설계 전입니다.</strong></p>" +
+    "<p>가치별 신호·행동·보상을 채우고 '킹핀 설계하기'를 누르세요.</p></div>";
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  // ---- build a cascade (연쇄효과) radiogroup, default 3 ----
+  function cascadeHTML() {
+    var h =
+      '<div class="casc" role="radiogroup" aria-label="연쇄효과 점수 1점에서 5점">';
+    for (var i = 1; i <= 5; i++) {
+      h +=
+        '<button type="button" class="casc-btn' +
+        (i <= 3 ? " on" : "") +
+        '" data-score="' +
+        i +
+        '" role="radio" aria-checked="' +
+        (i === 3 ? "true" : "false") +
+        '" aria-label="' +
+        i +
+        '점">' +
+        i +
+        "</button>";
+    }
+    h += "</div>";
+    return h;
+  }
+
+  function makeRow() {
+    rowSeq++;
+    var row = document.createElement("div");
+    row.className = "habit";
+    row.dataset.cascade = "3";
+    row.innerHTML =
+      '<div class="habit-head">' +
+      '<span class="habit-tag">핵심가치 1</span>' +
+      '<button type="button" class="row-remove" aria-label="이 항목 삭제">삭제</button>' +
+      "</div>" +
+      '<input type="text" class="val-name" maxlength="40" placeholder="예) 고객최우선" aria-label="핵심가치 이름" />' +
+      '<div class="loop-fields">' +
+      '<div class="lf"><label class="lf-label">① 신호 <span>Cue · 언제·어디서</span></label>' +
+      '<textarea class="grow cue" rows="1" placeholder="이 행동을 촉발하는 순간. 예) 매일 오전 회의가 끝나면"></textarea></div>' +
+      '<div class="lf"><label class="lf-label">② 행동 <span>Routine · 반복 행동</span></label>' +
+      '<textarea class="grow routine" rows="1" placeholder="반복할 구체적 행동. 예) 팀원 한 명에게 어제 받은 도움에 감사를 전한다"></textarea></div>' +
+      '<div class="lf"><label class="lf-label">③ 보상 <span>Reward · 직후의 결과</span></label>' +
+      '<textarea class="grow reward" rows="1" placeholder="행동 직후 느끼는 긍정적 결과. 예) 팀 분위기가 밝아지고 신뢰가 쌓인다"></textarea></div>' +
+      "</div>" +
+      '<div class="casc-wrap">' +
+      '<label class="lf-label">연쇄효과 <span>이 습관이 다른 행동을 얼마나 끌어당기나</span></label>' +
+      cascadeHTML() +
+      '<p class="casc-scale">1 = 이 습관 하나로 끝 · 5 = 여러 행동을 함께 끌어당김(킹핀 후보)</p>' +
+      "</div>";
+    habitsEl.appendChild(row);
+    renumber();
+    return row;
+  }
+
+  function renumber() {
+    var rows = habitsEl.querySelectorAll(".habit");
+    Array.prototype.forEach.call(rows, function (r, i) {
+      r.querySelector(".habit-tag").textContent = "핵심가치 " + (i + 1);
+      var rm = r.querySelector(".row-remove");
+      rm.style.display = rows.length <= 1 ? "none" : "";
+    });
+  }
+
+  function removeRow(row) {
+    if (!row) return;
+    if (habitsEl.querySelectorAll(".habit").length <= 1) return;
+    row.parentNode.removeChild(row);
+    renumber();
+  }
+
+  function setCascade(btn) {
+    var row = btn.closest(".habit");
+    if (!row) return;
+    var score = parseInt(btn.dataset.score, 10);
+    row.dataset.cascade = String(score);
+    Array.prototype.forEach.call(
+      row.querySelectorAll(".casc-btn"),
+      function (b) {
+        var s = parseInt(b.dataset.score, 10);
+        b.classList.toggle("on", s <= score);
+        b.setAttribute("aria-checked", s === score ? "true" : "false");
+      }
+    );
+  }
+
+  // ---- delegated events on the input list ----
+  habitsEl.addEventListener("input", function (e) {
+    if (e.target.classList.contains("grow")) grow(e.target);
+  });
+  habitsEl.addEventListener("click", function (e) {
+    var t = e.target;
+    if (t.classList.contains("row-remove")) removeRow(t.closest(".habit"));
+    else if (t.classList.contains("casc-btn")) setCascade(t);
+  });
+  habitsEl.addEventListener("keydown", function (e) {
+    var t = e.target;
+    if (!t.classList.contains("casc-btn")) return;
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      var row = t.closest(".habit");
+      var btns = Array.prototype.slice.call(row.querySelectorAll(".casc-btn"));
+      var idx = btns.indexOf(t);
+      var next =
+        e.key === "ArrowRight" ? Math.min(4, idx + 1) : Math.max(0, idx - 1);
+      btns[next].focus();
+      setCascade(btns[next]);
+    }
+  });
+
+  document.getElementById("addRow").addEventListener("click", function () {
+    if (habitsEl.querySelectorAll(".habit").length >= MAX_ROWS) {
+      this.textContent = "핵심가치는 최대 " + MAX_ROWS + "개까지 설계합니다";
+      var self = this;
+      setTimeout(function () {
+        self.textContent = "+ 핵심가치 추가";
+      }, 2200);
+      return;
+    }
+    var row = makeRow();
+    var name = row.querySelector(".val-name");
+    if (name) name.focus();
+  });
+
+  // ---- collect current design ----
+  function collect() {
+    var out = [];
+    Array.prototype.forEach.call(
+      habitsEl.querySelectorAll(".habit"),
+      function (r) {
+        out.push({
+          value: r.querySelector(".val-name").value.trim(),
+          cue: r.querySelector(".cue").value.trim(),
+          routine: r.querySelector(".routine").value.trim(),
+          reward: r.querySelector(".reward").value.trim(),
+          cascade: parseInt(r.dataset.cascade, 10) || 3,
+        });
+      }
+    );
+    return out;
+  }
+
+  // ---- result rendering ----
+  function loopChain(h) {
+    function step(lbl, txt) {
+      return (
+        '<div class="loop-step">' +
+        '<span class="ls-label">' +
+        lbl +
+        "</span>" +
+        '<span class="ls-text">' +
+        (txt ? esc(txt) : '<span class="ls-empty">(비어 있음)</span>') +
+        "</span></div>"
+      );
+    }
+    return (
+      '<div class="loop">' +
+      step("신호", h.cue) +
+      '<div class="loop-arrow" aria-hidden="true">&rarr;</div>' +
+      step("행동", h.routine) +
+      '<div class="loop-arrow" aria-hidden="true">&rarr;</div>' +
+      step("보상", h.reward) +
+      "</div>"
+    );
+  }
+
+  function hintsFor(h) {
+    var hs = [];
+    if (!h.cue)
+      hs.push(
+        "신호가 비어 있습니다. 언제·어디서 이 행동이 촉발되는지 정하면 루프가 시작됩니다."
+      );
+    else if (h.cue.length < 6)
+      hs.push(
+        "신호를 시간·공간·상황으로 더 구체화해 보세요. (예: 노란 라인을 지나면 미소로 인사)"
+      );
+    if (!h.reward)
+      hs.push(
+        "보상이 비어 있습니다. 행동 직후의 보상이 있어야 루프가 닫히고 습관이 강화됩니다."
+      );
+    return hs;
+  }
+
+  function buildPrompt(habits, king) {
+    var L = [];
+    L.push(
+      "당신은 조직의 핵심습관 설계를 돕는 코치입니다. 찰스 두히그의 습관 루프(신호 Cue → 행동 Routine → 보상 Reward)와 '킹핀(keystone) 습관' 개념에 정통합니다."
+    );
+    L.push("");
+    L.push("【설계한 습관 루프】");
+    habits.forEach(function (h, i) {
+      L.push(i + 1 + ". 핵심가치: " + (h.value || "(미기재)"));
+      L.push("   - 신호(Cue): " + (h.cue || "(미기재)"));
+      L.push("   - 행동(Routine): " + h.routine);
+      L.push("   - 보상(Reward): " + (h.reward || "(미기재)"));
+      L.push("   - 연쇄효과 자가평가: " + h.cascade + "/5");
+    });
+    L.push("");
+    L.push("【자가 선정한 킹핀 습관】");
+    L.push(
+      '"' +
+        (king.value || "(가치 미기재)") +
+        " — " +
+        king.routine +
+        '" (연쇄효과 ' +
+        king.cascade +
+        "/5)"
+    );
+    L.push(
+      "연쇄효과 점수가 가장 높아, 다른 행동들을 가장 크게 끌어당길 습관으로 봤습니다."
+    );
+    L.push("");
+    L.push("【요청 사항】");
+    L.push(
+      "1. 이 킹핀 습관의 신호를 시간·공간·상황으로 더 구체화해 주세요. 언제, 어디서 자동으로 촉발되는지 분명해질수록 반복이 쉬워집니다."
+    );
+    L.push(
+      "2. 이미 잘하고 있는 '밝은 점(bright spot)' 위에 이 행동을 얹어, 매일 자연스럽게 반복되게 만드는 방법을 제안해 주세요."
+    );
+    L.push(
+      "3. 보상이 행동 직후에 체감되는지 점검해 주세요. 루프가 보상까지 닫혀야 습관이 강화됩니다."
+    );
+    L.push(
+      "4. 올해는 최대 3개에만 집중한다는 원칙에서, 나머지 습관 중 이 킹핀과 함께 갈 우선순위를 제안해 주세요."
+    );
+    L.push(
+      "5. 회고·평가 같은 별도 관리 의례는 덧붙이지 말아 주세요. 신호→행동→보상 루프 자체를 더 선명하고 반복 가능하게 만드는 데만 집중해 주세요."
+    );
+    L.push(
+      "6. 근거 없이 지어내지 말고, 정보가 부족하면 저에게 사실을 먼저 물어봐 주세요."
+    );
+    return L.join("\n");
+  }
+
+  var lastPrompt = "";
+
+  document.getElementById("design").addEventListener("click", function () {
+    var all = collect();
+    var habits = all.filter(function (h) {
+      return h.routine;
+    });
+
+    if (habits.length === 0) {
+      resultEl.innerHTML =
+        '<div class="empty-state">' +
+        '<div class="big" aria-hidden="true">&#8635;</div>' +
+        "<p><strong>아직 설계할 습관이 없습니다.</strong></p>" +
+        "<p>적어도 하나의 <b>행동(Routine)</b>을 채우면 습관 루프가 만들어집니다.</p></div>";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    // kingpin = highest 연쇄효과; ties -> first designed
+    var king = habits[0];
+    habits.forEach(function (h) {
+      if (h.cascade > king.cascade) king = h;
+    });
+    var tied = habits.filter(function (h) {
+      return h.cascade === king.cascade;
+    });
+    var completeCount = habits.filter(function (h) {
+      return h.cue && h.routine && h.reward;
+    }).length;
+
+    var html = "";
+
+    // kingpin banner
+    html += '<div class="kingpin">';
+    html += '<p class="kp-eyebrow">핵심습관 킹핀 · Keystone Habit</p>';
+    html +=
+      '<p class="kp-title">' +
+      esc(king.value || "(핵심가치 미기재)") +
+      " &middot; " +
+      esc(king.routine) +
+      "</p>";
+    html +=
+      '<div class="kp-meter" role="img" aria-label="연쇄효과 5점 만점에 ' +
+      king.cascade +
+      '점">';
+    for (var p = 0; p < 5; p++) {
+      html += '<span class="pip' + (p < king.cascade ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html +=
+      '<p class="kp-why">연쇄효과 ' +
+      king.cascade +
+      "/5 — 설계한 습관 중 다른 행동을 가장 크게 끌어당깁니다. 볼링의 킹핀을 맞히면 나머지 핀이 함께 쓰러지듯, 이 습관 하나에 먼저 집중하세요.</p>";
+    if (tied.length > 1) {
+      html +=
+        '<p class="kp-tie">※ 연쇄효과 ' +
+        king.cascade +
+        "점 습관이 " +
+        tied.length +
+        "개입니다. 그중 먼저 설계한 습관을 킹핀으로 표시했습니다. 어느 것을 먼저 세울지는 직접 정하세요.</p>";
+    }
+    html += "</div>";
+
+    // summary
+    html +=
+      '<p class="summary">설계한 습관 <b>' +
+      habits.length +
+      "개</b> · 신호·행동·보상이 모두 채워진 완성 루프 <b>" +
+      completeCount +
+      "개</b>. 올해는 킹핀을 포함해 <b>최대 3개</b>에 집중하세요.</p>";
+
+    // per-habit cards
+    html += '<div class="result-block-title">설계한 습관 루프</div>';
+    habits.forEach(function (h) {
+      var isKing = h === king;
+      html += '<div class="hcard' + (isKing ? " is-king" : "") + '">';
+      html += '<div class="hcard-head">';
+      html +=
+        '<span class="hcard-value">' + esc(h.value || "(가치 미기재)") + "</span>";
+      if (isKing) html += '<span class="badge-king">킹핀</span>';
+      html +=
+        '<span class="hcard-casc">연쇄효과 ' + h.cascade + "/5</span>";
+      html += "</div>";
+      html += loopChain(h);
+      var hs = hintsFor(h);
+      if (hs.length) {
+        html += '<div class="hcard-hints">';
+        hs.forEach(function (x) {
+          html += '<p class="hint">' + esc(x) + "</p>";
+        });
+        html += "</div>";
+      }
+      html += "</div>";
+    });
+
+    // AI prompt
+    lastPrompt = buildPrompt(habits, king);
+    html += '<div class="result-block-title">정착 프롬프트 · AI에 붙여넣기</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">이 설계를 ChatGPT·Claude 등에 붙여넣으면, 킹핀 습관을 일상에 정착시키는 구체적 방법을 함께 다듬어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    habitsEl.innerHTML = "";
+    rowSeq = 0;
+    makeRow();
+    makeRow();
+    makeRow();
+    resultEl.innerHTML = EMPTY_HTML;
+    document
+      .getElementById("design-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // ---- init: 3 empty rows ----
+  makeRow();
+  makeRow();
+  makeRow();
+</script>

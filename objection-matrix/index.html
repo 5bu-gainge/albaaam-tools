@@ -1,0 +1,1391 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>반론 발굴 &amp; 응답 매트릭스</title>
+<meta name="description" content="가격·신뢰·노력·타이밍·전환비용 등 진짜 반론을 표면화해 응답·근거·배치 위치를 매핑합니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #a03e2e;
+    --accent-strong: #843124;
+    --accent-tint: #f9ece8;
+    --accent-tint-2: #f0d8d1;
+    --ink: #23211f;
+    --ink-soft: #4c4843;
+    --ink-mute: #6d6862;
+    --paper: #fbf8f4;
+    --card: #ffffff;
+    --line: #e7e0d7;
+    --line-strong: #d8cfc2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --danger: #c62828;
+    --danger-tint: #fbeaea;
+    --danger-line: #f0cccc;
+    --shadow: 0 1px 2px rgba(35, 33, 31, 0.05), 0 6px 20px rgba(35, 33, 31, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea,
+  select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fdfbf9;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 52px;
+    resize: none;
+    overflow: hidden;
+  }
+  select {
+    min-height: 46px;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236d6862' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a79f95;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- objection cards ---------- */
+  .obj-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .obj-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fdfbf9;
+    padding: 15px 15px 14px;
+  }
+  .obj-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 13px;
+  }
+  .obj-tag {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+  }
+  .obj-label {
+    font-weight: 800;
+    font-size: 1.04rem;
+    margin: 0 0 2px;
+    color: var(--ink);
+  }
+  .obj-voice {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--accent-strong);
+  }
+  .obj-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .obj-fields .fw {
+    display: block;
+  }
+  .obj-fields .fw > span {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .obj-guide {
+    margin: 13px 0 0;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    background: var(--accent-tint);
+    border-radius: 9px;
+    padding: 10px 12px;
+  }
+  .obj-guide b {
+    color: var(--accent-strong);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+    min-height: 46px;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-plan {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-mixed {
+    background: #fff6ec;
+    border-color: #f2ddc4;
+  }
+  .verdict.tone-strategy {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.32;
+  }
+  .verdict.tone-plan .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: #a35a12;
+  }
+  .verdict.tone-strategy .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #e9e2d8;
+  }
+  .pip.solid {
+    background: var(--accent);
+  }
+  .verdict.tone-strategy .pip.solid {
+    background: var(--good);
+  }
+  .pip.flag {
+    background: repeating-linear-gradient(
+      45deg,
+      var(--danger),
+      var(--danger) 3px,
+      #e6a4a4 3px,
+      #e6a4a4 6px
+    );
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* ---------- matrix table ---------- */
+  .matrix-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  table.matrix {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 640px;
+    font-size: 0.9rem;
+  }
+  table.matrix th,
+  table.matrix td {
+    text-align: left;
+    vertical-align: top;
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--line);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  table.matrix thead th {
+    background: #f4efe8;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  table.matrix tbody tr:last-child td {
+    border-bottom: none;
+  }
+  table.matrix .c-type {
+    font-weight: 800;
+    color: var(--accent-strong);
+    white-space: nowrap;
+  }
+  table.matrix .c-place {
+    white-space: nowrap;
+    font-weight: 600;
+    color: var(--ink-mute);
+  }
+  .muted-dash {
+    color: #b7b0a6;
+  }
+  .cell-flag {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--danger);
+    background: var(--danger-tint);
+    border: 1px solid var(--danger-line);
+    padding: 2px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  /* ---------- callouts ---------- */
+  .danger-callout {
+    background: var(--danger-tint);
+    border: 1px solid var(--danger-line);
+    border-left: 3px solid var(--danger);
+    border-radius: 10px;
+    padding: 14px 15px;
+    margin: 0 0 4px;
+  }
+  .danger-callout .dc-head {
+    font-weight: 800;
+    font-size: 0.98rem;
+    color: var(--danger);
+    margin: 0 0 8px;
+  }
+  .danger-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .danger-list li {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .danger-list li b {
+    color: var(--ink);
+  }
+  .warn-note,
+  .missing-note {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 12px 0 0;
+  }
+  .warn-note {
+    background: #fff6ec;
+    border: 1px solid #f2ddc4;
+  }
+  .missing-note {
+    background: #f4efe8;
+    border: 1px solid var(--line);
+  }
+  .missing-note b {
+    color: var(--ink);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 12px 0 0;
+  }
+
+  /* ---------- prompt ---------- */
+  pre.prompt {
+    margin: 0;
+    background: #2a2724;
+    color: #f3ede4;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .export-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.92rem;
+    padding: 11px 16px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .btn-copy.alt {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-copy.alt:hover {
+    color: var(--ink);
+    border-color: var(--ink-mute);
+    background: transparent;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+    flex-basis: 100%;
+    min-height: 1.1em;
+  }
+
+  /* ---------- modal ---------- */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(35, 33, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 170px;
+    overflow-y: auto;
+    resize: vertical;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    section.panel {
+      padding: 18px 15px;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #ctx-panel,
+    #input-panel,
+    .actions,
+    .export-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+    .matrix-scroll {
+      overflow: visible;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">전환 설계 · 반론 처리 매트릭스</span>
+    <h1>반론 발굴 &amp; 응답 매트릭스</h1>
+    <p class="lede">
+      고객이 속으로 삼키는 진짜 반론(가격·신뢰·노력·타이밍·전환비용·필요성)을
+      표면 위로 꺼내, 각 반론에 응답·근거·페이지 배치 위치를 짝지어 정리합니다.
+      말하지 않은 반론은 사라지지 않고, 답 없이 남을 뿐입니다.
+    </p>
+  </header>
+
+  <section class="panel" id="ctx-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>제품/서비스 맥락 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      무엇을, 누구에게 파는지 한두 줄만 적어 두면 아래 AI 프롬프트와 내보내기에
+      함께 담깁니다. 비워 두어도 매트릭스는 만들어집니다.
+    </p>
+    <label class="fw field-label" for="ctx">파는 것 · 대상 고객</label>
+    <textarea
+      id="ctx"
+      placeholder="예) 중소기업 대표를 위한 채용 진단 툴 / 3개월 코칭 프로그램 ..."
+    ></textarea>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>6가지 반론 유형 채우기</h2>
+    </div>
+    <p class="panel-sub">
+      각 유형마다 고객이 실제로 던질 <b>반론 문구</b>, 그에 대한 <b>응답</b>,
+      응답을 믿게 하는 <b>뒷받침 근거</b>, 그리고 그 반론이 떠오르는 지점에
+      맞춘 <b>페이지 내 배치 위치</b>를 적으세요. 아는 유형만 채워도 됩니다.
+    </p>
+    <ul class="obj-list" id="objList"></ul>
+
+    <div class="actions">
+      <button class="btn-primary" id="build">매트릭스 생성</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>매트릭스 &amp; 진단</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▤</div>
+        <p><strong>아직 매트릭스가 없습니다.</strong></p>
+        <p>반론 유형을 채우고 '매트릭스 생성'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 마케팅 메시지 아키텍처
+      (marketing-message-architecture)의 <em>반론 처리</em>와
+      <em>주장-근거 배치</em> 원칙. 고객의 진짜 반론 유형(가격, 신뢰, 노력,
+      타이밍, 전환비용, "나에게도 맞을까")을 표면화해 그 반론이 떠오르는
+      지점 근처에서 답하고, 모든 강한 응답 옆에 근거를 붙입니다. 근거가 없는
+      응답은 근거를 찾거나 주장을 줄여야 합니다.
+    </p>
+    <p>
+      이 도구는 반론을 스스로 발굴하도록 돕는 보조 도구이며, 반론이나 근거를
+      대신 지어내 주지 않습니다. 채운 내용은 스스로 판단할 재료로 쓰세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ------------------------------------------------------------------
+   * Objection categories.
+   * Source: marketing-message-architecture SKILL.md
+   *   - Objection handling: "the real objections the chosen customer has
+   *     (price, trust, effort, timing, switching cost, 'will this work
+   *     for me?')" -> the six rows below.
+   *   - Claim support and proof placement: "Every strong claim gets proof
+   *     beside it ... If a claim has no proof, either find proof or reduce
+   *     the claim." -> the empty-proof red flag.
+   * No numbers or claims are invented; placeholders are marked "예)".
+   * ------------------------------------------------------------------ */
+  var PLACEMENTS = [
+    "히어로 · 훅",
+    "문제 · 위험",
+    "작동 방식",
+    "증거 섹션",
+    "오퍼 · 가격",
+    "반론처리 섹션",
+    "비교표",
+    "FAQ",
+    "CTA 근처",
+  ];
+
+  var CATEGORIES = [
+    {
+      id: "price",
+      label: "가격",
+      voice: '"너무 비싸요 / 이만한 값어치가 있나요?"',
+      phObj: "예) 비슷한 도구보다 가격이 높아요. 이 값을 낼 이유가 있나요?",
+      phRes: "예) 가격이 아니라 안 했을 때의 손실과 비교해 보세요.",
+      phProof: "예) 도입 후 ROI 자료, 안 썼을 때의 기회손실, 환불 보장",
+      place: "오퍼 · 가격",
+      guide: "가격이 아니라 <b>가치 대비 비용</b>으로 재프레이밍하고, 안 했을 때의 비용과 비교하세요.",
+    },
+    {
+      id: "trust",
+      label: "신뢰 · 증거",
+      voice: '"정말 효과가 있나요? 믿을 수 있나요?"',
+      phObj: "예) 광고 문구는 다 좋아 보여요. 진짜 결과가 있는지 어떻게 믿죠?",
+      phRes: "예) 실제 고객의 결과와 후기로 보여드립니다.",
+      phProof: "예) 고객 후기, 도입 사례, 정량 결과, 제3자 인증",
+      place: "증거 섹션",
+      guide: "주장 옆에 <b>바로 증거</b>를 붙이세요. 숫자·후기·사례가 없으면 주장을 줄이세요.",
+    },
+    {
+      id: "effort",
+      label: "노력 · 난이도",
+      voice: '"제가 하기엔 어렵고 번거로울 것 같아요"',
+      phObj: "예) 배우고 세팅하는 데 시간이 오래 걸릴 것 같아요.",
+      phRes: "예) 첫 세팅은 짧고, 나머지는 저희가 도와드립니다.",
+      phProof: '예) 온보딩 절차, 소요 시간, "쉬웠다"는 사용자 후기',
+      place: "작동 방식",
+      guide: "<b>시작이 쉽다</b>는 것을 보여주세요. 간단한 첫 단계·온보딩·대행으로 진입 장벽을 낮춥니다.",
+    },
+    {
+      id: "timing",
+      label: "타이밍",
+      voice: '"지금 당장은 필요 없어요 / 나중에 할게요"',
+      phObj: "예) 지금은 바빠서요. 다음 분기에 다시 볼게요.",
+      phRes: "예) 미루는 동안의 비용이 더 큽니다. 지금이 가장 쌉니다.",
+      phProof: "예) 지연 비용 추정, 지금 시작한 고객의 결과, 정직한 기한 조건",
+      place: "CTA 근처",
+      guide: "<b>미루는 비용</b>을 드러내세요. 지금 시작해야 하는 이유를 구체적 손실로 보여줍니다.",
+    },
+    {
+      id: "switch",
+      label: "전환비용",
+      voice: '"지금 쓰는 걸 바꾸기가 번거로워요"',
+      phObj: "예) 이미 다른 걸 쓰고 있어요. 옮기는 게 일이에요.",
+      phRes: "예) 데이터 이전과 병행 운영을 저희가 지원합니다.",
+      phProof: "예) 마이그레이션 지원 내역, 병행 기간, 전환 고객 사례",
+      place: "비교표",
+      guide: "전환을 <b>대신 도와주세요</b>. 마이그레이션·병행운영으로 옮기는 비용을 낮춥니다.",
+    },
+    {
+      id: "need",
+      label: "필요성",
+      voice: '"나 같은 경우에도 맞을까요? 우리한테 필요한가요?"',
+      phObj: "예) 우리 업종/규모에도 맞는지 모르겠어요.",
+      phRes: "예) 당신과 같은 상황의 고객이 이렇게 해결했습니다.",
+      phProof: "예) 유사 고객 사례, 업종·규모별 적용 시나리오",
+      place: "히어로 · 훅",
+      guide: '대상 고객의 상황을 구체적으로 짚어 <b>"당신을 위한 것"</b>임을 보이세요.',
+    },
+  ];
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  // ---- render input cards ----
+  var listEl = document.getElementById("objList");
+
+  CATEGORIES.forEach(function (c, i) {
+    var opts = PLACEMENTS.map(function (p) {
+      return (
+        '<option value="' +
+        esc(p) +
+        '"' +
+        (p === c.place ? " selected" : "") +
+        ">" +
+        esc(p) +
+        "</option>"
+      );
+    }).join("");
+
+    var li = document.createElement("li");
+    li.className = "obj-card";
+    li.dataset.id = c.id;
+    li.innerHTML =
+      '<div class="obj-head">' +
+      '<span class="obj-tag" aria-hidden="true">' +
+      (i + 1) +
+      "</span>" +
+      "<div>" +
+      '<p class="obj-label">' +
+      esc(c.label) +
+      "</p>" +
+      '<p class="obj-voice">' +
+      esc(c.voice) +
+      "</p>" +
+      "</div>" +
+      "</div>" +
+      '<div class="obj-fields">' +
+      '<label class="fw"><span>실제 반론 문구</span>' +
+      '<textarea data-field="objection" placeholder="' +
+      esc(c.phObj) +
+      '"></textarea></label>' +
+      '<label class="fw"><span>응답</span>' +
+      '<textarea data-field="response" placeholder="' +
+      esc(c.phRes) +
+      '"></textarea></label>' +
+      '<label class="fw"><span>뒷받침 근거</span>' +
+      '<textarea data-field="proof" placeholder="' +
+      esc(c.phProof) +
+      '"></textarea></label>' +
+      '<label class="fw"><span>페이지 내 배치 위치</span>' +
+      '<select data-field="placement">' +
+      opts +
+      "</select></label>" +
+      "</div>" +
+      '<p class="obj-guide">' +
+      "<b>응답 팁</b> · " +
+      c.guide +
+      "</p>";
+    listEl.appendChild(li);
+  });
+
+  // ---- auto-grow textareas (input panel + ctx) ----
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  document.addEventListener("input", function (e) {
+    if (e.target && e.target.tagName === "TEXTAREA") grow(e.target);
+  });
+  var ctxEl = document.getElementById("ctx");
+
+  // ---- read current state ----
+  function readRows() {
+    return CATEGORIES.map(function (c) {
+      var card = listEl.querySelector('.obj-card[data-id="' + c.id + '"]');
+      function v(f) {
+        var el = card.querySelector('[data-field="' + f + '"]');
+        return el ? el.value.trim() : "";
+      }
+      var row = {
+        id: c.id,
+        label: c.label,
+        guide: c.guide.replace(/<[^>]+>/g, ""),
+        objection: v("objection"),
+        response: v("response"),
+        proof: v("proof"),
+        placement: v("placement"),
+      };
+      row.active = !!(row.objection || row.response);
+      return row;
+    });
+  }
+
+  // ---- verdict band ----
+  function bandFor(activeCount, flaggedCount) {
+    if (flaggedCount > 0) {
+      return {
+        tone: "plan",
+        label: "근거 없는 응답 " + flaggedCount + "개",
+        title: "근거 없는 응답부터 메워야 합니다",
+        desc:
+          flaggedCount +
+          "개 반론의 응답에 뒷받침 근거가 비어 있습니다. 근거 없는 응답은 믿음을 만들지 못합니다. 근거를 찾거나, 못 찾으면 주장을 줄이세요.",
+      };
+    }
+    if (activeCount < 6) {
+      return {
+        tone: "mixed",
+        label: "커버리지 " + activeCount + "/6",
+        title: "핵심은 방어됐고, 남은 유형이 있습니다",
+        desc:
+          6 -
+          activeCount +
+          "개 반론 유형을 아직 다루지 않았습니다. 말하지 않은 반론은 사라지지 않고 답 없이 남습니다. 나머지 유형도 채우세요.",
+      };
+    }
+    return {
+      tone: "strategy",
+      label: "커버리지 6/6 · 근거 완비",
+      title: "반론 응답 매트릭스가 견고합니다",
+      desc:
+        "6개 반론 유형을 모두 다뤘고, 각 응답에 근거가 붙어 있습니다. 이제 각 응답을 표시된 배치 위치에 심으세요.",
+    };
+  }
+
+  // ---- exports ----
+  function csvCell(s) {
+    s = String(s == null ? "" : s);
+    if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+  function buildCsv(rows) {
+    var out = [];
+    out.push(
+      ["반론유형", "실제 반론", "응답", "뒷받침 근거", "배치 위치", "근거상태"]
+        .map(csvCell)
+        .join(",")
+    );
+    rows.forEach(function (r) {
+      if (!r.active) return;
+      out.push(
+        [
+          r.label,
+          r.objection,
+          r.response,
+          r.proof,
+          r.placement,
+          r.proof ? "있음" : "근거 없음",
+        ]
+          .map(csvCell)
+          .join(",")
+      );
+    });
+    return out.join("\n");
+  }
+
+  function buildText(rows, ctx, activeCount, flaggedCount) {
+    var L = [];
+    L.push("반론 발굴 & 응답 매트릭스");
+    L.push(
+      "커버리지 " + activeCount + "/6 · 근거 없는 응답 " + flaggedCount + "개"
+    );
+    if (ctx) {
+      L.push("");
+      L.push("[제품/서비스 맥락] " + ctx);
+    }
+    L.push("");
+    rows.forEach(function (r, i) {
+      if (!r.active) return;
+      L.push("[" + (i + 1) + "] " + r.label);
+      L.push("- 반론: " + (r.objection || "(미작성)"));
+      L.push("- 응답: " + (r.response || "(미작성)"));
+      L.push("- 근거: " + (r.proof || "⚠ 근거 없음"));
+      L.push("- 배치: " + r.placement);
+      L.push("");
+    });
+    var missing = rows
+      .filter(function (r) {
+        return !r.active;
+      })
+      .map(function (r) {
+        return r.label;
+      });
+    if (missing.length) {
+      L.push("아직 다루지 않은 반론 유형: " + missing.join(", "));
+    }
+    return L.join("\n").replace(/\n+$/, "");
+  }
+
+  function buildPrompt(rows, ctx, activeCount) {
+    var L = [];
+    L.push(
+      "당신은 마케팅 메시지 아키텍처(반론 처리·근거 배치)에 정통한 카피·전환 코치입니다."
+    );
+    L.push(
+      "아래는 제가 채운 '반론 발굴 & 응답 매트릭스'입니다. 진짜 고객이 품는 반론을 표면화하고, 응답·근거·배치 위치를 점검해 주세요."
+    );
+    L.push("");
+    if (ctx) {
+      L.push("【제품/서비스 맥락】");
+      L.push(ctx);
+      L.push("");
+    }
+    L.push("【반론 매트릭스】");
+    var any = false;
+    rows.forEach(function (r, i) {
+      if (!r.active) return;
+      any = true;
+      L.push(i + 1 + ". " + r.label + "  (배치: " + r.placement + ")");
+      L.push("   - 반론: " + (r.objection || "(미작성)"));
+      L.push("   - 응답: " + (r.response || "(미작성)"));
+      L.push("   - 근거: " + (r.proof || "(근거 없음)"));
+    });
+    if (!any) {
+      L.push("(아직 채워진 반론이 없습니다. 먼저 대표적인 반론부터 함께 발굴해 주세요.)");
+    }
+    var missing = rows
+      .filter(function (r) {
+        return !r.active;
+      })
+      .map(function (r) {
+        return r.label;
+      });
+    L.push("");
+    L.push("【요청】");
+    L.push(
+      "1. 각 '실제 반론 문구'를 고객이 실제로 검색·발화하는 목소리로 더 날카롭게 다듬어 주세요."
+    );
+    L.push(
+      "2. 응답이 약한 곳을 지적하고 유형별로 강화해 주세요. (가격은 '가치 대비 비용'으로 재프레이밍, 신뢰는 증거로, 노력은 쉬운 첫 단계로, 타이밍은 미루는 비용으로, 전환비용은 이전 지원으로, 필요성은 대상 고객 상황으로)"
+    );
+    L.push(
+      "3. 근거가 빈 칸은, 어떤 종류의 근거(숫자·후기·사례·보장)가 있으면 그 반론을 무너뜨릴 수 있는지 제안해 주세요. 근거를 지어내지 말고, 모르면 저에게 사실을 물어 주세요."
+    );
+    L.push(
+      "4. 주장 옆에 근거가 바로 붙도록, 각 응답의 배치 위치가 그 반론이 떠오르는 지점과 맞는지 점검해 주세요."
+    );
+    if (missing.length) {
+      L.push(
+        "5. 아직 다루지 않은 반론 유형(" +
+          missing.join(", ") +
+          ")에 대해, 이 제품에서 실제로 나올 법한 반론과 대응 방향을 제안해 주세요."
+      );
+    } else {
+      L.push(
+        "5. 6개 유형 외에 이 제품에서 추가로 나올 법한 반론이 있다면 함께 짚어 주세요."
+      );
+    }
+    return L.join("\n");
+  }
+
+  // ---- render result ----
+  var resultEl = document.getElementById("result");
+  var store = { csv: "", text: "", prompt: "" };
+
+  document.getElementById("build").addEventListener("click", function () {
+    var rows = readRows();
+    var ctx = ctxEl.value.trim();
+    var activeRows = rows.filter(function (r) {
+      return r.active;
+    });
+    var flagged = activeRows.filter(function (r) {
+      return !r.proof;
+    });
+    var noResp = activeRows.filter(function (r) {
+      return r.objection && !r.response;
+    });
+    var missing = rows.filter(function (r) {
+      return !r.active;
+    });
+    var activeCount = activeRows.length;
+
+    // guard: nothing entered
+    if (activeCount === 0) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+        "<p><strong>아직 채워진 반론이 없습니다.</strong></p>" +
+        "<p>가장 자주 듣는 반론 한두 개부터 위에 적고 다시 눌러 주세요.</p></div>";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var band = bandFor(activeCount, flagged.length);
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html +=
+      '<div class="meter" role="img" aria-label="6개 유형 중 ' +
+      activeCount +
+      "개 작성, 근거 없음 " +
+      flagged.length +
+      '개">';
+    rows.forEach(function (r) {
+      var cls = "pip";
+      if (r.active && r.proof) cls += " solid";
+      else if (r.active && !r.proof) cls += " flag";
+      html += '<span class="' + cls + '"></span>';
+    });
+    html += "</div>";
+    html +=
+      '<p class="meter-caption">커버리지 ' +
+      activeCount +
+      " / 6 · 근거 완비 " +
+      (activeCount - flagged.length) +
+      "개 · 근거 없음 " +
+      flagged.length +
+      "개</p>";
+    html += "</div>";
+
+    // red flags (missing proof) — the primary red flag per spec
+    if (flagged.length > 0) {
+      html += '<div class="danger-callout">';
+      html +=
+        '<p class="dc-head">근거 없는 응답 ' +
+        flagged.length +
+        "개 (빨간 플래그)</p>";
+      html += '<ul class="danger-list">';
+      flagged.forEach(function (r) {
+        html +=
+          "<li><b>" +
+          esc(r.label) +
+          "</b> · " +
+          esc(r.guide) +
+          "</li>";
+      });
+      html += "</ul></div>";
+    }
+
+    // secondary warn: objection without response
+    if (noResp.length > 0) {
+      html +=
+        '<p class="warn-note">응답이 비어 있는 유형: <b>' +
+        esc(
+          noResp
+            .map(function (r) {
+              return r.label;
+            })
+            .join(", ")
+        ) +
+        "</b>. 반론만 있고 답이 없으면 그 반론은 그대로 남습니다.</p>";
+    }
+
+    // matrix table
+    html += '<div class="result-block-title">반론 응답 매트릭스</div>';
+    html += '<div class="matrix-scroll"><table class="matrix">';
+    html +=
+      "<thead><tr>" +
+      "<th>유형</th><th>실제 반론</th><th>응답</th><th>뒷받침 근거</th><th>배치 위치</th>" +
+      "</tr></thead><tbody>";
+    activeRows.forEach(function (r) {
+      html += "<tr>";
+      html += '<td class="c-type">' + esc(r.label) + "</td>";
+      html +=
+        "<td>" +
+        (r.objection
+          ? esc(r.objection)
+          : '<span class="muted-dash">—</span>') +
+        "</td>";
+      html +=
+        "<td>" +
+        (r.response ? esc(r.response) : '<span class="muted-dash">—</span>') +
+        "</td>";
+      html +=
+        "<td>" +
+        (r.proof
+          ? esc(r.proof)
+          : '<span class="cell-flag">근거 없음</span>') +
+        "</td>";
+      html += '<td class="c-place">' + esc(r.placement) + "</td>";
+      html += "</tr>";
+    });
+    html += "</tbody></table></div>";
+
+    // missing categories note or clean note
+    if (missing.length > 0) {
+      html +=
+        '<p class="missing-note"><b>아직 다루지 않은 반론 유형:</b> ' +
+        esc(
+          missing
+            .map(function (r) {
+              return r.label;
+            })
+            .join(", ")
+        ) +
+        ". 이 유형의 반론이 정말 없는지, 아니면 아직 답을 못 정한 것인지 확인하세요.</p>";
+    } else if (flagged.length === 0) {
+      html +=
+        '<p class="clean-note">6개 유형을 모두 다뤘고 근거도 빠짐없이 붙었습니다. 남은 일은 각 응답을 표의 배치 위치에 실제로 심는 것입니다.</p>';
+    }
+
+    // AI prompt
+    store.prompt = buildPrompt(rows, ctx, activeCount);
+    store.csv = buildCsv(rows);
+    store.text = buildText(rows, ctx, activeCount, flagged.length);
+
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 매트릭스를 바탕으로 반론을 날카롭게 다듬고 빈 근거를 제안해 줍니다.</p>';
+    html +=
+      '<pre class="prompt" id="prompt-text">' + esc(store.prompt) + "</pre>";
+
+    // export row
+    html += '<div class="export-row no-print">';
+    html += '<button class="btn-copy" data-copy="prompt">프롬프트 복사</button>';
+    html +=
+      '<button class="btn-copy alt" data-copy="csv">매트릭스 CSV 복사</button>';
+    html +=
+      '<button class="btn-copy alt" data-copy="text">텍스트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    ctxEl.value = "";
+    grow(ctxEl);
+    Array.prototype.forEach.call(
+      listEl.querySelectorAll("textarea"),
+      function (t) {
+        t.value = "";
+        grow(t);
+      }
+    );
+    CATEGORIES.forEach(function (c) {
+      var sel = listEl.querySelector(
+        '.obj-card[data-id="' + c.id + '"] select[data-field="placement"]'
+      );
+      if (sel) sel.value = c.place;
+    });
+    store = { csv: "", text: "", prompt: "" };
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">▤</div>' +
+      "<p><strong>아직 매트릭스가 없습니다.</strong></p>" +
+      "<p>반론 유형을 채우고 '매트릭스 생성'을 누르세요.</p></div>";
+    document
+      .getElementById("input-panel")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- result buttons ----
+  function wireResultButtons() {
+    Array.prototype.forEach.call(
+      resultEl.querySelectorAll("button[data-copy]"),
+      function (b) {
+        b.addEventListener("click", function () {
+          var key = b.getAttribute("data-copy");
+          doCopy(store[key] || "");
+        });
+      }
+    );
+    var printBtn = document.getElementById("printBtn");
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  // ---- copy: 3-tier fallback ----
+  function doCopy(text) {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) flashStatus("복사되었습니다");
+    else openModal(text);
+  }
+
+  // ---- manual copy modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

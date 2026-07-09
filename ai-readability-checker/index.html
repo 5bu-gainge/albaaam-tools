@@ -1,0 +1,1322 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI 가독성 체커</title>
+<meta name="description" content="핵심 주장·수치가 이미지 안에만 있는지 점검해 검색·AI 답변엔진이 읽게 텍스트화를 유도합니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #2563a8;
+    --accent-strong: #1d4e86;
+    --accent-tint: #eaf1f9;
+    --accent-tint-2: #d6e4f2;
+    --ink: #1b2430;
+    --ink-soft: #414c59;
+    --ink-mute: #5c6672;
+    --paper: #f5f8fc;
+    --card: #ffffff;
+    --line: #e3e9f1;
+    --line-strong: #cdd8e6;
+    --good: #2f6f4f;
+    --good-tint: #e7f2ec;
+    --good-line: #cfe4d8;
+    --warn: #a35a12;
+    --warn-tint: #fff5e9;
+    --warn-line: #f0ddc1;
+    --shadow: 0 1px 2px rgba(27, 36, 48, 0.05), 0 6px 20px rgba(27, 36, 48, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 96px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfcfe;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #9aa4b1;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- checklist items ---------- */
+  ul.items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  li.item {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfcfe;
+    padding: 14px 15px 15px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  li.item.state-image {
+    border-color: var(--accent-tint-2);
+    background: var(--accent-tint);
+  }
+  li.item.state-text {
+    border-color: var(--good-line);
+    background: var(--good-tint);
+  }
+  .item-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .item-num {
+    flex: none;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent);
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid var(--accent-tint-2);
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+    background: #fff;
+  }
+  .item-titles {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .item-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0 0 3px;
+    color: var(--ink);
+  }
+  .item-probe {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .item-hint {
+    display: none;
+    margin-top: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    line-height: 1.4;
+  }
+  .item-hint.show {
+    display: inline-block;
+  }
+  .item-hint.detected {
+    color: var(--good);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+  }
+  .item-hint.missing {
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+  }
+
+  /* segmented control */
+  .seg {
+    display: flex;
+    gap: 6px;
+    margin-top: 13px;
+  }
+  .seg-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 9px;
+    padding: 8px 6px;
+    cursor: pointer;
+    transition: all 0.13s;
+    line-height: 1.3;
+  }
+  .seg-btn:hover {
+    border-color: var(--ink-mute);
+  }
+  .seg-btn[aria-checked="true"][data-state="text"] {
+    background: var(--good);
+    border-color: var(--good);
+    color: #fff;
+  }
+  .seg-btn[aria-checked="true"][data-state="image"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .seg-btn[aria-checked="true"][data-state="na"] {
+    background: var(--ink-mute);
+    border-color: var(--ink-mute);
+    color: #fff;
+  }
+  .seg-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+  .suggest-tag {
+    display: none;
+    margin-top: 9px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+  .suggest-tag.show {
+    display: block;
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+    min-height: 48px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+    min-height: 48px;
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-risk {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-mixed {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .verdict.tone-good {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .verdict-top {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .score-num {
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .verdict.tone-risk .score-num {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-mixed .score-num {
+    color: var(--warn);
+  }
+  .verdict.tone-good .score-num {
+    color: var(--good);
+  }
+  .score-unit {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 2px;
+  }
+  .verdict-title {
+    font-size: 1.24rem;
+    font-weight: 800;
+    margin: 10px 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-risk .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: var(--warn);
+  }
+  .verdict.tone-good .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .bar {
+    height: 12px;
+    border-radius: 7px;
+    background: #dde5ef;
+    overflow: hidden;
+    margin: 15px 0 6px;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 7px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+  .verdict.tone-good .bar-fill {
+    background: var(--good);
+  }
+  .verdict.tone-mixed .bar-fill {
+    background: #d08a3c;
+  }
+  .bar-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  .fix-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .fix-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 15px;
+    background: #fbfcfe;
+  }
+  .fix-item .fx-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 4px;
+  }
+  .fix-item .fx-lost {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin: 0 0 9px;
+  }
+  .fx-row {
+    margin: 8px 0 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .fx-row strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .fx-alt {
+    margin: 8px 0 0;
+    font-size: 0.87rem;
+    color: var(--ink-soft);
+    background: #f0f4f9;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 9px 11px;
+  }
+  .fx-alt .alt-k {
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* scan panel */
+  .scan-density {
+    font-size: 0.86rem;
+    color: var(--ink-mute);
+    margin: 0 0 11px;
+    font-weight: 600;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .chip {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 6px 11px;
+    border-radius: 999px;
+    line-height: 1.35;
+  }
+  .chip.ok {
+    color: var(--good);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+  }
+  .chip.no {
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #1c2430;
+    color: #eef2f7;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+    min-height: 44px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(27, 36, 48, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .seg-btn {
+      font-size: 0.8rem;
+      padding: 8px 4px;
+    }
+    .score-num {
+      font-size: 2.1rem;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #intro-panel,
+    #checklist-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">AI·검색 가독성 · 의미는 이미지가 아니라 글자로</span>
+    <h1>AI 가독성 체커</h1>
+    <p class="lede">
+      핵심 주장·가격·수치·후기·CTA가 이미지 안에만 그려져 있으면, 검색엔진과 AI
+      답변엔진은 그 내용을 읽지도 인용하지도 못합니다. 이미지에 갇힌 의미를 찾아
+      글자로 꺼내도록 점검해 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="intro-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>읽을 수 있는 텍스트 붙여넣기 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      이미지가 아니라 <strong>실제 글자로 존재하는 내용</strong>만 붙여넣으세요
+      (본문·소제목·alt 텍스트·캡션). 붙여넣으면 아래 항목을 자동으로 추정해
+      채워 드립니다. 비워 두어도 직접 분류할 수 있습니다.
+    </p>
+    <label class="field-label" for="doc">페이지의 텍스트 내용</label>
+    <textarea
+      id="doc"
+      placeholder="예) 2주 안에 확신을 갖고 채용하세요. 지난 30년간 5,000개 기업이 함께했습니다. 무료 상담 신청하기 ..."
+    ></textarea>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버·외부 API 호출이
+      전혀 없습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="checklist-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>다섯 가지 핵심 요소, 어디에 있나요?</h2>
+    </div>
+    <p class="panel-sub">
+      각 항목이 <strong>글자로도</strong> 존재하는지, <strong>이미지 안에만</strong>
+      있는지 골라 주세요. 이미지에만 있을수록 AI·검색 가독성은 떨어집니다.
+    </p>
+    <ul class="items" id="items"></ul>
+
+    <div class="actions">
+      <button class="btn-primary" id="diagnose">가독성 진단하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>진단 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◍</div>
+        <p><strong>아직 진단 전입니다.</strong></p>
+        <p>요소를 분류하고 '가독성 진단하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 마케팅 메시지 아키텍처의 '메시지의 네
+      독자'(사람·검색엔진·AI 답변엔진·재사용) 원칙. 설득은 이미지가 맡을 수
+      있어도, 주장·수치·핵심 가치라는 <em>의미는 반드시 글자로</em> 존재해야
+      검색엔진과 AI 답변엔진(Perplexity·ChatGPT·Gemini 등)이 읽고 인용할 수
+      있으며, 콘텐츠가 카드·발췌·슬라이드로 잘려도 살아남습니다. alt 텍스트는
+      이미지의 의미를 전하는 거의 유일한 신호이므로 구체적·서술적으로 씁니다.
+    </p>
+    <p>
+      이 도구는 판단을 돕는 보조 도구이며, 페이지를 대신 고쳐 주지는 않습니다.
+      결과는 스스로 텍스트화를 결정할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ------------------------------------------------------------------
+     Source of truth: marketing-message-architecture SKILL.md
+     "The Four Audiences of a Message" + "meaning must live in text"
+     Each element is weighted by how much the source emphasizes it:
+     a core claim or number trapped in an image is the worst case.
+  ------------------------------------------------------------------ */
+  var ITEMS = [
+    {
+      id: "claim",
+      title: "핵심 주장 · 메시지",
+      probe: "가장 중요한 한 문장이 히어로 배너 이미지 안에만 그려져 있지 않나요?",
+      weight: 3,
+      lost: "검색·AI가 이 페이지의 요점을 파악하지 못함",
+      body:
+        "가장 중요한 한 문장을 배너 이미지 밖 본문(H1·첫 문단)에 그대로 한 번 더 쓰세요. 이미지는 설득을 맡고, 의미는 글자가 담습니다.",
+      alt:
+        "핵심 메시지 배너 – '2주 안에 확신을 갖고 채용하세요'라는 문구가 적힌 파란색 히어로 이미지",
+    },
+    {
+      id: "numbers",
+      title: "수치 · 데이터",
+      probe: "'3일 만에 95%' 같은 성과·통계가 그래프/배너 이미지 안에만 있지 않나요?",
+      weight: 3,
+      lost: "AI 답변엔진이 인용할 근거 수치를 읽지 못함",
+      body:
+        "'3일 만에 95%' 같은 수치는 이미지 옆 본문에 '자체 설문 기준, 고객의 95%가 3일 안에 변화를 느꼈습니다'처럼 문장으로 다시 적으세요.",
+      alt: "성과 그래프 – 3일 차에 95%에 도달하는 파란색 막대 차트",
+    },
+    {
+      id: "price",
+      title: "가격 · 조건",
+      probe: "요금·할인·기간이 가격표 이미지 안에만 담겨 있지 않나요?",
+      weight: 2,
+      lost: "검색·비교·AI 답변에서 가격 조건이 노출되지 않음",
+      body:
+        "가격·할인·기간을 이미지 표 안에만 두지 말고 본문 텍스트나 HTML 표로도 노출하세요. 인용 가능한 텍스트여야 비교 결과에 잡힙니다.",
+      alt: "가격표 이미지 – 월 9,900원, 첫 달 무료 조건이 적힌 요금 안내",
+    },
+    {
+      id: "proof",
+      title: "후기 · 증거",
+      probe: "후기·리뷰·수상이 캡처 이미지(스크린샷) 안에만 있지 않나요?",
+      weight: 2,
+      lost: "신뢰를 만드는 증거를 검색·AI가 읽지 못함",
+      body:
+        "후기·리뷰 캡처 이미지는 인용문을 본문 텍스트로도 옮겨 적으세요. 스크린샷 속 글자는 검색·AI가 읽지 못합니다.",
+      alt:
+        "고객 후기 캡처 – '한 달 만에 매출이 두 배가 됐어요'라는 별점 5점 리뷰",
+    },
+    {
+      id: "cta",
+      title: "행동 유도 (CTA)",
+      probe: "'지금 신청하기' 버튼과 링크가 이미지 버튼 안에만 있지 않나요?",
+      weight: 2,
+      lost: "행동 경로가 텍스트/링크로 잡히지 않아 전환이 새어 나감",
+      body:
+        "'지금 신청하기' 같은 행동 문구와 링크를 이미지 버튼 안에만 두지 말고 실제 텍스트 링크·버튼으로 만드세요.",
+      alt: "신청 버튼 – '무료 상담 신청하기'라고 적힌 파란색 버튼",
+    },
+  ];
+
+  var states = {}; // id -> 'text' | 'image' | 'na' | undefined
+  var manual = {}; // id -> true once the user clicked a segment
+
+  // ---------- render items ----------
+  var itemsEl = document.getElementById("items");
+
+  ITEMS.forEach(function (it, i) {
+    var li = document.createElement("li");
+    li.className = "item";
+    li.dataset.id = it.id;
+    li.innerHTML =
+      '<div class="item-head">' +
+      '<span class="item-num" aria-hidden="true">' + (i + 1) + "</span>" +
+      '<div class="item-titles">' +
+      '<p class="item-title">' + it.title + "</p>" +
+      '<p class="item-probe">' + it.probe + "</p>" +
+      '<span class="item-hint" data-hint="' + it.id + '" role="status"></span>' +
+      "</div>" +
+      "</div>" +
+      '<div class="seg" role="radiogroup" aria-label="' + it.title + ' 위치">' +
+      '<button type="button" class="seg-btn" data-id="' + it.id + '" data-state="text" role="radio" aria-checked="false">글자로도 있음</button>' +
+      '<button type="button" class="seg-btn" data-id="' + it.id + '" data-state="image" role="radio" aria-checked="false">이미지에만</button>' +
+      '<button type="button" class="seg-btn" data-id="' + it.id + '" data-state="na" role="radio" aria-checked="false">해당 없음</button>' +
+      "</div>" +
+      '<p class="suggest-tag" data-suggest="' + it.id + '">붙여넣은 텍스트로 자동 추정했습니다. 맞지 않으면 눌러서 바꾸세요.</p>';
+    itemsEl.appendChild(li);
+  });
+
+  function paintItem(id) {
+    var li = itemsEl.querySelector('li.item[data-id="' + id + '"]');
+    if (!li) return;
+    var st = states[id];
+    li.classList.remove("state-text", "state-image");
+    if (st === "text") li.classList.add("state-text");
+    else if (st === "image") li.classList.add("state-image");
+    Array.prototype.forEach.call(li.querySelectorAll(".seg-btn"), function (b) {
+      var on = b.dataset.state === st;
+      b.setAttribute("aria-checked", on ? "true" : "false");
+    });
+    var tag = li.querySelector(".suggest-tag");
+    if (tag) tag.classList.toggle("show", !!st && !manual[id]);
+  }
+
+  itemsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest(".seg-btn");
+    if (!btn) return;
+    var id = btn.dataset.id;
+    manual[id] = true;
+    states[id] = btn.dataset.state;
+    paintItem(id);
+  });
+
+  // keyboard support for radios
+  itemsEl.addEventListener("keydown", function (e) {
+    var btn = e.target.closest(".seg-btn");
+    if (!btn) return;
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      btn.click();
+    }
+  });
+
+  // ---------- text scan (axis 2) ----------
+  var doc = document.getElementById("doc");
+
+  function scanText(raw) {
+    var t = (raw || "").trim();
+    var digitTokens = t.match(/\d[\d,\.]*/g) || [];
+    return {
+      len: t.length,
+      digitCount: digitTokens.length,
+      // core claim: a substantive sentence exists (enough non-space characters)
+      claim: t.replace(/\s/g, "").length >= 12,
+      numbers: /(\d+\s*%|\d+\s*배|\d+\s*명|\d+\s*개|\d+\s*건|\d+\s*년|\d+\s*위|\d+\s*점|\d+\s*만|\d+\s*억|\d)/.test(t),
+      price: /(₩|\d[\d,\.]*\s*원|만원|무료|할인|정가|요금|가격|price|\$\d)/i.test(t),
+      proof: /(후기|리뷰|고객|추천|평점|별점|사용자|수상|인증|보증|만족|증언|"|“|”|says|review)/i.test(t),
+      cta: /(신청|문의|구매|주문|등록|다운로드|예약|가입|상담|지금|받기|시작|바로가기|클릭|링크|apply|buy|sign\s?up|register|download)/i.test(t),
+    };
+  }
+
+  function suggestFor(id, scan) {
+    var present = false;
+    if (id === "claim") present = scan.claim;
+    else if (id === "numbers") present = scan.numbers;
+    else if (id === "price") present = scan.price;
+    else if (id === "proof") present = scan.proof;
+    else if (id === "cta") present = scan.cta;
+    // present in the readable text => at least also-in-text; absent => likely image-only
+    return present ? "text" : "image";
+  }
+
+  var lastScan = null;
+
+  doc.addEventListener("input", function () {
+    grow(doc);
+    var t = doc.value.trim();
+    if (!t) {
+      lastScan = null;
+      // clear hints + auto-suggested (non-manual) states
+      ITEMS.forEach(function (it) {
+        var hint = itemsEl.querySelector('[data-hint="' + it.id + '"]');
+        if (hint) {
+          hint.className = "item-hint";
+          hint.textContent = "";
+        }
+        if (!manual[it.id]) {
+          states[it.id] = undefined;
+          paintItem(it.id);
+        }
+      });
+      return;
+    }
+    lastScan = scanText(t);
+    ITEMS.forEach(function (it) {
+      var present = suggestFor(it.id, lastScan) === "text";
+      var hint = itemsEl.querySelector('[data-hint="' + it.id + '"]');
+      if (hint) {
+        hint.className =
+          "item-hint show " + (present ? "detected" : "missing");
+        hint.textContent = present
+          ? "붙여넣은 텍스트에서 감지됨"
+          : "붙여넣은 텍스트에서 미감지 · 이미지에만 있을 위험";
+      }
+      if (!manual[it.id]) {
+        states[it.id] = present ? "text" : "image";
+        paintItem(it.id);
+      }
+    });
+  });
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  // ---------- helpers ----------
+  var resultEl = document.getElementById("result");
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function bandFor(score) {
+    if (score >= 80)
+      return {
+        tone: "good",
+        title: "AI·검색이 잘 읽습니다",
+        desc:
+          "핵심 의미가 대체로 글자로 존재합니다. 남은 것은 alt 텍스트의 정확도입니다. 각 이미지의 alt가 '상품 사진'처럼 막연하지 않은지만 한 번 더 점검하세요.",
+      };
+    if (score >= 50)
+      return {
+        tone: "mixed",
+        title: "부분적으로만 읽힙니다",
+        desc:
+          "일부 핵심 요소가 이미지에 갇혀 있습니다. 아래 지적된 항목을 본문 텍스트로 꺼내면, 검색·AI가 읽고 인용할 수 있는 페이지에 가까워집니다.",
+      };
+    return {
+      tone: "risk",
+      title: "핵심이 이미지에 갇혀 있습니다",
+      desc:
+        "설득은 될지 몰라도, 검색엔진과 AI 답변엔진은 이 페이지의 핵심을 읽지 못합니다. 카드·발췌로 잘리면 의미가 통째로 사라집니다. 아래 항목부터 글자로 꺼내세요.",
+    };
+  }
+
+  function buildPrompt(risky, docText, score, band) {
+    var lines = [];
+    lines.push(
+      "당신은 마케팅 메시지와 AI 가독성 전문가입니다. 아래 페이지의 '의미가 이미지가 아니라 글자로 존재하는가'를 점검해, 검색엔진과 AI 답변엔진이 읽고 인용할 수 있도록 텍스트화(본문 노출 + alt 텍스트)를 도와주세요."
+    );
+    lines.push("");
+    lines.push("【자가 진단 결과】");
+    lines.push("AI·검색 가독성 점수: " + score + " / 100 (" + band.title + ")");
+    if (risky.length === 0) {
+      lines.push(
+        "이미지에만 갇힌 핵심 요소는 없습니다. 대신 각 이미지의 alt 텍스트가 구체적·서술적인지 점검해 주세요."
+      );
+    } else {
+      lines.push("이미지에만 갇힌 것으로 판단된 요소:");
+      risky.forEach(function (f, i) {
+        lines.push(i + 1 + ". " + f.title + " → 잃는 것: " + f.lost);
+      });
+    }
+    lines.push("");
+    lines.push("【현재 페이지에서 글자로 존재하는 텍스트】");
+    if (docText && docText.trim()) {
+      lines.push(docText.trim());
+    } else {
+      lines.push("(사용자가 별도로 붙여넣을 예정입니다. 먼저 페이지 텍스트를 요청하세요.)");
+    }
+    lines.push("");
+    lines.push("【요청 사항】");
+    lines.push(
+      "1. 위 '이미지에만 갇힌 요소' 각각에 대해, 이미지 밖 본문에 그대로 노출할 한국어 문장을 제안해 주세요."
+    );
+    lines.push(
+      "2. 각 핵심 이미지에 붙일 구체적이고 서술적인 alt 텍스트를 작성해 주세요. ('상품 사진' 같은 막연한 표현은 금지, 무엇이 어떻게 보이는지 묘사)"
+    );
+    lines.push(
+      "3. 이 콘텐츠가 인스타 카드·블로그 발췌·제안서 슬라이드로 잘려도 핵심 메시지가 살아남는지 점검하고, 살아남지 못하는 지점을 지적해 주세요."
+    );
+    lines.push(
+      "4. 사실을 지어내지 마세요. 수치·후기·가격을 모르면 저에게 물어보고, 확인된 것만 텍스트로 옮기세요."
+    );
+    return lines.join("\n");
+  }
+
+  var lastPrompt = "";
+
+  // ---------- diagnose ----------
+  document.getElementById("diagnose").addEventListener("click", function () {
+    var applicable = ITEMS.filter(function (it) {
+      var s = states[it.id];
+      return s === "text" || s === "image";
+    });
+
+    if (applicable.length === 0) {
+      resultEl.innerHTML =
+        '<div class="empty-state"><div class="big" aria-hidden="true">◍</div>' +
+        "<p><strong>아직 분류된 요소가 없습니다.</strong></p>" +
+        "<p>각 항목을 '글자로도 있음' 또는 '이미지에만'으로 골라 주세요. (텍스트를 붙여넣으면 자동 추정됩니다.)</p></div>";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var totalWeight = 0;
+    var readableWeight = 0;
+    applicable.forEach(function (it) {
+      totalWeight += it.weight;
+      if (states[it.id] === "text") readableWeight += it.weight;
+    });
+    var score = Math.round((readableWeight / totalWeight) * 100);
+    var band = bandFor(score);
+    var risky = applicable.filter(function (it) {
+      return states[it.id] === "image";
+    });
+    var naCount = ITEMS.filter(function (it) {
+      return states[it.id] === "na";
+    }).length;
+    var docText = doc.value;
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">AI·검색 가독성 점수</p>';
+    html += '<div class="verdict-top">';
+    html += '<span class="score-num">' + score + '</span><span class="score-unit">/ 100</span>';
+    html += "</div>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html +=
+      '<div class="bar" role="img" aria-label="가독성 ' + score + '점">' +
+      '<span class="bar-fill" style="width:' + score + '%"></span></div>';
+    html +=
+      '<p class="bar-caption">평가 대상 ' +
+      applicable.length +
+      "개 · 이미지에만 " +
+      risky.length +
+      "개" +
+      (naCount ? " · 해당 없음 " + naCount + "개" : "") +
+      " (핵심 주장·수치는 가중치 높게 반영)</p>";
+    html += "</div>";
+
+    // fixes
+    if (risky.length === 0) {
+      html +=
+        '<p class="clean-note">이미지에만 갇힌 핵심 요소가 없습니다. 좋습니다. 다만 가독성은 alt 텍스트에서 갈립니다. 아래 프롬프트로 각 이미지의 alt가 구체적인지 마지막으로 점검하세요.</p>';
+    } else {
+      html += '<div class="result-block-title">이미지에서 글자로 꺼낼 것</div>';
+      html += '<ul class="fix-list">';
+      risky.forEach(function (f) {
+        html += '<li class="fix-item">';
+        html += '<p class="fx-title">' + esc(f.title) + "</p>";
+        html += '<span class="fx-lost">잃는 것 · ' + esc(f.lost) + "</span>";
+        html +=
+          '<p class="fx-row"><strong>본문 노출 권고 —</strong> ' +
+          esc(f.body) +
+          "</p>";
+        html +=
+          '<p class="fx-alt"><span class="alt-k">alt 텍스트 예시</span><br>' +
+          esc(f.alt) +
+          "</p>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // scan summary (if text provided)
+    if (docText && docText.trim()) {
+      var sc = scanText(docText);
+      html += '<div class="result-block-title">붙여넣은 텍스트 스캔</div>';
+      html +=
+        '<p class="scan-density">읽을 수 있는 글자 ' +
+        sc.len +
+        "자 · 감지된 숫자 토큰 " +
+        sc.digitCount +
+        "개. 아래는 텍스트에서 각 신호가 잡혔는지입니다(미감지 = 이미지에만 있을 위험).</p>";
+      html += '<ul class="chips">';
+      var sigs = [
+        { k: "핵심 주장", v: sc.claim },
+        { k: "수치", v: sc.numbers },
+        { k: "가격", v: sc.price },
+        { k: "후기·증거", v: sc.proof },
+        { k: "CTA", v: sc.cta },
+      ];
+      sigs.forEach(function (s) {
+        html +=
+          '<li class="chip ' +
+          (s.v ? "ok" : "no") +
+          '">' +
+          esc(s.k) +
+          " " +
+          (s.v ? "감지됨" : "미감지") +
+          "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // prompt
+    lastPrompt = buildPrompt(risky, docText, score, band);
+    html += '<div class="result-block-title">AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 진단을 바탕으로 본문 노출 문장과 alt 텍스트를 함께 만들어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- reset ----------
+  document.getElementById("reset").addEventListener("click", function () {
+    states = {};
+    manual = {};
+    doc.value = "";
+    lastScan = null;
+    grow(doc);
+    ITEMS.forEach(function (it) {
+      paintItem(it.id);
+      var hint = itemsEl.querySelector('[data-hint="' + it.id + '"]');
+      if (hint) {
+        hint.className = "item-hint";
+        hint.textContent = "";
+      }
+    });
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◍</div>' +
+      "<p><strong>아직 진단 전입니다.</strong></p>" +
+      "<p>요소를 분류하고 '가독성 진단하기'를 누르세요.</p></div>";
+    document.getElementById("checklist-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      // tier 3: manual modal
+      openModal(text);
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document
+    .getElementById("modal-select")
+    .addEventListener("click", function () {
+      modalText.focus();
+      modalText.select();
+      modalText.setSelectionRange(0, modalText.value.length);
+    });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

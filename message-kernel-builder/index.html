@@ -1,0 +1,1364 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>메시지 커널 빌더</title>
+<meta
+  name="description"
+  content="하나의 인사이트를 주장·근거·이야기·청중·행동요청·원자재뱅크·필러로 구조화해 어떤 플랫폼에도 재단 가능한 코어 객체로 만든다."
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #1f7a6b;
+    --accent-strong: #16584c;
+    --accent-tint: #e7f3f0;
+    --accent-tint-2: #cfe6e0;
+    --ink: #1b2523;
+    --ink-soft: #3d4a47;
+    --ink-mute: #647069;
+    --paper: #f5f8f7;
+    --card: #ffffff;
+    --line: #e2e8e6;
+    --line-strong: #ccd7d3;
+    --good: #1f7a6b;
+    --good-tint: #e7f3f0;
+    --warn: #9a6a10;
+    --warn-tint: #fff6e6;
+    --warn-line: #f0ddb8;
+    --shadow: 0 1px 2px rgba(27, 37, 35, 0.05), 0 6px 20px rgba(27, 37, 35, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  .field {
+    margin-bottom: 18px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  label.field-label {
+    display: block;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  label.field-label .req {
+    color: var(--accent-strong);
+    font-weight: 800;
+    margin-left: 2px;
+  }
+  .field-desc {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 0 0 8px;
+  }
+  textarea,
+  input[type="text"],
+  select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fcfdfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 84px;
+    resize: none;
+    overflow: hidden;
+    display: block;
+  }
+  input[type="text"] {
+    min-height: 46px;
+  }
+  select {
+    min-height: 46px;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23647069' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+  textarea:focus,
+  input[type="text"]:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder,
+  input[type="text"]::placeholder {
+    color: #9aa7a2;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+  .inline-error {
+    display: none;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #b4341c;
+    margin: 7px 0 0;
+  }
+  .inline-error.show {
+    display: block;
+  }
+  .field.invalid textarea,
+  .field.invalid input[type="text"] {
+    border-color: #d0654f;
+    box-shadow: 0 0 0 3px #f7e2dc;
+  }
+
+  /* ---------- segmented control ---------- */
+  fieldset.seg {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  fieldset.seg legend {
+    padding: 0;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .seg-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .seg-item {
+    flex: 1 1 auto;
+    min-width: 92px;
+    position: relative;
+  }
+  .seg-item input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .seg-item span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 8px 12px;
+    text-align: center;
+    font-size: 0.94rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: #fcfdfd;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+  }
+  .seg-item input:checked + span {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  .seg-item input:focus-visible + span {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    min-height: 46px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .kernel-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .pillar-badge {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 4px 11px;
+    border-radius: 999px;
+  }
+  .pillar-badge.none {
+    color: var(--warn);
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .platform-badge {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: #eef2f1;
+    border: 1px solid var(--line-strong);
+    padding: 4px 11px;
+    border-radius: 999px;
+  }
+  .seed-line {
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+    margin: 6px 0 14px;
+    padding-left: 11px;
+    border-left: 3px solid var(--line-strong);
+  }
+  .seed-line strong {
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 4px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #e2e8e6;
+  }
+  .pip.lit {
+    background: var(--accent);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 16px;
+    font-weight: 600;
+  }
+
+  .kv-list {
+    list-style: none;
+    margin: 0 0 6px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .kv {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fcfdfd;
+  }
+  .kv.blank {
+    border-left-color: var(--line-strong);
+    background: #f7faf9;
+  }
+  .kv-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--accent-strong);
+    text-transform: uppercase;
+    margin: 0 0 5px;
+  }
+  .kv.blank .kv-label {
+    color: var(--ink-mute);
+  }
+  .kv-value {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+  .kv-blank-note {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+
+  .note-card {
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin: 14px 0 0;
+    font-size: 0.9rem;
+    line-height: 1.62;
+  }
+  .note-card.warn {
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    color: #7d5609;
+  }
+  .note-card.anon {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    color: var(--accent-strong);
+  }
+  .note-card strong {
+    font-weight: 800;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #17211f;
+    color: #eaf1ef;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(27, 37, 35, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  footer.foot p {
+    margin: 0 0 10px;
+  }
+  footer.foot p:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .seg-item {
+      min-width: calc(50% - 4px);
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #seed-panel,
+    #kernel-panel,
+    #platform-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">메시지 커널 · Social Content Kernel</span>
+    <h1>메시지 커널 빌더</h1>
+    <p class="lede">
+      하나의 인사이트를 주장, 근거, 이야기, 청중, 행동요청, 원자재 뱅크, 필러로
+      구조화합니다. 한 번 세운 이 코어 객체는 링크드인, X, 인스타그램, 블로그
+      어디로든 재단됩니다. 즉흥 리퍼포징이 아니라 체계적 원자화의 출발점입니다.
+    </p>
+  </header>
+
+  <section class="panel" id="seed-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>하나의 인사이트</h2>
+    </div>
+    <p class="panel-sub">
+      이번에 발견했거나 배운 것을 있는 그대로 한 문장으로 적으세요. 아직 다듬지
+      않아도 됩니다. 이 씨앗을 아래에서 커널로 벼려 냅니다.
+    </p>
+    <div class="field">
+      <label class="field-label" for="seed">원천 인사이트</label>
+      <textarea
+        id="seed"
+        placeholder="예) 언더백 대표들은 전략이 없어서가 아니라, 할 일 목록을 전략이라 부르기 때문에 멈춘다."
+      ></textarea>
+      <p class="field-hint">
+        입력한 내용은 이 브라우저 밖으로 전송되지 않습니다. 서버나 외부 API를
+        호출하지 않습니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="panel" id="kernel-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>커널 필드 채우기</h2>
+    </div>
+    <p class="panel-sub">
+      코어 객체의 일곱 필드입니다. 핵심 주장 하나만 있어도 시작할 수 있고, 빈
+      필드는 결과에서 무엇이 비었는지 짚어 드립니다.
+    </p>
+
+    <div class="field" id="field-claim">
+      <label class="field-label" for="claim"
+        >핵심 주장 (claim)<span class="req" aria-hidden="true"> *</span></label
+      >
+      <p class="field-desc">
+        인사이트를 독자가 가져갈 단 하나의 주장으로 벼려 낸 한 문장. 커널의
+        척추입니다.
+      </p>
+      <textarea
+        id="claim"
+        placeholder="예) 전략은 할 일의 합이 아니라, 고객이 왜 우리를 고르는가에 대한 하나의 이론이다."
+        aria-describedby="claim-err"
+      ></textarea>
+      <p class="inline-error" id="claim-err">
+        핵심 주장을 한 문장으로 입력하세요. 커널을 세우려면 최소한 이 필드가
+        필요합니다.
+      </p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="evidence">근거 (evidence)</label>
+      <p class="field-desc">
+        실제 수치, 날짜, 반복 관찰한 패턴. 진짜 값은 그대로, 미확정은
+        [예시] 또는 [추정]으로 표기하세요. 없으면 비워 두어도 됩니다. 날조 금지.
+      </p>
+      <textarea
+        id="evidence"
+        placeholder="예) 최근 6개월 코칭한 대표 상당수(추정)의 '전략 문서'가 동사 나열이었다. 실제 사례 1건: 4개 항목 중 '어디서 안 싸울지'가 0개."
+      ></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="story">이야기 (story)</label>
+      <p class="field-desc">
+        추상적 주장을 사람이 겪은 장면으로 바꾸는 현장 한 컷 또는 빌드 일화.
+        현장 노트라면 익명화하세요.
+      </p>
+      <textarea
+        id="story"
+        placeholder="예) 한 대표가 '올해 전략'을 펼쳤는데 12줄 전부 '~강화, ~확대'였다. '이 중 안 하기로 한 건요?'라고 묻자 3초간 침묵이 흘렀다."
+      ></textarea>
+    </div>
+
+    <div class="field">
+      <fieldset class="seg" id="audience-seg">
+        <legend>청중 (audience)</legend>
+        <div class="seg-row">
+          <label class="seg-item"
+            ><input
+              type="radio"
+              name="audience"
+              value="KO 언더백 경영자"
+              checked
+            /><span>KO 언더백 경영자</span></label
+          >
+          <label class="seg-item"
+            ><input
+              type="radio"
+              name="audience"
+              value="글로벌 프로페셔널"
+            /><span>글로벌 프로페셔널</span></label
+          >
+          <label class="seg-item"
+            ><input type="radio" name="audience" value="둘 다" /><span
+              >둘 다</span
+            ></label
+          >
+        </div>
+      </fieldset>
+      <div class="field" style="margin: 10px 0 0">
+        <label class="field-label" for="need" style="font-weight: 600"
+          >독자의 니즈 (선택)</label
+        >
+        <input
+          type="text"
+          id="need"
+          placeholder="예) 바쁜 대표가 5분 안에 자기 전략의 빈칸을 진단하고 싶다"
+        />
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="cta">행동요청 (CTA)</label>
+      <p class="field-desc">
+        진짜 열린 질문 또는 다음 단계. "댓글 YES", "3명 태그" 같은 인게이지먼트
+        베이트가 아닌, 독자가 실제로 답하고 싶은 물음.
+      </p>
+      <textarea
+        id="cta"
+        placeholder="예) 당신의 '전략 문서'에서 '하지 않기로 한 것'은 몇 줄입니까?"
+      ></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="bank">원자재 뱅크 (raw material bank)</label>
+      <p class="field-desc">
+        인용 가능한 5~8문장, 모든 수치, 핵심 프레임워크를 단계로, 컨트래리언 한
+        줄. 렌더러는 즉흥 리퍼포징이 아니라 이 뱅크에서 원자화합니다. 한 줄에
+        하나씩 적으세요.
+      </p>
+      <textarea
+        id="bank"
+        placeholder="예)
+- 계획은 통제 가능한 비용을, 전략은 통제 불가능한 결과를 다룬다.
+- 선택은 곧 포기다. 모두를 노리면 아무도 못 잡는다.
+- 전략 캐스케이드 5단계: 열망 · 어디서 · 어떻게 · 역량 · 시스템.
+- 컨트래리언: 불안이 전혀 없는 전략은 사실 계획이다."
+      ></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="pillar">필러 (pillar)</label>
+      <p class="field-desc">
+        고정된 콘텐츠 필러 중 하나로 태깅합니다. 태깅되지 않으면 만들지 않는
+        것이 원칙입니다.
+      </p>
+      <select id="pillar">
+        <option value="">필러를 선택하세요</option>
+        <option value="언더백 경영 현장 인사이트">
+          1. 언더백 경영 현장 인사이트
+        </option>
+        <option value="AI/자동화 빌드 인 퍼블릭">
+          2. AI/자동화 빌드 인 퍼블릭
+        </option>
+        <option value="컨설팅 프레임워크 &amp; 사고법">
+          3. 컨설팅 프레임워크 &amp; 사고법
+        </option>
+        <option value="1인 운영 + 지식 시스템">4. 1인 운영 + 지식 시스템</option>
+        <option value="소트리더십/관점 (가끔)">소트리더십/관점 (가끔)</option>
+      </select>
+    </div>
+  </section>
+
+  <section class="panel" id="platform-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>재단할 플랫폼</h2>
+    </div>
+    <p class="panel-sub">
+      커널을 어느 플랫폼 언어로 재단할지 고르세요. 결과에는 그 플랫폼의 현행
+      포맷 스펙이 담긴 붙여넣기용 프롬프트가 함께 생성됩니다.
+    </p>
+    <fieldset class="seg" id="platform-seg">
+      <legend class="no-print" style="position: absolute; left: -9999px">
+        플랫폼 선택
+      </legend>
+      <div class="seg-row">
+        <label class="seg-item"
+          ><input type="radio" name="platform" value="linkedin" checked /><span
+            >링크드인</span
+          ></label
+        >
+        <label class="seg-item"
+          ><input type="radio" name="platform" value="x" /><span
+            >X (엑스)</span
+          ></label
+        >
+        <label class="seg-item"
+          ><input type="radio" name="platform" value="instagram" /><span
+            >인스타그램</span
+          ></label
+        >
+        <label class="seg-item"
+          ><input type="radio" name="platform" value="blog" /><span
+            >블로그</span
+          ></label
+        >
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button class="btn-primary" id="build">커널 만들기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 4</span>
+      <h2>메시지 커널</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◍</div>
+        <p><strong>아직 커널이 없습니다.</strong></p>
+        <p>필드를 채우고 '커널 만들기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 이 도구는 social-content 스위트의
+      <em>message-kernel</em> 계약(코어 객체 7필드: claim, evidence, story,
+      audience, CTA, raw-material bank, pillar tag)과 고정 콘텐츠 필러 4종, 그리고
+      플랫폼 포맷 스펙(2026-07-01 기준, 발행 전 재검증 대상)을 그대로 따릅니다.
+      수치는 사실로 박지 않고 발행 시점에 재확인하는 것을 전제로 합니다.
+    </p>
+    <p>
+      이 도구는 하나의 인사이트를 구조화하도록 돕는 사고 보조 도구이며, 콘텐츠를
+      대신 확정해 주지 않습니다. 무날조 원칙에 따라, 수치와 인용은 스스로
+      정본에서 확인하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------- platform specs (from platform-specs-2026.md, verified 2026-07-01) ----------
+  var PLATFORMS = {
+    linkedin: {
+      name: "링크드인",
+      spec: [
+        "포맷: 피드 포스트(필요 시 document 캐러셀 또는 Article + 티저).",
+        "훅 존: 모바일 '더 보기' 폴드 약 200자 안에 핵심 주장을 넣는다.",
+        "길이: 최대 3,000자. KO+EN 합산이 약 1,300자를 넘으면 하나의 긴 이중언어 포스트 대신 KO 1 + EN 1 페어드 포스트로 분리한다.",
+        "해시태그: 3~5개 권장.",
+        "링크: 본문 외부링크는 첫 댓글에 두는 저위험 관행으로만 제시하고, 도달 페널티를 수치로 단정하지 않는다.",
+        "타이밍: 발행 후 첫 60~90분 반응이 도달을 좌우한다(체류시간 관측).",
+      ],
+      langRule:
+        "KO와 EN을 한 자산에 담되 각 언어를 독립 리보이싱하고, 위 전환 임계를 넘으면 페어드 포스트로 나눈다.",
+    },
+    x: {
+      name: "X (엑스)",
+      spec: [
+        "포맷: 단일 포스트 또는 스레드.",
+        "훅 존: 첫 1행(첫 문장)에서 승부한다.",
+        "길이: 단일 포스트 기본 280자. 링크는 23자로 고정 카운트, 이모지는 2~4로 카운트.",
+        "해시태그: 0~1개.",
+        "신호: '답글은 강한 인게이지먼트 신호' 정도의 휴리스틱만 참고하고, 유출된 알고리즘 가중치는 사실로 쓰지 않는다. 공격적 톤은 억제되는 경향으로만 다룬다.",
+      ],
+      langRule:
+        "KO와 EN은 한 포스트에 병합 금지. 각각 네이티브 포스트 2개로 쓴다(브로드캐스트 표면).",
+    },
+    instagram: {
+      name: "인스타그램",
+      spec: [
+        "포맷: 캐러셀 / Reels 캡션 / 단일 (요청 시 Threads).",
+        "훅 존: 첫 캡션존 약 125자(잘리기 전)에 핵심을 넣는다.",
+        "길이: 캡션 최대 2,200자.",
+        "해시태그: 관련성 위주 소수. 최대 30개 허용이지만 소수를 권장한다.",
+        "분배 신호: 좋아요가 아니라 공유(sends), 저장(saves), 시청시간이 핵심이다.",
+        "접근성: 알트텍스트를 항상 작성하고, CTA 링크는 바이오로 보낸다.",
+      ],
+      langRule:
+        "KO 우선 + 컴팩트 EN. 이모지는 가벼운 기능적 세트만 옵트인 가능(장식 금지).",
+    },
+    blog: {
+      name: "블로그 (브런치 / Medium / Substack / LinkedIn 롱폼)",
+      spec: [
+        "대상 표면: 브런치, Medium, Substack, LinkedIn 롱폼. 네이버 블로그는 naver-blog-post-builder에 위임하며 여기 대상이 아니다.",
+        "브런치: 호기심형 제목(스포일러 금지), 완독 최적화 에세이 보이스, 마크다운/HTML 미사용.",
+        "Medium: 부제 + SEO 제목. 크로스포스트 시 원본을 정본으로 rel=canonical을 반드시 건다.",
+        "Substack: 부분 페이로드형 제목, 이메일 클립 크기 주의, 항상 Note를 동반한다(Notes가 신규 구독을 견인).",
+      ],
+      langRule:
+        "KO 본문 + EN 리보이싱 버전(기계번역 아님). 표면별로 제목과 훅을 다시 쓴다.",
+    },
+  };
+
+  // ---------- canonical kernel fields for the card ----------
+  var KFIELDS = [
+    {
+      key: "claim",
+      label: "핵심 주장 · claim",
+      blank:
+        "단 하나의 핵심 주장을 한 문장으로. 커널의 척추입니다.",
+    },
+    {
+      key: "evidence",
+      label: "근거 · evidence",
+      blank:
+        "실제 수치, 날짜, 패턴을 넣고 real과 [예시]/[추정]을 구분해 표기하세요. 없으면 플레이스홀더로.",
+    },
+    {
+      key: "story",
+      label: "이야기 · story",
+      blank:
+        "구체적 현장 한 장면 또는 빌드 일화(익명화). 추상적 주장을 사람이 겪은 장면으로.",
+    },
+    {
+      key: "audience",
+      label: "청중 · audience",
+      blank:
+        "누구를 위한 글인가와 그 독자의 니즈. 청중이 흐리면 훅도 흐려집니다.",
+    },
+    {
+      key: "cta",
+      label: "행동요청 · CTA",
+      blank:
+        "진짜 열린 질문 또는 다음 단계. 인게이지먼트 베이트가 아닌 물음.",
+    },
+    {
+      key: "bank",
+      label: "원자재 뱅크 · raw material bank",
+      blank:
+        "인용 가능한 5~8문장, 모든 수치, 프레임워크 단계, 컨트래리언 한 줄. 렌더러는 여기서 원자화합니다.",
+    },
+  ];
+
+  // ---------- helpers ----------
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  function $(id) {
+    return document.getElementById(id);
+  }
+  function radioVal(name) {
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : "";
+  }
+
+  // ---------- auto-grow textareas ----------
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("textarea"), function (t) {
+    if (t.id === "modal-text") return;
+    t.addEventListener("input", function () {
+      grow(t);
+    });
+  });
+
+  // ---------- collect kernel ----------
+  function collect() {
+    var audienceType = radioVal("audience");
+    var need = $("need").value.trim();
+    return {
+      seed: $("seed").value.trim(),
+      claim: $("claim").value.trim(),
+      evidence: $("evidence").value.trim(),
+      story: $("story").value.trim(),
+      audienceType: audienceType,
+      audienceNeed: need,
+      audience: audienceType + (need ? " / 니즈: " + need : ""),
+      cta: $("cta").value.trim(),
+      bank: $("bank").value.trim(),
+      pillar: $("pillar").value,
+      platform: radioVal("platform"),
+    };
+  }
+
+  function hasDigit(s) {
+    return /[0-9]/.test(s || "");
+  }
+
+  // ---------- prompt builder ----------
+  function line(arr, s) {
+    arr.push(s == null ? "" : s);
+  }
+  function orBlank(v, msg) {
+    return v && v.trim() ? v.trim() : "(비어 있음: " + msg + ")";
+  }
+
+  function buildPrompt(k) {
+    var P = PLATFORMS[k.platform];
+    var L = [];
+    line(
+      L,
+      "당신은 message-kernel 계약을 따르는 소셜 콘텐츠 렌더러입니다. 아래 '메시지 커널'(하나의 코어 객체)을 " +
+        P.name +
+        " 네이티브 자산으로 재단해 주세요."
+    );
+    line(L, "");
+    line(L, "【메시지 커널】");
+    if (k.seed) line(L, "· 원천 인사이트: " + k.seed);
+    line(L, "· 필러: " + orBlank(k.pillar, "4개 필러 중 하나로 태깅하세요"));
+    line(L, "· 핵심 주장(claim): " + orBlank(k.claim, "한 문장 주장이 필요합니다"));
+    line(
+      L,
+      "· 근거(evidence): " +
+        orBlank(k.evidence, "수치/날짜/패턴, real과 [예시]/[추정] 구분")
+    );
+    line(L, "· 이야기(story): " + orBlank(k.story, "익명화된 현장 한 장면"));
+    line(L, "· 청중(audience): " + orBlank(k.audience, "누구에게, 그의 니즈"));
+    line(L, "· 행동요청(CTA): " + orBlank(k.cta, "진짜 열린 질문"));
+    line(L, "· 원자재 뱅크(raw material bank):");
+    if (k.bank) {
+      k.bank.split("\n").forEach(function (row) {
+        line(L, "    " + row);
+      });
+    } else {
+      line(
+        L,
+        "    (비어 있음: 인용 가능한 5~8문장, 수치, 프레임워크 단계, 컨트래리언 한 줄을 채우면 여기서 원자화합니다.)"
+      );
+    }
+    line(L, "");
+    line(L, "【" + P.name + " 포맷 스펙】 (발행 전 현행 스펙 재확인)");
+    P.spec.forEach(function (s) {
+      line(L, "· " + s);
+    });
+    line(L, "");
+    line(L, "【작성 규칙】");
+    line(
+      L,
+      "· 언어: " +
+        P.langRule +
+        " EN은 기계번역이 아니라 독립 리보이싱으로, claim과 훅을 각 언어로 새로 씁니다."
+    );
+    line(
+      L,
+      "· 무날조: 커널에 없는 수치, 고객명, 날짜, 인용을 지어내지 않는다. 데이터가 없으면 [예시]/[추정]으로 표기하거나 플레이스홀더로 남긴다."
+    );
+    line(
+      L,
+      "· 원자화: 즉흥 리퍼포징이 아니라 원자재 뱅크에서 문장과 수치를 뽑아 재단한다."
+    );
+    line(
+      L,
+      "· CTA는 진짜 열린 질문이다. '댓글 YES', '3명 태그' 같은 인게이지먼트 베이트는 금지."
+    );
+    line(
+      L,
+      "· 이모지 기본 off(IG/Threads만 가벼운 기능적 세트 옵트인). 코퍼릿 스피크와 공허한 전략어 금지. 1인칭 개인 보이스."
+    );
+    line(
+      L,
+      "· 한국어: 어절 중간에서 줄바꿈하지 않는다. em 대시와 이중 하이픈 대신 쉼표, 괄호, 콜론을 쓴다. 외국 인명은 첫 등장 시 한글 발음과 원어를 함께 적는다."
+    );
+    line(L, "");
+    line(L, "【출력】");
+    line(L, "1. " + P.name + " 네이티브 초안(위 포맷과 훅 존을 준수).");
+    line(
+      L,
+      "2. 자가 점검표: 훅 존 안에 핵심 주장이 들어갔는지, 글자수와 해시태그가 스펙에 맞는지."
+    );
+    line(
+      L,
+      "3. 마지막 한 줄: 실제 플랫폼 컴포저에 붙여 폴드와 프리뷰를 확인한 뒤 예약하세요. 카피-페이스트의 진짜 잘림은 라이브 컴포저에서만 보입니다."
+    );
+    return L.join("\n");
+  }
+
+  // ---------- render ----------
+  var resultEl = $("result");
+  var lastPrompt = "";
+
+  function fieldValue(k, key) {
+    if (key === "audience") return k.audience && k.audienceType ? k.audience : "";
+    return k[key];
+  }
+
+  function build() {
+    var k = collect();
+
+    // gate: claim required
+    var claimField = $("field-claim");
+    var claimErr = $("claim-err");
+    if (!k.claim) {
+      claimField.classList.add("invalid");
+      claimErr.classList.add("show");
+      $("claim").focus();
+      claimField.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    claimField.classList.remove("invalid");
+    claimErr.classList.remove("show");
+
+    var P = PLATFORMS[k.platform];
+
+    // completeness across 7 canonical fields
+    var filledKeys = {
+      pillar: !!k.pillar,
+      claim: !!k.claim,
+      evidence: !!k.evidence,
+      story: !!k.story,
+      audience: !!k.audienceType,
+      cta: !!k.cta,
+      bank: !!k.bank,
+    };
+    var filled = 0;
+    for (var key in filledKeys) if (filledKeys[key]) filled++;
+
+    var html = "";
+
+    // head: pillar + platform badges
+    html += '<div class="kernel-head">';
+    if (k.pillar) {
+      html += '<span class="pillar-badge">' + esc(k.pillar) + "</span>";
+    } else {
+      html += '<span class="pillar-badge none">필러 미태깅</span>';
+    }
+    html +=
+      '<span class="platform-badge">재단 대상: ' + esc(P.name) + "</span>";
+    html += "</div>";
+
+    // seed line
+    if (k.seed) {
+      html +=
+        '<p class="seed-line"><strong>원천 인사이트</strong> · ' +
+        esc(k.seed) +
+        "</p>";
+    }
+
+    // completeness meter (7 fields)
+    html += '<div class="meter" role="img" aria-label="7개 필드 중 ' + filled + '개 채움">';
+    for (var p = 0; p < 7; p++) {
+      html += '<span class="pip' + (p < filled ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html += '<p class="meter-caption">커널 충실도 ' + filled + " / 7 필드</p>";
+
+    // kv list
+    html += '<ul class="kv-list">';
+    KFIELDS.forEach(function (f) {
+      var v = fieldValue(k, f.key);
+      if (v && v.trim()) {
+        html += '<li class="kv">';
+        html += '<p class="kv-label">' + esc(f.label) + "</p>";
+        html += '<p class="kv-value">' + esc(v) + "</p>";
+        html += "</li>";
+      } else {
+        html += '<li class="kv blank">';
+        html += '<p class="kv-label">' + esc(f.label) + "</p>";
+        html += '<p class="kv-blank-note">비어 있음: ' + esc(f.blank) + "</p>";
+        html += "</li>";
+      }
+    });
+    html += "</ul>";
+
+    // no-fabrication reminder when numbers present
+    if (hasDigit(k.evidence) || hasDigit(k.bank)) {
+      html +=
+        '<div class="note-card warn"><strong>무날조 점검.</strong> 근거 또는 원자재 뱅크에 숫자가 있습니다. 실제 값은 정본에서 확인해 그대로 두고, 미확정 값은 [예시] 또는 [추정]으로 표기했는지 확인하세요.</div>';
+    }
+
+    // anonymization gate for field-note pillar
+    if (k.pillar === "언더백 경영 현장 인사이트") {
+      html +=
+        '<div class="note-card anon"><strong>익명화 게이트.</strong> 현장 노트 필러입니다. 발행 전 업종, 규모대, 시점, 수치 등 클라이언트 식별 정보가 안전하게 익명화됐는지 확인하세요.</div>';
+    }
+
+    // platform tailoring prompt
+    lastPrompt = buildPrompt(k);
+    html +=
+      '<div class="result-block-title">' +
+      esc(P.name) +
+      "로 재단할 프롬프트</div>";
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT나 Claude에 붙여넣으면, 이 커널을 바탕으로 ' +
+      esc(P.name) +
+      " 네이티브 초안을 재단해 줍니다.</p>";
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  $("build").addEventListener("click", build);
+
+  // clear inline error as the user types a claim
+  $("claim").addEventListener("input", function () {
+    if ($("claim").value.trim()) {
+      $("field-claim").classList.remove("invalid");
+      $("claim-err").classList.remove("show");
+    }
+  });
+
+  // ---------- reset ----------
+  $("reset").addEventListener("click", function () {
+    ["seed", "claim", "evidence", "story", "need", "cta", "bank"].forEach(
+      function (id) {
+        var el = $(id);
+        el.value = "";
+        if (el.tagName === "TEXTAREA") grow(el);
+      }
+    );
+    $("pillar").value = "";
+    var firstAud = document.querySelector('input[name="audience"]');
+    if (firstAud) firstAud.checked = true;
+    var firstPlat = document.querySelector('input[name="platform"]');
+    if (firstPlat) firstPlat.checked = true;
+    $("field-claim").classList.remove("invalid");
+    $("claim-err").classList.remove("show");
+    lastPrompt = "";
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◍</div>' +
+      "<p><strong>아직 커널이 없습니다.</strong></p>" +
+      "<p>필드를 채우고 '커널 만들기'를 누르세요.</p></div>";
+    $("seed-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- copy (3-tier fallback) + print ----------
+  function wireResultButtons() {
+    var copyBtn = $("copyBtn");
+    var printBtn = $("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = $("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text); // tier 3: manual modal
+    }
+  }
+
+  // ---------- manual modal ----------
+  var modal = $("modal");
+  var modalText = $("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  $("modal-close").addEventListener("click", closeModal);
+  $("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

@@ -1,0 +1,1276 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RACI 책임배분 매트릭스 빌더</title>
+<meta name="description" content="업무와 역할을 넣으면 R/A/C/I 매트릭스를 만들고 책임자 중복·공백을 경고합니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #3f5b8a;
+    --accent-strong: #324a73;
+    --accent-tint: #eef2f8;
+    --accent-tint-2: #dbe3f0;
+    --ink: #1f242f;
+    --ink-soft: #454c5a;
+    --ink-mute: #6a7180;
+    --paper: #f6f7fa;
+    --card: #ffffff;
+    --line: #e4e7ee;
+    --line-strong: #d2d7e1;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --danger: #b23a2c;
+    --danger-strong: #8f2b20;
+    --danger-tint: #fbeceb;
+    --danger-line: #f0d2cd;
+    --warn: #8a5a08;
+    --warn-tint: #fbf1dc;
+    --warn-line: #ecdbb4;
+    --shadow: 0 1px 2px rgba(31, 36, 47, 0.05), 0 6px 20px rgba(31, 36, 47, 0.07);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- legend ---------- */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 16px;
+  }
+  .lg {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    background: #fbfbfd;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 5px 9px 5px 6px;
+  }
+  .lg .tok {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+    flex: none;
+  }
+
+  /* value tokens (shared by builder cells + legend + view cells) */
+  .tok.v-R { background: #e6efe8; color: #256b46; border: 1px solid #cfe2d4; }
+  .tok.v-A { background: var(--accent); color: #fff; border: 1px solid var(--accent-strong); }
+  .tok.v-C { background: #f5edd9; color: #7c5810; border: 1px solid #e9d9b4; }
+  .tok.v-I { background: #eceff4; color: #4c5769; border: 1px solid #dde1ea; }
+
+  /* ---------- quick paste ---------- */
+  .quick {
+    border: 1px dashed var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    background: #fbfbfd;
+    margin-bottom: 16px;
+  }
+  .quick summary {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    cursor: pointer;
+    list-style: none;
+  }
+  .quick summary::-webkit-details-marker { display: none; }
+  .quick summary::before { content: "＋ "; color: var(--accent); font-weight: 800; }
+  .quick[open] summary::before { content: "－ "; }
+  .quick .qbody { margin-top: 12px; }
+  label.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 76px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.96rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 12px 13px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder { color: #a7aebb; }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 10px 0 0;
+  }
+
+  /* ---------- matrix builder ---------- */
+  .matrix-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--card);
+  }
+  table.matrix {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    min-width: max-content;
+  }
+  table.matrix th,
+  table.matrix td {
+    padding: 0;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+  }
+  table.matrix tr:last-child th,
+  table.matrix tr:last-child td { border-bottom: none; }
+  table.matrix th:last-child,
+  table.matrix td:last-child { border-right: none; }
+
+  .mx-corner,
+  .mx-rowhead {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--card);
+    box-shadow: 2px 0 0 var(--line);
+    min-width: 158px;
+    max-width: 230px;
+    text-align: left;
+  }
+  .mx-corner {
+    z-index: 3;
+    background: #f4f6fa;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    padding: 10px 12px;
+    vertical-align: bottom;
+  }
+  thead .mx-rolehead {
+    background: #f4f6fa;
+    padding: 8px;
+    min-width: 104px;
+    vertical-align: top;
+  }
+  .role-edit,
+  .task-edit {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .role-edit input,
+  .task-edit input {
+    width: 100%;
+    min-width: 0;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    padding: 9px 9px;
+  }
+  thead .role-edit input { font-weight: 700; text-align: center; }
+  .role-edit input:focus,
+  .task-edit input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-tint);
+  }
+  .mx-rowhead { padding: 8px; }
+  .mx-rowhead .rn {
+    flex: none;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--accent);
+    width: 18px;
+    text-align: center;
+  }
+  .btn-x {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--ink-mute);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    padding: 0;
+  }
+  .btn-x:hover { background: var(--danger-tint); color: var(--danger); }
+
+  td.mx-cell { text-align: center; padding: 4px; }
+  button.cell {
+    width: 100%;
+    min-width: 46px;
+    min-height: 44px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #fff;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #c2c8d2;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.04s, box-shadow 0.12s;
+    display: grid;
+    place-items: center;
+  }
+  button.cell:hover { box-shadow: 0 0 0 2px var(--accent-tint); }
+  button.cell:active { transform: translateY(1px); }
+  button.cell:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  button.cell.v-R { background: #e6efe8; color: #256b46; border-color: #cfe2d4; }
+  button.cell.v-A { background: var(--accent); color: #fff; border-color: var(--accent-strong); }
+  button.cell.v-C { background: #f5edd9; color: #7c5810; border-color: #e9d9b4; }
+  button.cell.v-I { background: #eceff4; color: #4c5769; border-color: #dde1ea; }
+  button.cell .plus { font-weight: 400; font-size: 1.1rem; opacity: 0.65; }
+
+  /* ---------- toolbar / actions ---------- */
+  .tool-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 14px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 18px;
+  }
+  button.btn {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button.btn:active { transform: translateY(1px); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 200px;
+  }
+  .btn-primary:hover { background: var(--accent-strong); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover { border-color: var(--ink-mute); color: var(--ink); }
+  .btn-sm { font-size: 0.9rem; padding: 9px 14px; border-radius: 9px; }
+
+  /* ---------- result ---------- */
+  #result { scroll-margin-top: 16px; }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big { font-size: 1.9rem; margin-bottom: 8px; }
+  .empty-state p { margin: 4px 0; font-size: 0.94rem; }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-good { background: var(--good-tint); border-color: var(--good-line); }
+  .verdict.tone-mixed { background: var(--warn-tint); border-color: var(--warn-line); }
+  .verdict.tone-danger { background: var(--danger-tint); border-color: var(--danger-line); }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.34rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-good .verdict-title { color: var(--good); }
+  .verdict.tone-mixed .verdict-title { color: #8a5a08; }
+  .verdict.tone-danger .verdict-title { color: var(--danger-strong); }
+  .verdict-desc { margin: 0; font-size: 0.96rem; color: var(--ink-soft); }
+
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
+  }
+  .stat {
+    flex: 1 1 auto;
+    min-width: 96px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 9px 12px;
+  }
+  .stat .num { font-size: 1.3rem; font-weight: 800; line-height: 1.1; }
+  .stat .cap { font-size: 0.78rem; color: var(--ink-mute); margin-top: 2px; }
+  .stat.bad .num { color: var(--danger); }
+  .stat.warn .num { color: var(--warn); }
+  .stat.ok .num { color: var(--good); }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  ul.issue-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .issue {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--ink-mute);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fbfbfd;
+  }
+  .issue.sev-danger { border-left-color: var(--danger); background: var(--danger-tint); }
+  .issue.sev-warn { border-left-color: var(--warn); background: var(--warn-tint); }
+  .issue.sev-info { border-left-color: var(--accent); background: var(--accent-tint); }
+  .issue .is-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 4px;
+  }
+  .issue .badge {
+    flex: none;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .issue.sev-danger .badge { background: var(--danger); color: #fff; }
+  .issue.sev-warn .badge { background: var(--warn); color: #fff; }
+  .issue.sev-info .badge { background: var(--accent); color: #fff; }
+  .issue .is-title { font-weight: 700; font-size: 0.97rem; margin: 0; }
+  .issue .is-fix { margin: 0; font-size: 0.89rem; color: var(--ink-soft); }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid var(--good-line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  /* view (result) matrix cells */
+  table.matrix.view .mx-rowhead,
+  table.matrix.view thead .mx-rolehead,
+  table.matrix.view .mx-corner { font-size: 0.86rem; }
+  table.matrix.view .rowname {
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 10px 12px;
+    display: block;
+  }
+  table.matrix.view .rolename {
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 9px 8px;
+    display: block;
+    text-align: center;
+  }
+  .vcell {
+    display: grid;
+    place-items: center;
+    min-width: 46px;
+    min-height: 40px;
+    margin: 4px;
+    border-radius: 7px;
+    font-size: 0.95rem;
+    font-weight: 800;
+  }
+  .vcell.blank { color: #c2c8d2; font-weight: 400; }
+  .row-flag {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--danger);
+  }
+
+  /* prompt / export box */
+  .prompt-wrap { position: relative; }
+  pre.prompt {
+    margin: 0;
+    background: #232833;
+    color: #eef1f6;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.85rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.93rem;
+    padding: 11px 16px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn-copy:hover { background: #000; }
+  .copy-status {
+    font-size: 0.87rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 36, 47, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 { margin: 0 0 6px; font-size: 1.05rem; }
+  .modal p { margin: 0 0 12px; font-size: 0.9rem; color: var(--ink-soft); }
+  .modal textarea { min-height: 170px; overflow-y: auto; }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src { font-weight: 700; color: var(--ink-soft); }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 1.44rem; }
+    .wrap { padding: 22px 14px 60px; }
+    .btn-primary { min-width: 100%; }
+    .mx-corner, .mx-rowhead { min-width: 132px; }
+  }
+
+  @media print {
+    body { background: #fff; }
+    .no-print, .quick, .tool-row, .actions, .copy-row { display: none !important; }
+    section.panel { box-shadow: none; border-color: #ccc; }
+    .matrix-scroll { overflow: visible; }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">책임배분 · RACI</span>
+    <h1>RACI 책임배분 매트릭스 빌더</h1>
+    <p class="lede">
+      업무(행)와 역할(열)을 넣고 각 칸에 R·A·C·I를 지정하면, 완성된 책임배분
+      매트릭스를 만들고 최종 책임자(A)의 중복·공백과 실무자(R) 공백을 자동으로
+      짚어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>매트릭스 작성</h2>
+    </div>
+    <p class="panel-sub">
+      역할(열) 이름을 적고, 업무(행)마다 각 역할의 관여 방식을 셀을 눌러
+      지정하세요. 셀을 누를 때마다 <strong>R → A → C → I → 공란</strong> 순서로
+      바뀝니다.
+    </p>
+
+    <div class="legend" aria-hidden="false">
+      <span class="lg"><span class="tok v-R">R</span>실무 담당 (Responsible)</span>
+      <span class="lg"><span class="tok v-A">A</span>최종 책임 (Accountable)</span>
+      <span class="lg"><span class="tok v-C">C</span>자문 (Consulted)</span>
+      <span class="lg"><span class="tok v-I">I</span>통보 (Informed)</span>
+    </div>
+
+    <details class="quick">
+      <summary>여러 업무를 한 번에 붙여넣기 (선택)</summary>
+      <div class="qbody">
+        <label class="field-label" for="bulk">업무 목록 (한 줄에 하나씩)</label>
+        <textarea
+          id="bulk"
+          placeholder="예)&#10;시장 조사&#10;제품 기획&#10;개발 착수&#10;출시 마케팅"
+        ></textarea>
+        <div class="tool-row">
+          <button class="btn btn-ghost btn-sm" id="bulkAdd" type="button">업무 행으로 추가</button>
+        </div>
+      </div>
+    </details>
+
+    <div class="matrix-scroll">
+      <table class="matrix" id="matrix-build" aria-label="RACI 입력 매트릭스"></table>
+    </div>
+
+    <div class="tool-row">
+      <button class="btn btn-ghost btn-sm" id="addTask" type="button">＋ 업무(행) 추가</button>
+      <button class="btn btn-ghost btn-sm" id="addRole" type="button">＋ 역할(열) 추가</button>
+      <button class="btn btn-ghost btn-sm" id="loadExample" type="button">예시 불러오기</button>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="generate" type="button">매트릭스 생성 · 검증</button>
+      <button class="btn btn-ghost" id="reset" type="button">초기화</button>
+    </div>
+    <p class="field-hint">
+      입력한 내용은 이 브라우저 안에서만 처리되며, 외부로 전송되거나 서버에
+      저장되지 않습니다.
+    </p>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>검증 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">▦</div>
+        <p><strong>아직 생성 전입니다.</strong></p>
+        <p>매트릭스를 채우고 '매트릭스 생성 · 검증'을 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> RACI 책임배분 모델 —
+      <strong>R</strong>(Responsible, 실무 담당) · <strong>A</strong>(Accountable,
+      최종 책임) · <strong>C</strong>(Consulted, 자문) ·
+      <strong>I</strong>(Informed, 통보). 핵심 규칙은 <em>한 과업당 A는 정확히
+      1명, R은 최소 1명</em>입니다. 이 검증은 그 규칙을 기준으로 합니다. RACI는
+      프로세스 청사진(업무 프로세스 정리, SP·EP 구조)에서 정리된 각 과업의 수행
+      주체를 명확히 하는 역할배분 도구로 쓰입니다.
+    </p>
+    <p>
+      이 도구는 책임 배분을 스스로 점검하도록 돕는 보조 도구이며, 조직의 R&amp;R을
+      대신 확정하지 않습니다. 감지된 경고는 다시 살펴볼 지점을 알려줄 뿐, 최종
+      판단은 맥락을 아는 담당자의 몫입니다.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn btn-primary" id="modal-select" type="button">전체 선택</button>
+      <button class="btn btn-ghost" id="modal-close" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // ---------- constants ----------
+  var CYCLE = ["", "R", "A", "C", "I"];
+  var VLABEL = { "": "미지정", R: "실무 담당", A: "최종 책임", C: "자문", I: "통보" };
+
+  // ---------- state ----------
+  var rid = 0, tid = 0;
+  function mkRole(name) { return { id: ++rid, name: name || "" }; }
+  function mkTask(name) { return { id: ++tid, name: name || "", cells: {} }; }
+
+  var roles = [];
+  var tasks = [];
+
+  function seedBlank() {
+    rid = 0; tid = 0;
+    roles = [mkRole(), mkRole(), mkRole()];
+    tasks = [mkTask(), mkTask(), mkTask()];
+  }
+  seedBlank();
+
+  // ---------- utils ----------
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+  function roleLabel(r, i) {
+    var n = (r.name || "").trim();
+    return n || "역할 " + (i + 1);
+  }
+  function taskLabel(t, n) {
+    var v = (t.name || "").trim();
+    return v || "업무 " + n;
+  }
+  function taskUsed(t) {
+    if ((t.name || "").trim()) return true;
+    for (var i = 0; i < roles.length; i++) {
+      if (t.cells[roles[i].id]) return true;
+    }
+    return false;
+  }
+
+  // ---------- builder render ----------
+  var buildEl = document.getElementById("matrix-build");
+
+  function renderBuilder() {
+    var h = "";
+    // header row
+    h += "<thead><tr>";
+    h += '<th class="mx-corner">업무 \\ 역할</th>';
+    roles.forEach(function (r, i) {
+      h += '<th class="mx-rolehead"><div class="role-edit">';
+      h += '<input type="text" data-act="rolename" data-role="' + r.id +
+        '" value="' + esc(r.name) + '" placeholder="역할 ' + (i + 1) +
+        '" aria-label="역할 ' + (i + 1) + ' 이름" />';
+      h += '<button class="btn-x" type="button" data-act="rmrole" data-role="' +
+        r.id + '" aria-label="역할 삭제" title="역할 삭제">×</button>';
+      h += "</div></th>";
+    });
+    h += "</tr></thead>";
+    // body rows
+    h += "<tbody>";
+    tasks.forEach(function (t, i) {
+      h += "<tr>";
+      h += '<th class="mx-rowhead" scope="row"><div class="task-edit">';
+      h += '<span class="rn" aria-hidden="true">' + (i + 1) + "</span>";
+      h += '<input type="text" data-act="taskname" data-task="' + t.id +
+        '" value="' + esc(t.name) + '" placeholder="업무 ' + (i + 1) +
+        '" aria-label="업무 ' + (i + 1) + ' 이름" />';
+      h += '<button class="btn-x" type="button" data-act="rmtask" data-task="' +
+        t.id + '" aria-label="업무 삭제" title="업무 삭제">×</button>';
+      h += "</div></th>";
+      roles.forEach(function (r, ri) {
+        var v = t.cells[r.id] || "";
+        var cls = "cell" + (v ? " v-" + v : "");
+        var inner = v ? v : '<span class="plus" aria-hidden="true">＋</span>';
+        var al = taskLabel(t, i + 1) + " / " + roleLabel(r, ri) + ": " + VLABEL[v];
+        h += '<td class="mx-cell"><button type="button" class="' + cls +
+          '" data-act="cell" data-task="' + t.id + '" data-role="' + r.id +
+          '" aria-label="' + esc(al) + '">' + inner + "</button></td>";
+      });
+      h += "</tr>";
+    });
+    h += "</tbody>";
+    buildEl.innerHTML = h;
+  }
+
+  // delegated: clicks (cells, remove buttons)
+  buildEl.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]");
+    if (!b) return;
+    var act = b.getAttribute("data-act");
+    if (act === "cell") {
+      var t = findTask(+b.getAttribute("data-task"));
+      var roleId = +b.getAttribute("data-role");
+      if (!t) return;
+      var cur = t.cells[roleId] || "";
+      var next = CYCLE[(CYCLE.indexOf(cur) + 1) % CYCLE.length];
+      if (next) t.cells[roleId] = next; else delete t.cells[roleId];
+      renderBuilder();
+    } else if (act === "rmrole") {
+      if (roles.length <= 1) return;
+      var ridDel = +b.getAttribute("data-role");
+      roles = roles.filter(function (r) { return r.id !== ridDel; });
+      tasks.forEach(function (t) { delete t.cells[ridDel]; });
+      renderBuilder();
+    } else if (act === "rmtask") {
+      if (tasks.length <= 1) return;
+      var tidDel = +b.getAttribute("data-task");
+      tasks = tasks.filter(function (t) { return t.id !== tidDel; });
+      renderBuilder();
+    }
+  });
+
+  // delegated: text input (no re-render, keep focus)
+  buildEl.addEventListener("input", function (e) {
+    var el = e.target;
+    var act = el.getAttribute && el.getAttribute("data-act");
+    if (act === "rolename") {
+      var r = findRole(+el.getAttribute("data-role"));
+      if (r) r.name = el.value;
+    } else if (act === "taskname") {
+      var t = findTask(+el.getAttribute("data-task"));
+      if (t) t.name = el.value;
+    }
+  });
+
+  function findRole(id) {
+    for (var i = 0; i < roles.length; i++) if (roles[i].id === id) return roles[i];
+    return null;
+  }
+  function findTask(id) {
+    for (var i = 0; i < tasks.length; i++) if (tasks[i].id === id) return tasks[i];
+    return null;
+  }
+
+  // ---------- toolbar ----------
+  document.getElementById("addTask").addEventListener("click", function () {
+    tasks.push(mkTask());
+    renderBuilder();
+  });
+  document.getElementById("addRole").addEventListener("click", function () {
+    roles.push(mkRole());
+    renderBuilder();
+  });
+
+  var bulk = document.getElementById("bulk");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  bulk.addEventListener("input", function () { grow(bulk); });
+  document.getElementById("bulkAdd").addEventListener("click", function () {
+    var lines = bulk.value.split(/\n/).map(function (s) { return s.trim(); })
+      .filter(function (s) { return s.length; });
+    if (!lines.length) return;
+    // fill blank existing task rows first, then append
+    lines.forEach(function (name) {
+      var blank = null;
+      for (var i = 0; i < tasks.length; i++) {
+        if (!taskUsed(tasks[i])) { blank = tasks[i]; break; }
+      }
+      if (blank) blank.name = name; else tasks.push(mkTask(name));
+    });
+    bulk.value = "";
+    grow(bulk);
+    renderBuilder();
+  });
+
+  document.getElementById("loadExample").addEventListener("click", function () {
+    rid = 0; tid = 0;
+    roles = [mkRole("PM"), mkRole("개발팀"), mkRole("마케팅팀"), mkRole("대표")];
+    var rPM = roles[0].id, rDev = roles[1].id, rMk = roles[2].id, rCEO = roles[3].id;
+    tasks = [];
+    function T(name, map) { var t = mkTask(name); t.cells = map; tasks.push(t); }
+    var m1 = {}; m1[rPM] = "A"; m1[rDev] = "R"; m1[rMk] = "C"; m1[rCEO] = "I"; T("제품 기획", m1);
+    var m2 = {}; m2[rDev] = "R"; m2[rPM] = "A"; m2[rMk] = "I"; m2[rCEO] = "I"; T("개발 착수", m2);
+    var m3 = {}; m3[rMk] = "R"; m3[rPM] = "A"; m3[rDev] = "C"; m3[rCEO] = "I"; T("출시 마케팅", m3);
+    var m4 = {}; m4[rCEO] = "A"; m4[rPM] = "R"; m4[rDev] = "C"; m4[rMk] = "C"; T("최종 출시 승인", m4);
+    renderBuilder();
+    document.getElementById("input-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  document.getElementById("reset").addEventListener("click", function () {
+    seedBlank();
+    renderBuilder();
+    bulk.value = "";
+    grow(bulk);
+    resultEl.innerHTML = emptyHTML();
+    document.getElementById("input-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- generate + validate ----------
+  var resultEl = document.getElementById("result");
+  var lastCSV = "", lastText = "", lastPrompt = "";
+
+  function emptyHTML() {
+    return '<div class="empty-state"><div class="big" aria-hidden="true">▦</div>' +
+      "<p><strong>아직 생성 전입니다.</strong></p>" +
+      "<p>매트릭스를 채우고 '매트릭스 생성 · 검증'을 누르세요.</p></div>";
+  }
+
+  document.getElementById("generate").addEventListener("click", function () {
+    var included = [];
+    tasks.forEach(function (t, i) {
+      if (taskUsed(t)) included.push({ t: t, label: taskLabel(t, i + 1) });
+    });
+
+    if (!included.length) {
+      resultEl.innerHTML =
+        '<div class="clean-note">아직 검증할 업무가 없습니다. 업무(행) 이름을 적거나 R·A·C·I를 한 칸이라도 지정한 뒤 다시 생성하세요.</div>';
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var roleLabels = roles.map(function (r, i) { return roleLabel(r, i); });
+
+    // per-task analysis
+    var issues = []; // {sev, title, fix}
+    var problemTasks = 0, rGapTasks = 0;
+    included.forEach(function (row) {
+      var aCount = 0, rCount = 0;
+      roles.forEach(function (r) {
+        var v = row.t.cells[r.id];
+        if (v === "A") aCount++;
+        if (v === "R") rCount++;
+      });
+      row.aCount = aCount;
+      row.rCount = rCount;
+      var hasProblem = false;
+      if (aCount === 0) {
+        issues.push({
+          sev: "danger",
+          badge: "책임자 공백",
+          title: "'" + row.label + "' 업무에 최종 책임자(A)가 없습니다.",
+          fix: "이 업무를 끝까지 책임질 단 한 사람을 A로 지정하세요. A가 없으면 완수를 책임지는 사람이 비어 있어, 문제가 생겨도 아무도 책임지지 않습니다."
+        });
+        hasProblem = true;
+      } else if (aCount >= 2) {
+        issues.push({
+          sev: "danger",
+          badge: "책임자 중복",
+          title: "'" + row.label + "' 업무에 최종 책임자(A)가 " + aCount + "명입니다.",
+          fix: "A는 과업당 정확히 1명이어야 합니다. 책임이 둘 이상으로 나뉘면 의사결정이 지연되고 서로 미루기 쉽습니다. 한 명만 A로 남기고 나머지는 R 또는 C로 바꾸세요."
+        });
+        hasProblem = true;
+      }
+      if (rCount === 0) {
+        issues.push({
+          sev: "warn",
+          badge: "실무자 공백",
+          title: "'" + row.label + "' 업무에 실무 담당자(R)가 없습니다.",
+          fix: "실제로 일을 수행할 사람을 최소 1명 R로 지정하세요. R이 없으면 실행 주체가 비어 있어, 승인권자는 있어도 굴러가지 않습니다."
+        });
+        rGapTasks++;
+        hasProblem = true;
+      }
+      if (aCount >= 1 && aCount !== 2 && rCount >= 1) { /* healthy */ }
+      if (hasProblem && (row.aCount === 0 || row.aCount >= 2)) problemTasks++;
+    });
+
+    // roles never involved
+    roles.forEach(function (r, i) {
+      var used = included.some(function (row) { return !!row.t.cells[r.id]; });
+      if (!used) {
+        issues.push({
+          sev: "info",
+          badge: "미관여 역할",
+          title: "'" + roleLabels[i] + "' 역할은 어떤 업무에도 배정되지 않았습니다.",
+          fix: "이 역할이 정말 필요한지, 혹은 누락된 배정이 있는지 확인하세요. 불필요하면 열에서 지우고, 관여한다면 해당 업무에 R·A·C·I를 지정하세요."
+        });
+      }
+    });
+
+    // order: danger, warn, info
+    var order = { danger: 0, warn: 1, info: 2 };
+    issues.sort(function (a, b) { return order[a.sev] - order[b.sev]; });
+
+    var dangerCount = issues.filter(function (x) { return x.sev === "danger"; }).length;
+    var warnCount = issues.filter(function (x) { return x.sev === "warn"; }).length;
+
+    // verdict tone
+    var tone, vlabel, vtitle, vdesc;
+    if (dangerCount > 0) {
+      tone = "danger";
+      vlabel = "검증 완료 · 조치 필요";
+      vtitle = "책임 배분에 " + dangerCount + "건의 문제가 있습니다";
+      vdesc = "최종 책임자(A)의 공백 또는 중복이 감지되었습니다. 아래 경고를 먼저 해결하면 책임 소재가 분명해집니다.";
+    } else if (warnCount > 0) {
+      tone = "mixed";
+      vlabel = "검증 완료 · 확인 권장";
+      vtitle = "대체로 정상, 실무 배정만 점검하세요";
+      vdesc = "최종 책임자(A)는 모두 1명씩 정해졌습니다. 다만 실무 담당자(R)가 비어 있는 업무가 있어 실행 주체를 확인해야 합니다.";
+    } else {
+      tone = "good";
+      vlabel = "검증 완료";
+      vtitle = "모든 업무의 책임 배분이 명확합니다";
+      vdesc = "각 업무에 최종 책임자(A) 1명과 실무 담당자(R)가 갖춰졌습니다. 아래 매트릭스를 CSV·텍스트로 내보내 공유하세요.";
+    }
+
+    // ----- build outputs -----
+    lastCSV = buildCSV(included, roleLabels);
+    lastText = buildText(included, roleLabels, issues);
+    lastPrompt = buildPrompt(included, roleLabels, issues);
+
+    // ----- render -----
+    var html = "";
+    html += '<div class="verdict tone-' + tone + '">';
+    html += '<p class="verdict-label">' + esc(vlabel) + "</p>";
+    html += '<p class="verdict-title">' + esc(vtitle) + "</p>";
+    html += '<p class="verdict-desc">' + esc(vdesc) + "</p>";
+    html += '<div class="stat-row">';
+    html += '<div class="stat"><div class="num">' + included.length + '</div><div class="cap">검증한 업무</div></div>';
+    html += '<div class="stat ' + (dangerCount ? "bad" : "ok") + '"><div class="num">' + dangerCount + '</div><div class="cap">책임자 공백·중복</div></div>';
+    html += '<div class="stat ' + (warnCount ? "warn" : "ok") + '"><div class="num">' + warnCount + '</div><div class="cap">실무자 공백</div></div>';
+    html += "</div></div>";
+
+    // issues
+    html += '<div class="result-block-title">점검 결과</div>';
+    if (!issues.length) {
+      html += '<p class="clean-note">감지된 경고가 없습니다. 각 업무에 최종 책임자(A) 1명과 실무 담당자(R)가 모두 지정되어, 책임 소재가 분명한 매트릭스입니다.</p>';
+    } else {
+      html += '<ul class="issue-list">';
+      issues.forEach(function (it) {
+        html += '<li class="issue sev-' + it.sev + '">';
+        html += '<div class="is-head"><span class="badge">' + esc(it.badge) + "</span>";
+        html += '<p class="is-title">' + esc(it.title) + "</p></div>";
+        html += '<p class="is-fix">' + esc(it.fix) + "</p>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // completed matrix
+    html += '<div class="result-block-title">완성 매트릭스</div>';
+    html += buildViewTable(included, roleLabels);
+
+    // export
+    html += '<div class="result-block-title">내보내기</div>';
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyCsv" type="button">CSV 복사</button>';
+    html += '<button class="btn-copy" id="copyText" type="button">표 텍스트 복사</button>';
+    html += '<button class="btn btn-ghost btn-sm" id="printBtn" type="button">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="exportStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    // AI prompt
+    html += '<div class="result-block-title">AI 검토 프롬프트</div>';
+    html += '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 매트릭스의 책임 배분을 함께 검토해 줍니다.</p>';
+    html += '<div class="prompt-wrap"><pre class="prompt" id="promptText">' + esc(lastPrompt) + "</pre></div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyPrompt" type="button">프롬프트 복사</button>';
+    html += '<span class="copy-status" id="promptStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---------- view table ----------
+  function buildViewTable(included, roleLabels) {
+    var h = '<div class="matrix-scroll"><table class="matrix view">';
+    h += "<thead><tr><th class=\"mx-corner\">업무 \\ 역할</th>";
+    roleLabels.forEach(function (rl) {
+      h += '<th class="mx-rolehead"><span class="rolename">' + esc(rl) + "</span></th>";
+    });
+    h += "</tr></thead><tbody>";
+    included.forEach(function (row) {
+      var flag = "";
+      if (row.aCount === 0) flag = '<span class="row-flag">A 없음</span>';
+      else if (row.aCount >= 2) flag = '<span class="row-flag">A ' + row.aCount + "명</span>";
+      else if (row.rCount === 0) flag = '<span class="row-flag" style="color:var(--warn)">R 없음</span>';
+      h += "<tr><th class=\"mx-rowhead\" scope=\"row\"><span class=\"rowname\">" +
+        esc(row.label) + flag + "</span></th>";
+      roles.forEach(function (r) {
+        var v = row.t.cells[r.id] || "";
+        var cls = "vcell" + (v ? " v-" + v : " blank");
+        var inner = v ? v : "·";
+        h += '<td class="mx-cell"><span class="' + cls + '">' + inner + "</span></td>";
+      });
+      h += "</tr>";
+    });
+    h += "</tbody></table></div>";
+    return h;
+  }
+
+  // ---------- exports ----------
+  function csvCell(s) {
+    s = String(s == null ? "" : s);
+    if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+  function buildCSV(included, roleLabels) {
+    var rows = [];
+    rows.push(["업무"].concat(roleLabels).map(csvCell).join(","));
+    included.forEach(function (row) {
+      var line = [row.label];
+      roles.forEach(function (r) { line.push(row.t.cells[r.id] || ""); });
+      rows.push(line.map(csvCell).join(","));
+    });
+    return rows.join("\r\n");
+  }
+  function buildText(included, roleLabels, issues) {
+    var L = [];
+    L.push("RACI 책임배분 매트릭스");
+    L.push("역할: " + roleLabels.join(" · "));
+    L.push("(R=실무 담당, A=최종 책임, C=자문, I=통보)");
+    L.push("");
+    included.forEach(function (row, i) {
+      L.push((i + 1) + ". " + row.label);
+      var any = false;
+      roles.forEach(function (r, ri) {
+        var v = row.t.cells[r.id];
+        if (v) { L.push("   - " + roleLabels[ri] + ": " + v + " (" + VLABEL[v] + ")"); any = true; }
+      });
+      if (!any) L.push("   - (배정 없음)");
+    });
+    L.push("");
+    if (issues.length) {
+      L.push("[점검 결과]");
+      issues.forEach(function (it) { L.push("- [" + it.badge + "] " + it.title); });
+    } else {
+      L.push("[점검 결과] 경고 없음 — 각 업무에 A 1명과 R이 모두 지정됨");
+    }
+    return L.join("\n");
+  }
+  function buildPrompt(included, roleLabels, issues) {
+    var L = [];
+    L.push("당신은 조직 R&R과 RACI 책임배분에 밝은 실무 코치입니다.");
+    L.push("아래는 제가 작성한 RACI 책임배분 매트릭스입니다. (R=실무 담당, A=최종 책임, C=자문, I=통보)");
+    L.push("");
+    L.push("【역할】");
+    L.push(roleLabels.join(" · "));
+    L.push("");
+    L.push("【업무별 배분】");
+    included.forEach(function (row, i) {
+      var parts = [];
+      roles.forEach(function (r, ri) {
+        var v = row.t.cells[r.id];
+        if (v) parts.push(roleLabels[ri] + ":" + v);
+      });
+      L.push((i + 1) + ". " + row.label + " — " + (parts.length ? parts.join(", ") : "(배정 없음)"));
+    });
+    L.push("");
+    L.push("【자가 점검에서 감지된 이슈】");
+    if (issues.length) {
+      issues.forEach(function (it) { L.push("- [" + it.badge + "] " + it.title); });
+    } else {
+      L.push("- 없음 (각 업무에 A 1명과 R이 모두 지정됨)");
+    }
+    L.push("");
+    L.push("【요청 사항】");
+    L.push("1. 각 업무의 A(최종 책임)가 정확히 1명인지, R(실무)이 최소 1명 있는지 다시 확인해 주세요.");
+    L.push("2. 책임이 겹치거나 비어 있는 지점, 그리고 한 사람에게 A가 지나치게 몰려 병목이 될 위험을 짚어 주세요.");
+    L.push("3. C(자문)와 I(통보)가 과도해 의사결정이 느려질 소지가 있는지 봐 주세요.");
+    L.push("4. 근거 없이 역할을 지어내지 말고, 배분이 애매하면 저에게 상황을 되물어 주세요.");
+    L.push("5. 결론을 대신 확정하지 말고, 먼저 관찰과 질문을 제시한 뒤 개선안을 비교용으로 제안해 주세요.");
+    return L.join("\n");
+  }
+
+  // ---------- copy (3-tier) ----------
+  function wireResultButtons() {
+    var cCsv = document.getElementById("copyCsv");
+    var cText = document.getElementById("copyText");
+    var cPrompt = document.getElementById("copyPrompt");
+    var pBtn = document.getElementById("printBtn");
+    if (cCsv) cCsv.addEventListener("click", function () { copyText(lastCSV, "exportStatus", "CSV가 복사되었습니다"); });
+    if (cText) cText.addEventListener("click", function () { copyText(lastText, "exportStatus", "표 텍스트가 복사되었습니다"); });
+    if (cPrompt) cPrompt.addEventListener("click", function () { copyText(lastPrompt, "promptStatus", "프롬프트가 복사되었습니다"); });
+    if (pBtn) pBtn.addEventListener("click", function () { window.print(); });
+  }
+  function flashStatus(id, msg) {
+    var s = document.getElementById(id);
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () { if (s) s.textContent = ""; }, 2600);
+  }
+  function copyText(text, statusId, okMsg) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () { flashStatus(statusId, okMsg); },
+        function () { legacyCopy(text, statusId, okMsg); }
+      );
+      return;
+    }
+    legacyCopy(text, statusId, okMsg);
+  }
+  function legacyCopy(text, statusId, okMsg) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    if (ok) flashStatus(statusId, okMsg);
+    else openModal(text);
+  }
+
+  // ---------- manual modal ----------
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () { modalText.focus(); modalText.select(); }, 60);
+  }
+  function closeModal() { modal.classList.remove("open"); }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+
+  // ---------- init ----------
+  renderBuilder();
+</script>

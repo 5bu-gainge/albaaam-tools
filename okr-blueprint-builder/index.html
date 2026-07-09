@@ -1,0 +1,1711 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OKR 설계도 빌더</title>
+<meta
+  name="description"
+  content="O·KR·이니셔티브를 채우면 배운다/검토한다 같은 죽은 서술어와 측정 불가 KR을 자동 적발한다"
+/>
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #1f7a6b;
+    --accent-strong: #185f54;
+    --accent-tint: #e8f3f0;
+    --accent-tint-2: #d3e8e2;
+    --ink: #1c211f;
+    --ink-soft: #414642;
+    --ink-mute: #636965;
+    --paper: #f5f8f7;
+    --card: #ffffff;
+    --line: #e2e8e5;
+    --line-strong: #cfd8d3;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --good-line: #cfe4d8;
+    --warn: #9a5713;
+    --warn-tint: #fbf0e0;
+    --warn-line: #eeddc2;
+    --bad: #b23b3b;
+    --bad-tint: #fbeceb;
+    --bad-line: #f2d3d1;
+    --shadow: 0 1px 2px rgba(28, 33, 31, 0.05), 0 6px 20px rgba(28, 33, 31, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- fields ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  label.field-label .opt {
+    font-weight: 600;
+    color: var(--ink-mute);
+    font-size: 0.84rem;
+  }
+  label.field-label .req {
+    color: var(--accent-strong);
+    font-size: 0.84rem;
+    font-weight: 700;
+  }
+  textarea,
+  input.txt {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fbfdfc;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 52px;
+    resize: none;
+    overflow: hidden;
+    display: block;
+  }
+  textarea.tall {
+    min-height: 84px;
+  }
+  textarea:focus,
+  input.txt:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder,
+  input.txt::placeholder {
+    color: #9aa4a0;
+  }
+  .kr-field {
+    margin-bottom: 14px;
+  }
+  .kr-field:last-of-type {
+    margin-bottom: 0;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- initiatives ---------- */
+  #initList {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .init-row {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfdfc;
+    padding: 12px 12px;
+  }
+  .init-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 9px;
+    flex-wrap: wrap;
+  }
+  select {
+    font-family: inherit;
+    font-size: 0.92rem;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 10px 12px;
+    min-height: 44px;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .init-del {
+    flex: none;
+    background: transparent;
+    color: var(--ink-mute);
+    border: 1px solid var(--line-strong);
+    min-height: 44px;
+  }
+  .init-del:hover {
+    border-color: var(--bad);
+    color: var(--bad);
+  }
+  #addInit {
+    margin-top: 14px;
+    background: transparent;
+    color: var(--accent-strong);
+    border: 1px dashed var(--accent-tint-2);
+    width: 100%;
+  }
+  #addInit:hover {
+    background: var(--accent-tint);
+    border-style: solid;
+  }
+
+  /* ---------- buttons ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 4px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s, color 0.15s;
+    min-height: 44px;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+  .notice {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: var(--accent-strong);
+    font-size: 0.94rem;
+    font-weight: 600;
+  }
+
+  /* summary band */
+  .summary {
+    border-radius: 14px;
+    padding: 18px 18px;
+    margin-bottom: 20px;
+    border: 1px solid var(--line);
+  }
+  .summary.tone-green {
+    background: var(--good-tint);
+    border-color: var(--good-line);
+  }
+  .summary.tone-amber {
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .summary.tone-red {
+    background: var(--bad-tint);
+    border-color: var(--bad-line);
+  }
+  .summary-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .summary-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .summary.tone-green .summary-title {
+    color: var(--good);
+  }
+  .summary.tone-amber .summary-title {
+    color: var(--warn);
+  }
+  .summary.tone-red .summary-title {
+    color: var(--bad);
+  }
+  .summary-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #dfe6e2;
+  }
+  .pip.g-green {
+    background: var(--good);
+  }
+  .pip.g-amber {
+    background: var(--warn);
+  }
+  .pip.g-red {
+    background: var(--bad);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 24px 0 12px;
+  }
+
+  /* objective card */
+  .obj-card {
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 15px 16px;
+    background: #fff;
+  }
+  .obj-card .oc-text {
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0 0 8px;
+  }
+  .obj-card .oc-note {
+    margin: 6px 0 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .obj-ok {
+    color: var(--good);
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  /* KR cards */
+  .kr-card {
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--line-strong);
+    border-radius: 13px;
+    padding: 15px 16px;
+    background: #fff;
+    margin-bottom: 14px;
+  }
+  .kr-card.g-green {
+    border-left-color: var(--good);
+  }
+  .kr-card.g-amber {
+    border-left-color: var(--warn);
+  }
+  .kr-card.g-red {
+    border-left-color: var(--bad);
+  }
+  .kr-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    margin-bottom: 9px;
+  }
+  .kr-tag {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .badge {
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: #fff;
+    padding: 3px 11px;
+    border-radius: 999px;
+    flex: none;
+  }
+  .badge.b-green {
+    background: var(--good);
+  }
+  .badge.b-amber {
+    background: var(--warn);
+  }
+  .badge.b-red {
+    background: var(--bad);
+  }
+  .kr-text {
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0 0 11px;
+    color: var(--ink);
+  }
+  ul.issues {
+    list-style: none;
+    margin: 0 0 4px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  ul.issues li {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  ul.issues li .ico {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    display: grid;
+    place-items: center;
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: #fff;
+    margin-top: 2px;
+  }
+  li.iss-bad .ico {
+    background: var(--bad);
+  }
+  li.iss-warn .ico {
+    background: var(--warn);
+  }
+  li.iss-good .ico {
+    background: var(--good);
+  }
+  li .iss-b {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .rewrite {
+    margin-top: 12px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    border-radius: 10px;
+    padding: 12px 13px;
+  }
+  .rewrite .rw-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--accent-strong);
+    letter-spacing: 0.02em;
+    margin: 0 0 6px;
+  }
+  .rewrite .rw-diag {
+    margin: 0 0 7px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .rewrite .rw-skel {
+    margin: 0;
+    font-size: 0.93rem;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .coach {
+    margin-top: 11px;
+    padding-left: 0;
+    list-style: none;
+  }
+  .coach .cch-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--ink-mute);
+    letter-spacing: 0.02em;
+    margin: 0 0 6px;
+  }
+  .coach ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .coach ul li {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin-bottom: 5px;
+  }
+
+  /* coverage */
+  .cov-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .cov-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 13px;
+    background: #fff;
+    font-size: 0.92rem;
+  }
+  .cov-item .cov-badge {
+    flex: none;
+    font-size: 0.74rem;
+    font-weight: 800;
+    padding: 2px 9px;
+    border-radius: 999px;
+    margin-top: 1px;
+  }
+  .cov-item.cov-ok .cov-badge {
+    background: var(--good-tint);
+    color: var(--good);
+  }
+  .cov-item.cov-miss .cov-badge {
+    background: var(--warn-tint);
+    color: var(--warn);
+  }
+  .cov-item .cov-body {
+    min-width: 0;
+  }
+  .cov-item .cov-body b {
+    color: var(--ink);
+  }
+  .init-verdict {
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 12px 14px;
+    background: #fff;
+    margin-bottom: 11px;
+  }
+  .init-verdict.g-green {
+    border-left-color: var(--good);
+  }
+  .init-verdict.g-amber {
+    border-left-color: var(--warn);
+  }
+  .init-verdict .iv-text {
+    font-weight: 600;
+    font-size: 0.96rem;
+    margin: 0 0 8px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #21302c;
+    color: #eef4f1;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.85rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(28, 33, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+    .init-controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .init-del {
+      width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #obj-panel,
+    #kr-panel,
+    #init-panel,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">OKR 진단 · 성과제목 · 핵심결과 · 이니셔티브</span>
+    <h1>OKR 설계도 빌더</h1>
+    <p class="lede">
+      성과제목, 핵심결과, 이니셔티브를 채우면 &lsquo;배운다 · 검토한다 ·
+      강화한다&rsquo; 같은 죽은 서술어와 측정 기준이 없는 핵심결과를 자동으로
+      짚어 드립니다. 잘 작성한 목표는 성과를 낳는 설계도입니다.
+    </p>
+  </header>
+
+  <section class="panel" id="obj-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>성과제목 (Objective)</h2>
+    </div>
+    <p class="panel-sub">
+      이 기간에 만들고 싶은 의미 있는 변화 한 줄. 방향을 담은 정성적 문장이며,
+      숫자는 다음 단계인 핵심결과가 맡습니다.
+    </p>
+    <label class="field-label" for="obj"
+      >성과제목 <span class="opt">(미래 모습 + 접근 방안, 서술어로 종결)</span></label
+    >
+    <textarea
+      id="obj"
+      class="tall"
+      placeholder="예) 문의 분류 시스템과 AI 챗봇을 도입하여 고객 문의에 즉시 응답하게 한다"
+    ></textarea>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="kr-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>핵심결과 (Key Results) · 최대 3개</h2>
+    </div>
+    <p class="panel-sub">
+      성과제목 달성 여부를 판단할 측정 기준. 수치 · 비율 · 기한이 있어야 하고,
+      &lsquo;결과 상태&rsquo;여야 합니다. 활동 서술어로 끝나면 경고합니다.
+    </p>
+
+    <div class="kr-field">
+      <label class="field-label" for="kr0"
+        >핵심결과 1 <span class="req">필수</span></label
+      >
+      <textarea
+        id="kr0"
+        placeholder="예) 고객 문의 평균 응답 시간 24시간 → 2시간"
+      ></textarea>
+    </div>
+    <div class="kr-field">
+      <label class="field-label" for="kr1"
+        >핵심결과 2 <span class="opt">선택</span></label
+      >
+      <textarea
+        id="kr1"
+        placeholder="예) AI 챗봇 12/20까지 구축 완료"
+      ></textarea>
+    </div>
+    <div class="kr-field">
+      <label class="field-label" for="kr2"
+        >핵심결과 3 <span class="opt">선택</span></label
+      >
+      <textarea
+        id="kr2"
+        placeholder="예) 고객 만족도 3.2점 → 4.0점"
+      ></textarea>
+    </div>
+  </section>
+
+  <section class="panel" id="init-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>이니셔티브 (Initiatives)</h2>
+    </div>
+    <p class="panel-sub">
+      &lsquo;[행동]을 해서 [결과/지식]을 얻는다&rsquo; 형태의 가설 기반 실행.
+      각 이니셔티브가 어떤 핵심결과를 진척시키는지 연결하세요.
+    </p>
+    <div id="initList"></div>
+    <button id="addInit" type="button">+ 이니셔티브 추가</button>
+
+    <div class="actions" style="margin-top: 20px">
+      <button class="btn-primary" id="diagnose">설계도 진단하기</button>
+      <button class="btn-ghost" id="example">예시로 채우기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 4</span>
+      <h2>진단 결과</h2>
+    </div>
+    <div id="result" aria-live="polite">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◔</div>
+        <p><strong>아직 진단 전입니다.</strong></p>
+        <p>
+          성과제목과 핵심결과를 입력하고 &lsquo;설계도 진단하기&rsquo;를 누르세요.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 가인지 OKR 코칭 프레임워크의 핵심결과
+      4원칙(① 정량 중심 ② 결과 중심 ③ 도전과 현실의 균형 ④ 성과제목과 정렬),
+      이니셔티브의 &lsquo;[행동]을 해서 [결과]를 얻는다&rsquo; 가설형 구조, 그리고
+      &lsquo;배운다 · 이해한다 · 파악한다 · 검토한다&rsquo; 류의 추상 서술어를
+      결과가 아닌 활동으로 보는 &lsquo;서술어 방어막&rsquo; 개념을 정본으로
+      삼았습니다.
+    </p>
+    <p>
+      이 도구는 정규식 기반의 규칙 점검기로 사고를 돕는 보조 도구이며, 목표의
+      옳고 그름을 대신 확정해 주지 않습니다. 결과는 스스로 다듬을 재료로
+      활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div
+  class="modal-back"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>
+      자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해
+      주세요.
+    </p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  /* ---------------------------------------------------------------
+   * 죽은 서술어(활동 동사) 사전 — 결과가 아닌 '활동'으로 끝나는 표현.
+   * 근거: okr-coach SKILL.md "추상 표현 금지(서술어 방어막)" 표
+   *   (배우기/이해하기, 파악/인지, 고려/검토, 준비/계획)
+   *   + 요청된 활동 동사(노력·개선·강화·추진) + 동류 방향 동사(향상·확대).
+   * ------------------------------------------------------------- */
+  var DEAD = [
+    {
+      re: /배운다|배우기|배우고|배워|배울|배우려|학습(한다|하기|하고|하여|해)/,
+      label: "배운다/학습한다",
+      note: "학습은 행동·적용 없이 끝나기 쉽고, 달성 여부를 증명할 수 없습니다.",
+    },
+    {
+      re: /이해(한다|하기|하고|하여|해|할)/,
+      label: "이해한다",
+      note: "이해했는지는 겉으로 드러나지 않아 완료를 판정할 수 없습니다.",
+    },
+    {
+      re: /파악(한다|하기|하고|하여|해|할)/,
+      label: "파악한다",
+      note: "파악은 후속 행동으로 전환되지 않고 멈추기 쉽습니다.",
+    },
+    {
+      re: /인지(한다|하기|하고|하여|할)/,
+      label: "인지한다",
+      note: "인지는 결과가 아니라 상태라 측정하기 어렵습니다.",
+    },
+    {
+      re: /검토(한다|하기|하고|하여|해|할)/,
+      label: "검토한다",
+      note: "검토는 의사결정 없이 끝날 수 있는 회피형 표현입니다.",
+    },
+    {
+      re: /고려(한다|하기|하고|하여|해|할)/,
+      label: "고려한다",
+      note: "고려만으로는 무엇도 실행되지 않습니다.",
+    },
+    {
+      re: /준비(한다|하기|하고|하여|해|할)/,
+      label: "준비한다",
+      note: "준비만 반복하면 언제 실행할지 알 수 없습니다.",
+    },
+    {
+      re: /계획(한다|하기|하고|하여|해|할|을 세)/,
+      label: "계획한다",
+      note: "계획 자체는 산출이 아니라 실행 직전 단계입니다.",
+    },
+    {
+      re: /노력(한다|하기|하고|하여|해|할)/,
+      label: "노력한다",
+      note: "노력은 투입일 뿐 결과가 아니라, 달성 기준이 될 수 없습니다.",
+    },
+    {
+      re: /개선(한다|하기|하고|하여|해|할|시)/,
+      label: "개선한다",
+      note: "무엇이 얼마나 좋아졌는지 수치로 못 박지 않으면 판정할 수 없습니다.",
+    },
+    {
+      re: /강화(한다|하기|하고|하여|해|할|시)/,
+      label: "강화한다",
+      note: "강화는 방향일 뿐, 도달 지점을 수치로 지정해야 결과가 됩니다.",
+    },
+    {
+      re: /추진(한다|하기|하고|하여|해|할)/,
+      label: "추진한다",
+      note: "추진은 활동의 시작일 뿐 완료 상태를 말해주지 않습니다.",
+    },
+    {
+      re: /향상(한다|하기|하고|하여|해|할|시)/,
+      label: "향상한다",
+      note: "향상은 방향 표현이라 목표 수치가 없으면 결과가 아닙니다.",
+    },
+    {
+      re: /확대(한다|하기|하고|하여|해|할)/,
+      label: "확대한다",
+      note: "얼마까지 확대인지 수치가 없으면 완료를 판정할 수 없습니다.",
+    },
+  ];
+
+  /* 측정 가능성 정규식 */
+  var NUM_RE = /[0-9０-９]/; // 반각 + 전각 숫자
+  var UNIT_RE = /(%|％|퍼센트|퍼센트포인트|%p|원|명|건|점|개|회|배|시간|분|일|주|개월|달|년|위|억|만|천|kg|㎏|톤|㎡|초|명당|건당|시)/;
+  var DEADLINE_RE = /(\d{1,4}\s*[\/\-]\s*\d{1,2})|(\d{1,2}\s*월)|(\d{1,2}\s*일)|(\d{1,2}\s*주)|(분기|반기|상반기|하반기|월말|연말|주말|말까지|까지|이내|마감|[Qq][1-4])/;
+  var FROMTO_RE = /→|->|=>|~>/;
+
+  function findDead(text) {
+    var hits = [];
+    for (var i = 0; i < DEAD.length; i++) {
+      if (DEAD[i].re.test(text)) hits.push(DEAD[i]);
+    }
+    return hits;
+  }
+
+  /* ---------- KR grading ---------- */
+  function gradeKR(raw) {
+    var t = (raw || "").trim();
+    if (!t) return { grade: "empty" };
+    var dead = findDead(t);
+    var hasNum = NUM_RE.test(t);
+    var hasUnit = UNIT_RE.test(t);
+    var hasDeadline = DEADLINE_RE.test(t);
+    var fromTo = FROMTO_RE.test(t) || (/~/.test(t) && hasNum);
+
+    var issues = [];
+    if (!hasNum) issues.push("measure");
+    if (dead.length) issues.push("dead");
+
+    var grade;
+    if (!hasNum) grade = "red";
+    else if (dead.length) grade = "amber";
+    else grade = "green";
+
+    var notes = [];
+    if (hasNum && !hasDeadline && grade !== "red") notes.push("deadline");
+
+    return {
+      grade: grade,
+      dead: dead,
+      hasNum: hasNum,
+      hasUnit: hasUnit,
+      hasDeadline: hasDeadline,
+      fromTo: fromTo,
+      issues: issues,
+      notes: notes,
+    };
+  }
+
+  /* 결과 문구에서 주어(지표 후보) 추출 — 고쳐쓰기 골격에 사용 */
+  function extractSubject(raw, dead) {
+    var s = raw || "";
+    for (var i = 0; i < dead.length; i++) s = s.replace(dead[i].re, " ");
+    // 대표적 서술어 꼬리·조사 제거
+    s = s.replace(
+      /(하기|한다|하는|하여|해서|시킨다|시키기|시켜|을|를|이|가|은|는|에|의|로|으로|와|과)\s*$/,
+      ""
+    );
+    s = s.replace(/[\s.,·]+$/g, "").trim();
+    if (s.length < 2) return "";
+    return s;
+  }
+
+  function rewriteKR(raw, res) {
+    if (res.grade === "green") return null;
+    var diag = [];
+    if (res.issues.indexOf("dead") >= 0) {
+      var verbs = res.dead
+        .map(function (d) {
+          return d.label.split("/")[0];
+        })
+        .join(", ");
+      diag.push("활동 서술어(" + verbs + ")를 '달라진 결과 상태'로 바꾸세요.");
+    }
+    if (res.issues.indexOf("measure") >= 0) {
+      diag.push("측정 기준(수치·비율·기한)이 없어 달성 여부를 판정할 수 없습니다.");
+    }
+    var subject = extractSubject(raw, res.dead);
+    var skel;
+    if (subject) {
+      skel =
+        "「" +
+        subject +
+        "」 → 예: “" +
+        subject +
+        " [현재값] → [목표값] ([기한]까지)” 또는 “[관련 산출물] [기한]까지 완료”";
+    } else {
+      skel =
+        "예: “[지표] [현재값] → [목표값] ([기한]까지)” 또는 “[산출물] [기한]까지 완료”";
+    }
+    return { diag: diag.join(" "), skel: skel };
+  }
+
+  function coachKR(res) {
+    var qs = [];
+    if (res.issues.indexOf("measure") >= 0) {
+      qs.push(
+        "어떤 숫자가 바뀌면 이 목표가 달성됐다고 할 수 있을까요? 숫자로 잡기 어렵다면 진도형(시도 횟수), 간접 지표(반응률), 형용사 기반(상대의 반응) 중 하나로 바꿔 보세요."
+      );
+    }
+    if (res.issues.indexOf("dead") >= 0) {
+      qs.push("이 활동이 끝나면 무엇이 달라지나요? 그 '달라진 상태'를 결과로 적으세요.");
+    }
+    if (res.notes.indexOf("deadline") >= 0) {
+      qs.push("언제까지 달성인가요? 기한을 함께 못 박으면 판정이 분명해집니다.");
+    }
+    if (res.grade === "green") {
+      qs.push("이 핵심결과를 달성하면 성과제목이 그만큼 완성되나요? (정렬 점검)");
+    }
+    return qs;
+  }
+
+  /* ---------- Objective grading ---------- */
+  function gradeObjective(raw) {
+    var t = (raw || "").trim();
+    if (!t) return { grade: "empty" };
+    var endsPredicate = /(다|자|요)["'”’)\]\s.!?]*$/.test(t);
+    var sentences = t.split(/[.!?\n]+/).filter(function (x) {
+      return x.trim().length > 0;
+    });
+    var multi = sentences.length > 1;
+    var issues = [];
+    if (!endsPredicate) issues.push("predicate");
+    if (multi) issues.push("multi");
+    return {
+      grade: issues.length ? "amber" : "green",
+      endsPredicate: endsPredicate,
+      multi: multi,
+      issues: issues,
+    };
+  }
+
+  /* ---------- Initiative grading ---------- */
+  function gradeInit(raw, link, krFilled) {
+    var t = (raw || "").trim();
+    if (!t) return { grade: "empty" };
+    var issues = [];
+    var linked = link !== "" && link !== "none";
+    var linkEmpty = linked && !krFilled[parseInt(link, 10)];
+    if (!linked) issues.push("unlinked");
+    else if (linkEmpty) issues.push("linkEmpty");
+    var hyp = /(해서|하여|통해|함으로써|으로써|를 통해|을 통해)/.test(t);
+    if (!hyp) issues.push("form");
+    var dead = findDead(t);
+    if (dead.length) issues.push("deadYield");
+    return {
+      grade: issues.length ? "amber" : "green",
+      issues: issues,
+      dead: dead,
+      linked: linked,
+    };
+  }
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+  var GRADE_KO = { green: "통과", amber: "주의", red: "위험" };
+
+  function issueText(res) {
+    var out = [];
+    if (res.issues.indexOf("measure") >= 0) out.push("측정 불가");
+    if (res.issues.indexOf("dead") >= 0)
+      out.push(
+        "활동 서술어(" +
+          res.dead
+            .map(function (d) {
+              return d.label.split("/")[0];
+            })
+            .join("·") +
+          ")"
+      );
+    return out.join(", ");
+  }
+
+  function linkLabel(link, krFilled) {
+    if (link === "" || link === "none") return "연결 안 됨";
+    var i = parseInt(link, 10);
+    return "핵심결과 " + (i + 1) + (krFilled[i] ? "" : " (비어 있음)");
+  }
+
+  /* =========================================================
+   * DOM wiring
+   * ======================================================= */
+  var objEl = document.getElementById("obj");
+  var krEls = [
+    document.getElementById("kr0"),
+    document.getElementById("kr1"),
+    document.getElementById("kr2"),
+  ];
+  var initList = document.getElementById("initList");
+  var resultEl = document.getElementById("result");
+
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  function bindGrow(el) {
+    el.addEventListener("input", function () {
+      grow(el);
+    });
+  }
+  bindGrow(objEl);
+  krEls.forEach(bindGrow);
+
+  var INIT_OPTIONS =
+    '<option value="">연결할 핵심결과 선택...</option>' +
+    '<option value="0">핵심결과 1</option>' +
+    '<option value="1">핵심결과 2</option>' +
+    '<option value="2">핵심결과 3</option>' +
+    '<option value="none">아직 연결 안 함</option>';
+
+  function addInitRow(text, link) {
+    var row = document.createElement("div");
+    row.className = "init-row";
+    row.innerHTML =
+      '<textarea class="init-text" placeholder="예) 문의 데이터를 분석해서, 자주 묻는 20개 유형을 분류 체계로 정리한다"></textarea>' +
+      '<div class="init-controls">' +
+      '<select class="init-link" aria-label="연결할 핵심결과">' +
+      INIT_OPTIONS +
+      "</select>" +
+      '<button type="button" class="init-del">삭제</button>' +
+      "</div>";
+    initList.appendChild(row);
+    var ta = row.querySelector(".init-text");
+    if (text) {
+      ta.value = text;
+    }
+    bindGrow(ta);
+    if (text) grow(ta);
+    if (link != null) row.querySelector(".init-link").value = link;
+    row.querySelector(".init-del").addEventListener("click", function () {
+      row.remove();
+    });
+    return row;
+  }
+
+  // seed two initiative rows
+  addInitRow();
+  addInitRow();
+
+  document.getElementById("addInit").addEventListener("click", function () {
+    var r = addInitRow();
+    r.querySelector(".init-text").focus();
+  });
+
+  /* ---------- diagnose ---------- */
+  var lastPrompt = "";
+
+  function buildPrompt(obj, krVals, krRes, initData, krFilled) {
+    var L = [];
+    L.push(
+      "당신은 성과제목(Objective)·핵심결과(Key Results)·이니셔티브(Initiatives) 프레임워크에 정통한 OKR 코치입니다."
+    );
+    L.push(
+      "아래 초안을 '살아 숨 쉬는 목표 설계도'로 끌어올리도록 코칭해 주세요. 강의하지 말고, 제 표현을 최대한 살려 제안형으로 도와주세요."
+    );
+    L.push("");
+    L.push(
+      "[핵심결과 4원칙] (1) 정량 중심(수치·비율·기한) (2) 결과 중심(행동이 아닌 결과) (3) 도전과 현실의 균형 (4) 성과제목과 정렬"
+    );
+    L.push(
+      "[이니셔티브 형식] '[행동]을 해서 [결과/지식]을 얻는다' — 배운다/이해한다/파악한다/검토한다 같은 활동 서술어로 끝내지 않기"
+    );
+    L.push("");
+    L.push("■ 성과제목(Objective)");
+    L.push(obj.trim() ? obj.trim() : "(비어 있음 — 방향을 담은 한 문장으로 먼저 세워 주세요)");
+    L.push("");
+    L.push("■ 핵심결과(Key Results) — 자가 진단 결과 포함");
+    var anyKR = false;
+    for (var i = 0; i < 3; i++) {
+      if (!krFilled[i]) continue;
+      anyKR = true;
+      var r = krRes[i];
+      var tag = "[진단: " + GRADE_KO[r.grade];
+      if (r.issues.length) tag += " / " + issueText(r);
+      tag += "]";
+      L.push(i + 1 + ". " + krVals[i].trim() + "  " + tag);
+    }
+    if (!anyKR) L.push("(아직 없음 — 성과제목을 판정할 측정 기준을 세워 주세요)");
+    L.push("");
+    L.push("■ 이니셔티브(Initiatives)");
+    if (initData.length) {
+      initData.forEach(function (x, idx) {
+        L.push(
+          idx + 1 + ". " + x.text.trim() + "  [연결: " + linkLabel(x.link, krFilled) + "]"
+        );
+      });
+    } else {
+      L.push("(아직 없음)");
+    }
+    L.push("");
+    L.push("[요청]");
+    L.push(
+      "1. '측정 불가'로 표시된 핵심결과를 '[지표] [현재값] → [목표값] ([기한])' 또는 '[산출물] [기한]까지 완료' 형태로 다시 써 주세요. 제 문구를 살려 2~3개 안을 제시하고 고르게 해 주세요."
+    );
+    L.push(
+      "2. 활동 서술어(개선/강화/추진/검토/파악/이해 등)로 끝나는 핵심결과는 '달라진 결과 상태'로 바꿔 주세요."
+    );
+    L.push(
+      "3. 각 이니셔티브가 어떤 핵심결과를 진척시키는지 연결하고, '…을 해서 …을 얻는다' 가설형으로 다듬어 주세요. 연결 안 된 이니셔티브가 있으면 지적해 주세요."
+    );
+    L.push(
+      "4. 정렬을 점검해 주세요: 이 핵심결과를 모두 달성하면 성과제목이 완성되나요? 빠진 결과가 있으면 물어봐 주세요."
+    );
+    L.push("5. 없는 수치나 사실을 지어내지 말고, 모르면 저에게 물어 주세요.");
+    return L.join("\n");
+  }
+
+  function krCardHTML(idx, raw, res) {
+    var t = raw.trim();
+    var cls = "kr-card g-" + res.grade;
+    var h = '<div class="' + cls + '">';
+    h +=
+      '<div class="kr-head"><span class="kr-tag">핵심결과 ' +
+      (idx + 1) +
+      '</span><span class="badge b-' +
+      res.grade +
+      '">' +
+      GRADE_KO[res.grade] +
+      "</span></div>";
+    h += '<p class="kr-text">' + esc(t) + "</p>";
+
+    // issues
+    h += '<ul class="issues">';
+    if (res.issues.indexOf("measure") >= 0) {
+      h +=
+        '<li class="iss-bad"><span class="ico" aria-hidden="true">!</span><span><span class="iss-b">측정 불가.</span> 숫자·비율·기한이 없어 달성 여부를 판정할 수 없습니다. (원칙 ① 정량 중심)</span></li>';
+    }
+    if (res.dead && res.dead.length) {
+      res.dead.forEach(function (d) {
+        h +=
+          '<li class="iss-warn"><span class="ico" aria-hidden="true">!</span><span><span class="iss-b">활동 서술어 &lsquo;' +
+          esc(d.label) +
+          "&rsquo;.</span> " +
+          esc(d.note) +
+          " (원칙 ② 결과 중심)</span></li>";
+      });
+    }
+    if (res.notes.indexOf("deadline") >= 0) {
+      h +=
+        '<li class="iss-warn"><span class="ico" aria-hidden="true">~</span><span><span class="iss-b">기한 없음.</span> 수치는 있으나 언제까지인지 없습니다. 기한을 붙이면 더 분명해집니다.</span></li>';
+    }
+    if (res.grade === "green") {
+      var okmsg = "측정 가능한 결과형 핵심결과입니다.";
+      if (res.fromTo) okmsg += " 현재→목표 변화가 드러나 좋습니다.";
+      h +=
+        '<li class="iss-good"><span class="ico" aria-hidden="true">✓</span><span><span class="iss-b">양호.</span> ' +
+        okmsg +
+        "</span></li>";
+    }
+    h += "</ul>";
+
+    // rewrite
+    var rw = rewriteKR(t, res);
+    if (rw) {
+      h += '<div class="rewrite">';
+      h += '<p class="rw-label">고쳐 쓰기 제안</p>';
+      if (rw.diag) h += '<p class="rw-diag">' + esc(rw.diag) + "</p>";
+      h += '<p class="rw-skel">' + esc(rw.skel) + "</p>";
+      h += "</div>";
+    }
+
+    // coaching
+    var qs = coachKR(res);
+    if (qs.length) {
+      h += '<div class="coach"><p class="cch-label">코칭 질문</p><ul>';
+      qs.forEach(function (q) {
+        h += "<li>" + esc(q) + "</li>";
+      });
+      h += "</ul></div>";
+    }
+
+    h += "</div>";
+    return h;
+  }
+
+  function runDiagnose() {
+    var obj = objEl.value;
+    var krVals = [krEls[0].value, krEls[1].value, krEls[2].value];
+    var krFilled = krVals.map(function (v) {
+      return v.trim().length > 0;
+    });
+
+    var initRows = Array.prototype.slice.call(
+      initList.querySelectorAll(".init-row")
+    );
+    var initData = initRows
+      .map(function (r) {
+        return {
+          text: r.querySelector(".init-text").value,
+          link: r.querySelector(".init-link").value,
+        };
+      })
+      .filter(function (x) {
+        return x.text.trim().length > 0;
+      });
+
+    // require at least objective or one KR
+    if (!obj.trim() && !krFilled.some(Boolean)) {
+      resultEl.innerHTML =
+        '<div class="notice">성과제목이나 핵심결과를 하나 이상 입력한 뒤 진단하세요.</div>';
+      resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    var objRes = gradeObjective(obj);
+    var krRes = krVals.map(gradeKR);
+    var initRes = initData.map(function (x) {
+      return { text: x.text, link: x.link, res: gradeInit(x.text, x.link, krFilled) };
+    });
+
+    // ---- overall summary (based on filled KRs) ----
+    var filledIdx = [];
+    for (var i = 0; i < 3; i++) if (krFilled[i]) filledIdx.push(i);
+    var counts = { green: 0, amber: 0, red: 0 };
+    filledIdx.forEach(function (i) {
+      counts[krRes[i].grade]++;
+    });
+    var tone, sTitle, sDesc;
+    if (filledIdx.length === 0) {
+      tone = "amber";
+      sTitle = "핵심결과가 아직 없습니다";
+      sDesc =
+        "성과제목만으로는 달성 여부를 판정할 수 없습니다. 이 목표가 이뤄졌는지 알려줄 측정 기준(핵심결과)을 최소 1개 세우세요.";
+    } else if (counts.red > 0) {
+      tone = "red";
+      sTitle = "측정할 수 없는 핵심결과가 있습니다";
+      sDesc =
+        "숫자·기한이 빠졌거나 활동 서술어로 끝나 '했는지 안 했는지' 판정할 수 없는 핵심결과가 있습니다. 아래 카드의 고쳐 쓰기 제안대로 결과 상태로 바꾸세요.";
+    } else if (counts.amber > 0) {
+      tone = "amber";
+      sTitle = "거의 다 왔습니다, 문구만 다듬으세요";
+      sDesc =
+        "측정은 가능하나 활동 서술어가 섞여 있거나 기한이 흐릿합니다. 결과 상태로 문장을 정리하면 살아 있는 설계도가 됩니다.";
+    } else {
+      tone = "green";
+      sTitle = "측정 가능한 핵심결과입니다";
+      sDesc =
+        "모든 핵심결과가 결과 중심으로 측정 가능합니다. 마지막으로 '이 핵심결과를 다 이루면 성과제목이 완성되는가'만 점검하세요.";
+    }
+
+    var html = "";
+    html += '<div class="summary tone-' + tone + '">';
+    html += '<p class="summary-label">진단 요약</p>';
+    html += '<p class="summary-title">' + esc(sTitle) + "</p>";
+    html += '<p class="summary-desc">' + esc(sDesc) + "</p>";
+    if (filledIdx.length) {
+      html +=
+        '<div class="meter" role="img" aria-label="핵심결과 ' +
+        filledIdx.length +
+        "개 중 통과 " +
+        counts.green +
+        "개">";
+      filledIdx.forEach(function (i) {
+        html += '<span class="pip g-' + krRes[i].grade + '"></span>';
+      });
+      html += "</div>";
+      html +=
+        '<p class="meter-caption">핵심결과 ' +
+        filledIdx.length +
+        "개 · 통과 " +
+        counts.green +
+        " / 주의 " +
+        counts.amber +
+        " / 위험 " +
+        counts.red +
+        "</p>";
+    }
+    html += "</div>";
+
+    // ---- objective ----
+    if (obj.trim()) {
+      html += '<div class="result-block-title">성과제목</div>';
+      html += '<div class="obj-card">';
+      html += '<p class="oc-text">' + esc(obj.trim()) + "</p>";
+      if (objRes.grade === "green") {
+        html +=
+          '<p class="obj-ok">✓ 방향을 담아 서술어로 끝나는 한 문장입니다. 숫자는 핵심결과가 맡으니 성과제목은 이대로 방향을 지키세요.</p>';
+      } else {
+        if (objRes.issues.indexOf("predicate") >= 0) {
+          html +=
+            '<p class="oc-note">• 서술어로 끝나지 않습니다. 명사로 멈추지 말고 &lsquo;…한다&rsquo;처럼 방향을 담은 문장으로 끝맺으세요. (예: &lsquo;…을 확대한다&rsquo;)</p>';
+        }
+        if (objRes.issues.indexOf("multi") >= 0) {
+          html +=
+            '<p class="oc-note">• 두 문장 이상입니다. 성과제목은 집중을 위해 한 문장으로 좁히고, 나머지는 핵심결과나 이니셔티브로 내려보내세요.</p>';
+        }
+      }
+      html += "</div>";
+    }
+
+    // ---- KR cards ----
+    if (filledIdx.length) {
+      html += '<div class="result-block-title">핵심결과 진단</div>';
+      filledIdx.forEach(function (i) {
+        html += krCardHTML(i, krVals[i], krRes[i]);
+      });
+    }
+
+    // ---- initiatives ----
+    if (initRes.length) {
+      html += '<div class="result-block-title">이니셔티브 진단</div>';
+      initRes.forEach(function (x) {
+        var r = x.res;
+        html += '<div class="init-verdict g-' + r.grade + '">';
+        html += '<p class="iv-text">' + esc(x.text.trim()) + "</p>";
+        html += '<ul class="issues">';
+        if (r.issues.indexOf("unlinked") >= 0) {
+          html +=
+            '<li class="iss-warn"><span class="ico" aria-hidden="true">!</span><span><span class="iss-b">연결된 핵심결과 없음.</span> 이니셔티브는 반드시 어떤 핵심결과를 진척시켜야 합니다. 위에서 연결할 핵심결과를 지정하세요.</span></li>';
+        }
+        if (r.issues.indexOf("linkEmpty") >= 0) {
+          html +=
+            '<li class="iss-warn"><span class="ico" aria-hidden="true">!</span><span><span class="iss-b">비어 있는 핵심결과에 연결됨.</span> 지정한 핵심결과 칸이 비어 있습니다. 핵심결과를 먼저 채우거나 다른 결과에 연결하세요.</span></li>';
+        }
+        if (r.issues.indexOf("form") >= 0) {
+          html +=
+            '<li class="iss-warn"><span class="ico" aria-hidden="true">~</span><span><span class="iss-b">가설형 구조가 약합니다.</span> &lsquo;[행동]을 해서 [결과/지식]을 얻는다&rsquo; 형태로 쓰면 왜 이 시도가 결과로 이어지는지가 드러납니다.</span></li>';
+        }
+        if (r.issues.indexOf("deadYield") >= 0) {
+          html +=
+            '<li class="iss-warn"><span class="ico" aria-hidden="true">!</span><span><span class="iss-b">활동 서술어(' +
+            esc(
+              r.dead
+                .map(function (d) {
+                  return d.label.split("/")[0];
+                })
+                .join("·")
+            ) +
+            ')가 있습니다.</span> 이니셔티브의 최종 산출이 &lsquo;배움/검토&rsquo;로 끝나지 않도록, 남는 가시적 결과물(문서·도식·리포트 등)을 명시하세요.</span></li>";
+        }
+        if (r.grade === "green") {
+          html +=
+            '<li class="iss-good"><span class="ico" aria-hidden="true">✓</span><span><span class="iss-b">양호.</span> 핵심결과에 연결된 가설형 실행입니다.</span></li>';
+        }
+        html += "</ul></div>";
+      });
+
+      // coverage
+      if (filledIdx.length) {
+        html += '<div class="result-block-title">정렬 · 연결 점검</div>';
+        html += '<ul class="cov-list">';
+        filledIdx.forEach(function (i) {
+          var cnt = initRes.filter(function (x) {
+            return x.link === String(i);
+          }).length;
+          var ok = cnt > 0;
+          html +=
+            '<li class="cov-item ' +
+            (ok ? "cov-ok" : "cov-miss") +
+            '"><span class="cov-badge">' +
+            (ok ? "연결 " + cnt : "미연결") +
+            '</span><span class="cov-body">' +
+            "<b>핵심결과 " +
+            (i + 1) +
+            "</b> · " +
+            esc(krVals[i].trim()) +
+            (ok
+              ? ""
+              : "<br>이 핵심결과를 진척시킬 이니셔티브가 없습니다. 실행이 없으면 결과도 없습니다.") +
+            "</span></li>";
+        });
+        html += "</ul>";
+      }
+    }
+
+    // ---- AI prompt ----
+    lastPrompt = buildPrompt(obj, krVals, krRes, initData, krFilled);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 진단을 바탕으로 핵심결과와 이니셔티브를 함께 다듬어 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html +=
+      '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("diagnose").addEventListener("click", runDiagnose);
+
+  /* ---------- example ---------- */
+  document.getElementById("example").addEventListener("click", function () {
+    objEl.value =
+      "문의 분류 시스템과 AI 챗봇을 도입하여 고객 문의에 즉시 응답하게 한다";
+    krEls[0].value = "고객 문의 평균 응답 시간 24시간 → 2시간";
+    krEls[1].value = "AI 챗봇 12/20까지 구축 완료";
+    krEls[2].value = "고객 응대 역량을 강화한다";
+    grow(objEl);
+    krEls.forEach(grow);
+    // rebuild initiatives
+    initList.innerHTML = "";
+    addInitRow(
+      "문의 데이터를 분석해서, 자주 묻는 20개 유형을 분류 체계로 정리한다",
+      "0"
+    );
+    addInitRow(
+      "FAQ 기반 챗봇 시나리오를 시범 도입해서, 응답시간 단축 효과를 검증한다",
+      "1"
+    );
+    addInitRow("경쟁사 CS 사례를 검토한다", "none");
+    runDiagnose();
+  });
+
+  /* ---------- reset ---------- */
+  document.getElementById("reset").addEventListener("click", function () {
+    objEl.value = "";
+    grow(objEl);
+    krEls.forEach(function (el) {
+      el.value = "";
+      grow(el);
+    });
+    initList.innerHTML = "";
+    addInitRow();
+    addInitRow();
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+      "<p><strong>아직 진단 전입니다.</strong></p>" +
+      "<p>성과제목과 핵심결과를 입력하고 '설계도 진단하기'를 누르세요.</p></div>";
+    document.getElementById("obj-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  /* ---------- copy (3-tier fallback) + print ---------- */
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  /* ---------- manual modal ---------- */
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>
