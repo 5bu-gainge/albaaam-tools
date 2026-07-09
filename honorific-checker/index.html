@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>존댓말 일관성·호칭 검사기</title>
+<meta name="description" content="한국어 이메일·메시지에서 해요체와 합쇼체가 섞였거나 호칭이 흔들리는 지점을 규칙 기반으로 짚어줍니다. 설치·서버·AI 호출 없이 브라우저에서 바로 동작합니다." />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+  :root{
+    /* Warm, professional single-accent palette */
+    --accent:#c2410c;          /* terracotta 700 */
+    --accent-strong:#9a3412;   /* terracotta 800 */
+    --accent-soft:#fff2ec;     /* warm tint surface */
+    --ink:#26201c;             /* near-black warm ink */
+    --ink-2:#57534e;           /* stone 600 secondary (AA on white) */
+    --ink-3:#78716c;           /* stone 500 muted (still >=4.5 on white) */
+    --paper:#fffdfb;           /* warm off-white page */
+    --card:#ffffff;
+    --line:#eadfd8;            /* warm hairline */
+    --line-2:#e0d5cd;
+    /* Style category tints (dark ink sits on these -> AA safe) */
+    --hap:#1d4ed8;             /* 합쇼체 blue */
+    --hap-bg:#e8effc;
+    --hae:#047857;             /* 해요체 green */
+    --hae-bg:#e6f5ee;
+    --ban:#b91c1c;             /* 반말 red */
+    --ban-bg:#fdeaea;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(38,32,28,.05),0 8px 28px rgba(38,32,28,.07);
+    word-break:keep-all;
+    overflow-wrap:break-word;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    word-break:keep-all;
+    overflow-wrap:break-word;
+    font-family:"Pretendard Variable",Pretendard,system-ui,-apple-system,"Malgun Gothic","Apple SD Gothic Neo","Segoe UI",Roboto,sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    line-height:1.65;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 72px;}
+
+  header.top{padding:14px 2px 6px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:13px;font-weight:700;color:var(--accent-strong);
+    background:var(--accent-soft);border:1px solid #f6d9cb;
+    padding:5px 11px;border-radius:999px;letter-spacing:-.01em;
+  }
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
+  h1{
+    font-size:clamp(24px,5.4vw,32px);line-height:1.28;margin:14px 0 8px;
+    letter-spacing:-.02em;font-weight:800;color:var(--ink);
+  }
+  .lede{font-size:clamp(15px,3.4vw,17px);color:var(--ink-2);margin:0;max-width:60ch;}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:18px 16px;margin-top:20px;
+  }
+  .field-label{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 2px 8px;}
+  .field-label b{font-size:15px;font-weight:700;color:var(--ink);}
+  .field-label .hint{font-size:12.5px;color:var(--ink-3);font-weight:500;}
+
+  textarea#src{
+    width:100%;min-height:150px;resize:none;overflow:hidden;
+    font-family:inherit;font-size:16px;line-height:1.7;color:var(--ink);
+    background:#fffdfb;border:1.5px solid var(--line-2);border-radius:12px;
+    padding:14px 14px;transition:border-color .15s,box-shadow .15s;
+    word-break:keep-all;overflow-wrap:break-word;
+  }
+  textarea#src::placeholder{color:#b6aaa1;}
+  textarea#src:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(194,65,12,.14);}
+
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px;}
+  .seg{display:flex;flex-direction:column;gap:5px;flex:1 1 190px;min-width:170px;}
+  .seg > span{font-size:12.5px;font-weight:600;color:var(--ink-2);margin-left:2px;}
+  select#target{
+    appearance:none;-webkit-appearance:none;
+    font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);
+    background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 12px center;
+    border:1.5px solid var(--line-2);border-radius:11px;padding:12px 38px 12px 13px;width:100%;
+    min-height:46px;cursor:pointer;
+  }
+  select#target:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(194,65,12,.14);}
+
+  .btn-row{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;flex:2 1 260px;}
+  .btn{
+    font-family:inherit;font-size:15.5px;font-weight:700;letter-spacing:-.01em;
+    border-radius:11px;padding:12px 18px;min-height:46px;cursor:pointer;
+    border:1.5px solid transparent;transition:transform .06s,background .15s,border-color .15s;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--accent);color:#fff;flex:1 1 auto;box-shadow:0 2px 8px rgba(194,65,12,.25);}
+  .btn-primary:hover{background:var(--accent-strong);}
+  .btn-ghost{background:#fff;color:var(--ink-2);border-color:var(--line-2);}
+  .btn-ghost:hover{border-color:var(--ink-3);color:var(--ink);}
+  .btn-link{background:none;border:none;color:var(--accent-strong);font-weight:600;font-size:14px;cursor:pointer;padding:6px 4px;text-decoration:underline;text-underline-offset:3px;}
+
+  /* ===== states ===== */
+  .state{margin-top:22px;}
+  .empty{
+    text-align:center;color:var(--ink-3);border:1.5px dashed var(--line-2);
+    border-radius:var(--radius);padding:34px 20px;background:#fffdfb;
+  }
+  .empty .big{font-size:15px;color:var(--ink-2);font-weight:600;margin:0 0 4px;}
+  .empty .sm{font-size:13.5px;margin:0;}
+
+  .loading{display:flex;align-items:center;gap:11px;justify-content:center;color:var(--ink-2);padding:30px;font-weight:600;}
+  .spinner{width:20px;height:20px;border:2.5px solid var(--line-2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ===== result ===== */
+  .verdict{
+    display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;
+    padding:15px 16px;border-radius:12px;border:1px solid var(--line);margin-bottom:16px;
+  }
+  .verdict.clean{background:var(--hae-bg);border-color:#bfe6d2;}
+  .verdict.warn{background:var(--accent-soft);border-color:#f6d0bf;}
+  .verdict .vmark{font-size:20px;line-height:1;}
+  .verdict .vtext{font-size:15.5px;font-weight:700;color:var(--ink);}
+  .verdict .vsub{flex-basis:100%;font-size:13.5px;color:var(--ink-2);font-weight:500;}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;
+    padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink-2);
+  }
+  .chip .cd{width:9px;height:9px;border-radius:50%;flex:none;}
+  .chip b{color:var(--ink);font-weight:800;}
+
+  .panel-h{font-size:13px;font-weight:700;color:var(--ink-2);text-transform:none;margin:20px 2px 9px;letter-spacing:.01em;}
+
+  .highlight{
+    background:#fffdfb;border:1px solid var(--line);border-radius:12px;
+    padding:15px 15px;font-size:15.5px;line-height:2.05;white-space:pre-wrap;
+    word-break:keep-all;overflow-wrap:break-word;
+  }
+  .sx{border-radius:5px;padding:1px 2px;box-decoration-break:clone;-webkit-box-decoration-break:clone;}
+  .sx-hap{background:var(--hap-bg);}
+  .sx-hae{background:var(--hae-bg);}
+  .sx-ban{background:var(--ban-bg);}
+  .sx.flag{box-shadow:inset 0 -2px 0 0 var(--accent);}
+
+  .issues{display:flex;flex-direction:column;gap:10px;}
+  .issue{
+    border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;
+    background:#fff;padding:12px 14px;
+  }
+  .issue .itag{
+    display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.02em;
+    padding:2px 8px;border-radius:6px;margin-bottom:7px;
+  }
+  .itag.mix{background:var(--accent-soft);color:var(--accent-strong);}
+  .itag.hon{background:#eef1f5;color:#3f4753;}
+  .itag.ban{background:var(--ban-bg);color:var(--ban);}
+  .issue .iquote{
+    font-size:14.5px;color:var(--ink);background:#fbf6f3;border-radius:7px;
+    padding:7px 10px;margin:2px 0 8px;line-height:1.6;
+  }
+  .issue .ifix{font-size:14px;color:var(--ink-2);}
+  .issue .ifix b{color:var(--ink);}
+  .issue .ifix .to{color:var(--accent-strong);font-weight:700;}
+  .issue .isugg{
+    margin-top:7px;font-size:14px;color:var(--ink);
+    background:var(--hae-bg);border-radius:7px;padding:6px 10px;
+  }
+  .issue .isugg .lab{font-weight:700;color:var(--hae);font-size:12px;margin-right:6px;}
+
+  .none-good{font-size:14.5px;color:var(--ink-2);background:var(--hae-bg);border:1px solid #bfe6d2;border-radius:10px;padding:12px 14px;}
+
+  .result-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+  .copied-note{font-size:13px;color:var(--hae);font-weight:700;align-self:center;}
+
+  .legend{display:flex;flex-wrap:wrap;gap:12px;margin:10px 2px 0;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2);font-weight:600;}
+  .legend i{width:13px;height:13px;border-radius:4px;display:inline-block;}
+
+  footer.foot{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-3);line-height:1.7;}
+  footer.foot b{color:var(--ink-2);}
+
+  /* ===== manual-copy modal ===== */
+  .modal-back{
+    position:fixed;inset:0;background:rgba(38,32,28,.5);display:none;
+    align-items:center;justify-content:center;padding:18px;z-index:50;
+  }
+  .modal-back.on{display:flex;}
+  .modal{
+    background:#fff;border-radius:14px;max-width:560px;width:100%;padding:20px 18px;
+    box-shadow:0 20px 60px rgba(0,0,0,.3);
+  }
+  .modal h3{margin:0 0 6px;font-size:17px;font-weight:800;}
+  .modal p{margin:0 0 12px;font-size:14px;color:var(--ink-2);}
+  .modal textarea{
+    width:100%;min-height:200px;font-family:inherit;font-size:14px;line-height:1.6;
+    border:1.5px solid var(--line-2);border-radius:10px;padding:12px;resize:vertical;color:var(--ink);
+  }
+  .modal .m-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:12px;}
+
+  @media (max-width:520px){
+    .wrap{padding:16px 14px 60px;}
+    .controls{flex-direction:column;align-items:stretch;}
+    .seg,.btn-row{flex:1 1 auto;width:100%;}
+    .btn-row{flex-direction:column;}
+    .btn{width:100%;}
+  }
+
+  @media print{
+    body{background:#fff;font-size:12pt;}
+    .card:first-of-type,.controls,.result-actions,.btn,.btn-link,footer.foot .noprint{display:none !important;}
+    .wrap{max-width:none;padding:0;}
+    .card{box-shadow:none;border:none;padding:0;}
+    .highlight,.issue,.chip{page-break-inside:avoid;}
+    .verdict{border:1px solid #ccc;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow"><span class="dot"></span>무설치 · 브라우저에서 바로</span>
+    <h1>존댓말 일관성·호칭 검사기</h1>
+    <p class="lede">이메일이나 메시지를 붙여넣으면 <b>해요체와 합쇼체가 섞인 문장</b>과 <b>흔들리는 호칭</b>을 규칙 기반으로 짚어 드립니다. 어디로 통일할지 방향까지 함께요.</p>
+  </header>
+
+  <section class="card" aria-label="입력">
+    <div class="field-label">
+      <b>검사할 이메일 · 메시지</b>
+      <span class="hint" id="counter">0자</span>
+    </div>
+    <textarea id="src" placeholder="예: 안녕하세요 고객님, 문의 주셔서 감사합니다.&#10;요청하신 자료는 내일 오전에 보내드릴게요.&#10;확인 후 회신 부탁드립니다.&#10;추가로 궁금한 점 있으면 편하게 말해줘." aria-label="검사할 텍스트"></textarea>
+
+    <div class="controls">
+      <label class="seg">
+        <span>통일 기준</span>
+        <select id="target" aria-label="통일 기준 문체">
+          <option value="auto">자동 감지 (많이 쓴 쪽)</option>
+          <option value="hae">해요체로 통일 (부드러운 존댓말)</option>
+          <option value="hap">합쇼체로 통일 (격식 존댓말)</option>
+        </select>
+      </label>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="run" type="button">검사하기</button>
+        <button class="btn btn-ghost" id="sample" type="button">예시 넣기</button>
+        <button class="btn btn-ghost" id="clear" type="button">지우기</button>
+      </div>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i style="background:var(--hap-bg);border:1px solid #bcd0f4;"></i>합쇼체 (…습니다)</span>
+      <span><i style="background:var(--hae-bg);border:1px solid #bfe6d2;"></i>해요체 (…요)</span>
+      <span><i style="background:var(--ban-bg);border:1px solid #f4c4c4;"></i>반말·음슴체</span>
+    </div>
+  </section>
+
+  <div class="state" id="state" aria-live="polite">
+    <div class="empty" id="empty">
+      <p class="big">텍스트를 넣고 <b>검사하기</b>를 눌러 주세요</p>
+      <p class="sm">문장별로 문체를 색으로 표시하고, 섞인 곳과 통일 방향을 알려 드립니다.</p>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <p><b>어떻게 판단하나요?</b> 문장 끝의 종결어미를 규칙(정규식)으로 훑어 해요체·합쇼체·반말을 나눕니다. 서버나 AI를 호출하지 않으며 입력한 글은 이 브라우저 밖으로 나가지 않습니다.</p>
+    <p class="noprint">규칙 기반 도구라 모든 문맥(인용·대화 삽입·고유명사)을 완벽히 가려내지는 못합니다. 최종 표현은 사람이 확인해 주세요. 제안 문장은 참고용이며 문법적으로 다듬어야 할 수 있습니다.</p>
+    <p>제공: 가인지캠퍼스 · albaaam.com</p>
+  </footer>
+</div>
+
+<div class="modal-back" id="modalBack" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <h3 id="modalTitle">직접 복사해 주세요</h3>
+    <p>자동 복사가 차단된 환경이에요. 아래 내용을 길게 눌러 전체 선택 후 복사하세요.</p>
+    <textarea id="modalText" readonly></textarea>
+    <div class="m-actions">
+      <button class="btn btn-ghost" id="modalClose" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var SAMPLE =
+    "안녕하세요 고객님, 문의 주셔서 감사합니다.\n" +
+    "요청하신 자료는 내일 오전에 보내드릴게요.\n" +
+    "검토 후 회신 부탁드립니다.\n" +
+    "추가로 궁금한 점 있으면 편하게 말해줘.\n" +
+    "김대리씨께 공유하겠습니다. 김대리님 일정도 곧 알려드릴게요.";
+
+  var $ = function(id){ return document.getElementById(id); };
+  var src = $("src"), stateEl = $("state"), counter = $("counter");
+
+  /* ---------- Hangul helpers ---------- */
+  // jongseong (final consonant) index of ㅂ is 17
+  function jong(ch){
+    var c = ch.charCodeAt(0);
+    if(c < 0xAC00 || c > 0xD7A3) return -1;
+    return (c - 0xAC00) % 28;
+  }
+
+  // Strip trailing punctuation / emoji / latin / laughter so we see the real ending
+  function cleanTail(s){
+    var t = s.trim();
+    // remove trailing runs of non-hangul filler and repeated laughter jamo
+    t = t.replace(/[\s.!?…~〜·,、。"'”’’)\]\}>》」』]+$/gu, "");
+    t = t.replace(/[ㅋㅎㅠㅜ\u{1F000}-\u{1FAFF}☀-➿️0-9a-zA-Z]+$/gu, "");
+    t = t.replace(/[\s.!?…~〜·,]+$/gu, "");
+    return t;
+  }
+
+  function isHapsho(t){
+    if(/(습니다|습니까|사옵니다|옵니다)$/.test(t)) return true;
+    if(/(십시오|십시요|하십시오|주십시오|십시다|ㅂ시다|읍시다|시옵소서)$/.test(t)) return true;
+    // X니다 / X니까 where the syllable before 니 carries ㅂ batchim (갑니다, 됩니다 ...)
+    var m = t.match(/(.)(니다|니까)$/);
+    if(m && jong(m[1]) === 17) return true;
+    return false;
+  }
+
+  function isHaeyo(t){
+    return /(요|죠|쥬|용|죵)$/.test(t);
+  }
+
+  // Conservative informal / plain-style detection (only meaningful when mixed with 존댓말)
+  function isBanmal(t){
+    if(isHaeyo(t) || isHapsho(t)) return false;
+    if(/(했어|먹었어|봤어|갔어|왔어|이야|이지|거든|잖아|할래|할게|갈게|하자|가자|더라|드라|는데|은데|겠지|을걸|ㄹ걸|이라니|이란다)$/.test(t)) return true;
+    if(/(해|봐|와|줘|야|네|군|자|음|슴|셈|냐|니)$/.test(t) && !/(시니|으니|되니)$/.test(t)) return true;
+    // ㄹ게 반말 약속형 (보낼게, 먹을게, 줄게) — ㄹ 받침(jongseong 8) + 게
+    var g = t.match(/(.)게$/); if(g && jong(g[1]) === 8) return true;
+    // plain 한다체 (음슴체/문어체): …다 that is not 합쇼체
+    if(/(한다|는다|이다|았다|었다|겠다|린다|든다|난다|같다|없다|있다|온다|간다|된다|보다|하다)$/.test(t)) return true;
+    return false;
+  }
+
+  function classify(seg){
+    var t = cleanTail(seg);
+    if(t.length === 0) return "neutral";
+    if(isHapsho(t)) return "hap";
+    if(isHaeyo(t))  return "hae";
+    if(isBanmal(t)) return "ban";
+    return "neutral";
+  }
+
+  /* ---------- sentence segmentation (preserves original text) ---------- */
+  function segment(text){
+    var units = [];
+    var lines = text.split("\n");
+    for(var i=0;i<lines.length;i++){
+      var line = lines[i];
+      if(line.length){
+        var chunks = line.match(/[^.!?…]+[.!?…]*|[.!?…]+/g);
+        if(!chunks) chunks = [line];
+        for(var j=0;j<chunks.length;j++){
+          if(chunks[j] !== "") units.push({ text: chunks[j], nl:false });
+        }
+      }
+      if(i < lines.length - 1) units.push({ text:"\n", nl:true });
+    }
+    return units;
+  }
+
+  /* ---------- ending-conversion suggestions (safe, curated) ---------- */
+  var TO_HAP = [
+    [/감사드려요$/,"감사드립니다"],[/감사해요$/,"감사합니다"],[/고마워요$/,"고맙습니다"],
+    [/죄송해요$/,"죄송합니다"],[/미안해요$/,"죄송합니다"],
+    [/부탁드려요$/,"부탁드립니다"],[/부탁해요$/,"부탁드립니다"],
+    [/있었어요$/,"있었습니다"],[/없었어요$/,"없었습니다"],[/있어요$/,"있습니다"],[/없어요$/,"없습니다"],
+    [/됐어요$/,"됐습니다"],[/돼요$/,"됩니다"],[/되요$/,"됩니다"],
+    [/이에요$/,"입니다"],[/예요$/,"입니다"],
+    [/드릴게요$/,"드리겠습니다"],[/드려요$/,"드립니다"],
+    [/할게요$/,"하겠습니다"],[/할래요$/,"하겠습니다"],[/해주세요$/,"해 주십시오"],[/주세요$/,"주십시오"],
+    [/좋아요$/,"좋습니다"],[/알겠어요$/,"알겠습니다"],[/했어요$/,"했습니다"]
+  ];
+  var TO_HAE = [
+    [/감사드립니다$/,"감사드려요"],[/감사합니다$/,"감사해요"],[/고맙습니다$/,"고마워요"],
+    [/죄송합니다$/,"죄송해요"],[/미안합니다$/,"미안해요"],
+    [/부탁드립니다$/,"부탁드려요"],[/부탁합니다$/,"부탁해요"],
+    [/있었습니다$/,"있었어요"],[/없었습니다$/,"없었어요"],[/있습니다$/,"있어요"],[/없습니다$/,"없어요"],
+    [/됐습니다$/,"됐어요"],[/됩니다$/,"돼요"],
+    [/드리겠습니다$/,"드릴게요"],[/드립니다$/,"드려요"],
+    [/하겠습니다$/,"할게요"],[/해 주십시오$/,"해 주세요"],[/주십시오$/,"주세요"],[/하십시오$/,"하세요"],
+    [/좋습니다$/,"좋아요"],[/알겠습니다$/,"알겠어요"],[/했습니다$/,"했어요"],[/입니다$/,"이에요"],
+    [/합니다$/,"해요"]
+  ];
+  function suggest(seg, target){
+    var t = cleanTail(seg);
+    var table = target === "hap" ? TO_HAP : TO_HAE;
+    for(var i=0;i<table.length;i++){
+      if(table[i][0].test(t)) return t.replace(table[i][0], table[i][1]);
+    }
+    return null;
+  }
+
+  /* ---------- 호칭 (address) checks ---------- */
+  function honorificIssues(text){
+    var out = [];
+    // suffix inconsistency for the same base name (홍길동님 vs 홍길동씨)
+    var map = {};
+    var re = /([가-힣]{2,4})(님|씨)/g, m;
+    while((m = re.exec(text)) !== null){
+      var base = m[1], suf = m[2];
+      if(/^(고객|사장|대표|부장|과장|차장|대리|팀장|이사|실장|본부|담당|선생|회장|주임|사원)$/.test(base) && suf==="님") continue;
+      if(!map[base]) map[base] = {};
+      map[base][suf] = true;
+    }
+    Object.keys(map).forEach(function(b){
+      if(map[b]["님"] && map[b]["씨"]){
+        out.push({ tag:"호칭 혼용", quote:b+"님 / "+b+"씨",
+          fix:"같은 상대를 <b>"+b+"님</b>과 <b>"+b+"씨</b>로 번갈아 불렀어요. 한 호칭으로 통일하세요 ('씨'는 다소 낮춰 들릴 수 있어 <span class='to'>"+b+"님</span> 권장)." });
+      }
+    });
+    // blunt / informal 2nd-person pronouns clashing with 존댓말
+    var blunt = [];
+    [["너","'너'"],["니가","'니가'"],["네가","'네가'"],["자네","'자네'"],["그쪽","'그쪽'"],["당신","'당신'"]].forEach(function(p){
+      var r = new RegExp("(^|[^가-힣])"+p[0]+"($|[^가-힣])");
+      if(r.test(text)) blunt.push(p[1]);
+    });
+    if(blunt.length){
+      var hasDangsin = blunt.indexOf("'당신'") !== -1;
+      var others = blunt.filter(function(x){ return x !== "'당신'"; });
+      if(others.length){
+        out.push({ tag:"호칭 충돌", quote:others.join(", "),
+          fix:"낮춤 호칭 "+others.join(", ")+"이(가) 존댓말 메시지와 어긋납니다. <span class='to'>이름+님</span>이나 직함으로 바꾸세요." });
+      }
+      if(hasDangsin){
+        out.push({ tag:"호칭 주의", quote:"'당신'",
+          fix:"'당신'은 문어체이거나 다투는 뉘앙스로 읽힐 수 있어요. 이름+님이나 직함을 권장합니다." });
+      }
+    }
+    return out;
+  }
+
+  /* ---------- analyze ---------- */
+  function analyze(text, target){
+    var units = segment(text);
+    var counts = { hap:0, hae:0, ban:0, neutral:0 };
+    for(var i=0;i<units.length;i++){
+      if(units[i].nl){ units[i].style = null; continue; }
+      var st = classify(units[i].text);
+      units[i].style = st;
+      counts[st]++;
+    }
+    // resolve target
+    var resolved = target;
+    if(target === "auto"){
+      if(counts.hap === 0 && counts.hae === 0) resolved = "hae";
+      else resolved = counts.hap > counts.hae ? "hap" : "hae"; // tie -> 해요체 (skill default)
+    }
+    // build style-issue list
+    var styleIssues = [];
+    for(var k=0;k<units.length;k++){
+      var u = units[k];
+      if(u.nl || !u.style || u.style === "neutral") continue;
+      var off = false, kind = "";
+      if(u.style === "ban" && (counts.hap>0 || counts.hae>0)){ off = true; kind = "ban"; }
+      else if((u.style === "hap" || u.style === "hae") && u.style !== resolved){ off = true; kind = "mix"; }
+      if(off){
+        u.flag = true;
+        styleIssues.push({
+          tag: kind === "ban" ? "반말·음슴체 혼입" : "문체 혼용",
+          kind: kind,
+          quote: u.text.trim(),
+          from: u.style,
+          to: resolved,
+          sugg: (kind==="mix") ? suggest(u.text, resolved) : null
+        });
+      }
+    }
+    var honor = honorificIssues(text);
+    return { units:units, counts:counts, resolved:resolved, styleIssues:styleIssues, honor:honor };
+  }
+
+  /* ---------- rendering ---------- */
+  function esc(s){
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+  var STYLE_LABEL = { hap:"합쇼체", hae:"해요체", ban:"반말·음슴체", neutral:"" };
+
+  function renderHighlight(units){
+    var html = "";
+    for(var i=0;i<units.length;i++){
+      var u = units[i];
+      if(u.nl){ html += "<br>"; continue; }
+      if(!u.style || u.style === "neutral"){ html += esc(u.text); continue; }
+      var cls = "sx sx-" + u.style + (u.flag ? " flag" : "");
+      html += '<span class="'+cls+'" title="'+STYLE_LABEL[u.style]+'">'+esc(u.text)+"</span>";
+    }
+    return html;
+  }
+
+  function styleName(s){ return STYLE_LABEL[s] || s; }
+
+  function render(res){
+    var c = res.counts;
+    var totalStyled = c.hap + c.hae + c.ban;
+    var mixCount = res.styleIssues.filter(function(x){return x.kind==="mix";}).length;
+    var banCount = res.styleIssues.filter(function(x){return x.kind==="ban";}).length;
+    var honCount = res.honor.length;
+    var issueTotal = res.styleIssues.length + honCount;
+    var targetLabel = res.resolved === "hap" ? "합쇼체 (…습니다)" : "해요체 (…요)";
+
+    var html = "";
+
+    // verdict
+    if(issueTotal === 0){
+      html += '<div class="verdict clean"><span class="vmark">✅</span>'
+            + '<span class="vtext">문체와 호칭이 일관됩니다</span>'
+            + '<span class="vsub">'+ (totalStyled>0 ? '전체 '+targetLabel+' 기준으로 어긋나는 문장이 없습니다.' : '판별 가능한 존댓말 종결어미가 적어 판단을 보류했습니다.') +'</span></div>';
+    } else {
+      html += '<div class="verdict warn"><span class="vmark">⚠️</span>'
+            + '<span class="vtext">'+ issueTotal +'곳을 살펴보세요</span>'
+            + '<span class="vsub">권장 통일 방향: <b>'+ targetLabel +'</b>'
+            + (mixCount?' · 문체 혼용 '+mixCount:'')
+            + (banCount?' · 반말 혼입 '+banCount:'')
+            + (honCount?' · 호칭 '+honCount:'') +'</span></div>';
+    }
+
+    // chips
+    html += '<div class="chips">'
+      + '<span class="chip"><b>'+ totalStyled +'</b> 판별 문장</span>'
+      + '<span class="chip"><span class="cd" style="background:var(--hap)"></span>합쇼체 <b>'+c.hap+'</b></span>'
+      + '<span class="chip"><span class="cd" style="background:var(--hae)"></span>해요체 <b>'+c.hae+'</b></span>'
+      + '<span class="chip"><span class="cd" style="background:var(--ban)"></span>반말·음슴체 <b>'+c.ban+'</b></span>'
+      + '</div>';
+
+    // highlighted text
+    html += '<div class="panel-h">문장별 문체 표시</div>';
+    html += '<div class="highlight">'+ renderHighlight(res.units) +'</div>';
+    html += '<div class="legend" style="margin-top:10px">'
+      + '<span><i style="background:var(--hap-bg);border:1px solid #bcd0f4;"></i>합쇼체</span>'
+      + '<span><i style="background:var(--hae-bg);border:1px solid #bfe6d2;"></i>해요체</span>'
+      + '<span><i style="background:var(--ban-bg);border:1px solid #f4c4c4;"></i>반말·음슴체</span>'
+      + '<span><i style="box-shadow:inset 0 -2px 0 0 var(--accent);"></i>통일 필요</span></div>';
+
+    // issues
+    html += '<div class="panel-h">고쳐볼 지점</div>';
+    if(issueTotal === 0){
+      html += '<div class="none-good">지적할 문체·호칭 불일치가 없습니다. 그대로 보내셔도 좋습니다.</div>';
+    } else {
+      html += '<div class="issues">';
+      res.styleIssues.forEach(function(it){
+        var tagCls = it.kind === "ban" ? "ban" : "mix";
+        html += '<div class="issue"><span class="itag '+tagCls+'">'+ it.tag +'</span>';
+        html += '<div class="iquote">'+ esc(it.quote) +'</div>';
+        if(it.kind === "ban"){
+          html += '<div class="ifix">반말·음슴체가 존댓말 흐름에 섞였어요. <span class="to">'+ (it.to==="hap"?"합쇼체":"해요체") +'</span>로 바꿔 주세요.</div>';
+        } else {
+          html += '<div class="ifix"><b>'+ styleName(it.from) +'</b> → <span class="to">'+ styleName(it.to) +'</span>로 통일하세요.</div>';
+          if(it.sugg){
+            html += '<div class="isugg"><span class="lab">제안</span>'+ esc(it.sugg) +'</div>';
+          }
+        }
+        html += '</div>';
+      });
+      res.honor.forEach(function(h){
+        html += '<div class="issue"><span class="itag hon">'+ h.tag +'</span>';
+        html += '<div class="iquote">'+ esc(h.quote) +'</div>';
+        html += '<div class="ifix">'+ h.fix +'</div></div>';
+      });
+      html += '</div>';
+    }
+
+    // actions
+    html += '<div class="result-actions">'
+      + '<button class="btn btn-primary" id="copyReport" type="button">결과 요약 복사</button>'
+      + '<button class="btn btn-ghost" id="printBtn" type="button">인쇄 / PDF</button>'
+      + '<span class="copied-note" id="copiedNote" style="display:none">복사됐습니다</span>'
+      + '</div>';
+
+    stateEl.innerHTML = html;
+    stateEl._report = buildReport(res);
+    wireResult();
+  }
+
+  function buildReport(res){
+    var c = res.counts;
+    var targetLabel = res.resolved === "hap" ? "합쇼체 (…습니다)" : "해요체 (…요)";
+    var lines = [];
+    lines.push("[존댓말·호칭 검사 결과]");
+    lines.push("권장 통일: " + targetLabel);
+    lines.push("판별 문장 " + (c.hap+c.hae+c.ban) + "개 · 합쇼체 " + c.hap + " · 해요체 " + c.hae + " · 반말/음슴체 " + c.ban);
+    lines.push("");
+    if(res.styleIssues.length){
+      lines.push("■ 문체 통일이 필요한 문장");
+      res.styleIssues.forEach(function(it,i){
+        if(it.kind === "ban"){
+          lines.push((i+1)+". \""+it.quote+"\"  (반말·음슴체 → "+(it.to==="hap"?"합쇼체":"해요체")+")");
+        } else {
+          var s = (i+1)+". \""+it.quote+"\"  ("+styleName(it.from)+" → "+styleName(it.to)+")";
+          if(it.sugg) s += "  제안: "+it.sugg;
+          lines.push(s);
+        }
+      });
+      lines.push("");
+    }
+    if(res.honor.length){
+      lines.push("■ 호칭 점검");
+      res.honor.forEach(function(h){
+        lines.push("- ["+h.tag+"] "+h.quote+" : "+h.fix.replace(/<[^>]+>/g,""));
+      });
+      lines.push("");
+    }
+    if(!res.styleIssues.length && !res.honor.length){
+      lines.push("문체·호칭 불일치가 발견되지 않았습니다.");
+      lines.push("");
+    }
+    lines.push("— 존댓말 일관성·호칭 검사기 · albaaam.com");
+    return lines.join("\n");
+  }
+
+  /* ---------- copy with 3-tier fallback ---------- */
+  function showCopied(){
+    var n = $("copiedNote");
+    if(!n) return;
+    n.style.display = "inline";
+    setTimeout(function(){ if(n) n.style.display = "none"; }, 2200);
+  }
+  function manualCopyModal(textVal){
+    var mt = $("modalText");
+    mt.value = textVal;
+    $("modalBack").classList.add("on");
+    mt.focus(); mt.select();
+  }
+  function legacyCopy(textVal){
+    try{
+      var ta = document.createElement("textarea");
+      ta.value = textVal;
+      ta.setAttribute("readonly","");
+      ta.style.position = "fixed"; ta.style.top = "-1000px"; ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, textVal.length);
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok === true;
+    }catch(e){ return false; }
+  }
+  function doCopy(textVal){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(textVal).then(showCopied, function(){
+        if(!legacyCopy(textVal)) manualCopyModal(textVal); else showCopied();
+      });
+    } else {
+      if(!legacyCopy(textVal)) manualCopyModal(textVal); else showCopied();
+    }
+  }
+
+  function wireResult(){
+    var cr = $("copyReport"), pb = $("printBtn");
+    if(cr) cr.addEventListener("click", function(){ doCopy(stateEl._report || ""); });
+    if(pb) pb.addEventListener("click", function(){ window.print(); });
+  }
+
+  /* ---------- run flow ---------- */
+  var runTimer = null;
+  function runNow(){
+    var text = src.value;
+    if(!text.trim()){
+      stateEl.innerHTML = '<div class="empty"><p class="big">텍스트를 넣고 <b>검사하기</b>를 눌러 주세요</p>'
+        + '<p class="sm">문장별로 문체를 색으로 표시하고, 섞인 곳과 통일 방향을 알려 드립니다.</p></div>';
+      return;
+    }
+    stateEl.innerHTML = '<div class="loading"><span class="spinner"></span>문장을 훑고 있습니다…</div>';
+    var target = $("target").value;
+    // brief async so the loading state is visible and UI stays responsive
+    setTimeout(function(){
+      var res = analyze(text, target);
+      render(res);
+    }, 160);
+  }
+
+  /* ---------- textarea auto-grow ---------- */
+  function grow(){
+    src.style.height = "auto";
+    src.style.height = Math.max(150, src.scrollHeight) + "px";
+    counter.textContent = src.value.length.toLocaleString("ko-KR") + "자";
+  }
+
+  /* ---------- events ---------- */
+  src.addEventListener("input", function(){
+    grow();
+    if(runTimer) clearTimeout(runTimer);
+    // live re-check only after a result already exists, so first look is deliberate
+    if(stateEl.querySelector(".verdict")){
+      runTimer = setTimeout(runNow, 350);
+    }
+  });
+  $("run").addEventListener("click", runNow);
+  $("target").addEventListener("change", function(){
+    if(src.value.trim() && stateEl.querySelector(".verdict")) runNow();
+  });
+  $("sample").addEventListener("click", function(){
+    src.value = SAMPLE; grow(); runNow();
+  });
+  $("clear").addEventListener("click", function(){
+    src.value = ""; grow(); src.focus();
+    stateEl.innerHTML = '<div class="empty"><p class="big">텍스트를 넣고 <b>검사하기</b>를 눌러 주세요</p>'
+      + '<p class="sm">문장별로 문체를 색으로 표시하고, 섞인 곳과 통일 방향을 알려 드립니다.</p></div>';
+  });
+  $("modalClose").addEventListener("click", function(){ $("modalBack").classList.remove("on"); });
+  $("modalBack").addEventListener("click", function(e){ if(e.target === this) this.classList.remove("on"); });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape") $("modalBack").classList.remove("on"); });
+
+  grow();
+})();
+</script>
+</body>
+</html>

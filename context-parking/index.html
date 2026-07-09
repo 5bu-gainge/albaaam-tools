@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="생각의 빵가루 - AI 응답을 기다리며 다른 일로 넘어가도, 돌아와 10초 만에 다시 몰입하도록 작업 맥락을 임시 백업하는 오프라인 보드">
+<meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15171c" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<title>생각의 빵가루 · Context Parking 보드</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='7' cy='24' r='4' fill='%23c9952f'/><circle cx='15' cy='17' r='3.3' fill='%23e3b54d'/><circle cx='23' cy='10' r='3.9' fill='%23b8860b'/><circle cx='11.5' cy='27' r='1.8' fill='%23e7c878'/><circle cx='21' cy='18.5' r='1.5' fill='%23e7c878'/></svg>">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  /* ============ Design tokens ============ */
+  :root {
+    color-scheme: light dark;
+    --bg:        #f7f5f0;
+    --surface:   #ffffff;
+    --surface-2: #f1efe9;
+    --line:      #e3ded3;
+    --text:      #20242c;   /* AA on all surfaces */
+    --text-soft: #565d68;   /* AA on surface */
+    --text-faint:#767d89;   /* AA on surface for secondary */
+    --placeholder:#a9aeb7;
+    --accent:    #b8860b;    /* 빵 색 골드 (UI/보더용) */
+    --accent-ink:#7a5a06;    /* 골드 텍스트 (AA) */
+    --navy:      #1f3a5f;
+    --danger:    #b5321f;
+    --ok:        #1a824a;
+    --radius:    14px;
+    --radius-sm: 9px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+    --shadow:    0 1px 2px rgba(0,0,0,.05), 0 6px 18px rgba(31,41,55,.07);
+    --font: "Pretendard Variable", "Pretendard", system-ui, -apple-system, "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    --maxw: 900px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:        #15171c;
+      --surface:   #1e2128;
+      --surface-2: #262a33;
+      --line:      #333844;
+      --text:      #e9ebef;
+      --text-soft: #b3bac6;
+      --text-faint:#8a919d;
+      --placeholder:#5b636f;
+      --accent:    #e0b341;
+      --accent-ink:#f0cf7a;
+      --navy:      #9db8e0;
+      --danger:    #f0836f;
+      --ok:        #4bbd82;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.35);
+      --shadow:    0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.4);
+    }
+  }
+
+  /* ============ Base ============ */
+  :root, body { word-break: keep-all; overflow-wrap: break-word; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    min-height: 100dvh;
+    font-size: 16px;
+    padding: 0 16px calc(48px + env(safe-area-inset-bottom));
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; }
+  button { font-family: inherit; cursor: pointer; touch-action: manipulation; }
+  input, textarea { font-family: inherit; font-size: 16px; }
+  ::placeholder { color: var(--placeholder); opacity: 1; }
+  :focus-visible { outline: 3px solid color-mix(in srgb, var(--navy) 55%, transparent); outline-offset: 2px; border-radius: 6px; }
+  .skip { position: absolute; left: -999px; top: 0; background: var(--navy); color: #fff; padding: 10px 16px; border-radius: 0 0 8px 0; z-index: 50; }
+  .skip:focus { left: 0; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+  /* ============ Header ============ */
+  header { padding: 28px 0 8px; }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .brand .logo { display: inline-flex; line-height: 0; flex: none; }
+  .brand h1 { font-size: 23px; letter-spacing: -.5px; font-weight: 800; }
+  .brand .en { font-size: 12px; color: var(--text-faint); font-weight: 600; align-self: flex-end; padding-bottom: 4px; letter-spacing: .3px; }
+  .tagline { color: var(--text-soft); font-size: 14px; margin-top: 9px; max-width: 62ch; }
+  .helpbtn { margin-left: auto; width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); color: var(--text-soft); font-size: 15px; font-weight: 800; display: grid; place-items: center; flex: none; }
+  .helpbtn:hover { background: var(--surface-2); color: var(--navy); }
+
+  /* ============ Cards ============ */
+  section { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 18px; margin-top: 16px; }
+  .capture { border-color: color-mix(in srgb, var(--accent) 34%, var(--line)); box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 8px 22px color-mix(in srgb, var(--accent) 12%, transparent); }
+  .sec-head { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; }
+  .sec-head h2 { font-size: 16px; font-weight: 800; letter-spacing: -.2px; }
+  .sec-head .count { font-size: 12px; font-weight: 700; color: var(--text-soft); background: var(--surface-2); border-radius: 20px; padding: 2px 10px; }
+  .sec-head .hint { margin-left: auto; font-size: 12px; color: var(--text-faint); }
+
+  /* ============ Capture form ============ */
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12.5px; font-weight: 700; color: var(--text-soft); margin-bottom: 5px; }
+  .field label .req { color: var(--accent-ink); }
+  .field label .opt { color: var(--text-faint); font-weight: 500; }
+  .field textarea {
+    width: 100%; padding: 11px 13px; border: 1px solid var(--line); border-radius: var(--radius-sm);
+    background: var(--surface-2); color: var(--text); resize: none; line-height: 1.5;
+    min-height: 46px; overflow: hidden;
+  }
+  .field.key textarea { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); font-weight: 600; }
+  .field.err textarea { border-color: var(--danger); }
+  .field .errmsg { display: none; color: var(--danger); font-size: 12px; margin-top: 5px; font-weight: 600; }
+  .field.err .errmsg { display: block; }
+  .form-grid { display: grid; gap: 0 14px; }
+
+  .submit-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+  .submit-row .kbd { margin-left: auto; font-size: 11.5px; color: var(--text-faint); }
+  .kbd b { font-family: ui-monospace, monospace; background: var(--surface-2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; font-weight: 600; }
+
+  .btn { border: none; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px; padding: 11px 16px; background: var(--navy); color: #fff; white-space: nowrap; transition: filter .12s, transform .05s; display: inline-flex; align-items: center; gap: 7px; }
+  .btn:hover { filter: brightness(1.09); }
+  .btn:active { transform: translateY(1px); }
+  .btn.ghost { background: var(--surface-2); color: var(--text-soft); border: 1px solid var(--line); }
+  .btn.ghost:hover { color: var(--text); }
+  .btn.gold { background: var(--accent); color: #1a1205; }
+  .btn.gold:hover { filter: brightness(1.05); }
+  .btn-sm { padding: 8px 13px; font-size: 12.5px; }
+
+  /* ============ Board ============ */
+  .daystat { margin-bottom: 14px; }
+  .daystat .nums { display: flex; gap: 15px; align-items: baseline; flex-wrap: wrap; font-size: 13px; color: var(--text-soft); }
+  .daystat .nums b { font-size: 18px; font-weight: 800; color: var(--text); margin-right: 3px; font-variant-numeric: tabular-nums; }
+  .daystat .nums .done b { color: var(--ok); }
+  .daystat .nums .warn b { color: var(--accent-ink); }
+  .daystat .bar { height: 6px; border-radius: 999px; background: var(--surface-2); margin-top: 10px; overflow: hidden; }
+  .daystat .bar > i { display: block; height: 100%; background: var(--ok); border-radius: 999px; transition: width .35s ease; }
+  .daystat .note { font-size: 12.5px; color: var(--text-faint); margin-top: 7px; }
+
+  /* table on wide screens */
+  .board-scroll { overflow-x: auto; }
+  table.board { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.board th { text-align: left; font-size: 11.5px; font-weight: 700; color: var(--text-faint); padding: 0 10px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.board td { padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.board tr:last-child td { border-bottom: none; }
+  .row-park { border-left: 3px solid var(--oc, var(--line)); }
+  .col-when { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .col-when .time { font-weight: 700; font-size: 13px; }
+  .col-when .ago { display: block; font-size: 11.5px; color: var(--text-faint); margin-top: 2px; }
+  .col-when .ago.warm { color: var(--accent-ink); font-weight: 700; }
+  .col-when .ago.stale { color: var(--danger); font-weight: 700; }
+  .badge { display: inline-block; margin-top: 5px; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
+  .badge.warm { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 18%, var(--surface)); }
+  .badge.stale { color: var(--danger); background: color-mix(in srgb, var(--danger) 14%, var(--surface)); }
+  .col-action .action { font-weight: 700; color: var(--text); line-height: 1.45; }
+  .col-action .action .lead { color: var(--accent-ink); font-weight: 800; margin-right: 4px; }
+  .col-ctx { color: var(--text-soft); line-height: 1.45; }
+  .col-ctx .ai { color: var(--text-soft); }
+  .col-ctx .lab { font-size: 10.5px; font-weight: 800; color: var(--text-faint); display: inline-block; margin-right: 5px; }
+  .col-ctx .gap { margin-top: 6px; }
+  .col-act { white-space: nowrap; text-align: right; }
+  .check { width: 26px; height: 26px; border-radius: 7px; border: 2px solid color-mix(in srgb, var(--ok) 40%, var(--line)); background: var(--surface); color: transparent; font-size: 15px; font-weight: 800; line-height: 1; display: inline-grid; place-items: center; transition: background .15s, border-color .15s, color .15s, transform .1s; vertical-align: middle; }
+  .check:hover { border-color: var(--ok); color: color-mix(in srgb, var(--ok) 55%, transparent); transform: scale(1.08); }
+  .check:active { transform: scale(.93); }
+  .del { border: none; background: none; color: var(--text-faint); font-size: 18px; line-height: 1; padding: 3px 6px; border-radius: 6px; margin-left: 4px; vertical-align: middle; }
+  .del:hover { color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, var(--surface)); }
+
+  /* completed log */
+  .donelog { margin-top: 18px; }
+  .donelog-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .donelog-head .ln { flex: 1; height: 1px; background: var(--line); }
+  .donelog-head .lbl { font-size: 11.5px; font-weight: 700; color: var(--text-faint); white-space: nowrap; }
+  .donelog-head .lbl span { color: var(--ok); }
+  .donerow { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius: 7px; }
+  .donerow:hover { background: var(--surface-2); }
+  .donerow .t { font-size: 11.5px; color: var(--text-faint); font-variant-numeric: tabular-nums; flex: none; }
+  .donerow .a { flex: 1; min-width: 0; font-size: 13px; color: var(--text-soft); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--text-faint) 55%, transparent); }
+  .donerow .undo { flex: none; border: none; background: none; color: var(--text-faint); font-size: 14px; padding: 4px 8px; border-radius: 6px; opacity: .6; }
+  .donerow:hover .undo, .donerow .undo:focus-visible { opacity: 1; }
+  .donerow .undo:hover { color: var(--navy); background: var(--surface); }
+
+  /* empty state */
+  .empty { text-align: center; padding: 30px 16px; color: var(--text-faint); }
+  .empty .ico { font-size: 32px; opacity: .6; }
+  .empty p { margin-top: 8px; font-size: 13.5px; }
+  .empty .lead-txt { color: var(--text-soft); font-weight: 700; font-size: 14.5px; }
+
+  /* toolbar / footer */
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  footer { margin-top: 26px; text-align: center; color: var(--text-faint); font-size: 12px; line-height: 1.75; }
+  footer b { color: var(--text-soft); font-weight: 700; }
+
+  /* toast */
+  .toast-wrap { position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+  .toast { background: var(--navy); color: #fff; font-size: 13.5px; font-weight: 600; padding: 11px 18px; border-radius: 999px; box-shadow: var(--shadow); animation: toastin .2s ease; max-width: 90vw; }
+  @keyframes toastin { from { opacity: 0; transform: translateY(8px); } }
+
+  /* dialogs */
+  dialog { margin: auto; width: min(500px, 92vw); max-height: 86dvh; overflow: auto; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+  dialog::backdrop { background: rgba(12,16,24,.5); backdrop-filter: blur(2px); }
+  .dg-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .dg-head h2 { font-size: 17px; font-weight: 800; }
+  .dg-close { border: none; background: var(--surface-2); color: var(--text-soft); width: 30px; height: 30px; border-radius: 8px; font-size: 13px; flex: none; }
+  .dg-close:hover { background: var(--line); color: var(--text); }
+  .help h3 { font-size: 13px; font-weight: 800; color: var(--navy); margin: 15px 0 6px; }
+  .help p, .help dd { font-size: 13.5px; color: var(--text-soft); line-height: 1.6; }
+  .help dl { margin: 0; }
+  .help dt { font-size: 13px; font-weight: 700; color: var(--text); margin-top: 10px; }
+  .help dd { margin: 1px 0 0; }
+  .help kbd { font-family: ui-monospace, monospace; background: var(--surface-2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 12px; }
+  .copybox { width: 100%; min-height: 200px; margin-top: 10px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); color: var(--text); font-size: 13px; line-height: 1.5; resize: vertical; }
+  .copybox-hint { font-size: 12.5px; color: var(--text-soft); }
+
+  /* touch targets (WCAG 2.5.5) */
+  @media (pointer: coarse) {
+    .btn, .helpbtn, .dg-close { min-height: 44px; }
+    .helpbtn { width: 44px; }
+    .check { width: 30px; height: 30px; }
+    .del { min-width: 40px; min-height: 40px; }
+  }
+
+  /* ============ Responsive: table -> stacked cards on narrow screens ============ */
+  @media (min-width: 640px) {
+    .form-grid.two { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 719px) {
+    table.board thead { position: absolute; left: -9999px; }
+    table.board, table.board tbody, table.board tr, table.board td { display: block; width: 100%; }
+    table.board tr.row-park { border: 1px solid var(--line); border-left: 3px solid var(--oc, var(--line)); border-radius: var(--radius-sm); margin-bottom: 12px; padding: 4px 4px 8px; background: color-mix(in srgb, var(--oc, transparent) 5%, var(--surface)); }
+    table.board td { border-bottom: none; padding: 7px 12px; }
+    .col-when { display: flex !important; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 11px !important; }
+    .col-when .ago { display: inline; margin-top: 0; }
+    .col-when .badge { margin-top: 0; }
+    .col-act { text-align: left; padding-top: 4px !important; }
+    .col-action .action { font-size: 15px; }
+  }
+
+  /* ============ Print ============ */
+  @media print {
+    body { background: #fff; color: #000; padding: 0; font-size: 12px; }
+    .capture, .toolbar, .helpbtn, .col-act, .donelog .undo, footer .sub, .toast-wrap { display: none !important; }
+    section { border: none; box-shadow: none; padding: 0; margin: 8px 0; }
+    table.board th, table.board td { border-color: #bbb; }
+    .badge.warm { color: #7a5a06; background: none; border: 1px solid #7a5a06; }
+    dialog { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<a href="#main" class="skip">본문 바로가기</a>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="30" height="30">
+          <circle cx="6" cy="24" r="3.4" fill="#c9952f"/>
+          <circle cx="12.5" cy="19" r="2.6" fill="#d9a441"/>
+          <circle cx="19.5" cy="13.5" r="3.2" fill="#e3b54d"/>
+          <circle cx="25.5" cy="7.5" r="2.2" fill="#b8860b"/>
+          <circle cx="10" cy="26.5" r="1.5" fill="#e7c878"/>
+          <circle cx="22.5" cy="18.5" r="1.4" fill="#e7c878"/>
+        </svg>
+      </span>
+      <h1>생각의 빵가루</h1>
+      <span class="en">Context Parking</span>
+      <button class="helpbtn" id="helpBtn" aria-haspopup="dialog" aria-label="도움말" title="도움말">?</button>
+    </div>
+    <p class="tagline">AI 응답을 기다리며 다른 일로 넘어가도, 돌아와 10초 만에 다시 몰입하도록 작업 맥락을 임시로 백업해 두는 보드. 멈추기 직전 10초, 돌아올 길을 남겨 두세요.</p>
+  </header>
+
+  <main id="main">
+
+    <!-- ===== 1. 빵가루 놓기 (capture) ===== -->
+    <section class="capture" aria-labelledby="dropH">
+      <div class="sec-head">
+        <span aria-hidden="true">🍞</span>
+        <h2 id="dropH">빵가루 놓기</h2>
+        <span class="hint">멈추기 직전 10초</span>
+      </div>
+      <form id="dropForm" novalidate>
+        <div class="form-grid two">
+          <div class="field">
+            <label for="fContext">🧭 지금 멈추는 작업 맥락 <span class="opt">(선택)</span></label>
+            <textarea id="fContext" rows="1" placeholder="무슨 작업 중이었는지 (예: 2분기 실적 보고서 3페이지 작성 중)" autocomplete="off"></textarea>
+          </div>
+          <div class="field">
+            <label for="fReason">🤖 AI 대기 사유 <span class="opt">(선택)</span></label>
+            <textarea id="fReason" rows="1" placeholder="AI에게 무엇을 시켰는지 (예: 영업이익률 원인 분석 요약 요청)" autocomplete="off"></textarea>
+          </div>
+        </div>
+        <div class="field key">
+          <label for="fAction">↩ 돌아와서 할 첫 행동 <span class="req">*</span> <span class="opt">— 명사 말고 동사로 마무리</span></label>
+          <textarea id="fAction" rows="2" placeholder="미래의 내가 0초 만에 손이 움직이도록.&#10;예) 요약본 받으면 보고서 3페이지 2문단에 붙여넣고 다듬기" autocomplete="off"></textarea>
+          <div class="errmsg" id="actErr">돌아와서 할 첫 행동 한 줄은 꼭 남겨 주세요. 이게 돌아올 길입니다.</div>
+        </div>
+        <div class="submit-row">
+          <button class="btn gold" type="submit">🍞 빵가루 놓기</button>
+          <span class="kbd"><b>Ctrl</b>+<b>Enter</b></span>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===== 2. 따라가기 (board) ===== -->
+    <section aria-labelledby="trailH">
+      <div class="sec-head">
+        <span aria-hidden="true">🐤</span>
+        <h2 id="trailH">빵가루 따라가기</h2>
+        <span class="count" id="activeCount">0</span>
+      </div>
+      <div class="daystat" id="dayStat" hidden></div>
+      <div class="board-scroll">
+        <table class="board" id="boardTable" hidden>
+          <thead>
+            <tr>
+              <th scope="col">놓은 시각</th>
+              <th scope="col">돌아와서 할 첫 행동</th>
+              <th scope="col">맥락 · AI 대기 사유</th>
+              <th scope="col">복귀</th>
+            </tr>
+          </thead>
+          <tbody id="boardBody"></tbody>
+        </table>
+      </div>
+      <div id="emptyBox"></div>
+      <div class="donelog" id="completedBox" hidden>
+        <div class="donelog-head"><span class="ln" aria-hidden="true"></span><span class="lbl">복귀 완료 <span id="doneCount">0</span></span><span class="ln" aria-hidden="true"></span></div>
+        <div id="doneList"></div>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <button class="btn ghost btn-sm" id="copyBtn">📋 복귀 브리핑 복사</button>
+      <button class="btn ghost btn-sm" id="printBtn">🖨 인쇄</button>
+      <button class="btn ghost btn-sm" id="clearDoneBtn">완료 항목 정리</button>
+      <button class="btn ghost btn-sm" id="clearAllBtn">전체 비우기</button>
+    </div>
+
+  </main>
+
+  <footer>
+    <div>🍞 생각의 빵가루 · Context Parking 보드 <span id="ver">v1.0.0</span></div>
+    <div class="sub">데이터는 이 브라우저에만 저장됩니다 (서버 전송 없음 · 완전 오프라인). · Park context. Protect deep work.</div>
+  </footer>
+
+  <dialog id="helpDialog" class="help" aria-labelledby="helpH">
+    <form method="dialog" class="dg-head">
+      <h2 id="helpH">❓ 도움말</h2>
+      <button class="dg-close" value="close" aria-label="닫기">✕</button>
+    </form>
+    <p>AI에게 일을 시키고 기다리는 동안 다른 작업으로 넘어가기 직전, <b>'돌아올 길'</b>을 한 줄 남겨 두는 보드예요. AI 작업은 보통 1~5분이면 끝나지만 그 사이 우리 머릿속 맥락은 흩어집니다. 빵가루를 따라 돌아와 다시 몰입하세요.</p>
+    <h3>3가지만 적어요</h3>
+    <dl>
+      <dt>🧭 멈추는 작업 맥락</dt><dd>무엇을 하다 멈췄는지. 돌아왔을 때 위치를 잡아 줍니다. (선택)</dd>
+      <dt>🤖 AI 대기 사유</dt><dd>AI에게 무엇을 시켰는지. 무엇을 기다리는지 알려줍니다. (선택)</dd>
+      <dt>↩ 돌아와서 할 첫 행동</dt><dd>가장 중요한 한 줄. 미래의 내가 0초 만에 손이 움직이도록 <b>동사로</b> 끝냅니다. (필수)</dd>
+    </dl>
+    <h3>🔔 확인 차례 신호</h3>
+    <p>놓은 지 <b>12분</b>이 지나면 <b>확인 차례</b> 배지가 붙어요. AI 작업이 끝났을 가능성이 높으니 돌아가 확인할 때라는 신호입니다. 45분이 지나면 <b>오래 놓임</b>으로 바뀝니다.</p>
+    <h3>단축키</h3>
+    <p><kbd>Ctrl</kbd>+<kbd>Enter</kbd> 빠른 등록 · <kbd>n</kbd> 또는 <kbd>/</kbd> 입력칸으로 점프</p>
+    <h3>데이터</h3>
+    <p>모든 기록은 이 브라우저에만 저장됩니다(서버 전송·네트워크 호출 없음). '복귀 브리핑 복사'로 다른 메모·채팅에 붙여넣거나 인쇄할 수 있어요.</p>
+  </dialog>
+
+  <dialog id="copyDialog" aria-labelledby="copyH">
+    <form method="dialog" class="dg-head">
+      <h2 id="copyH">📋 복귀 브리핑</h2>
+      <button class="dg-close" value="close" aria-label="닫기">✕</button>
+    </form>
+    <p class="copybox-hint">자동 복사가 막힌 환경이에요. 아래 내용을 직접 선택해 복사하세요.</p>
+    <textarea class="copybox" id="copyBox" readonly aria-label="복귀 브리핑 텍스트"></textarea>
+    <div class="submit-row" style="margin-top:12px">
+      <button type="button" class="btn" id="copySelectBtn">전체 선택</button>
+    </div>
+  </dialog>
+
+</div>
+
+<div class="toast-wrap" id="toasts" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  // ============ Constants (domain grounded in projects/context-parking_personal_260608) ============
+  const VERSION   = "1.0.0";
+  const STORE_KEY = "breadcrumbs.board.v1";
+  // AI tasks finish in ~1-5 min, so a crumb parked well past that likely means its AI is done and waiting on you.
+  const WARM_MS  = 12 * 60 * 1000; // "확인 차례" — probably done, go check
+  const STALE_MS = 45 * 60 * 1000; // "오래 놓임" — long forgotten
+  const OC = "#b8860b";            // single accent color for all rows
+
+  // ============ State ============
+  /** store = { crumbs: [{ id, createdAt, context, reason, action, done, doneAt }] } */
+  let store = load();
+
+  // ============ Utilities ============
+  const $ = id => document.getElementById(id);
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function pad(n){ return String(n).padStart(2, "0"); }
+  function fmtTime(ts){ const d = new Date(ts); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+  function ago(ts){
+    const s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 50) return "방금 놓음";
+    const m = Math.floor(s / 60); if (m < 60) return `${m}분 전`;
+    const h = Math.floor(m / 60); if (h < 24) return `${h}시간 전`;
+    return `${Math.floor(h / 24)}일 전`;
+  }
+
+  function load(){
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw){ const p = JSON.parse(raw); if (p && Array.isArray(p.crumbs)) return p; }
+    } catch(e){ console.warn("load failed", e); }
+    return { crumbs: [] };
+  }
+  let saveTimer = null;
+  function save(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
+      catch(e){ console.warn("save failed", e); toast("⚠ 저장 공간이 가득 찼어요"); }
+    }, 120);
+  }
+
+  // ============ Toast ============
+  function toast(msg){
+    const el = document.createElement("div");
+    el.className = "toast"; el.textContent = msg;
+    $("toasts").appendChild(el);
+    setTimeout(() => el.remove(), 2400);
+  }
+
+  // ============ Mutations ============
+  function addCrumb({ context, reason, action }){
+    store.crumbs.push({
+      id: uid(), createdAt: Date.now(),
+      context: context.trim(), reason: reason.trim(), action: action.trim(),
+      done: false, doneAt: null
+    });
+    save(); render();
+  }
+  function toggleDone(id){
+    const c = store.crumbs.find(x => x.id === id); if (!c) return;
+    c.done = !c.done; c.doneAt = c.done ? Date.now() : null;
+    if (c.done) toast("🐤 잘 돌아왔어요");
+    save(); render();
+  }
+  function deleteCrumb(id){
+    store.crumbs = store.crumbs.filter(x => x.id !== id);
+    save(); render();
+  }
+  function clearDone(){
+    const n = store.crumbs.filter(c => c.done).length;
+    if (!n){ toast("정리할 완료 항목이 없어요"); return; }
+    if (!confirm(`복귀 완료된 ${n}개를 목록에서 지울까요?`)) return;
+    store.crumbs = store.crumbs.filter(c => !c.done);
+    save(); render(); toast(`✓ 완료 ${n}개 정리했어요`);
+  }
+  function clearAll(){
+    if (!store.crumbs.length){ toast("비울 항목이 없어요"); return; }
+    if (!confirm("모든 빵가루를 지울까요? 되돌릴 수 없어요.")) return;
+    store.crumbs = [];
+    save(); render(); toast("전체를 비웠어요");
+  }
+
+  // ============ Rendering ============
+  function statusOf(c){
+    const e = Date.now() - c.createdAt;
+    if (e > STALE_MS) return "stale";
+    if (e > WARM_MS)  return "warm";
+    return "fresh";
+  }
+
+  function rowHTML(c){
+    const st = ago(c.createdAt);
+    const s  = statusOf(c);
+    const agoCls = s === "stale" ? " stale" : s === "warm" ? " warm" : "";
+    const badge = s === "stale" ? `<span class="badge stale">🕘 오래 놓임</span>`
+                : s === "warm" ? `<span class="badge warm">🔔 확인 차례</span>` : "";
+    const ctx = [];
+    if (c.context) ctx.push(`<div><span class="lab">맥락</span>${esc(c.context)}</div>`);
+    if (c.reason)  ctx.push(`<div class="${c.context ? "gap" : ""}"><span class="lab">AI</span>${esc(c.reason)}</div>`);
+    const ctxCell = ctx.length ? ctx.join("") : `<span style="color:var(--text-faint)">—</span>`;
+    return `<tr class="row-park" style="--oc:${OC}">
+      <td class="col-when" data-th="놓은 시각">
+        <span class="time">${fmtTime(c.createdAt)}</span>
+        <span class="ago${agoCls}">${st}</span>
+        ${badge}
+      </td>
+      <td class="col-action" data-th="첫 행동">
+        <div class="action"><span class="lead" aria-hidden="true">↩</span>${esc(c.action)}</div>
+      </td>
+      <td class="col-ctx" data-th="맥락·AI">${ctxCell}</td>
+      <td class="col-act" data-th="복귀">
+        <button class="check" data-done="${c.id}" role="checkbox" aria-checked="false" aria-label="복귀 완료 처리" title="돌아왔어요">✓</button>
+        <button class="del" data-del="${c.id}" aria-label="이 빵가루 삭제" title="삭제">×</button>
+      </td>
+    </tr>`;
+  }
+
+  function doneRowHTML(c){
+    return `<div class="donerow">
+      <span class="t">${fmtTime(c.createdAt)}</span>
+      <span class="a">${esc(c.action)}</span>
+      <button class="undo" data-done="${c.id}" aria-label="복귀 취소" title="되돌리기">↩</button>
+    </div>`;
+  }
+
+  function renderStats(active, done){
+    const box = $("dayStat");
+    const total = active.length + done.length;
+    if (!total){ box.hidden = true; box.innerHTML = ""; return; }
+    const waiting = active.filter(c => statusOf(c) !== "fresh").length;
+    const rate = Math.round(done.length / total * 100);
+    let note;
+    if (active.length === 0) note = "놓은 빵가루를 모두 따라갔어요 🎉";
+    else if (waiting) note = `🔔 ${waiting}개가 12분+ 대기 중 — AI가 끝났는지 확인해 보세요`;
+    else if (done.length === 0) note = `진행 중 ${active.length}개 · 돌아올 길이 준비됐어요`;
+    else note = `복귀율 ${rate}% · 빵가루가 차곡차곡 쌓이는 중`;
+    box.hidden = false;
+    box.innerHTML = `
+      <div class="nums">
+        <span>놓음 <b>${total}</b></span>
+        <span class="done">복귀 <b>${done.length}</b></span>
+        <span>진행 <b>${active.length}</b></span>
+        ${waiting ? `<span class="warn">확인 대기 <b>${waiting}</b></span>` : ""}
+      </div>
+      <div class="bar"><i style="width:${rate}%"></i></div>
+      <div class="note">${note}</div>`;
+  }
+
+  function render(){
+    const active = store.crumbs.filter(c => !c.done).sort((a, b) => b.createdAt - a.createdAt);
+    const done   = store.crumbs.filter(c => c.done).sort((a, b) => b.doneAt - a.doneAt);
+    $("activeCount").textContent = active.length;
+
+    renderStats(active, done);
+
+    const table = $("boardTable");
+    const emptyBox = $("emptyBox");
+    if (active.length){
+      table.hidden = false;
+      $("boardBody").innerHTML = active.map(rowHTML).join("");
+      emptyBox.innerHTML = "";
+    } else {
+      table.hidden = true;
+      $("boardBody").innerHTML = "";
+      emptyBox.innerHTML = done.length
+        ? `<div class="empty"><div class="ico">🎉</div><p class="lead-txt">놓인 빵가루를 모두 따라갔어요</p><p>아래에 오늘 돌아온 길이 쌓여 있어요.</p></div>`
+        : `<div class="empty"><div class="ico">🐦</div><p class="lead-txt">놓인 빵가루가 없어요</p><p>다른 일로 넘어가기 직전, 위에 돌아와서 할 첫 행동 한 줄만 남기면 됩니다.</p></div>`;
+    }
+
+    const box = $("completedBox");
+    if (done.length){
+      box.hidden = false;
+      $("doneCount").textContent = done.length;
+      $("doneList").innerHTML = done.map(doneRowHTML).join("");
+    } else { box.hidden = true; $("doneList").innerHTML = ""; }
+  }
+
+  // ============ Copy briefing (3-tier clipboard fallback) ============
+  function briefingText(){
+    const active = store.crumbs.filter(c => !c.done).sort((a, b) => a.createdAt - b.createdAt);
+    const now = new Date();
+    const stamp = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const lines = [`[생각의 빵가루 · 복귀 브리핑 · ${stamp}]`, ""];
+    if (!active.length){
+      lines.push("진행 중인 빵가루가 없어요. 모두 따라갔습니다 🎉");
+      return lines.join("\n");
+    }
+    lines.push(`진행 중 ${active.length}개`);
+    active.forEach((c, i) => {
+      const s = statusOf(c);
+      const flag = s === "stale" ? " · 오래 놓임" : s === "warm" ? " · 확인 차례" : "";
+      lines.push("");
+      lines.push(`${i + 1}) ↩ ${c.action}`);
+      if (c.context) lines.push(`   맥락: ${c.context}`);
+      if (c.reason)  lines.push(`   AI: ${c.reason}`);
+      lines.push(`   놓은 시각: ${fmtTime(c.createdAt)} (${ago(c.createdAt)}${flag})`);
+    });
+    return lines.join("\n");
+  }
+
+  async function copyBriefing(){
+    const text = briefingText();
+    // Tier 1: async Clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      try { await navigator.clipboard.writeText(text); toast("📋 복귀 브리핑을 복사했어요"); return; }
+      catch(e){ /* fall through */ }
+    }
+    // Tier 2: execCommand with return-value check
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;";
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, text.length);
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      if (ok){ toast("📋 복귀 브리핑을 복사했어요"); return; }
+    } catch(e){ /* fall through */ }
+    // Tier 3: manual copy modal
+    const box = $("copyBox");
+    box.value = text;
+    $("copyDialog").showModal();
+    box.focus(); box.select();
+  }
+
+  // ============ Auto-grow textareas ============
+  function autoGrow(ta){ ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight, 260) + "px"; }
+  document.querySelectorAll("#dropForm textarea").forEach(ta => {
+    ta.addEventListener("input", () => autoGrow(ta));
+  });
+
+  // ============ Events ============
+  $("dropForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const context = $("fContext").value;
+    const reason  = $("fReason").value;
+    const actionEl = $("fAction");
+    const action = actionEl.value.trim();
+    const field = actionEl.closest(".field");
+    if (!action){
+      field.classList.add("err");
+      actionEl.focus();
+      return;
+    }
+    field.classList.remove("err");
+    addCrumb({ context, reason, action });
+    $("dropForm").reset();
+    document.querySelectorAll("#dropForm textarea").forEach(autoGrow);
+    $("fContext").focus();
+    toast("🍞 빵가루를 놓았어요");
+  });
+
+  $("fAction").addEventListener("input", () => $("fAction").closest(".field").classList.remove("err"));
+
+  // Ctrl+Enter quick submit from any field
+  document.querySelectorAll("#dropForm textarea").forEach(ta => {
+    ta.addEventListener("keydown", e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter"){
+        e.preventDefault();
+        $("dropForm").requestSubmit();
+      }
+    });
+  });
+
+  // Delegated board actions
+  document.addEventListener("click", e => {
+    const doneBtn = e.target.closest("[data-done]");
+    if (doneBtn){ toggleDone(doneBtn.getAttribute("data-done")); return; }
+    const delBtn = e.target.closest("[data-del]");
+    if (delBtn){ deleteCrumb(delBtn.getAttribute("data-del")); return; }
+  });
+
+  $("copyBtn").addEventListener("click", copyBriefing);
+  $("copySelectBtn").addEventListener("click", () => { const b = $("copyBox"); b.focus(); b.select(); });
+  $("printBtn").addEventListener("click", () => window.print());
+  $("clearDoneBtn").addEventListener("click", clearDone);
+  $("clearAllBtn").addEventListener("click", clearAll);
+  $("helpBtn").addEventListener("click", () => $("helpDialog").showModal());
+
+  // Global shortcut: n or / jumps to the first capture field
+  document.addEventListener("keydown", e => {
+    const t = e.target;
+    const typing = t && (t.tagName === "TEXTAREA" || t.tagName === "INPUT" || t.isContentEditable);
+    if (!typing && (e.key === "n" || e.key === "/")){
+      e.preventDefault();
+      $("fContext").focus();
+    }
+  });
+
+  // Live refresh of elapsed labels / warm signals every 30s
+  setInterval(() => { if (store.crumbs.some(c => !c.done)) render(); }, 30 * 1000);
+
+  // ============ Init ============
+  $("ver").textContent = "v" + VERSION;
+  render();
+})();
+</script>
+</body>
+</html>

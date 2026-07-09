@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>회의 액션아이템 트래커</title>
+<meta name="description" content="회의 메모를 할 일·담당자·기한·상태 표로 정리하고 CSV·마크다운·붙여넣기 텍스트로 내보내는 무료 단일 파일 도구.">
+<meta name="theme-color" content="#9a4f22">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%239a4f22'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#fbf7f2;
+    --surface:#ffffff;
+    --surface-2:#f4ece2;
+    --ink:#2a231e;
+    --ink-soft:#4c4038;
+    --muted:#6b5d52;
+    --accent:#9a4f22;
+    --accent-ink:#8a4419;
+    --accent-tint:#f6ebe0;
+    --border:#e7ddd1;
+    --border-strong:#d8cbba;
+    --ok:#1f7a4d;
+    --ok-tint:#e4f2ea;
+    --go:#1f5f9a;
+    --go-tint:#e3eef7;
+    --wait:#6b5d52;
+    --wait-tint:#eee7dd;
+    --hold:#9a6a10;
+    --hold-tint:#f6eed7;
+    --danger:#a12f2f;
+    --danger-tint:#f7e7e5;
+    --radius:12px;
+    --radius-sm:8px;
+    --shadow:0 1px 2px rgba(42,35,30,.06), 0 6px 20px rgba(42,35,30,.06);
+    --font:"Pretendard Variable",Pretendard,system-ui,-apple-system,"Malgun Gothic","Apple SD Gothic Neo","Segoe UI",Roboto,sans-serif;
+    word-break:keep-all;
+    overflow-wrap:break-word;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    font-family:var(--font);
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+    word-break:keep-all;
+    overflow-wrap:break-word;
+    -webkit-font-smoothing:antialiased;
+    font-size:16px;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:20px 16px 96px}
+
+  /* Header */
+  header.app{margin:8px 0 20px}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .brand .logo{width:34px;height:34px;border-radius:9px;background:var(--accent);display:grid;place-items:center;flex:none;box-shadow:var(--shadow)}
+  .brand .logo svg{width:20px;height:20px}
+  .brand .name{font-weight:800;font-size:.95rem;letter-spacing:.01em;color:var(--accent-ink)}
+  h1{font-size:1.7rem;line-height:1.25;margin:0 0 6px;font-weight:800;letter-spacing:-.01em}
+  .lede{margin:0;color:var(--muted);font-size:1rem;max-width:60ch}
+
+  /* Cards / sections */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .section{margin-top:18px}
+
+  /* Toolbar */
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px}
+  .toolbar .grow{flex:1 1 auto}
+  .stats{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 12px}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;padding:5px 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink-soft);cursor:pointer;line-height:1}
+  .chip[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:1px;background:var(--accent-tint);color:var(--accent-ink)}
+  .chip .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .chip.count{cursor:default}
+  .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* Buttons */
+  button{font-family:inherit;font-size:.92rem;cursor:pointer}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 14px;min-height:44px;border-radius:var(--radius-sm);border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);font-weight:600;line-height:1;transition:background .12s,border-color .12s,transform .04s;touch-action:manipulation}
+  .btn:hover{background:var(--surface-2)}
+  .btn:active{transform:translateY(1px)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .btn svg{width:16px;height:16px;flex:none}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-ink)}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+  .btn.ghost:hover{background:var(--surface-2);color:var(--ink)}
+  .btn.danger{color:var(--danger);border-color:var(--danger-tint)}
+  .btn.danger:hover{background:var(--danger-tint)}
+  .btn.sm{padding:7px 10px;min-height:36px;font-size:.85rem}
+
+  select,input[type="text"],input[type="date"],textarea{
+    font-family:inherit;font-size:16px;color:var(--ink);background:var(--surface);
+    border:1px solid var(--border-strong);border-radius:var(--radius-sm);padding:9px 10px;width:100%;
+    line-height:1.5;transition:border-color .12s,box-shadow .12s;
+  }
+  select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-tint)}
+  textarea{resize:none;overflow:hidden;min-height:44px}
+  label.field{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:4px}
+
+  /* Table (desktop) */
+  .table-scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:760px}
+  thead th{
+    text-align:left;font-size:.78rem;font-weight:700;color:var(--muted);
+    padding:12px 10px;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface-2)
+  }
+  thead th:first-child{border-top-left-radius:var(--radius)}
+  thead th:last-child{border-top-right-radius:var(--radius)}
+  tbody td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr.done td .cell-task textarea{color:var(--muted);text-decoration:line-through}
+  col.c-task{width:32%}col.c-owner{width:13%}col.c-due{width:15%}col.c-status{width:13%}col.c-notes{width:22%}col.c-act{width:5%}
+
+  .status-select{font-weight:700;border-width:1px}
+  .status-대기{color:var(--wait);background:var(--wait-tint);border-color:#d8cdbf}
+  .status-진행중{color:var(--go);background:var(--go-tint);border-color:#c6dcee}
+  .status-완료{color:var(--ok);background:var(--ok-tint);border-color:#c3e2d1}
+  .status-보류{color:var(--hold);background:var(--hold-tint);border-color:#e6d6a8}
+
+  .row-del{color:var(--muted);border:none;background:transparent;padding:8px;border-radius:8px;min-height:40px;min-width:40px;display:grid;place-items:center}
+  .row-del:hover{background:var(--danger-tint);color:var(--danger)}
+  .row-del:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+  /* Empty state */
+  .empty{padding:36px 20px;text-align:center;color:var(--muted)}
+  .empty svg{width:44px;height:44px;opacity:.5;margin-bottom:8px}
+  .empty h3{margin:0 0 4px;color:var(--ink-soft);font-size:1.05rem}
+  .empty p{margin:0 0 16px;font-size:.92rem}
+
+  /* Details / prompt generator */
+  details.gen{margin-top:18px}
+  details.gen>summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;gap:10px;font-weight:700;color:var(--ink)}
+  details.gen>summary::-webkit-details-marker{display:none}
+  details.gen>summary .caret{transition:transform .15s;color:var(--muted)}
+  details.gen[open]>summary .caret{transform:rotate(90deg)}
+  details.gen>summary .sub{font-weight:500;color:var(--muted);font-size:.85rem}
+  .gen-body{padding:0 16px 16px;border-top:1px solid var(--border)}
+  .gen-body p.hint{font-size:.88rem;color:var(--muted);margin:12px 0}
+  .gen-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .out-box{margin-top:12px;position:relative}
+  .out-box textarea{background:var(--surface-2);font-size:.86rem;line-height:1.55;min-height:120px}
+
+  /* Modal */
+  dialog{border:none;border-radius:var(--radius);padding:0;max-width:min(560px,92vw);width:100%;box-shadow:0 12px 48px rgba(42,35,30,.28);color:var(--ink)}
+  dialog::backdrop{background:rgba(42,35,30,.42)}
+  .modal-in{padding:18px}
+  .modal-in h3{margin:0 0 6px;font-size:1.1rem}
+  .modal-in p{margin:0 0 12px;color:var(--muted);font-size:.9rem}
+  .modal-in textarea{min-height:160px;font-size:.85rem}
+  .modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+
+  /* Toast */
+  .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;padding:11px 16px;border-radius:999px;font-size:.9rem;font-weight:600;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:90vw}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  footer.app{margin-top:28px;padding-top:16px;border-top:1px solid var(--border);color:var(--muted);font-size:.82rem;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between}
+  footer.app a{color:var(--accent-ink)}
+  .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+  @media (max-width:640px){
+    h1{font-size:1.42rem}
+    .wrap{padding:16px 12px 96px}
+    .toolbar .btn span.lbl{display:inline}
+    /* Table -> stacked cards */
+    table,thead,tbody,tr,td{display:block;min-width:0}
+    table{min-width:0}
+    thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+    tbody tr{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:10px 0;padding:6px 12px;box-shadow:var(--shadow)}
+    tbody td{border-bottom:1px dashed var(--border);padding:9px 0;display:grid;grid-template-columns:88px 1fr;gap:8px;align-items:start}
+    tbody tr td:last-child{border-bottom:none}
+    tbody td::before{content:attr(data-label);font-size:.78rem;font-weight:700;color:var(--muted);padding-top:9px}
+    tbody td.cell-act{grid-template-columns:1fr;justify-items:end}
+    tbody td.cell-act::before{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  @media print{
+    body{background:#fff;color:#000}
+    .toolbar,.stats,details.gen,footer.app .noprint,.row-del,.btn,.brand .logo{display:none!important}
+    .card{box-shadow:none;border-color:#bbb}
+    thead th{background:#eee}
+    .status-select{border:none;background:none;padding:0;color:#000;-webkit-appearance:none;appearance:none}
+    a{color:#000}
+    table{min-width:0}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="app">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4L19 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="name">albaaam · 무료 도구</span>
+    </div>
+    <h1>회의 액션아이템 트래커</h1>
+    <p class="lede">회의 메모의 할 일을 담당자·기한·상태 표로 정리하고, CSV·마크다운·붙여넣기 텍스트로 내보냅니다. 모든 데이터는 이 브라우저에만 저장됩니다.</p>
+  </header>
+
+  <!-- Toolbar -->
+  <section class="card section" aria-label="도구 모음">
+    <div class="toolbar">
+      <button class="btn primary" id="addBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <span class="lbl">행 추가</span>
+      </button>
+      <span class="grow"></span>
+      <button class="btn sm" id="csvBtn" type="button" title="CSV 파일 내려받기">CSV 내보내기</button>
+      <button class="btn sm" id="mdBtn" type="button" title="마크다운 표 복사">마크다운 복사</button>
+      <button class="btn sm" id="txtBtn" type="button" title="붙여넣기용 텍스트 복사">텍스트 복사</button>
+      <button class="btn sm ghost" id="importBtn" type="button" title="표를 붙여넣어 가져오기">가져오기</button>
+      <button class="btn sm ghost danger" id="clearBtn" type="button" title="모든 행 삭제">초기화</button>
+    </div>
+    <div class="stats" id="stats" role="group" aria-label="상태별 개수 · 필터"></div>
+  </section>
+
+  <!-- Table -->
+  <section class="card section" aria-label="액션아이템 표">
+    <div class="table-scroll">
+      <table id="table">
+        <colgroup>
+          <col class="c-task"><col class="c-owner"><col class="c-due"><col class="c-status"><col class="c-notes"><col class="c-act">
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">할 일</th>
+            <th scope="col">담당자</th>
+            <th scope="col">기한</th>
+            <th scope="col">상태</th>
+            <th scope="col">세부 · 의존성</th>
+            <th scope="col"><span class="visually-hidden">삭제</span></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty" hidden>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <h3>아직 액션아이템이 없어요</h3>
+      <p>회의에서 나온 할 일을 한 줄씩 추가하거나, 아래 도구로 메모에서 자동 추출해 보세요.</p>
+      <button class="btn primary" id="addBtn2" type="button">첫 액션아이템 추가</button>
+    </div>
+  </section>
+
+  <!-- Prompt generator -->
+  <details class="card gen" id="genDetails">
+    <summary>
+      <span class="caret" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span>메모 → 액션표 추출 프롬프트 만들기</span>
+      <span class="sub">· 선택 사항</span>
+    </summary>
+    <div class="gen-body">
+      <p class="hint">회의 메모나 정제된 대화록을 붙여넣으면, AI(ChatGPT·Claude 등)에게 그대로 넣을 <strong>추출 프롬프트</strong>를 만들어 드립니다. AI가 만든 표를 복사해 위쪽 <strong>가져오기</strong>로 붙여넣으면 트래커에 채워집니다. 이 도구는 메모를 서버로 보내지 않습니다.</p>
+      <label class="field" for="noteInput">회의 메모 붙여넣기</label>
+      <textarea id="noteInput" placeholder="예) 한스: 세금계산서는 계약 첫 주에 한 번 발행. 마커스가 입금 DB 자동화 프로토타입 만들어보기로. 고객사 DB 없으면 먼저 생성…"></textarea>
+      <div class="gen-actions">
+        <button class="btn primary" id="genBtn" type="button">추출 프롬프트 생성</button>
+        <button class="btn sm ghost" id="genClearBtn" type="button">비우기</button>
+      </div>
+      <div class="out-box" id="outBox" hidden>
+        <label class="field" for="promptOut">생성된 프롬프트 (복사해서 AI에 붙여넣기)</label>
+        <textarea id="promptOut" readonly></textarea>
+        <div class="gen-actions">
+          <button class="btn" id="copyPromptBtn" type="button">프롬프트 복사</button>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <footer class="app">
+    <span>회의 액션아이템 트래커 <span class="noprint">· v1.0.0</span></span>
+    <span class="noprint">데이터는 이 브라우저(localStorage)에만 저장됩니다. 서버 전송 없음.</span>
+  </footer>
+</div>
+
+<!-- Manual copy modal (3rd-tier fallback + import) -->
+<dialog id="copyModal">
+  <div class="modal-in">
+    <h3 id="copyModalTitle">직접 복사</h3>
+    <p>자동 복사가 차단되었습니다. 아래 내용을 선택해 <strong>Ctrl/Cmd + C</strong>로 복사하세요.</p>
+    <textarea id="copyModalArea" readonly></textarea>
+    <div class="modal-foot">
+      <button class="btn" id="copyModalClose" type="button">닫기</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Import modal -->
+<dialog id="importModal">
+  <div class="modal-in">
+    <h3>표 가져오기</h3>
+    <p>마크다운 표 · CSV · 탭으로 구분된 표를 붙여넣으세요. 열 순서: 할 일, 담당자, 기한, 상태, 세부. 헤더 줄이 있으면 자동 인식합니다.</p>
+    <textarea id="importArea" placeholder="| 할 일 | 담당자 | 기한 | 상태 | 세부 |&#10;|---|---|---|---|---|&#10;| 입금 DB 자동화 | 마커스 | 미정 | 대기 | 계약서 기반 |"></textarea>
+    <div class="modal-foot">
+      <button class="btn ghost" id="importCancel" type="button">취소</button>
+      <button class="btn primary" id="importConfirm" type="button">추가하기</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Confirm modal -->
+<dialog id="confirmModal">
+  <div class="modal-in">
+    <h3 id="confirmTitle">확인</h3>
+    <p id="confirmMsg"></p>
+    <div class="modal-foot">
+      <button class="btn ghost" id="confirmCancel" type="button">취소</button>
+      <button class="btn primary danger" id="confirmOk" type="button">삭제</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+  var STORAGE_KEY = "albaaam.meeting-actions.v1";
+  var STATUSES = ["대기","진행중","완료","보류"];
+  var memoryFallback = null;      // used if localStorage throws (SecurityError / private mode)
+  var storageOK = true;
+
+  // ---------- State ----------
+  var state = { v:1, items:[], filter:"전체", updated:0 };
+
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw){ return; }
+      var parsed = JSON.parse(raw);
+      if(parsed && parsed.v === 1 && Array.isArray(parsed.items)){
+        state.items = parsed.items.map(sanitizeItem);
+        if(typeof parsed.filter === "string") state.filter = parsed.filter;
+      }
+    }catch(e){
+      // corrupt or blocked storage: start clean but do not crash
+      storageOK = false;
+    }
+  }
+
+  function sanitizeItem(it){
+    it = it || {};
+    return {
+      id: it.id || uid(),
+      task: typeof it.task === "string" ? it.task : "",
+      owner: typeof it.owner === "string" ? it.owner : "",
+      due: typeof it.due === "string" ? it.due : "",
+      status: STATUSES.indexOf(it.status) >= 0 ? it.status : "대기",
+      notes: typeof it.notes === "string" ? it.notes : ""
+    };
+  }
+
+  function save(){
+    state.updated = Date.now();
+    var payload = JSON.stringify({ v:1, items:state.items, filter:state.filter, updated:state.updated });
+    try{
+      localStorage.setItem(STORAGE_KEY, payload);
+      storageOK = true;
+    }catch(e){
+      // Blocked storage (Safari private, quota, SecurityError): degrade to in-memory, keep app usable
+      memoryFallback = payload;
+      if(storageOK){ storageOK = false; toast("저장 공간이 차단되어 이 세션에만 임시 보관됩니다"); }
+    }
+  }
+
+  var saveTimer = null;
+  function saveDebounced(){ if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(save, 300); }
+
+  // ---------- DOM refs ----------
+  var tbody = document.getElementById("tbody");
+  var emptyEl = document.getElementById("empty");
+  var statsEl = document.getElementById("stats");
+  var toastEl = document.getElementById("toast");
+
+  // ---------- Rendering ----------
+  function statusColorVar(s){
+    return s==="완료"?"var(--ok)":s==="진행중"?"var(--go)":s==="보류"?"var(--hold)":"var(--wait)";
+  }
+
+  function autoGrow(ta){ ta.style.height="auto"; ta.style.height=(ta.scrollHeight)+"px"; }
+
+  function makeTextarea(value, field, placeholder){
+    var ta = document.createElement("textarea");
+    ta.value = value || "";
+    ta.rows = 1;
+    ta.setAttribute("data-field", field);
+    ta.setAttribute("aria-label", placeholder);
+    if(placeholder) ta.placeholder = placeholder;
+    ta.addEventListener("input", function(){ autoGrow(ta); });
+    return ta;
+  }
+
+  function render(){
+    var items = visibleItems();
+    tbody.innerHTML = "";
+    if(state.items.length === 0){
+      emptyEl.hidden = false;
+      document.getElementById("table").style.display = "none";
+    } else {
+      emptyEl.hidden = true;
+      document.getElementById("table").style.display = "";
+    }
+
+    items.forEach(function(it){
+      var tr = document.createElement("tr");
+      tr.setAttribute("data-id", it.id);
+      if(it.status === "완료") tr.className = "done";
+
+      // Task
+      var tdTask = cell("할 일","cell-task");
+      var taTask = makeTextarea(it.task,"task","할 일 내용");
+      tdTask.appendChild(taTask);
+      tr.appendChild(tdTask);
+
+      // Owner
+      var tdOwner = cell("담당자","cell-owner");
+      var inOwner = document.createElement("input");
+      inOwner.type="text"; inOwner.value=it.owner; inOwner.setAttribute("data-field","owner");
+      inOwner.placeholder="미정"; inOwner.setAttribute("aria-label","담당자");
+      tdOwner.appendChild(inOwner);
+      tr.appendChild(tdOwner);
+
+      // Due
+      var tdDue = cell("기한","cell-due");
+      var inDue = document.createElement("input");
+      inDue.type="text"; inDue.value=it.due; inDue.setAttribute("data-field","due");
+      inDue.placeholder="미정 · 예: 7/15"; inDue.setAttribute("aria-label","기한");
+      tdDue.appendChild(inDue);
+      tr.appendChild(tdDue);
+
+      // Status
+      var tdStatus = cell("상태","cell-status");
+      var sel = document.createElement("select");
+      sel.className="status-select status-"+it.status;
+      sel.setAttribute("data-field","status");
+      sel.setAttribute("aria-label","상태");
+      STATUSES.forEach(function(s){
+        var o=document.createElement("option"); o.value=s; o.textContent=s; if(s===it.status)o.selected=true; sel.appendChild(o);
+      });
+      tdStatus.appendChild(sel);
+      tr.appendChild(tdStatus);
+
+      // Notes
+      var tdNotes = cell("세부 · 의존성","cell-notes");
+      var taNotes = makeTextarea(it.notes,"notes","세부 내용 · 의존성");
+      tdNotes.appendChild(taNotes);
+      tr.appendChild(tdNotes);
+
+      // Delete
+      var tdAct = cell("","cell-act");
+      var del = document.createElement("button");
+      del.type="button"; del.className="row-del"; del.title="이 행 삭제"; del.setAttribute("aria-label","이 행 삭제");
+      del.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      tdAct.appendChild(del);
+      tr.appendChild(tdAct);
+
+      tbody.appendChild(tr);
+      autoGrow(taTask); autoGrow(taNotes);
+    });
+
+    renderStats();
+  }
+
+  function cell(label, cls){
+    var td=document.createElement("td");
+    td.className=cls;
+    if(label) td.setAttribute("data-label",label);
+    return td;
+  }
+
+  function renderStats(){
+    var counts={전체:state.items.length,대기:0,진행중:0,완료:0,보류:0};
+    state.items.forEach(function(it){ counts[it.status]=(counts[it.status]||0)+1; });
+    statsEl.innerHTML="";
+    var order=["전체"].concat(STATUSES);
+    order.forEach(function(key){
+      var chip=document.createElement("button");
+      chip.type="button"; chip.className="chip";
+      chip.setAttribute("aria-pressed", state.filter===key ? "true":"false");
+      var dot = key==="전체" ? "" : '<span class="dot" style="background:'+statusColorVar(key)+'"></span>';
+      chip.innerHTML = dot + '<span>'+key+'</span> <span style="opacity:.7">'+counts[key]+'</span>';
+      chip.addEventListener("click", function(){
+        state.filter = (state.filter===key && key!=="전체") ? "전체" : key;
+        save(); render();
+      });
+      statsEl.appendChild(chip);
+    });
+  }
+
+  function visibleItems(){
+    if(state.filter==="전체") return state.items;
+    return state.items.filter(function(it){ return it.status===state.filter; });
+  }
+
+  // ---------- Editing (event delegation) ----------
+  function findItem(id){ for(var i=0;i<state.items.length;i++){ if(state.items[i].id===id) return state.items[i]; } return null; }
+
+  tbody.addEventListener("input", function(e){
+    var t=e.target;
+    var field=t.getAttribute && t.getAttribute("data-field");
+    if(!field) return;
+    var tr=t.closest("tr"); if(!tr) return;
+    var it=findItem(tr.getAttribute("data-id")); if(!it) return;
+    it[field]=t.value;
+    saveDebounced();
+  });
+
+  tbody.addEventListener("change", function(e){
+    var t=e.target;
+    if(t.getAttribute && t.getAttribute("data-field")==="status"){
+      var tr=t.closest("tr"); var it=findItem(tr.getAttribute("data-id")); if(!it) return;
+      it.status=t.value;
+      t.className="status-select status-"+it.value;
+      tr.className = it.status==="완료" ? "done" : "";
+      save();
+      // if filtering, the row may need to disappear
+      if(state.filter!=="전체" && state.filter!==it.status){ render(); }
+      else { renderStats(); }
+    }
+  });
+
+  tbody.addEventListener("click", function(e){
+    var del=e.target.closest && e.target.closest(".row-del");
+    if(!del) return;
+    var tr=del.closest("tr"); var id=tr.getAttribute("data-id");
+    var it=findItem(id);
+    var label = it && it.task ? ('"'+truncate(it.task,24)+'"') : "이 항목";
+    confirmDialog("행 삭제", label+"을(를) 삭제할까요? 되돌릴 수 없습니다.", function(){
+      state.items = state.items.filter(function(x){ return x.id!==id; });
+      save(); render(); toast("삭제했습니다");
+    });
+  });
+
+  function truncate(s,n){ s=s||""; return s.length>n ? s.slice(0,n)+"…" : s; }
+
+  // ---------- Add ----------
+  function addRow(prefill){
+    var it = sanitizeItem(prefill||{});
+    it.id = uid();
+    state.items.push(it);
+    state.filter = "전체";
+    save(); render();
+    // focus the new row's task field
+    var rows=tbody.querySelectorAll("tr");
+    var last=rows[rows.length-1];
+    if(last){ var ta=last.querySelector('textarea[data-field="task"]'); if(ta){ ta.focus(); last.scrollIntoView({block:"nearest"}); } }
+  }
+  document.getElementById("addBtn").addEventListener("click", function(){ addRow(); });
+  document.getElementById("addBtn2").addEventListener("click", function(){ addRow(); });
+
+  // ---------- Clear ----------
+  document.getElementById("clearBtn").addEventListener("click", function(){
+    if(state.items.length===0){ toast("이미 비어 있습니다"); return; }
+    confirmDialog("전체 초기화", state.items.length+"개 행을 모두 삭제할까요? 되돌릴 수 없습니다.", function(){
+      state.items=[]; state.filter="전체"; save(); render(); toast("모두 삭제했습니다");
+    });
+  });
+
+  // ---------- Export helpers ----------
+  function csvEscape(v){
+    v = (v==null?"":String(v));
+    if(/[",\n\r]/.test(v)) return '"'+v.replace(/"/g,'""')+'"';
+    return v;
+  }
+  function buildCSV(){
+    var head=["할 일","담당자","기한","상태","세부·의존성"];
+    var lines=[head.map(csvEscape).join(",")];
+    state.items.forEach(function(it){
+      lines.push([it.task,it.owner||"미정",it.due||"미정",it.status,it.notes].map(csvEscape).join(","));
+    });
+    return lines.join("\r\n");
+  }
+  function mdCell(v){ return String(v==null?"":v).replace(/\|/g,"\\|").replace(/\n+/g," "); }
+  function buildMarkdown(){
+    var rows=["| 할 일 | 담당자 | 기한 | 상태 | 세부·의존성 |","|---|---|---|---|---|"];
+    state.items.forEach(function(it){
+      rows.push("| "+[mdCell(it.task),mdCell(it.owner||"미정"),mdCell(it.due||"미정"),it.status,mdCell(it.notes)].join(" | ")+" |");
+    });
+    return rows.join("\n");
+  }
+  function buildPlainText(){
+    if(state.items.length===0) return "액션아이템 없음";
+    var out=[];
+    state.items.forEach(function(it,i){
+      out.push((i+1)+". ["+it.status+"] "+(it.task||"(내용 없음)"));
+      var meta="   담당자: "+(it.owner||"미정")+" · 기한: "+(it.due||"미정");
+      out.push(meta);
+      if(it.notes) out.push("   세부: "+it.notes.replace(/\n+/g," "));
+    });
+    return out.join("\n");
+  }
+
+  function download(filename, text){
+    try{
+      var blob=new Blob(["﻿"+text],{type:"text/csv;charset=utf-8"});
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement("a"); a.href=url; a.download=filename;
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); },0);
+      return true;
+    }catch(e){ return false; }
+  }
+
+  document.getElementById("csvBtn").addEventListener("click", function(){
+    if(state.items.length===0){ toast("내보낼 행이 없습니다"); return; }
+    var d=new Date(), pad=function(n){return(n<10?"0":"")+n;};
+    var name="회의액션아이템_"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+".csv";
+    if(download(name, buildCSV())) toast("CSV를 내려받았습니다");
+    else openManualCopy("CSV 직접 복사", buildCSV());
+  });
+  document.getElementById("mdBtn").addEventListener("click", function(){
+    if(state.items.length===0){ toast("복사할 행이 없습니다"); return; }
+    copyText(buildMarkdown(),"마크다운 표를 복사했습니다","마크다운 직접 복사");
+  });
+  document.getElementById("txtBtn").addEventListener("click", function(){
+    if(state.items.length===0){ toast("복사할 행이 없습니다"); return; }
+    copyText(buildPlainText(),"텍스트를 복사했습니다","텍스트 직접 복사");
+  });
+
+  // ---------- Copy: 3-tier fallback ----------
+  function copyText(text, okMsg, modalTitle){
+    // Tier 1: async clipboard API
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        toast(okMsg||"복사했습니다");
+      }).catch(function(){
+        if(!legacyCopy(text)) openManualCopy(modalTitle||"직접 복사", text);
+        else toast(okMsg||"복사했습니다");
+      });
+      return;
+    }
+    // Tier 2: execCommand
+    if(legacyCopy(text)){ toast(okMsg||"복사했습니다"); return; }
+    // Tier 3: manual modal
+    openManualCopy(modalTitle||"직접 복사", text);
+  }
+  function legacyCopy(text){
+    try{
+      var ta=document.createElement("textarea");
+      ta.value=text;
+      ta.setAttribute("readonly","");
+      ta.style.position="fixed"; ta.style.top="-1000px"; ta.style.opacity="0";
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      var ok=document.execCommand("copy");
+      document.body.removeChild(ta);
+      return !!ok;
+    }catch(e){ return false; }
+  }
+
+  var copyModal=document.getElementById("copyModal");
+  var copyModalArea=document.getElementById("copyModalArea");
+  function openManualCopy(title, text){
+    document.getElementById("copyModalTitle").textContent=title;
+    copyModalArea.value=text;
+    showModal(copyModal);
+    setTimeout(function(){ copyModalArea.focus(); copyModalArea.select(); },30);
+  }
+  document.getElementById("copyModalClose").addEventListener("click", function(){ closeModal(copyModal); });
+
+  // ---------- Import ----------
+  var importModal=document.getElementById("importModal");
+  document.getElementById("importBtn").addEventListener("click", function(){
+    document.getElementById("importArea").value="";
+    showModal(importModal);
+    setTimeout(function(){ document.getElementById("importArea").focus(); },30);
+  });
+  document.getElementById("importCancel").addEventListener("click", function(){ closeModal(importModal); });
+  document.getElementById("importConfirm").addEventListener("click", function(){
+    var raw=document.getElementById("importArea").value;
+    var rows=parseTable(raw);
+    if(rows.length===0){ toast("인식할 수 있는 표가 없습니다"); return; }
+    rows.forEach(function(r){ r.id=uid(); state.items.push(sanitizeItem(r)); });
+    state.filter="전체";
+    save(); render(); closeModal(importModal);
+    toast(rows.length+"개 행을 가져왔습니다");
+  });
+
+  // Tolerant parser: markdown table | CSV | TSV. Header auto-detected.
+  function parseTable(raw){
+    if(!raw) return [];
+    var lines=raw.replace(/\r/g,"").split("\n").map(function(l){return l.trim();}).filter(function(l){return l.length>0;});
+    // drop markdown separator rows like |---|---|
+    lines=lines.filter(function(l){ return !/^\|?\s*:?-{2,}.*-{2,}\s*:?\s*\|?$/.test(l) && !/^\s*(\|?\s*:?-+:?\s*)+\|?\s*$/.test(l); });
+    if(lines.length===0) return [];
+
+    var isMD=lines[0].indexOf("|")>=0 && lines.filter(function(l){return l.indexOf("|")>=0;}).length>=Math.max(1,Math.floor(lines.length*0.6));
+    var split;
+    if(isMD){ split=function(l){ return l.replace(/^\|/,"").replace(/\|$/,"").split("|").map(function(c){return c.replace(/\\\|/g,"|").trim();}); }; }
+    else if(lines[0].indexOf("\t")>=0){ split=function(l){ return l.split("\t").map(function(c){return c.trim();}); }; }
+    else { split=parseCSVLine; }
+
+    var records=lines.map(split);
+    // header detection
+    var headerMap=null, startIdx=0;
+    var first=records[0].map(function(c){return c.replace(/\s/g,"");});
+    var headerKeys=["할일","담당자","기한","상태","세부","의존성","비고","내용","task","owner","due","status","note"];
+    var looksHeader=first.some(function(c){ return headerKeys.indexOf(c.toLowerCase())>=0 || /할일|담당|기한|상태|세부|의존/.test(c); });
+    if(looksHeader){
+      headerMap=mapHeader(records[0]);
+      startIdx=1;
+    }
+    var out=[];
+    for(var i=startIdx;i<records.length;i++){
+      var cols=records[i];
+      if(cols.length===0 || cols.every(function(c){return c==="";})) continue;
+      var rec;
+      if(headerMap){
+        rec={
+          task: pick(cols,headerMap.task),
+          owner: pick(cols,headerMap.owner),
+          due: pick(cols,headerMap.due),
+          status: pick(cols,headerMap.status),
+          notes: pick(cols,headerMap.notes)
+        };
+      } else {
+        // positional: task, owner, due, status, notes (skip a leading numeric index column if present)
+        var c=cols.slice();
+        if(c.length>=6 && /^\d+$/.test(c[0])) c=c.slice(1);
+        rec={ task:c[0]||"", owner:c[1]||"", due:c[2]||"", status:c[3]||"", notes:c.slice(4).join(" ")||"" };
+      }
+      rec.owner = normalizeMissing(rec.owner);
+      rec.due = normalizeMissing(rec.due);
+      rec.status = normalizeStatus(rec.status);
+      if((rec.task||"").trim()==="") continue;
+      out.push(rec);
+    }
+    return out;
+  }
+  function pick(cols,idx){ return (idx>=0 && idx<cols.length) ? cols[idx] : ""; }
+  function normalizeMissing(v){ v=(v||"").trim(); return (v==="미정"||v==="-"||v==="") ? (v==="-"?"":v) : v; }
+  function normalizeStatus(v){
+    v=(v||"").trim();
+    if(STATUSES.indexOf(v)>=0) return v;
+    if(/완료|done|완/.test(v)) return "완료";
+    if(/진행|doing|중|ing/.test(v)) return "진행중";
+    if(/보류|hold|블록|block|대기중.*보류/.test(v)) return "보류";
+    return "대기";
+  }
+  function mapHeader(headerCols){
+    var m={task:-1,owner:-1,due:-1,status:-1,notes:-1};
+    headerCols.forEach(function(h,i){
+      var k=h.replace(/\s/g,"").toLowerCase();
+      if(m.task<0 && (/할일|내용|task|todo|액션/.test(k))) m.task=i;
+      else if(m.owner<0 && (/담당|owner|assignee|책임/.test(k))) m.owner=i;
+      else if(m.due<0 && (/기한|마감|due|일정|date/.test(k))) m.due=i;
+      else if(m.status<0 && (/상태|status|진행/.test(k))) m.status=i;
+      else if(m.notes<0 && (/세부|의존|비고|note|detail|메모/.test(k))) m.notes=i;
+    });
+    // fallback positional for any unmapped
+    if(m.task<0) m.task=0;
+    return m;
+  }
+  function parseCSVLine(line){
+    var out=[], cur="", q=false;
+    for(var i=0;i<line.length;i++){
+      var ch=line[i];
+      if(q){
+        if(ch==='"'){ if(line[i+1]==='"'){ cur+='"'; i++; } else { q=false; } }
+        else cur+=ch;
+      } else {
+        if(ch==='"') q=true;
+        else if(ch===","){ out.push(cur); cur=""; }
+        else cur+=ch;
+      }
+    }
+    out.push(cur);
+    return out.map(function(c){return c.trim();});
+  }
+
+  // ---------- Prompt generator (grounded in meeting-extractor skill) ----------
+  document.getElementById("genBtn").addEventListener("click", function(){
+    var note=document.getElementById("noteInput").value.trim();
+    var prompt=buildExtractionPrompt(note);
+    document.getElementById("promptOut").value=prompt;
+    document.getElementById("outBox").hidden=false;
+    autoGrowById("promptOut");
+    document.getElementById("outBox").scrollIntoView({block:"nearest"});
+    if(!note) toast("메모 없이 생성했어요. 메모를 넣으면 더 정확합니다");
+  });
+  document.getElementById("genClearBtn").addEventListener("click", function(){
+    document.getElementById("noteInput").value="";
+    document.getElementById("outBox").hidden=true;
+    document.getElementById("noteInput").focus();
+  });
+  document.getElementById("copyPromptBtn").addEventListener("click", function(){
+    copyText(document.getElementById("promptOut").value,"프롬프트를 복사했습니다","프롬프트 직접 복사");
+  });
+  document.getElementById("noteInput").addEventListener("input", function(){ autoGrow(this); });
+
+  function autoGrowById(id){ var el=document.getElementById(id); if(el) autoGrow(el); }
+
+  function buildExtractionPrompt(note){
+    var lines=[];
+    lines.push("당신은 회의록에서 실행 항목을 뽑아내는 액션아이템 추출 전문가입니다.");
+    lines.push("아래 [회의 메모]에서 '해야 할 일(액션아이템)'만 골라 표로 정리하세요.");
+    lines.push("");
+    lines.push("[규칙]");
+    lines.push("1. 메모에 없는 담당자·기한·결정·수치를 만들어내지 마세요. 없으면 반드시 \"미정\"으로 적습니다.");
+    lines.push("2. \"해보자\", \"확인해 주세요\" 같은 약한 합의도 액션으로 포함하되 상태는 \"대기\"로 둡니다.");
+    lines.push("3. 상태 값은 다음 중 하나만: 대기 / 진행중 / 완료 / 보류.");
+    lines.push("4. 담당자·기한·고유명사가 애매하면 추측하지 말고 ‹? 추정값 ?› 형태로 표시합니다.");
+    lines.push("5. 결정 사항·단순 정보 공유는 액션이 아니므로 제외합니다(실제 '할 일'만).");
+    lines.push("6. 원문의 뉘앙스(보류/합의/조건)를 세부 칸에 짧게 남깁니다.");
+    lines.push("");
+    lines.push("[출력 형식] — 아래 마크다운 표 한 개만 출력하세요. 머리말·설명 없이 표만.");
+    lines.push("| 할 일 | 담당자 | 기한 | 상태 | 세부·의존성 |");
+    lines.push("|---|---|---|---|---|");
+    lines.push("| (동사로 시작하는 구체적 할 일) | 이름 또는 미정 | 날짜 또는 미정 | 대기/진행중/완료/보류 | 조건·의존성 |");
+    lines.push("");
+    lines.push("[회의 메모]");
+    lines.push(note ? note : "(여기에 회의 메모를 붙여넣으세요)");
+    lines.push("");
+    lines.push("이 표를 그대로 복사하면 '회의 액션아이템 트래커'의 [가져오기]에 붙여넣어 관리할 수 있습니다.");
+    return lines.join("\n");
+  }
+
+  // ---------- Modals & dialogs ----------
+  function showModal(dlg){
+    if(typeof dlg.showModal==="function"){ try{ dlg.showModal(); return; }catch(e){} }
+    dlg.setAttribute("open",""); // fallback
+  }
+  function closeModal(dlg){
+    if(typeof dlg.close==="function" && dlg.open){ try{ dlg.close(); return; }catch(e){} }
+    dlg.removeAttribute("open");
+  }
+  // close dialogs on backdrop click / Esc handled natively for <dialog>
+  [copyModal, importModal].forEach(function(d){
+    d.addEventListener("click", function(e){ if(e.target===d) closeModal(d); });
+  });
+
+  var confirmModal=document.getElementById("confirmModal");
+  var confirmCb=null;
+  function confirmDialog(title,msg,cb){
+    document.getElementById("confirmTitle").textContent=title;
+    document.getElementById("confirmMsg").textContent=msg;
+    confirmCb=cb;
+    showModal(confirmModal);
+    setTimeout(function(){ document.getElementById("confirmCancel").focus(); },30);
+  }
+  document.getElementById("confirmCancel").addEventListener("click", function(){ confirmCb=null; closeModal(confirmModal); });
+  document.getElementById("confirmOk").addEventListener("click", function(){
+    var cb=confirmCb; confirmCb=null; closeModal(confirmModal);
+    if(cb) cb();
+  });
+  confirmModal.addEventListener("click", function(e){ if(e.target===confirmModal){ confirmCb=null; closeModal(confirmModal); } });
+
+  // ---------- Toast ----------
+  var toastTimer=null;
+  function toast(msg){
+    toastEl.textContent=msg;
+    toastEl.classList.add("show");
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){ toastEl.classList.remove("show"); },2400);
+  }
+
+  // ---------- Global error safety ----------
+  window.addEventListener("error", function(){ /* keep app alive; no white screen */ });
+
+  // ---------- Init ----------
+  load();
+  render();
+  if(!storageOK){ toast("이 브라우저는 저장이 제한되어 세션에만 보관됩니다"); }
+})();
+</script>
+</body>
+</html>

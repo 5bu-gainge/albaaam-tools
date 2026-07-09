@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>해고 리스크 자가진단</title>
+<meta name="description" content="해고 사유·서면통지·예고·평가기록을 체크하면 부당해고 위험 등급과 보완 조치를 알려주는 자가진단 도구">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --bg:#FAF7F2;
+    --surface:#FFFFFF;
+    --surface-2:#F4EEE5;
+    --ink:#241E17;
+    --ink-soft:#544A3D;
+    --line:#E4DBCC;
+    --line-strong:#D3C7B4;
+    --accent:#B04E28;
+    --accent-deep:#8F3D1E;
+    --accent-tint:#F7ECE4;
+    --grade-low:#15803D;
+    --grade-mid:#B45309;
+    --grade-high:#C2410C;
+    --grade-crit:#B4231C;
+    --warn-bg:#FBF1E7;
+    --warn-line:#E8CBA9;
+    --warn-ink:#7A3E12;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(40,30,20,.05),0 8px 28px rgba(70,45,20,.07);
+    word-break:keep-all;
+    overflow-wrap:break-word;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Pretendard Variable",system-ui,-apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+    line-height:1.6;
+    word-break:keep-all;
+    overflow-wrap:break-word;
+    font-size:16px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:20px 18px 72px}
+
+  /* Disclaimer banner (always visible) */
+  .disclaimer{
+    background:var(--warn-bg);
+    border:1px solid var(--warn-line);
+    color:var(--warn-ink);
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:13.5px;
+    line-height:1.55;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+  }
+  .disclaimer .ic{flex:0 0 auto;font-size:16px;line-height:1.4}
+  .disclaimer b{font-weight:700}
+
+  header.app{margin:22px 2px 20px}
+  .kicker{
+    display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.02em;
+    color:var(--accent-deep);background:var(--accent-tint);
+    padding:4px 10px;border-radius:999px;margin-bottom:12px;
+  }
+  h1{font-size:27px;line-height:1.25;margin:0 0 8px;font-weight:800;letter-spacing:-.01em}
+  .lede{margin:0;color:var(--ink-soft);font-size:15.5px}
+
+  .card{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:20px 18px;margin-top:18px;
+  }
+  .card > h2{
+    font-size:13px;font-weight:800;letter-spacing:.04em;color:var(--accent-deep);
+    margin:0 0 4px;text-transform:uppercase;
+  }
+
+  fieldset{border:0;margin:0;padding:0}
+  .q{padding:18px 0;border-top:1px solid var(--line)}
+  .q:first-of-type{border-top:0;padding-top:6px}
+  .q legend, .q .qlabel{
+    font-size:16px;font-weight:700;color:var(--ink);margin:0 0 3px;padding:0;
+    display:block;
+  }
+  .q .hint{font-size:13px;color:var(--ink-soft);margin:0 0 12px}
+  .q .qnum{color:var(--accent);font-weight:800;margin-right:6px}
+
+  .opts{display:grid;grid-template-columns:1fr;gap:8px}
+  @media(min-width:520px){ .opts.two{grid-template-columns:1fr 1fr} }
+  .opt{
+    position:relative;display:flex;align-items:flex-start;gap:10px;
+    border:1.5px solid var(--line-strong);border-radius:11px;
+    padding:12px 13px;cursor:pointer;background:var(--surface);
+    transition:border-color .12s,background .12s;min-height:48px;
+  }
+  .opt:hover{border-color:var(--accent)}
+  .opt input{
+    appearance:none;-webkit-appearance:none;margin:2px 0 0;flex:0 0 auto;
+    width:19px;height:19px;border:2px solid var(--line-strong);border-radius:50%;
+    cursor:pointer;position:relative;
+  }
+  .opt input:checked{border-color:var(--accent)}
+  .opt input:checked::after{
+    content:"";position:absolute;inset:3px;border-radius:50%;background:var(--accent);
+  }
+  .opt input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .opt .otext{font-size:14.5px;line-height:1.45}
+  .opt .osub{display:block;font-size:12.5px;color:var(--ink-soft);margin-top:2px}
+  .opt:has(input:checked){border-color:var(--accent);background:var(--accent-tint)}
+
+  .detail label{font-size:16px;font-weight:700;display:block;margin-bottom:3px}
+  textarea{
+    width:100%;border:1.5px solid var(--line-strong);border-radius:11px;
+    padding:11px 12px;font:inherit;font-size:14.5px;color:var(--ink);
+    background:var(--surface);resize:none;overflow:hidden;min-height:46px;line-height:1.5;
+  }
+  textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+
+  .actions-row{margin-top:20px;display:flex;flex-direction:column;gap:10px}
+  .btn{
+    border:0;border-radius:12px;font:inherit;font-weight:700;font-size:16px;
+    padding:14px 18px;cursor:pointer;min-height:52px;transition:background .12s,transform .04s;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:var(--accent-deep)}
+  .btn-primary[disabled]{opacity:.7;cursor:progress}
+  .btn-ghost{background:var(--surface-2);color:var(--ink);border:1.5px solid var(--line-strong)}
+  .btn-ghost:hover{border-color:var(--accent)}
+  .err{color:var(--grade-crit);font-size:13.5px;margin-top:10px;min-height:0}
+
+  /* Result */
+  #result{margin-top:22px}
+  .empty{
+    text-align:center;color:var(--ink-soft);padding:34px 16px;
+    border:1.5px dashed var(--line-strong);border-radius:var(--radius);
+    background:var(--surface);font-size:14.5px;
+  }
+  .empty .big{font-size:30px;display:block;margin-bottom:8px}
+
+  .grade-head{
+    border-radius:var(--radius);padding:20px 18px;color:#fff;box-shadow:var(--shadow);
+  }
+  .grade-head.low{background:var(--grade-low)}
+  .grade-head.mid{background:var(--grade-mid)}
+  .grade-head.high{background:var(--grade-high)}
+  .grade-head.crit{background:var(--grade-crit)}
+  .grade-head .glabel{font-size:13px;font-weight:700;opacity:.92;letter-spacing:.03em}
+  .grade-head .gval{font-size:28px;font-weight:800;margin:2px 0 8px;letter-spacing:-.01em}
+  .grade-head .gdesc{font-size:14.5px;line-height:1.55;color:rgba(255,255,255,.96)}
+  .meter{margin-top:14px;height:9px;border-radius:999px;background:rgba(255,255,255,.32);overflow:hidden}
+  .meter > i{display:block;height:100%;background:#fff;border-radius:999px}
+  .meter-cap{font-size:12px;margin-top:6px;opacity:.9}
+
+  .rblock{margin-top:16px}
+  .rblock h3{
+    font-size:13px;font-weight:800;letter-spacing:.03em;color:var(--accent-deep);
+    margin:0 0 10px;text-transform:uppercase;
+  }
+  .subrisk{
+    border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:var(--surface);
+    display:flex;gap:11px;align-items:flex-start;
+  }
+  .subrisk .dot{flex:0 0 auto;width:11px;height:11px;border-radius:50%;margin-top:6px}
+  .subrisk .dot.ok{background:var(--grade-low)}
+  .subrisk .dot.warn{background:var(--grade-high)}
+  .subrisk .dot.mut{background:var(--line-strong)}
+  .subrisk .st{font-weight:700;font-size:14.5px}
+  .subrisk .sd{font-size:13.5px;color:var(--ink-soft);margin-top:2px}
+
+  ul.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+  ul.checks li{
+    border:1px solid var(--line);border-radius:11px;padding:12px 13px;background:var(--surface);
+    font-size:14.5px;line-height:1.55;display:flex;gap:10px;align-items:flex-start;
+  }
+  ul.checks li .pr{
+    flex:0 0 auto;font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;margin-top:2px;
+    color:#fff;letter-spacing:.02em;
+  }
+  .pr.p1{background:var(--grade-crit)}
+  .pr.p2{background:var(--grade-high)}
+  .pr.p3{background:var(--ink-soft)}
+
+  dl.legal{margin:0;display:flex;flex-direction:column;gap:10px}
+  dl.legal .row{border-left:3px solid var(--accent);padding:2px 0 2px 12px}
+  dl.legal dt{font-weight:700;font-size:14px;color:var(--ink)}
+  dl.legal dd{margin:2px 0 0;font-size:13.5px;color:var(--ink-soft);line-height:1.55}
+
+  ul.info{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-soft);line-height:1.6}
+  ul.info li{margin-bottom:5px}
+
+  .copy-cap{font-size:12.5px;color:var(--ink-soft);margin-top:8px;text-align:center}
+
+  footer{margin-top:30px;text-align:center;color:var(--ink-soft);font-size:12.5px;line-height:1.7}
+  footer .ver{opacity:.75}
+
+  /* Manual copy modal */
+  .modal-bg{
+    position:fixed;inset:0;background:rgba(30,22,14,.5);display:none;
+    align-items:center;justify-content:center;padding:18px;z-index:50;
+  }
+  .modal-bg.on{display:flex}
+  .modal{
+    background:var(--surface);border-radius:var(--radius);max-width:560px;width:100%;
+    padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:86vh;display:flex;flex-direction:column;
+  }
+  .modal h3{margin:0 0 6px;font-size:16px}
+  .modal p{margin:0 0 10px;font-size:13.5px;color:var(--ink-soft)}
+  .modal textarea{min-height:200px;overflow:auto;font-size:13px;flex:1}
+  .modal .mrow{display:flex;justify-content:flex-end;margin-top:12px}
+
+  .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+  @media print{
+    body{background:#fff;font-size:12pt}
+    .card:not(.result-card),.actions-row,.disclaimer,footer .ver,#hideForPrint{display:none !important}
+    .grade-head{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .wrap{padding:0}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="disclaimer" role="note">
+    <span class="ic" aria-hidden="true">⚖️</span>
+    <span><b>본 도구는 일반 정보 제공용 참고 자료입니다.</b> 자동 진단 결과는 법적 효력이 있는 의견이 아니며, 개별 사안의 최종 판단에는 공인노무사·변호사 등 전문가 상담이 필요합니다. 특히 해고·징계 분쟁이 예상되거나 금액 규모가 큰 경우 반드시 전문가의 자문을 받으세요.</span>
+  </div>
+
+  <header class="app">
+    <span class="kicker">소상공인·HR·팀리더용</span>
+    <h1>해고 리스크 자가진단</h1>
+    <p class="lede">해고 사유·서면통지·예고·평가기록을 체크하면 부당해고 위험 등급과 지금 해야 할 보완 조치를 알려드립니다. 입력값은 저장·전송되지 않고 이 브라우저 안에서만 계산됩니다.</p>
+  </header>
+
+  <form id="quiz" class="card" novalidate>
+    <h2>진단 항목</h2>
+    <fieldset>
+
+      <div class="q" data-q="size">
+        <span class="qlabel"><span class="qnum">Q1</span>상시 근로자 수는 몇 명인가요?</span>
+        <p class="hint">근로기준법 적용 범위가 달라지는 핵심 기준입니다(제11조).</p>
+        <div class="opts two" role="radiogroup" aria-label="상시 근로자 수">
+          <label class="opt"><input type="radio" name="size" value="over5"><span class="otext">5인 이상<span class="osub">부당해고 구제제도 적용</span></span></label>
+          <label class="opt"><input type="radio" name="size" value="under5"><span class="otext">5인 미만<span class="osub">일부 조항 적용 제외</span></span></label>
+        </div>
+      </div>
+
+      <div class="q" data-q="tenure">
+        <span class="qlabel"><span class="qnum">Q2</span>해고 대상자의 근속·수습 상태는?</span>
+        <p class="hint">근속 3개월 미만이면 해고예고 의무가 면제됩니다(제26조 단서).</p>
+        <div class="opts" role="radiogroup" aria-label="근속·수습 상태">
+          <label class="opt"><input type="radio" name="tenure" value="prob_under3"><span class="otext">수습 중 · 근속 3개월 미만</span></label>
+          <label class="opt"><input type="radio" name="tenure" value="prob_over3"><span class="otext">수습 중 · 근속 3개월 이상</span></label>
+          <label class="opt"><input type="radio" name="tenure" value="regular"><span class="otext">수습 종료(정규 근로자)</span></label>
+        </div>
+      </div>
+
+      <div class="q" data-q="reason">
+        <span class="qlabel"><span class="qnum">Q3</span>해고 사유의 유형은?</span>
+        <p class="hint">유형에 따라 정당성 입증 난이도와 필요 절차가 다릅니다.</p>
+        <div class="opts two" role="radiogroup" aria-label="해고 사유 유형">
+          <label class="opt"><input type="radio" name="reason" value="attendance"><span class="otext">근태 불량<span class="osub">지각·무단결근 등</span></span></label>
+          <label class="opt"><input type="radio" name="reason" value="performance"><span class="otext">업무성과·능력 부족</span></label>
+          <label class="opt"><input type="radio" name="reason" value="discipline"><span class="otext">징계 사유<span class="osub">비위·규정 위반</span></span></label>
+          <label class="opt"><input type="radio" name="reason" value="managerial"><span class="otext">경영상 이유<span class="osub">정리해고</span></span></label>
+        </div>
+      </div>
+
+      <div class="q" data-q="rif" id="q-rif" hidden>
+        <span class="qlabel"><span class="qnum">Q3-1</span>정리해고 4요건 충족 정도는?</span>
+        <p class="hint">긴박한 경영상 필요·해고회피 노력·합리적 공정한 대상 선정·근로자대표 50일 전 협의(제24조).</p>
+        <div class="opts" role="radiogroup" aria-label="정리해고 요건 충족">
+          <label class="opt"><input type="radio" name="rif" value="most"><span class="otext">대부분 충족·문서화됨</span></label>
+          <label class="opt"><input type="radio" name="rif" value="some"><span class="otext">일부만 충족</span></label>
+          <label class="opt"><input type="radio" name="rif" value="weak"><span class="otext">거의 준비되지 않음</span></label>
+        </div>
+      </div>
+
+      <div class="q" data-q="evidence">
+        <span class="qlabel"><span class="qnum">Q4</span>사유를 뒷받침할 객관적 기록이 있나요?</span>
+        <p class="hint">근태기록·경고장·시말서·평가표·업무지시 메일 등.</p>
+        <div class="opts" role="radiogroup" aria-label="객관적 기록 축적">
+          <label class="opt"><input type="radio" name="evidence" value="strong"><span class="otext">충분히 축적됨<span class="osub">시점별 근거 다수</span></span></label>
+          <label class="opt"><input type="radio" name="evidence" value="some"><span class="otext">일부 있음</span></label>
+          <label class="opt"><input type="radio" name="evidence" value="weak"><span class="otext">거의 없음<span class="osub">구두 경고 위주</span></span></label>
+        </div>
+      </div>
+
+      <div class="q" data-q="written">
+        <span class="qlabel"><span class="qnum">Q5</span>해고 사유와 시기를 서면으로 통지했나요?</span>
+        <p class="hint">서면통지는 근기법 제27조상 효력요건입니다(5인 이상 사업장).</p>
+        <div class="opts" role="radiogroup" aria-label="서면 통지 여부">
+          <label class="opt"><input type="radio" name="written" value="written"><span class="otext">서면으로 통지함<span class="osub">사유·시기 명시</span></span></label>
+          <label class="opt"><input type="radio" name="written" value="verbal"><span class="otext">구두로만 통지</span></label>
+          <label class="opt"><input type="radio" name="written" value="none"><span class="otext">아직 통지하지 않음</span></label>
+        </div>
+      </div>
+
+      <div class="q" data-q="notice">
+        <span class="qlabel"><span class="qnum">Q6</span>해고예고를 했거나 예고수당을 지급하나요?</span>
+        <p class="hint">30일 전 예고 또는 30일분 이상 통상임금 지급(제26조).</p>
+        <div class="opts" role="radiogroup" aria-label="해고예고 여부">
+          <label class="opt"><input type="radio" name="notice" value="advance"><span class="otext">30일 전 예고함</span></label>
+          <label class="opt"><input type="radio" name="notice" value="pay"><span class="otext">예고수당(30일분) 지급 예정</span></label>
+          <label class="opt"><input type="radio" name="notice" value="none"><span class="otext">예고도 수당도 없음</span></label>
+        </div>
+      </div>
+
+      <div class="q detail" data-q="memo">
+        <label for="memo"><span class="qnum">Q7</span>사안 메모 <span style="font-weight:400;color:var(--ink-soft);font-size:13px">(선택)</span></label>
+        <p class="hint">구체적 상황을 적어두면 아래 결과 요약에 함께 담겨, 노무사 상담 시 그대로 붙여넣을 수 있습니다.</p>
+        <textarea id="memo" name="memo" placeholder="예) 입사 5개월차 직원. 최근 2개월 지각 8회, 구두 경고 3회. 서면 경고는 없었음..."></textarea>
+      </div>
+
+    </fieldset>
+
+    <div class="actions-row">
+      <button type="submit" class="btn btn-primary" id="runBtn">진단 시작</button>
+      <button type="button" class="btn btn-ghost" id="resetBtn">다시 입력</button>
+    </div>
+    <div class="err" id="formErr" role="alert" aria-live="polite"></div>
+  </form>
+
+  <section id="result" aria-live="polite">
+    <div class="empty" id="emptyState">
+      <span class="big" aria-hidden="true">🧭</span>
+      항목을 선택하고 <b>진단 시작</b>을 누르면<br>부당해고 위험 등급과 보완 조치가 여기에 표시됩니다.
+    </div>
+  </section>
+
+  <footer>
+    <p>이 도구는 대한민국 근로기준법(제11조·제23조·제24조·제26조·제27조·제28조)을 근거로 위험을 개략 평가합니다. 실제 판정은 사실관계·증거·취업규칙에 따라 달라질 수 있습니다.</p>
+    <p class="ver">해고 리스크 자가진단 · v1.0 · 오프라인에서도 동작하는 단일 파일 도구</p>
+  </footer>
+</div>
+
+<!-- Manual copy fallback modal -->
+<div class="modal-bg" id="copyModal" role="dialog" aria-modal="true" aria-label="수동 복사">
+  <div class="modal">
+    <h3>수동으로 복사하기</h3>
+    <p>자동 복사가 차단되었습니다. 아래 내용을 길게 눌러 전체 선택한 뒤 복사하세요.</p>
+    <textarea id="copyModalText" readonly></textarea>
+    <div class="mrow"><button type="button" class="btn btn-ghost" id="copyModalClose">닫기</button></div>
+  </div>
+</div>
+
+<textarea id="copySink" class="sr" aria-hidden="true"></textarea>
+
+<script>
+(function(){
+  "use strict";
+  var form = document.getElementById('quiz');
+  var resultEl = document.getElementById('result');
+  var emptyState = document.getElementById('emptyState');
+  var formErr = document.getElementById('formErr');
+  var runBtn = document.getElementById('runBtn');
+  var qRif = document.getElementById('q-rif');
+  var memo = document.getElementById('memo');
+
+  // auto-grow textarea
+  function grow(t){ t.style.height='auto'; t.style.height=(t.scrollHeight)+'px'; }
+  memo.addEventListener('input', function(){ grow(memo); });
+
+  // conditional 정리해고 question
+  form.addEventListener('change', function(e){
+    if(e.target.name==='reason'){
+      var isMgr = e.target.value==='managerial';
+      qRif.hidden = !isMgr;
+      if(!isMgr){
+        var r = form.querySelector('input[name="rif"]:checked');
+        if(r) r.checked=false;
+      }
+    }
+  });
+
+  function val(name){ var el=form.querySelector('input[name="'+name+'"]:checked'); return el?el.value:null; }
+
+  var REQUIRED = ['size','tenure','reason','evidence','written','notice'];
+
+  function validate(){
+    var missing=[];
+    REQUIRED.forEach(function(n){ if(!val(n)) missing.push(n); });
+    if(val('reason')==='managerial' && !val('rif')) missing.push('rif');
+    return missing;
+  }
+
+  // ---- scoring / decision logic (근로기준법 기준) ----
+  function analyze(a){
+    var smallBiz = a.size==='under5';
+    var noticeExempt = a.tenure==='prob_under3'; // 근속 3개월 미만: 예고 의무 없음 (제26조 단서 1호)
+    var out = { smallBiz:smallBiz };
+
+    // 해고예고(제26조) sub-risk — 사업장 규모 무관 적용
+    if(noticeExempt){
+      out.notice = { dot:'mut', st:'해고예고 의무 없음',
+        sd:'근속 3개월 미만이라 해고예고·예고수당 의무가 면제됩니다(근기법 제26조 단서 제1호).' };
+    } else if(a.notice==='none'){
+      out.notice = { dot:'warn', st:'해고예고 미이행 — 예고수당 지급 필요',
+        sd:'30일 전 예고가 없었다면 30일분 이상의 통상임금(해고예고수당)을 지급해야 합니다. 미지급은 형사처벌(제110조) 대상입니다.' };
+    } else {
+      out.notice = { dot:'ok', st:'해고예고 요건 충족',
+        sd:(a.notice==='advance'?'30일 전 예고로':'예고수당(30일분 통상임금) 지급으로')+' 근기법 제26조 요건을 갖췄습니다.' };
+    }
+
+    var score = 0;
+    if(smallBiz){
+      // 부당해고 구제(제23·27·28조) 적용 제외 → 원직복직·구제 리스크 없음
+      var noticeBad = (!noticeExempt && a.notice==='none');
+      score = noticeBad ? 34 : 12;
+      out.grade = noticeBad ? 'mid' : 'low';
+      out.headline = noticeBad
+        ? '부당해고 구제 리스크는 낮으나, 해고예고 리스크가 남습니다'
+        : '주요 해고 리스크가 낮은 편입니다';
+      out.gdesc = '5인 미만 사업장은 부당해고 제한(제23조)·서면통지(제27조)·노동위원회 구제신청(제28조)이 적용되지 않습니다(제11조, 시행령 별표1). 따라서 원직복직·금전보상 명령 리스크는 없습니다. '
+        + (noticeBad
+            ? '다만 해고예고(제26조)는 적용되므로 예고수당 미지급 시 진정·형사 리스크가 있습니다.'
+            : '해고예고 요건도 충족해 형식 리스크가 낮습니다.');
+    } else {
+      // 5인 이상 — 부당해고 판정 위험 점수화
+      var ev = {strong:0, some:18, weak:38}[a.evidence];
+      var rs = {attendance:6, performance:14, discipline:8, managerial:12}[a.reason];
+      var tn = {prob_under3:-12, prob_over3:-5, regular:0}[a.tenure];
+      var wr = {written:0, verbal:16, none:22}[a.written];
+      var nt = (!noticeExempt && a.notice==='none') ? 8 : 0;
+      var rif = 0;
+      if(a.reason==='managerial'){ rif = {most:0, some:14, weak:26}[a.rif] || 0; }
+      score = ev + rs + tn + wr + nt + rif;
+      if(score<0) score=0; if(score>100) score=100;
+
+      if(score<25){ out.grade='low'; out.headline='부당해고로 판정될 위험이 낮습니다'; }
+      else if(score<50){ out.grade='mid'; out.headline='보완이 필요한 중간 위험입니다'; }
+      else if(score<75){ out.grade='high'; out.headline='부당해고 위험이 높습니다'; }
+      else { out.grade='crit'; out.headline='부당해고 위험이 매우 높습니다'; }
+
+      var reliefMap = {low:'낮음', mid:'중간', high:'높음', crit:'매우 높음'};
+      out.gdesc = '입력하신 사유·근거·절차를 종합할 때, 근로자가 부당해고 구제신청 시 구제받을 가능성(회사 패소 가능성)은 '
+        + '"'+reliefMap[out.grade]+'"'+' 수준으로 추정됩니다. 아래 보완 조치로 방어력을 높일 수 있습니다.';
+    }
+    out.score = Math.round(score);
+
+    // ---- 보완 조치 ----
+    var actions = [];
+    if(a.evidence==='weak' || a.evidence==='some'){
+      actions.push([1,'해고 사유를 입증할 객관적 자료를 시점별로 축적하세요. 근태기록·경고장·시말서·업무지시 메일·평가표 등 서면 근거가 정당성 판단의 핵심입니다.']);
+    }
+    if(!smallBiz && (a.written==='verbal' || a.written==='none')){
+      actions.push([1,'해고 사유와 시기를 반드시 서면으로 통지하세요. 서면통지는 근기법 제27조상 효력요건이라, 누락 시 사유가 정당해도 해고가 무효가 될 수 있습니다.']);
+    }
+    if(!noticeExempt && a.notice==='none'){
+      actions.push([1,'30일 전 예고를 하지 않았다면 30일분 이상의 통상임금(해고예고수당)을 지급하세요(제26조). 미지급은 형사처벌(제110조) 대상입니다.']);
+    }
+    if(a.reason==='performance'){
+      actions.push([2,'성과 부진 해고는 정당성 인정이 가장 까다롭습니다. 명확한 성과기준·개선기회(PIP)·재교육·배치전환 시도 기록을 먼저 갖추세요.']);
+    }
+    if(a.reason==='discipline'){
+      actions.push([2,'징계해고는 취업규칙상 징계사유 해당 여부, 소명기회 부여, 징계양정의 적정성(비위 대비 과중하지 않은지)을 점검하세요.']);
+    }
+    if(a.reason==='managerial'){
+      actions.push([2,'정리해고는 4요건(긴박한 경영상 필요·해고회피 노력·합리적이고 공정한 대상 선정·근로자대표에 50일 전 통보 및 협의)을 모두 갖춰야 합니다(제24조).']);
+    }
+    if(a.tenure==='prob_under3' || a.tenure==='prob_over3'){
+      actions.push([2,'수습 해고(본채용 거부)도 객관적·합리적 이유가 필요합니다(대법원 2006다54266). 다만 정규직보다 넓은 재량이 인정되므로, 수습평가 기준을 계약서·평가표에 명시하고 평가기록을 남기세요.']);
+    }
+    if(smallBiz){
+      actions.push([3,'5인 미만 사업장은 부당해고 구제신청 대상이 아니지만, 해고예고(제26조)는 적용되고 서면 통지는 분쟁 예방을 위해 권장됩니다.']);
+    }
+    actions.push([3,'취업규칙에 해고·징계 사유와 절차(소명기회 포함)를 명확히 정비하고, 해고 전 대상자에게 소명 기회를 부여하세요.']);
+    out.actions = actions;
+
+    // ---- 근거 법령 ----
+    var legal = [];
+    if(!smallBiz){
+      legal.push(['근로기준법 제23조 (해고 등의 제한)','정당한 이유 없는 해고를 금지합니다.']);
+    } else {
+      legal.push(['근로기준법 제11조 (적용 범위)','상시 5인 미만 사업장에는 부당해고 제한(제23조)·서면통지(제27조)·구제신청(제28조) 등이 적용되지 않습니다(시행령 별표1).']);
+    }
+    legal.push(['근로기준법 제26조 (해고의 예고)','30일 전 예고 또는 30일분 이상 통상임금 지급. 근속 3개월 미만 등은 예외(단서).']);
+    if(!smallBiz){
+      legal.push(['근로기준법 제27조 (해고사유 등의 서면통지)','해고 사유와 시기를 서면으로 통지해야 효력이 있습니다.']);
+      legal.push(['근로기준법 제28조 (부당해고 구제신청)','근로자는 해고일부터 3개월 이내 노동위원회에 구제신청 가능.']);
+    }
+    if(a.reason==='managerial'){
+      legal.push(['근로기준법 제24조 (경영상 이유에 의한 해고)','긴박한 경영상 필요·해고회피 노력·합리적 공정한 대상 선정·근로자대표 50일 전 협의를 요구합니다.']);
+    }
+    if(a.tenure==='prob_under3' || a.tenure==='prob_over3'){
+      legal.push(['대법원 2006다54266','수습 근로자의 본채용 거부도 객관적·합리적 이유가 필요하나, 정규직 해고보다 넓은 재량이 인정됩니다.']);
+    }
+    out.legal = legal;
+
+    // ---- 구제 절차 정보 ----
+    var info = [];
+    if(!smallBiz){
+      info.push('근로자는 해고일부터 3개월 이내에 관할 지방노동위원회에 부당해고 구제신청을 할 수 있습니다(제28조).');
+      info.push('구제가 인정되면 원직복직과 해고기간 임금 상당액 지급이 명령됩니다.');
+      info.push('해고의 정당성·서면통지·절차 이행은 사용자(회사)가 입증해야 하므로, 관련 자료를 반드시 보존하세요.');
+    } else {
+      info.push('5인 미만 사업장은 노동위원회 부당해고 구제신청 대상이 아닙니다(제11조, 시행령 별표1).');
+      info.push('다만 해고예고수당 미지급은 고용노동부 진정·형사 대상이 될 수 있고, 퇴직금·연차수당 등 다른 청구는 별도로 가능합니다.');
+    }
+    out.info = info;
+
+    return out;
+  }
+
+  var GRADE_LABEL = {low:'낮음', mid:'중간', high:'높음', crit:'매우 높음'};
+  var PR_LABEL = {1:'긴급', 2:'중요', 3:'권장'};
+
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  var lastReport = '';
+
+  function render(a, r){
+    var h = '';
+    h += '<div class="card result-card" style="padding:0;overflow:hidden">';
+    h += '<div class="grade-head '+r.grade+'">';
+    h += '<div class="glabel">부당해고 위험 등급</div>';
+    h += '<div class="gval">'+GRADE_LABEL[r.grade]+' · '+esc(r.headline)+'</div>';
+    h += '<div class="gdesc">'+esc(r.gdesc)+'</div>';
+    h += '<div class="meter" aria-hidden="true"><i style="width:'+r.score+'%"></i></div>';
+    h += '<div class="meter-cap">위험 지수 '+r.score+'/100</div>';
+    h += '</div>';
+
+    h += '<div style="padding:18px">';
+
+    // 해고예고 sub-risk
+    h += '<div class="rblock"><h3>해고예고 점검 (제26조)</h3>';
+    h += '<div class="subrisk"><span class="dot '+r.notice.dot+'"></span><div>';
+    h += '<div class="st">'+esc(r.notice.st)+'</div><div class="sd">'+esc(r.notice.sd)+'</div>';
+    h += '</div></div></div>';
+
+    // actions
+    h += '<div class="rblock"><h3>지금 해야 할 보완 조치</h3><ul class="checks">';
+    r.actions.forEach(function(it){
+      h += '<li><span class="pr p'+it[0]+'">'+PR_LABEL[it[0]]+'</span><span>'+esc(it[1])+'</span></li>';
+    });
+    h += '</ul></div>';
+
+    // legal
+    h += '<div class="rblock"><h3>근거 법령</h3><dl class="legal">';
+    r.legal.forEach(function(it){
+      h += '<div class="row"><dt>'+esc(it[0])+'</dt><dd>'+esc(it[1])+'</dd></div>';
+    });
+    h += '</dl></div>';
+
+    // relief info
+    h += '<div class="rblock"><h3>구제 절차 참고</h3><ul class="info">';
+    r.info.forEach(function(t){ h += '<li>'+esc(t)+'</li>'; });
+    h += '</ul></div>';
+
+    // copy
+    h += '<div class="rblock" id="hideForPrint"><h3>결과 활용</h3>';
+    h += '<div class="actions-row" style="margin-top:0">';
+    h += '<button type="button" class="btn btn-primary" id="copyBtn">진단 결과 요약 복사</button>';
+    h += '<button type="button" class="btn btn-ghost" id="printBtn">인쇄 / PDF로 저장</button>';
+    h += '</div>';
+    h += '<p class="copy-cap">복사한 요약을 노무사 상담·내부 검토 메모에 그대로 붙여넣을 수 있습니다.</p>';
+    h += '</div>';
+
+    // in-result disclaimer
+    h += '<div class="disclaimer" style="margin-top:16px"><span class="ic" aria-hidden="true">⚖️</span>';
+    h += '<span>이 결과는 입력값에 기반한 <b>참고용 자동 진단</b>이며 법적 효력이 없습니다. 실제 사안은 사실관계·증거·취업규칙에 따라 달라지므로, 해고를 실행하기 전 공인노무사·변호사의 자문을 받으시길 권합니다.</span></div>';
+
+    h += '</div></div>';
+
+    resultEl.innerHTML = h;
+
+    lastReport = buildReport(a, r);
+    document.getElementById('copyBtn').addEventListener('click', function(){ doCopy(lastReport); });
+    document.getElementById('printBtn').addEventListener('click', function(){ window.print(); });
+    resultEl.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function labelOf(name, value){
+    var el = form.querySelector('input[name="'+name+'"][value="'+value+'"]');
+    if(!el) return value;
+    var t = el.parentNode.querySelector('.otext');
+    return t ? t.firstChild.textContent.trim() : value;
+  }
+
+  function buildReport(a, r){
+    var L = [];
+    L.push('■ 해고 리스크 자가진단 결과');
+    L.push('진단일: '+ new Date().toLocaleDateString('ko-KR'));
+    L.push('');
+    L.push('[입력 요약]');
+    L.push('· 상시 근로자 수: '+labelOf('size',a.size));
+    L.push('· 근속·수습: '+labelOf('tenure',a.tenure));
+    L.push('· 해고 사유: '+labelOf('reason',a.reason));
+    if(a.reason==='managerial' && a.rif) L.push('· 정리해고 요건: '+labelOf('rif',a.rif));
+    L.push('· 객관적 기록: '+labelOf('evidence',a.evidence));
+    L.push('· 서면통지: '+labelOf('written',a.written));
+    L.push('· 해고예고: '+labelOf('notice',a.notice));
+    if(a.memo && a.memo.trim()){ L.push('· 사안 메모: '+a.memo.trim()); }
+    L.push('');
+    L.push('[종합 위험 등급] '+GRADE_LABEL[r.grade]+' (위험지수 '+r.score+'/100)');
+    L.push('· '+r.headline);
+    L.push('· '+r.gdesc);
+    L.push('');
+    L.push('[해고예고 점검] '+r.notice.st);
+    L.push('· '+r.notice.sd);
+    L.push('');
+    L.push('[보완 조치]');
+    r.actions.forEach(function(it,i){ L.push((i+1)+'. ['+PR_LABEL[it[0]]+'] '+it[1]); });
+    L.push('');
+    L.push('[근거 법령]');
+    r.legal.forEach(function(it){ L.push('· '+it[0]+': '+it[1]); });
+    L.push('');
+    L.push('[구제 절차 참고]');
+    r.info.forEach(function(t){ L.push('· '+t); });
+    L.push('');
+    L.push('※ 본 결과는 일반 정보 제공용 참고 자료이며 법적 효력이 없습니다. 최종 판단은 공인노무사·변호사 등 전문가 상담이 필요합니다.');
+    return L.join('\n');
+  }
+
+  // ---- 3-tier clipboard ----
+  var copyModal = document.getElementById('copyModal');
+  var copyModalText = document.getElementById('copyModalText');
+  document.getElementById('copyModalClose').addEventListener('click', function(){ copyModal.classList.remove('on'); });
+  copyModal.addEventListener('click', function(e){ if(e.target===copyModal) copyModal.classList.remove('on'); });
+
+  function toast(btn, msg){
+    var old = btn.textContent; btn.textContent = msg;
+    setTimeout(function(){ btn.textContent = old; }, 1800);
+  }
+  function manualModal(text){
+    copyModalText.value = text; copyModal.classList.add('on');
+    setTimeout(function(){ copyModalText.focus(); copyModalText.select(); }, 30);
+  }
+  function execCopy(text){
+    var sink = document.getElementById('copySink');
+    sink.value = text; sink.style.display='block';
+    sink.focus(); sink.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
+    sink.style.display='none';
+    return ok;
+  }
+  function doCopy(text){
+    var btn = document.getElementById('copyBtn');
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        toast(btn,'복사되었습니다 ✓');
+      }).catch(function(){
+        if(execCopy(text)) toast(btn,'복사되었습니다 ✓'); else manualModal(text);
+      });
+    } else {
+      if(execCopy(text)) toast(btn,'복사되었습니다 ✓'); else manualModal(text);
+    }
+  }
+
+  // ---- submit ----
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var missing = validate();
+    if(missing.length){
+      formErr.textContent = '필수 항목을 모두 선택해 주세요. (' + missing.length + '개 남음)';
+      var first = form.querySelector('[data-q="'+missing[0]+'"]');
+      if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+    formErr.textContent = '';
+    runBtn.disabled = true; runBtn.textContent = '진단 중...';
+
+    var a = {
+      size: val('size'), tenure: val('tenure'), reason: val('reason'),
+      rif: val('rif'), evidence: val('evidence'), written: val('written'),
+      notice: val('notice'), memo: memo.value
+    };
+
+    // brief loading state, then render
+    setTimeout(function(){
+      var r = analyze(a);
+      if(emptyState) emptyState.style.display='none';
+      render(a, r);
+      runBtn.disabled = false; runBtn.textContent = '다시 진단';
+    }, 260);
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    form.reset();
+    qRif.hidden = true;
+    memo.style.height='auto';
+    formErr.textContent='';
+    resultEl.innerHTML = '';
+    resultEl.appendChild(emptyState);
+    emptyState.style.display='';
+    runBtn.textContent = '진단 시작';
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+})();
+</script>
+</body>
+</html>
