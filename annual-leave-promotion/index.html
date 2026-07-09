@@ -1,0 +1,619 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>연차사용촉진 일정·통보문 생성기</title>
+<meta name="description" content="연차 기준일을 넣으면 근로기준법 제61조 사용촉진 일정과 1·2차 서면 통보문 초안을 자동 생성합니다.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --bg:#FBF8F5;
+    --surface:#FFFFFF;
+    --ink:#1F2430;
+    --muted:#54525E;
+    --accent:#9A3412;
+    --accent-ink:#7C2D12;
+    --accent-soft:#FCEEE6;
+    --accent-line:#F0C9B4;
+    --border:#E7E0D9;
+    --border-strong:#D8CFC6;
+    --ok:#166534;
+    --warn-bg:#FEF6E7;
+    --warn-line:#EAD6A6;
+    --warn-ink:#7A5B12;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(31,36,48,.05), 0 8px 24px rgba(31,36,48,.06);
+    --font: "Pretendard Variable", "Pretendard", system-ui, -apple-system, "Malgun Gothic",
+            "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--font);
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+    word-break:keep-all;
+    overflow-wrap:break-word;
+    -webkit-text-size-adjust:100%;
+    font-size:16px;
+  }
+  .wrap{max-width:860px;margin:0 auto;padding:20px 16px 72px}
+  header.hero{padding:12px 2px 22px}
+  .eyebrow{
+    display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.02em;
+    color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line);
+    padding:4px 11px;border-radius:999px;margin-bottom:12px;
+  }
+  h1{font-size:clamp(22px,5.4vw,30px);line-height:1.28;margin:0 0 8px;font-weight:800;letter-spacing:-.01em}
+  .lede{font-size:15.5px;color:var(--muted);margin:0;max-width:52ch}
+
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:20px 18px;margin-bottom:18px;
+  }
+  .card h2{font-size:17px;margin:0 0 4px;font-weight:800;letter-spacing:-.01em}
+  .card .sub{font-size:13.5px;color:var(--muted);margin:0 0 16px}
+
+  .modes{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+  .modes button{
+    flex:1 1 240px;text-align:left;cursor:pointer;background:var(--surface);
+    border:1.5px solid var(--border-strong);border-radius:12px;padding:12px 14px;
+    font-family:inherit;color:var(--ink);transition:border-color .15s, background .15s;
+  }
+  .modes button .t{display:block;font-weight:700;font-size:14.5px}
+  .modes button .d{display:block;font-size:12.5px;color:var(--muted);margin-top:3px}
+  .modes button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+  .modes button[aria-pressed="true"] .t{color:var(--accent-ink)}
+
+  .field{margin-bottom:16px}
+  .field:last-child{margin-bottom:0}
+  label{display:block;font-size:14px;font-weight:700;margin-bottom:6px}
+  label .opt{font-weight:500;color:var(--muted);font-size:12.5px}
+  .hint{font-size:12.5px;color:var(--muted);margin:5px 2px 0}
+  input[type=text],input[type=date],input[type=number],textarea{
+    width:100%;font-family:inherit;font-size:16px;color:var(--ink);background:var(--surface);
+    border:1.5px solid var(--border-strong);border-radius:10px;padding:11px 12px;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(154,52,18,.14)}
+  textarea{resize:vertical;min-height:44px;line-height:1.5}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:560px){ .grid2{grid-template-columns:1fr} }
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+  .btn{
+    font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;border-radius:10px;
+    padding:12px 20px;border:1.5px solid transparent;min-height:46px;
+  }
+  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn-primary:hover{background:#872d0f}
+  .btn-ghost{background:var(--surface);color:var(--accent-ink);border-color:var(--border-strong)}
+  .btn-ghost:hover{border-color:var(--accent)}
+  .btn:focus-visible{outline:3px solid rgba(154,52,18,.4);outline-offset:2px}
+
+  .err{color:#9f1239;font-size:13.5px;font-weight:600;margin-top:12px;display:none}
+  .err.show{display:block}
+
+  /* results */
+  #results{display:none}
+  #results.show{display:block}
+  .empty{
+    text-align:center;color:var(--muted);padding:34px 16px;font-size:14.5px;
+    border:1.5px dashed var(--border-strong);border-radius:12px;background:#FCFAF8;
+  }
+  .empty b{color:var(--ink)}
+
+  .timeline{list-style:none;margin:0;padding:0}
+  .timeline li{
+    position:relative;padding:0 0 18px 26px;border-left:2px solid var(--accent-line);margin-left:6px;
+  }
+  .timeline li:last-child{border-left-color:transparent;padding-bottom:0}
+  .timeline li::before{
+    content:"";position:absolute;left:-8px;top:2px;width:14px;height:14px;border-radius:50%;
+    background:var(--surface);border:3px solid var(--accent);
+  }
+  .tl-label{font-size:12.5px;font-weight:700;color:var(--accent-ink);letter-spacing:.01em}
+  .tl-date{font-size:16px;font-weight:800;margin:2px 0 3px}
+  .tl-note{font-size:13px;color:var(--muted)}
+
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14px;margin:0 0 4px}
+  .kv dt{color:var(--muted)}
+  .kv dd{margin:0;font-weight:700}
+
+  .tmpl-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .tmpl-head h3{font-size:15px;margin:0;font-weight:800}
+  .tag{font-size:11.5px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);
+    border:1px solid var(--accent-line);border-radius:6px;padding:2px 8px}
+  pre.tmpl{
+    white-space:pre-wrap;word-break:keep-all;overflow-wrap:break-word;font-family:inherit;
+    font-size:13.7px;line-height:1.72;color:var(--ink);background:#FCFAF8;border:1px solid var(--border);
+    border-radius:10px;padding:15px 15px;margin:0;
+  }
+  .copy-row{margin-top:10px}
+  .btn-copy{
+    font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;
+    background:var(--surface);color:var(--accent-ink);border:1.5px solid var(--border-strong);
+    border-radius:8px;padding:8px 14px;min-height:40px;
+  }
+  .btn-copy:hover{border-color:var(--accent)}
+  .btn-copy.done{color:#fff;background:var(--ok);border-color:var(--ok)}
+
+  .notice{
+    display:flex;gap:10px;align-items:flex-start;background:var(--warn-bg);border:1px solid var(--warn-line);
+    color:var(--warn-ink);border-radius:12px;padding:13px 15px;font-size:13px;line-height:1.6;
+  }
+  .notice svg{flex:0 0 auto;margin-top:1px}
+  .notice b{color:#5c4409}
+
+  .foot{font-size:12px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.6}
+  .foot a{color:var(--accent-ink)}
+
+  .divider{height:1px;background:var(--border);margin:20px 0}
+
+  /* modal */
+  .modal-back{
+    display:none;position:fixed;inset:0;background:rgba(31,36,48,.55);z-index:50;
+    align-items:center;justify-content:center;padding:18px;
+  }
+  .modal-back.show{display:flex}
+  .modal{background:var(--surface);border-radius:14px;max-width:520px;width:100%;padding:20px;box-shadow:var(--shadow)}
+  .modal h3{margin:0 0 6px;font-size:16px}
+  .modal p{margin:0 0 12px;font-size:13.5px;color:var(--muted)}
+  .modal textarea{min-height:180px;font-size:13.5px}
+  .modal .actions{margin-top:14px;justify-content:flex-end}
+
+  @media print{
+    body{background:#fff}
+    .no-print{display:none !important}
+    .card{box-shadow:none;border-color:#ccc;break-inside:avoid}
+    pre.tmpl{background:#fff}
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">인사·재무 실무 도구</span>
+    <h1>연차사용촉진 일정·통보문 생성기</h1>
+    <p class="lede">연차 기준일만 넣으면 근로기준법 제61조에 따른 사용촉진 일정과 1·2차 서면 통보문 초안을 자동으로 만들어 드립니다.</p>
+  </header>
+
+  <!-- INPUT -->
+  <section class="card no-print" aria-labelledby="inputTitle">
+    <h2 id="inputTitle">1. 대상과 기준일 입력</h2>
+    <p class="sub">근속 기간에 따라 촉진 절차와 기한이 다릅니다. 대상을 먼저 고르세요.</p>
+
+    <div class="modes" role="group" aria-label="사용촉진 대상 선택">
+      <button type="button" id="modeA" aria-pressed="true" onclick="setMode('A')">
+        <span class="t">1년 이상 근로자</span>
+        <span class="d">연 단위 연차 · 근기법 제61조제1항 (6개월·2개월 전)</span>
+      </button>
+      <button type="button" id="modeB" aria-pressed="false" onclick="setMode('B')">
+        <span class="t">1년 미만 근로자</span>
+        <span class="d">월 단위 연차 · 근기법 제61조제2항 (3개월·1개월 전)</span>
+      </button>
+    </div>
+
+    <div class="field">
+      <label id="dateLabel" for="baseDate">연차 사용기간 시작일(기준일)</label>
+      <input type="date" id="baseDate" aria-describedby="dateHint">
+      <p class="hint" id="dateHint">입사일 기준이면 연차 발생일, 회계연도 기준이면 해당 연도 1월 1일을 넣으세요.</p>
+    </div>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="company">회사명 <span class="opt">(통보문용, 선택)</span></label>
+        <input type="text" id="company" placeholder="예: 주식회사 가인지" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="worker">근로자 성명 <span class="opt">(선택)</span></label>
+        <input type="text" id="worker" placeholder="예: 홍길동" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="dept">부서·직급 <span class="opt">(선택)</span></label>
+        <input type="text" id="dept" placeholder="예: 영업1팀 / 대리" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="days">미사용 연차일수 <span class="opt">(선택)</span></label>
+        <input type="number" id="days" min="0" step="0.5" placeholder="예: 12" inputmode="decimal">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="hrdept">인사담당 부서·통보 주체 <span class="opt">(선택)</span></label>
+      <input type="text" id="hrdept" placeholder="예: 경영지원팀 인사담당" autocomplete="off">
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-primary" onclick="generate()">일정·통보문 생성</button>
+      <button type="button" class="btn btn-ghost" onclick="resetAll()">초기화</button>
+    </div>
+    <p class="err" id="err" role="alert"></p>
+  </section>
+
+  <!-- RESULTS -->
+  <div id="resultsEmpty" class="card no-print">
+    <div class="empty"><b>결과가 여기에 표시됩니다.</b><br>기준일을 입력하고 <b>생성</b>을 누르면 일정과 통보문이 만들어집니다.</div>
+  </div>
+
+  <section id="results" aria-live="polite">
+    <!-- schedule -->
+    <div class="card">
+      <h2 id="schTitle">사용촉진 일정</h2>
+      <p class="sub" id="schMeta"></p>
+      <ol class="timeline" id="timeline"></ol>
+    </div>
+
+    <!-- templates -->
+    <div class="card">
+      <h2>서면 통보문 초안</h2>
+      <p class="sub">아래 초안을 복사해 사내 양식에 붙여 넣고, 밑줄·괄호 항목만 채우면 됩니다. 서면(또는 전자결재·이메일 등 서면에 준하는 방식)으로 발송·보관하세요.</p>
+
+      <div class="tmpl-head">
+        <h3 id="t1title">1차 사용시기 지정 촉구서</h3>
+        <span class="tag" id="t1tag"></span>
+      </div>
+      <pre class="tmpl" id="tmpl1"></pre>
+      <div class="copy-row"><button type="button" class="btn-copy" onclick="copyTmpl('tmpl1', this)">1차 촉구서 복사</button></div>
+
+      <div class="divider"></div>
+
+      <div class="tmpl-head">
+        <h3 id="t2title">2차 사용시기 지정 통보서</h3>
+        <span class="tag" id="t2tag"></span>
+      </div>
+      <pre class="tmpl" id="tmpl2"></pre>
+      <div class="copy-row"><button type="button" class="btn-copy" onclick="copyTmpl('tmpl2', this)">2차 통보서 복사</button></div>
+    </div>
+
+    <div class="actions no-print" style="margin-bottom:18px">
+      <button type="button" class="btn btn-ghost" onclick="window.print()">일정·통보문 인쇄 / PDF 저장</button>
+    </div>
+  </section>
+
+  <!-- persistent legal notice -->
+  <div class="notice" role="note">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2 1 21h22L12 2Z" stroke="#7A5B12" stroke-width="1.7" stroke-linejoin="round"/>
+      <path d="M12 9v5M12 17h.01" stroke="#7A5B12" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+    <div><b>참고용 도구입니다.</b> 본 도구는 근로기준법 제61조에 기반한 일반 정보 제공용 참고 자료이며, 법적 효력이 있는 공식 의견이 아닙니다. 회사의 취업규칙·단체협약, 회계연도 운영 방식, 개별 사실관계에 따라 결과가 달라질 수 있습니다. 개별 사안의 최종 판단과 실제 통보 전에는 공인노무사·변호사 등 전문가의 자문을 받으시기 바랍니다.</div>
+  </div>
+
+  <p class="foot">
+    근거: 근로기준법 제60조(연차 유급휴가) · 제61조(연차 유급휴가의 사용 촉진). 날짜는 입력한 기준일 기준으로 계산됩니다.<br>
+    브라우저에서 단독으로 동작하며, 입력값은 어디에도 전송·저장되지 않습니다.
+  </p>
+</div>
+
+<!-- manual copy modal -->
+<div class="modal-back" id="copyModal" role="dialog" aria-modal="true" aria-labelledby="cmTitle">
+  <div class="modal">
+    <h3 id="cmTitle">직접 복사해 주세요</h3>
+    <p>자동 복사가 지원되지 않는 환경입니다. 아래 내용을 길게 눌러 전체 선택 후 복사하세요.</p>
+    <textarea id="copyModalText" readonly></textarea>
+    <div class="actions">
+      <button type="button" class="btn btn-ghost" onclick="closeModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+var MODE = 'A';
+var last = null; // last computed payload
+
+/* ---------- date helpers (local, no timezone drift) ---------- */
+function parseDate(v){
+  if(!v) return null;
+  var p = v.split('-').map(Number);
+  if(p.length!==3 || p.some(isNaN)) return null;
+  return new Date(p[0], p[1]-1, p[2]);
+}
+function daysInMonth(y,m){ return new Date(y, m+1, 0).getDate(); }
+function addMonths(d,n){
+  var t = new Date(d.getFullYear(), d.getMonth()+n, 1);
+  t.setDate(Math.min(d.getDate(), daysInMonth(t.getFullYear(), t.getMonth())));
+  return t;
+}
+function addDays(d,n){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()+n); }
+var WD = ['일','월','화','수','목','금','토'];
+function fmt(d){ return d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일('+WD[d.getDay()]+')'; }
+function fmtShort(d){ return (d.getMonth()+1)+'월 '+d.getDate()+'일'; }
+
+/* ---------- mode ---------- */
+function setMode(m){
+  MODE = m;
+  document.getElementById('modeA').setAttribute('aria-pressed', m==='A');
+  document.getElementById('modeB').setAttribute('aria-pressed', m==='B');
+  document.getElementById('dateLabel').textContent =
+    (m==='A') ? '연차 사용기간 시작일(기준일)' : '입사일(최초 근로 시작일)';
+  document.getElementById('dateHint').textContent =
+    (m==='A')
+      ? '입사일 기준이면 연차 발생일, 회계연도 기준이면 해당 연도 1월 1일을 넣으세요.'
+      : '계속근로기간 1년 미만 근로자의 최초 근로 시작일(입사일)을 넣으세요.';
+}
+
+/* ---------- error ---------- */
+function showErr(msg){
+  var e=document.getElementById('err');
+  e.textContent=msg; e.classList.add('show');
+}
+function clearErr(){ document.getElementById('err').classList.remove('show'); }
+
+/* ---------- generate ---------- */
+function generate(){
+  clearErr();
+  var base = parseDate(document.getElementById('baseDate').value);
+  if(!base){ showErr('기준일(날짜)을 먼저 선택해 주세요.'); return; }
+
+  var v = readInputs();
+  var payload = (MODE==='A') ? computeA(base) : computeB(base);
+  payload.v = v;
+
+  renderTimeline(payload);
+  renderTemplates(payload);
+  last = payload;
+
+  document.getElementById('resultsEmpty').style.display='none';
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function readInputs(){
+  function t(id){ return document.getElementById(id).value.trim(); }
+  return {
+    company: t('company') || '(회사명)',
+    worker: t('worker') || '(근로자 성명)',
+    dept: t('dept'),
+    days: t('days') || '____',
+    hr: t('hrdept') || '인사담당 부서'
+  };
+}
+
+/* §61(1): 1년 이상 — 연 단위 연차, 사용기간 1년 */
+function computeA(base){
+  var expiry = addDays(addMonths(base,12), -1);      // 사용기간 만료일 = 기준일 +1년 -1일
+  var win1s  = addDays(addMonths(expiry,-6), 1);      // 6개월 전 기준 10일 이내 시작
+  var win1e  = addDays(win1s, 9);                     // 10일 이내(마지막 날)
+  var due2   = addMonths(expiry,-2);                  // 2개월 전까지 2차 통보
+  return {
+    mode:'A', base:base, expiry:expiry,
+    win1s:win1s, win1e:win1e, due2:due2,
+    art1:'제61조제1항제1호', art2:'제61조제1항제2호'
+  };
+}
+
+/* §61(2): 1년 미만 — 월 단위 연차, 최초 1년 내 사용 */
+function computeB(base){
+  var last1  = addDays(addMonths(base,12), -1);       // 최초 1년 근로기간이 끝나는 날
+  // 1차 wave (먼저 발생한 휴가): 3개월 전 기준 10일 이내
+  var w1s = addDays(addMonths(last1,-3), 1);
+  var w1e = addDays(w1s, 9);
+  var due2a = addMonths(last1,-1);                    // 1개월 전까지 2차 통보
+  // 2차 wave (촉구 후 발생한 휴가): 1개월 전 기준 5일 이내
+  var w2s = addDays(addMonths(last1,-1), 1);
+  var w2e = addDays(w2s, 4);
+  var due2b = addDays(last1,-10);                     // 10일 전까지 2차 통보
+  return {
+    mode:'B', base:base, expiry:last1,
+    w1s:w1s, w1e:w1e, due2a:due2a,
+    w2s:w2s, w2e:w2e, due2b:due2b,
+    art1:'제61조제2항제1호', art2:'제61조제2항제2호'
+  };
+}
+
+/* ---------- render timeline ---------- */
+function renderTimeline(p){
+  var meta = document.getElementById('schMeta');
+  var tl = document.getElementById('timeline');
+  tl.innerHTML='';
+  if(p.mode==='A'){
+    meta.innerHTML = '대상: <b>1년 이상 근로자</b> · 연차 사용기간 <b>'+fmt(p.base)+' ~ '+fmt(p.expiry)+'</b>';
+    addStep(tl,'STEP 1 · 1차 서면 촉구 (사용자 → 근로자)',
+      fmtShort(p.win1s)+' ~ '+fmtShort(p.win1e),
+      '사용기간 만료 6개월 전을 기준으로 10일 이내에, 미사용 연차일수를 알리고 사용시기를 정해 통보하도록 서면 촉구.');
+    addStep(tl,'STEP 2 · 근로자 사용시기 통보',
+      '촉구받은 날부터 10일 이내',
+      '근로자가 미사용 연차의 사용시기를 정해 회사에 통보. 통보하면 절차 종료.');
+    addStep(tl,'STEP 3 · 2차 서면 통보 (미통보 시)',
+      fmt(p.due2)+' 까지',
+      '근로자가 기한 내 통보하지 않으면, 만료 2개월 전까지 회사가 사용시기를 지정해 서면 통보.');
+    addStep(tl,'만료 · 미사용분 소멸',
+      fmt(p.expiry),
+      '적법한 촉진 절차를 모두 이행했다면, 소멸된 미사용 연차에 대한 금전보상 의무 면제(근기법 제61조).');
+  } else {
+    meta.innerHTML = '대상: <b>1년 미만 근로자</b> · 최초 1년 근로기간 종료일 <b>'+fmt(p.expiry)+'</b> (입사일 '+fmt(p.base)+')';
+    addStep(tl,'STEP 1 · 1차 촉구 (먼저 발생한 휴가, 최대 9일)',
+      fmtShort(p.w1s)+' ~ '+fmtShort(p.w1e),
+      '최초 1년 근로기간 종료 3개월 전을 기준으로 10일 이내에 서면 촉구.');
+    addStep(tl,'STEP 2 · 2차 통보 (먼저 발생분, 미통보 시)',
+      fmt(p.due2a)+' 까지',
+      '근로자가 촉구받은 날부터 10일 내 미통보 시, 종료 1개월 전까지 회사가 사용시기 지정·서면 통보.');
+    addStep(tl,'STEP 3 · 1차 촉구 (촉구 후 발생한 휴가, 나머지)',
+      fmtShort(p.w2s)+' ~ '+fmtShort(p.w2e),
+      '종료 1개월 전을 기준으로 5일 이내에 별도 서면 촉구.');
+    addStep(tl,'STEP 4 · 2차 통보 (나중 발생분, 미통보 시)',
+      fmt(p.due2b)+' 까지',
+      '미통보 시 종료 10일 전까지 회사가 사용시기 지정·서면 통보.');
+    addStep(tl,'만료 · 미사용분 소멸',
+      fmt(p.expiry),
+      '적법한 촉진 절차를 모두 이행했다면, 소멸된 미사용 연차에 대한 금전보상 의무 면제(근기법 제61조).');
+  }
+}
+function addStep(tl,label,date,note){
+  var li=document.createElement('li');
+  var a=document.createElement('div'); a.className='tl-label'; a.textContent=label;
+  var b=document.createElement('div'); b.className='tl-date'; b.textContent=date;
+  var c=document.createElement('div'); c.className='tl-note'; c.textContent=note;
+  li.appendChild(a); li.appendChild(b); li.appendChild(c);
+  tl.appendChild(li);
+}
+
+/* ---------- render templates ---------- */
+function renderTemplates(p){
+  var v=p.v;
+  var recip = v.worker + ' 귀하' + (v.dept ? ' ('+v.dept+')' : '');
+  var t1tag = document.getElementById('t1tag');
+  var t2tag = document.getElementById('t2tag');
+
+  if(p.mode==='A'){
+    t1tag.textContent='근기법 '+p.art1;
+    t2tag.textContent='근기법 '+p.art2;
+    document.getElementById('tmpl1').textContent = tmplA1(p, v, recip);
+    document.getElementById('tmpl2').textContent = tmplA2(p, v, recip);
+  } else {
+    t1tag.textContent='근기법 '+p.art1;
+    t2tag.textContent='근기법 '+p.art2;
+    document.getElementById('tmpl1').textContent = tmplB1(p, v, recip);
+    document.getElementById('tmpl2').textContent = tmplB2(p, v, recip);
+  }
+}
+
+function tmplA1(p,v,recip){
+return '['+v.company+'] 연차유급휴가 사용시기 지정·통보 촉구서 (1차)\n'+
+'\n'+
+'수신: '+recip+'\n'+
+'발신: '+v.company+' '+v.hr+'\n'+
+'\n'+
+'1. 귀하의 노고에 감사드립니다.\n'+
+'2. 근로기준법 제61조(연차 유급휴가의 사용 촉진)에 따라, 귀하의 미사용 연차유급휴가에 대해 아래와 같이 사용시기 지정을 촉구합니다.\n'+
+'\n'+
+'   - 연차 사용기간: '+fmt(p.base)+' ~ '+fmt(p.expiry)+'\n'+
+'   - 미사용 연차유급휴가: 총 '+v.days+'일\n'+
+'   - 통보 기한: 본 촉구서를 받은 날부터 10일 이내\n'+
+'\n'+
+'3. 위 기한 내에 미사용 연차의 사용시기를 정하여 '+v.hr+'에 서면으로 통보하여 주시기 바랍니다.\n'+
+'4. 기한 내 통보가 없을 경우, 근로기준법 '+p.art2+'에 따라 회사가 귀하의 미사용 연차 사용시기를 지정하여 서면으로 통보할 예정입니다. 회사가 지정한 시기에 연차를 사용하지 않아 해당 휴가가 소멸되는 경우, 회사는 그 미사용 연차에 대하여 금전으로 보상할 의무가 없습니다(근로기준법 제61조).\n'+
+'\n'+
+'발송일: '+span(fmtShort(p.win1s)+' ~ '+fmtShort(p.win1e))+' 사이에 발송\n'+
+'\n'+
+'                              '+v.company+'  (직인)';
+}
+
+function tmplA2(p,v,recip){
+return '['+v.company+'] 연차유급휴가 사용시기 지정 통보서 (2차)\n'+
+'\n'+
+'수신: '+recip+'\n'+
+'발신: '+v.company+' '+v.hr+'\n'+
+'\n'+
+'1. 근로기준법 '+p.art1+'에 따른 1차 사용촉구(촉구일: ____년 __월 __일)에도 불구하고, 귀하께서 촉구받은 날부터 10일 이내에 미사용 연차유급휴가의 사용시기를 통보하지 않으셨습니다.\n'+
+'2. 이에 근로기준법 '+p.art2+'에 따라 회사가 귀하의 미사용 연차유급휴가 '+v.days+'일의 사용시기를 아래와 같이 지정하여 서면으로 통보합니다.\n'+
+'\n'+
+'   - 지정 사용일: __________________________________  (회사가 구체적 일자 기재)\n'+
+'   - 연차 사용기간 만료일: '+fmt(p.expiry)+'\n'+
+'\n'+
+'3. 위 지정일에 연차유급휴가를 사용하시기 바라며, 지정된 시기에 사용하지 않아 소멸되는 연차에 대하여 회사는 금전으로 보상할 의무가 없음을 알려드립니다(근로기준법 제61조).\n'+
+'\n'+
+'통보일: '+span('만료 2개월 전인 '+fmt(p.due2)+'까지')+' 발송\n'+
+'\n'+
+'                              '+v.company+'  (직인)';
+}
+
+function tmplB1(p,v,recip){
+return '['+v.company+'] 연차유급휴가 사용시기 지정·통보 촉구서 (1차, 1년 미만 근로자)\n'+
+'\n'+
+'수신: '+recip+'\n'+
+'발신: '+v.company+' '+v.hr+'\n'+
+'\n'+
+'1. 근로기준법 제61조제2항(1년 미만 근로자 연차 사용 촉진)에 따라, 귀하의 미사용 연차유급휴가에 대해 사용시기 지정을 촉구합니다.\n'+
+'2. 대상 및 기한\n'+
+'\n'+
+'   - 최초 1년 근로기간: '+fmt(p.base)+' ~ '+fmt(p.expiry)+'\n'+
+'   - 미사용 연차유급휴가: 총 '+v.days+'일\n'+
+'   - 통보 기한: 본 촉구서를 받은 날부터 10일 이내\n'+
+'   - 먼저 발생한 휴가 촉구 시기: '+span(fmtShort(p.w1s)+' ~ '+fmtShort(p.w1e))+'\n'+
+'   - 촉구 후 발생한 휴가 별도 촉구 시기: '+span(fmtShort(p.w2s)+' ~ '+fmtShort(p.w2e))+'\n'+
+'\n'+
+'3. 위 기한 내에 미사용 연차의 사용시기를 정하여 '+v.hr+'에 서면으로 통보하여 주시기 바랍니다.\n'+
+'4. 기한 내 통보가 없을 경우, 근로기준법 '+p.art2+'에 따라 회사가 사용시기를 지정하여 서면 통보하며, 그럼에도 사용하지 않아 소멸되는 연차에 대하여 회사는 금전으로 보상할 의무가 없습니다(근로기준법 제61조).\n'+
+'\n'+
+'                              '+v.company+'  (직인)';
+}
+
+function tmplB2(p,v,recip){
+return '['+v.company+'] 연차유급휴가 사용시기 지정 통보서 (2차, 1년 미만 근로자)\n'+
+'\n'+
+'수신: '+recip+'\n'+
+'발신: '+v.company+' '+v.hr+'\n'+
+'\n'+
+'1. 근로기준법 '+p.art1+'에 따른 1차 촉구에도 불구하고, 귀하께서 촉구받은 날부터 10일 이내에 미사용 연차유급휴가의 사용시기를 통보하지 않으셨습니다.\n'+
+'2. 이에 근로기준법 '+p.art2+'에 따라 회사가 귀하의 미사용 연차유급휴가 '+v.days+'일의 사용시기를 아래와 같이 지정하여 서면으로 통보합니다.\n'+
+'\n'+
+'   - 지정 사용일: __________________________________  (회사가 구체적 일자 기재)\n'+
+'   - 먼저 발생분 통보 기한: '+span(fmt(p.due2a)+'까지')+'\n'+
+'   - 촉구 후 발생분 통보 기한: '+span(fmt(p.due2b)+'까지')+'\n'+
+'   - 최초 1년 근로기간 종료일: '+fmt(p.expiry)+'\n'+
+'\n'+
+'3. 위 지정일에 연차유급휴가를 사용하시기 바라며, 지정된 시기에 사용하지 않아 소멸되는 연차에 대하여 회사는 금전으로 보상할 의무가 없음을 알려드립니다(근로기준법 제61조).\n'+
+'\n'+
+'                              '+v.company+'  (직인)';
+}
+
+function span(s){ return s; } // kept for readability of template builders
+
+/* ---------- copy (3-tier fallback) ---------- */
+function copyTmpl(id, btn){
+  var text = document.getElementById(id).textContent;
+  copyText(text, btn);
+}
+function copyText(text, btn){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){
+      flash(btn);
+    }).catch(function(){ fallbackCopy(text, btn); });
+  } else {
+    fallbackCopy(text, btn);
+  }
+}
+function fallbackCopy(text, btn){
+  try{
+    var ta=document.createElement('textarea');
+    ta.value=text;
+    ta.setAttribute('readonly','');
+    ta.style.position='fixed'; ta.style.top='0'; ta.style.left='0'; ta.style.opacity='0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+    var ok=false;
+    try{ ok=document.execCommand('copy'); }catch(e){ ok=false; }
+    document.body.removeChild(ta);
+    if(ok){ flash(btn); } else { openModal(text); }
+  }catch(e){
+    openModal(text);
+  }
+}
+function flash(btn){
+  if(!btn) return;
+  var orig = btn.textContent;
+  btn.textContent = '복사됨 ✓';
+  btn.classList.add('done');
+  setTimeout(function(){ btn.textContent=orig; btn.classList.remove('done'); }, 1800);
+}
+
+/* ---------- manual copy modal ---------- */
+function openModal(text){
+  document.getElementById('copyModalText').value = text;
+  document.getElementById('copyModal').classList.add('show');
+  var ta=document.getElementById('copyModalText');
+  ta.focus(); ta.select();
+}
+function closeModal(){ document.getElementById('copyModal').classList.remove('show'); }
+document.getElementById('copyModal').addEventListener('click', function(e){
+  if(e.target===this) closeModal();
+});
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
+
+/* ---------- reset ---------- */
+function resetAll(){
+  ['baseDate','company','worker','dept','days','hrdept'].forEach(function(id){
+    document.getElementById(id).value='';
+  });
+  clearErr();
+  last=null;
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('resultsEmpty').style.display='';
+  document.getElementById('baseDate').focus();
+}
+</script>

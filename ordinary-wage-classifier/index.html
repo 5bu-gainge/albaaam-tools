@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>통상임금 산입항목 판별기 | 알밤</title>
+<meta name="description" content="수당 항목을 체크하면 통상임금에 들어가는지 근거와 함께 O/X로 판정하고 통상시급까지 역산하는 무료 도구" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+  :root{
+    --accent:#a8480f;        /* 따뜻한 밤색 악센트 */
+    --accent-strong:#8c3a0b;
+    --accent-soft:#fbf2ea;
+    --accent-line:#e8d3c2;
+    --ink:#20272e;           /* 본문 잉크 (AA 이상) */
+    --ink-soft:#4a545e;      /* 보조 텍스트 (white 위 7:1↑) */
+    --ink-faint:#5f6a74;
+    --ok:#1c6b3e;            /* O 판정 */
+    --ok-soft:#e9f5ee;
+    --ng:#a41f2e;            /* X 판정 */
+    --ng-soft:#fbecec;
+    --warn:#8a5a00;
+    --warn-soft:#fdf5e3;
+    --bg:#f6f2ee;
+    --card:#ffffff;
+    --line:#e5ddd4;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(32,39,46,.05),0 8px 26px rgba(32,39,46,.07);
+    word-break:keep-all;
+    overflow-wrap:break-word;
+    -webkit-text-size-adjust:100%;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Pretendard Variable",Pretendard,system-ui,-apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+    word-break:keep-all;
+    overflow-wrap:break-word;
+    font-size:16px;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 72px}
+
+  /* Header */
+  header.hero{padding:8px 2px 4px}
+  .kicker{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.02em;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line);padding:5px 11px;border-radius:999px;margin-bottom:14px}
+  h1{font-size:1.62rem;line-height:1.28;margin:0 0 8px;font-weight:800;letter-spacing:-.01em}
+  .lead{font-size:1.02rem;color:var(--ink-soft);margin:0}
+
+  /* Disclaimer (상시 노출) */
+  .disclaimer{
+    margin:18px 0 8px;padding:12px 14px;border-radius:12px;
+    background:var(--warn-soft);border:1px solid #ecd9a8;color:var(--warn);
+    font-size:.86rem;line-height:1.55;display:flex;gap:9px;align-items:flex-start;
+  }
+  .disclaimer b{color:#6f4700}
+  .disclaimer .ic{flex:0 0 auto;font-weight:800}
+
+  /* Cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .section{margin-top:20px}
+  .section-head{display:flex;align-items:baseline;gap:9px;margin:0 2px 12px}
+  .section-head h2{font-size:1.08rem;margin:0;font-weight:800}
+  .section-head .step{flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:.8rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .section-head .hint{margin-left:auto;font-size:.82rem;color:var(--ink-faint)}
+
+  /* Presets */
+  .presets{padding:14px}
+  .presets p.label{margin:0 0 9px;font-size:.86rem;color:var(--ink-soft);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    font:inherit;font-size:.86rem;font-weight:600;cursor:pointer;
+    border:1px solid var(--accent-line);background:#fff;color:var(--accent-strong);
+    padding:8px 13px;border-radius:999px;transition:.12s;min-height:40px;
+  }
+  .chip:hover{background:var(--accent-soft)}
+  .chip:active{transform:translateY(1px)}
+
+  /* Item list */
+  .items{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+  .empty{padding:34px 18px;text-align:center;color:var(--ink-faint)}
+  .empty .big{font-size:2rem;margin-bottom:8px;opacity:.5}
+  .empty p{margin:6px 0;font-size:.94rem}
+
+  .item{padding:16px 15px 15px;position:relative}
+  .item .toprow{display:flex;gap:10px;align-items:center;margin-bottom:6px}
+  .item .idx{flex:0 0 auto;font-size:.78rem;font-weight:800;color:var(--accent);background:var(--accent-soft);border-radius:7px;padding:3px 8px}
+  .item input.name{
+    flex:1 1 auto;font:inherit;font-size:1rem;font-weight:700;
+    border:none;border-bottom:2px solid var(--line);background:transparent;
+    padding:7px 2px;color:var(--ink);min-width:0;
+  }
+  .item input.name:focus{outline:none;border-bottom-color:var(--accent)}
+  .item .del{flex:0 0 auto;font:inherit;font-size:.82rem;color:var(--ng);background:none;border:1px solid #eec6c9;border-radius:8px;padding:6px 9px;cursor:pointer;min-height:36px}
+  .item .del:hover{background:var(--ng-soft)}
+
+  .q{margin-top:13px}
+  .q .qt{font-size:.9rem;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;gap:6px;align-items:baseline}
+  .q .qt .tag{font-size:.72rem;font-weight:800;color:var(--accent);flex:0 0 auto}
+  .q .qhelp{font-size:.8rem;color:var(--ink-faint);margin:0 0 8px;line-height:1.5}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{position:relative}
+  .opt input{position:absolute;opacity:0;width:0;height:0}
+  .opt label{
+    display:block;cursor:pointer;font-size:.88rem;font-weight:600;
+    border:1.5px solid var(--line);border-radius:10px;padding:9px 13px;background:#fff;color:var(--ink-soft);
+    min-height:42px;display:flex;align-items:center;transition:.12s;
+  }
+  .opt input:checked+label{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-strong)}
+  .opt input:focus-visible+label{outline:2px solid var(--accent);outline-offset:2px}
+
+  .amount-row{margin-top:14px;display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+  .amount-row label{font-size:.85rem;font-weight:600;color:var(--ink-soft)}
+  .amount-row input{
+    font:inherit;font-size:.95rem;border:1.5px solid var(--line);border-radius:9px;
+    padding:8px 11px;width:150px;text-align:right;color:var(--ink);
+  }
+  .amount-row input:focus{outline:none;border-color:var(--accent)}
+  .amount-row .unit{font-size:.85rem;color:var(--ink-faint)}
+
+  /* per-item verdict */
+  .verdict{margin-top:14px;border-radius:11px;padding:12px 13px;font-size:.9rem;border:1px solid}
+  .verdict.o{background:var(--ok-soft);border-color:#bfe3cd;color:#0f4f2c}
+  .verdict.x{background:var(--ng-soft);border-color:#f0cdcd;color:#7d1622}
+  .verdict.pending{background:#f4f1ec;border-color:var(--line);color:var(--ink-faint)}
+  .verdict .vhead{display:flex;align-items:center;gap:8px;font-weight:800;font-size:.98rem;margin-bottom:5px}
+  .verdict .badge{flex:0 0 auto;width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff}
+  .verdict.o .badge{background:var(--ok)}
+  .verdict.x .badge{background:var(--ng)}
+  .verdict .basis{color:inherit;opacity:.92;line-height:1.55}
+  .verdict .note{margin-top:7px;padding-top:7px;border-top:1px dashed rgba(0,0,0,.14);font-size:.82rem;line-height:1.5}
+
+  .addbtn{
+    margin-top:14px;width:100%;font:inherit;font-size:.95rem;font-weight:700;cursor:pointer;
+    border:1.5px dashed var(--accent-line);background:#fff;color:var(--accent-strong);
+    padding:14px;border-radius:12px;min-height:50px;transition:.12s;
+  }
+  .addbtn:hover{background:var(--accent-soft)}
+
+  /* Summary + 통상시급 */
+  .sum-grid{padding:16px 15px}
+  .sum-line{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.94rem}
+  .sum-line:last-of-type{border-bottom:none}
+  .sum-line .k{color:var(--ink-soft)}
+  .sum-line .v{font-weight:800;font-variant-numeric:tabular-nums}
+  .sum-line .v.o{color:var(--ok)}
+  .sum-line .v.x{color:var(--ng)}
+
+  .calc{margin-top:6px;padding:15px;background:var(--accent-soft);border-top:1px solid var(--accent-line)}
+  .calc h3{margin:0 0 10px;font-size:.98rem;font-weight:800;color:var(--accent-strong)}
+  .calc-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+  .calc-row label{font-size:.88rem;font-weight:600;color:var(--ink-soft)}
+  .calc-row input{font:inherit;font-size:.95rem;border:1.5px solid var(--accent-line);border-radius:9px;padding:8px 11px;width:120px;text-align:right;background:#fff}
+  .calc-row input:focus{outline:none;border-color:var(--accent)}
+  .calc-out{display:grid;grid-template-columns:1fr;gap:9px}
+  .calc-cell{background:#fff;border:1px solid var(--accent-line);border-radius:11px;padding:12px 13px}
+  .calc-cell .cl{font-size:.8rem;color:var(--ink-faint);margin-bottom:3px}
+  .calc-cell .cv{font-size:1.24rem;font-weight:800;color:var(--accent-strong);font-variant-numeric:tabular-nums}
+  .calc-cell .cd{font-size:.76rem;color:var(--ink-faint);margin-top:2px}
+  .calc small{display:block;margin-top:11px;font-size:.78rem;color:var(--ink-faint);line-height:1.5}
+
+  /* Actions */
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .btn{font:inherit;font-size:.95rem;font-weight:700;cursor:pointer;border-radius:11px;padding:13px 18px;min-height:50px;border:1.5px solid transparent;transition:.12s;flex:1 1 auto}
+  .btn.primary{background:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-strong)}
+  .btn.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+  .btn.ghost:hover{border-color:var(--accent-line);color:var(--accent-strong)}
+  .btn:active{transform:translateY(1px)}
+
+  /* Legal basis */
+  .basis-card{padding:16px 15px}
+  .basis-card h2{font-size:1.02rem;margin:0 0 10px;font-weight:800}
+  .basis-card ul{margin:0;padding-left:18px}
+  .basis-card li{font-size:.87rem;color:var(--ink-soft);margin-bottom:7px;line-height:1.55}
+  .basis-card li b{color:var(--ink)}
+  .basis-card .upd{margin-top:12px;padding:11px 12px;background:var(--warn-soft);border:1px solid #ecd9a8;border-radius:10px;font-size:.83rem;color:var(--warn);line-height:1.55}
+
+  footer.foot{margin-top:26px;text-align:center;font-size:.8rem;color:var(--ink-faint);line-height:1.6}
+  footer.foot b{color:var(--ink-soft)}
+
+  /* Toast + modal */
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-size:.9rem;font-weight:600;opacity:0;pointer-events:none;transition:.22s;z-index:60;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .modal-bg{position:fixed;inset:0;background:rgba(20,24,28,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:70}
+  .modal-bg.show{display:flex}
+  .modal{background:#fff;border-radius:16px;max-width:560px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .modal h3{margin:0 0 8px;font-size:1.05rem;font-weight:800}
+  .modal p{margin:0 0 10px;font-size:.88rem;color:var(--ink-soft)}
+  .modal textarea{width:100%;height:230px;font:inherit;font-size:.85rem;border:1.5px solid var(--line);border-radius:10px;padding:12px;resize:vertical;color:var(--ink);line-height:1.55}
+  .modal textarea:focus{outline:none;border-color:var(--accent)}
+  .modal .mclose{margin-top:12px;width:100%;font:inherit;font-weight:700;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px;cursor:pointer;min-height:48px}
+
+  @media (min-width:560px){
+    .wrap{padding:30px 20px 80px}
+    h1{font-size:1.9rem}
+    .calc-out{grid-template-columns:repeat(3,1fr)}
+    .amount-row input{width:170px}
+  }
+
+  @media print{
+    body{background:#fff;color:#000;font-size:12pt}
+    .presets,.addbtn,.actions,.item .del,.opt input,.toast,.modal-bg,.chip,.hint{display:none !important}
+    .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+    .opt label{border-color:#999}
+    .disclaimer{border:1px solid #999}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="kicker">알밤 무료 도구 · 인사/급여 실무</span>
+    <h1>통상임금 산입항목 판별기</h1>
+    <p class="lead">수당 항목을 체크하면 통상임금에 들어가는지 근거와 함께 O/X로 판정하고, 통상시급까지 역산합니다.</p>
+  </header>
+
+  <div class="disclaimer" role="note">
+    <span class="ic">알림</span>
+    <span>본 도구는 <b>일반 정보 제공용 참고 자료</b>입니다. 개별 항목의 명칭이 아니라 실제 지급 조건에 따라 판단이 달라지며, 구체적 사안의 최종 판단은 <b>공인노무사·변호사 등 전문가의 상담</b>이 필요합니다. 표시되는 법조항은 참고용이며 법적 효력이 있는 의견이 아닙니다.</span>
+  </div>
+
+  <!-- STEP 1: presets -->
+  <section class="section">
+    <div class="section-head"><span class="step">1</span><h2>항목 추가</h2><span class="hint">자주 쓰는 항목을 눌러 시작</span></div>
+    <div class="card presets">
+      <p class="label">아래 예시를 누르면 일반적인 지급형태로 미리 채워집니다. 값은 실제 조건에 맞게 바꾸세요.</p>
+      <div class="chips" id="chips"></div>
+    </div>
+  </section>
+
+  <!-- STEP 2: item cards -->
+  <section class="section">
+    <div class="section-head"><span class="step">2</span><h2>3요건 체크</h2><span class="hint">정기성 · 일률성 · 지급조건</span></div>
+    <div class="items" id="items"></div>
+    <button class="addbtn" id="addBtn" type="button">+ 빈 항목 직접 추가하기</button>
+  </section>
+
+  <!-- STEP 3: result -->
+  <section class="section" id="resultSection" hidden>
+    <div class="section-head"><span class="step">3</span><h2>판정 결과 &amp; 통상시급</h2></div>
+    <div class="card">
+      <div class="sum-grid" id="sumGrid"></div>
+      <div class="calc">
+        <h3>통상시급 역산</h3>
+        <div class="calc-row">
+          <label for="monthHours">월 소정근로시간</label>
+          <input id="monthHours" type="number" inputmode="numeric" value="209" min="1" step="1" />
+          <span class="unit" style="font-size:.83rem;color:var(--ink-faint)">시간</span>
+        </div>
+        <div class="calc-out" id="calcOut"></div>
+        <small id="calcNote"></small>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="copyBtn" type="button">결과 복사하기</button>
+      <button class="btn ghost" id="printBtn" type="button">인쇄 / PDF 저장</button>
+      <button class="btn ghost" id="resetBtn" type="button">전체 초기화</button>
+    </div>
+  </section>
+
+  <!-- Legal basis -->
+  <section class="section">
+    <div class="card basis-card">
+      <h2>판정 기준과 법적 근거</h2>
+      <ul>
+        <li><b>통상임금 정의</b> — 근로기준법 시행령 제6조 제1항: 근로자에게 <b>정기적·일률적</b>으로 소정근로 또는 총근로에 대하여 지급하기로 정한 금액.</li>
+        <li><b>정기성</b> — 일정한 간격으로 정기적으로 지급. 지급주기가 1개월을 넘어도(분기·반기·연 단위 정기상여 등) 정기성은 인정될 수 있습니다.</li>
+        <li><b>일률성</b> — '모든 근로자' 또는 '일정한 조건·기준을 충족하는 모든 근로자'에게 지급. 여기서 조건은 작업내용·기술·경력 등 소정근로의 가치와 관련된 고정적 조건이어야 합니다.</li>
+        <li><b>지급조건(성과 연동)</b> — 실적·성과에 따라 지급 여부나 금액이 달라지는 순수 성과급은 소정근로의 대가로 보기 어려워 제외됩니다.</li>
+        <li><b>통상임금의 쓰임</b> — 연장·야간·휴일근로 가산수당(근로기준법 제56조), 해고예고수당(제26조), 연차유급휴가수당, 출산전후휴가급여 등의 산정 기준.</li>
+      </ul>
+      <div class="upd">
+        <b>2024.12.19 대법원 전원합의체 판결(2020다247190 등):</b> 종래 통상임금 요건이던 <b>'고정성'</b>이 폐기되었습니다. 이에 따라 <b>지급일 재직조건</b>이나 <b>일정 근무일수 조건</b>이 붙은 정기·일률 수당도 통상임금에 포함됩니다(판결 선고일 이후 적용). 본 도구는 이 변경을 반영해 판정합니다.
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p><b>통상임금 산입항목 판별기</b> · 알밤(albaaam.com) 무료 도구<br/>
+    오프라인에서도 열리는 단일 파일입니다. 입력값은 어디에도 전송·저장되지 않습니다.</p>
+  </footer>
+</div>
+
+<div class="toast" id="toast">복사되었습니다</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>수동 복사</h3>
+    <p>자동 복사가 차단된 환경입니다. 아래 내용을 길게 눌러 전체 선택 후 복사하세요.</p>
+    <textarea id="modalText" readonly></textarea>
+    <button class="mclose" id="modalClose" type="button">닫기</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---- 판정 규칙 트리 ----------------------------------------------------
+  // jeonggi: 'y'|'n'  (정기성)
+  // ilyul:   'y'|'n'  (일률성)
+  // jogeon:  'fixed'|'tenure'|'perf'  (지급조건)
+  function judge(it){
+    if(!it.jeonggi || !it.ilyul || !it.jogeon){
+      return {v:'pending', head:'항목을 체크하면 판정됩니다', basis:'정기성 · 일률성 · 지급조건 세 가지를 모두 선택하세요.'};
+    }
+    if(it.jeonggi==='n'){
+      return {v:'x', head:'통상임금 아님',
+        basis:'<b>정기성 결여.</b> 부정기적·일시적으로 지급되는 금품은 소정근로의 대가로 정기적으로 지급된 것으로 보기 어렵습니다. (근로기준법 시행령 제6조)'};
+    }
+    if(it.ilyul==='n'){
+      return {v:'x', head:'통상임금 아님',
+        basis:'<b>일률성 결여.</b> 특정 개인에게 은혜적·임의로 지급되거나, 소정근로 가치와 무관한 조건에 따라 지급되면 일률성을 충족하지 못합니다. (근로기준법 시행령 제6조)'};
+    }
+    // 정기 O + 일률 O
+    if(it.jogeon==='perf'){
+      return {v:'x', head:'통상임금 아님',
+        basis:'<b>성과·실적 연동.</b> 지급 여부나 금액이 개인·회사의 실적에 따라 달라지는 순수 성과급은 소정근로의 대가로 보기 어려워 제외됩니다.'};
+    }
+    if(it.jogeon==='tenure'){
+      return {v:'o', head:'통상임금 포함',
+        basis:'정기성·일률성을 충족합니다. 지급일 재직조건 또는 근무일수 조건이 붙어 있으나,',
+        note:'<b>2024.12.19 대법원 전원합의체 판결</b>로 재직조건·근무일수 조건부 정기·일률 수당도 통상임금에 포함됩니다. (종전 2013년 기준에서는 고정성 결여로 제외되던 유형)'};
+    }
+    return {v:'o', head:'통상임금 포함',
+      basis:'정기성·일률성을 충족하고, 소정근로를 제공하면 성과·조건과 무관하게 확정적으로 지급되므로 통상임금에 산입됩니다. (근로기준법 시행령 제6조)'};
+  }
+
+  // ---- 프리셋 (판정을 미리 넣지 않고, 일반적 지급형태만 채움) ------------
+  var PRESETS = [
+    {n:'기본급',            jeonggi:'y', ilyul:'y', jogeon:'fixed',  amt:''},
+    {n:'정기상여금(전 직원·정기)', jeonggi:'y', ilyul:'y', jogeon:'fixed', amt:''},
+    {n:'식대(전 직원 정액)', jeonggi:'y', ilyul:'y', jogeon:'fixed',  amt:''},
+    {n:'직책수당',          jeonggi:'y', ilyul:'y', jogeon:'fixed',  amt:''},
+    {n:'자격·면허수당',      jeonggi:'y', ilyul:'y', jogeon:'fixed',  amt:''},
+    {n:'근속수당',          jeonggi:'y', ilyul:'y', jogeon:'fixed',  amt:''},
+    {n:'명절상여(재직조건부)', jeonggi:'y', ilyul:'y', jogeon:'tenure', amt:''},
+    {n:'성과급·인센티브',    jeonggi:'y', ilyul:'y', jogeon:'perf',   amt:''},
+    {n:'연장근로수당',       jeonggi:'n', ilyul:'y', jogeon:'',       amt:''}
+  ];
+
+  var QDEFS = [
+    {key:'jeonggi', tag:'정기성', q:'일정한 간격으로 정기적으로 지급됩니까?',
+      help:'매월·격월·분기·반기·연 등 정해진 주기로 지급되면 "예". 주기가 1개월을 넘어도 정기성은 인정될 수 있습니다.',
+      opts:[['y','정기적으로 지급'],['n','부정기·일시적']]},
+    {key:'ilyul', tag:'일률성', q:'모든 근로자, 또는 일정 조건을 충족하는 모든 근로자에게 지급됩니까?',
+      help:'전원 또는 자격·직책·경력 등 소정근로 가치와 관련된 조건의 해당자 전원에게 주면 "예". 특정 개인에게 임의로 주면 "아니오".',
+      opts:[['y','조건 충족자 전원'],['n','개인별·임의 지급']]},
+    {key:'jogeon', tag:'지급조건', q:'지급 여부·금액이 어떻게 정해집니까?',
+      help:'소정근로만 하면 확정 지급되는지, 재직·근무일수 조건이 붙는지, 성과·실적에 따라 달라지는지 고르세요.',
+      opts:[['fixed','조건 없이 확정 지급'],['tenure','재직·근무일수 조건'],['perf','성과·실적에 따라 변동']]}
+  ];
+
+  var items = [];
+  var seq = 0;
+  var $items = document.getElementById('items');
+  var $chips = document.getElementById('chips');
+  var $result = document.getElementById('resultSection');
+
+  function fmt(n){ return (Math.round(n)).toLocaleString('ko-KR'); }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  function addItem(preset){
+    seq++;
+    var it = {id:seq, name:(preset&&preset.n)||'', jeonggi:preset?preset.jeonggi:'', ilyul:preset?preset.ilyul:'', jogeon:preset?preset.jogeon:'', amt:preset?preset.amt:''};
+    items.push(it);
+    render();
+    // focus new name if blank
+    if(!it.name){ var el=document.querySelector('.item[data-id="'+it.id+'"] input.name'); if(el) el.focus(); }
+  }
+
+  function removeItem(id){ items = items.filter(function(x){return x.id!==id;}); render(); }
+
+  function buildQ(it, def){
+    var html = '<div class="q"><div class="qt"><span class="tag">'+def.tag+'</span>'+esc(def.q)+'</div><p class="qhelp">'+esc(def.help)+'</p><div class="opts">';
+    def.opts.forEach(function(o){
+      var val=o[0], lab=o[1];
+      var id='q_'+it.id+'_'+def.key+'_'+val;
+      var checked = it[def.key]===val ? 'checked':'';
+      html += '<div class="opt"><input type="radio" id="'+id+'" name="q_'+it.id+'_'+def.key+'" value="'+val+'" '+checked+'/><label for="'+id+'">'+esc(lab)+'</label></div>';
+    });
+    html += '</div></div>';
+    return html;
+  }
+
+  function render(){
+    // empty state
+    if(items.length===0){
+      $items.innerHTML = '<div class="card empty"><div class="big">＋</div><p><b>아직 추가된 항목이 없습니다.</b></p><p>위에서 예시를 누르거나 아래 버튼으로 항목을 추가하세요.</p></div>';
+      $result.hidden = true;
+      return;
+    }
+    var html='';
+    items.forEach(function(it, i){
+      var r = judge(it);
+      html += '<div class="card item" data-id="'+it.id+'">';
+      html += '<div class="toprow"><span class="idx">'+(i+1)+'</span>';
+      html += '<input class="name" type="text" placeholder="수당 항목명 (예: 직책수당)" value="'+esc(it.name)+'" aria-label="항목명"/>';
+      html += '<button class="del" type="button" aria-label="삭제">삭제</button></div>';
+      QDEFS.forEach(function(def){ html += buildQ(it, def); });
+      html += '<div class="amount-row"><label for="amt_'+it.id+'">월 지급액(선택)</label>';
+      html += '<input id="amt_'+it.id+'" class="amt" type="number" inputmode="numeric" min="0" step="1000" placeholder="예: 200000" value="'+esc(it.amt)+'"/><span class="unit">원 / 월</span></div>';
+      html += '<div class="verdict '+r.v+'"><div class="vhead">';
+      if(r.v==='o') html += '<span class="badge">O</span>';
+      else if(r.v==='x') html += '<span class="badge">X</span>';
+      html += '<span>'+esc(r.head)+'</span></div><div class="basis">'+r.basis+'</div>';
+      if(r.note) html += '<div class="note">'+r.note+'</div>';
+      html += '</div></div>';
+    });
+    $items.innerHTML = html;
+    renderResult();
+  }
+
+  function renderResult(){
+    var anyComplete = items.some(function(it){return it.jeonggi&&it.ilyul&&it.jogeon;});
+    $result.hidden = !anyComplete;
+    if(!anyComplete) return;
+
+    var oItems=[], xItems=[], sumO=0, hasAmt=false;
+    items.forEach(function(it){
+      if(!(it.jeonggi&&it.ilyul&&it.jogeon)) return;
+      var r=judge(it);
+      var nm = it.name||'(이름 없음)';
+      if(r.v==='o'){ oItems.push(it); var a=parseFloat(it.amt); if(!isNaN(a)&&a>0){sumO+=a;hasAmt=true;} }
+      else if(r.v==='x'){ xItems.push(it); }
+    });
+
+    var sg=document.getElementById('sumGrid');
+    var rows='';
+    rows += '<div class="sum-line"><span class="k">통상임금 포함 (O)</span><span class="v o">'+oItems.length+'건</span></div>';
+    oItems.forEach(function(it){ rows += '<div class="sum-line"><span class="k" style="padding-left:8px">· '+esc(it.name||'(이름 없음)')+'</span><span class="v o">'+(it.amt?fmt(parseFloat(it.amt))+'원':'—')+'</span></div>'; });
+    rows += '<div class="sum-line"><span class="k">통상임금 제외 (X)</span><span class="v x">'+xItems.length+'건</span></div>';
+    xItems.forEach(function(it){ rows += '<div class="sum-line"><span class="k" style="padding-left:8px">· '+esc(it.name||'(이름 없음)')+'</span><span class="v x">제외</span></div>'; });
+    if(hasAmt) rows += '<div class="sum-line"><span class="k"><b>월 통상임금 합계</b></span><span class="v">'+fmt(sumO)+'원</span></div>';
+    sg.innerHTML = rows;
+
+    // 통상시급 역산
+    var hours=parseFloat(document.getElementById('monthHours').value)||0;
+    var co=document.getElementById('calcOut');
+    var note=document.getElementById('calcNote');
+    if(hasAmt && hours>0){
+      var hourly=sumO/hours;
+      co.innerHTML =
+        cell('통상시급', fmt(hourly)+'원', '월 통상임금 ÷ 월 소정근로시간')+
+        cell('연장·휴일 1시간', fmt(hourly*1.5)+'원', '통상시급 × 1.5 (제56조)')+
+        cell('야간 가산 1시간', fmt(hourly*0.5)+'원', '야간 가산분 0.5 (제56조)');
+      note.innerHTML='월 소정근로시간 <b>209시간</b>은 주 40시간제(주휴 포함) 기준 관행값입니다. 분기·연 단위 상여금은 월 환산액(예: 연간 상여 ÷ 12)으로 입력해야 정확합니다.';
+    } else {
+      co.innerHTML = '<div class="calc-cell" style="grid-column:1/-1"><div class="cl">통상시급</div><div class="cv" style="font-size:1rem;color:var(--ink-faint)">월 지급액을 입력하면 계산됩니다</div><div class="cd">O로 판정된 항목에 "월 지급액"을 채우세요.</div></div>';
+      note.innerHTML='';
+    }
+  }
+
+  function cell(l,v,d){ return '<div class="calc-cell"><div class="cl">'+l+'</div><div class="cv">'+v+'</div><div class="cd">'+d+'</div></div>'; }
+
+  // ---- 이벤트 위임 -------------------------------------------------------
+  $items.addEventListener('input', function(e){
+    var card=e.target.closest('.item'); if(!card) return;
+    var id=parseInt(card.getAttribute('data-id'),10);
+    var it=items.find(function(x){return x.id===id;}); if(!it) return;
+    if(e.target.classList.contains('name')){ it.name=e.target.value; renderResult(); }
+    else if(e.target.classList.contains('amt')){ it.amt=e.target.value; renderResult(); }
+  });
+  $items.addEventListener('change', function(e){
+    if(e.target.type!=='radio') return;
+    var card=e.target.closest('.item'); if(!card) return;
+    var id=parseInt(card.getAttribute('data-id'),10);
+    var it=items.find(function(x){return x.id===id;}); if(!it) return;
+    var m=e.target.name.match(/^q_\d+_(\w+)$/);
+    if(m){ it[m[1]]=e.target.value; render(); }
+  });
+  $items.addEventListener('click', function(e){
+    if(e.target.classList.contains('del')){
+      var card=e.target.closest('.item');
+      removeItem(parseInt(card.getAttribute('data-id'),10));
+    }
+  });
+
+  document.getElementById('addBtn').addEventListener('click', function(){ addItem(null); });
+  document.getElementById('monthHours').addEventListener('input', renderResult);
+
+  // presets
+  PRESETS.forEach(function(p){
+    var b=document.createElement('button');
+    b.className='chip'; b.type='button'; b.textContent='+ '+p.n;
+    b.addEventListener('click', function(){ addItem(p); });
+    $chips.appendChild(b);
+  });
+
+  // reset
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    if(items.length && !confirm('입력한 모든 항목을 지울까요?')) return;
+    items=[]; render();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+
+  // print
+  document.getElementById('printBtn').addEventListener('click', function(){ window.print(); });
+
+  // ---- 결과 텍스트 생성 --------------------------------------------------
+  function buildText(){
+    var lines=[];
+    lines.push('■ 통상임금 산입항목 판정 결과');
+    lines.push('(알밤 통상임금 산입항목 판별기 / 참고용)');
+    lines.push('');
+    var sumO=0, hasAmt=false;
+    items.forEach(function(it,i){
+      if(!(it.jeonggi&&it.ilyul&&it.jogeon)) return;
+      var r=judge(it);
+      var mark = r.v==='o'?'[O 포함]':(r.v==='x'?'[X 제외]':'[미완]');
+      lines.push((i+1)+'. '+(it.name||'(이름 없음)')+' → '+mark);
+      var basis=r.basis.replace(/<[^>]+>/g,'');
+      lines.push('   근거: '+basis);
+      if(r.note) lines.push('   비고: '+r.note.replace(/<[^>]+>/g,''));
+      if(r.v==='o'){ var a=parseFloat(it.amt); if(!isNaN(a)&&a>0){sumO+=a;hasAmt=true;} }
+      lines.push('');
+    });
+    if(hasAmt){
+      var hours=parseFloat(document.getElementById('monthHours').value)||209;
+      lines.push('── 통상시급 역산 ──');
+      lines.push('월 통상임금 합계: '+fmt(sumO)+'원');
+      lines.push('월 소정근로시간: '+hours+'시간');
+      lines.push('통상시급: '+fmt(sumO/hours)+'원');
+      lines.push('연장·휴일 1시간(×1.5): '+fmt(sumO/hours*1.5)+'원');
+      lines.push('야간 가산 1시간(×0.5): '+fmt(sumO/hours*0.5)+'원');
+      lines.push('');
+    }
+    lines.push('※ 항목 명칭이 아니라 실제 지급 조건으로 판단하며, 최종 판단은 공인노무사·변호사 상담이 필요합니다.');
+    lines.push('※ 근거: 근로기준법 시행령 제6조, 근로기준법 제56조, 대법원 2024.12.19. 2020다247190 전원합의체(고정성 요건 폐기).');
+    return lines.join('\n');
+  }
+
+  // ---- 복사 3단 폴백 -----------------------------------------------------
+  var $toast=document.getElementById('toast');
+  function toast(msg){ $toast.textContent=msg; $toast.classList.add('show'); setTimeout(function(){$toast.classList.remove('show');},1900); }
+  function showModal(text){
+    document.getElementById('modalText').value=text;
+    document.getElementById('modalBg').classList.add('show');
+    var ta=document.getElementById('modalText'); ta.focus(); ta.select();
+  }
+  document.getElementById('modalClose').addEventListener('click', function(){ document.getElementById('modalBg').classList.remove('show'); });
+  document.getElementById('modalBg').addEventListener('click', function(e){ if(e.target===this) this.classList.remove('show'); });
+
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    var text=buildText();
+    // 1단계: async clipboard API
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ toast('결과가 복사되었습니다'); })
+      .catch(function(){ legacyCopy(text); });
+    } else {
+      legacyCopy(text);
+    }
+  });
+  function legacyCopy(text){
+    // 2단계: execCommand + 반환값 확인
+    try{
+      var ta=document.createElement('textarea');
+      ta.value=text; ta.setAttribute('readonly','');
+      ta.style.position='fixed'; ta.style.top='-9999px';
+      document.body.appendChild(ta); ta.select();
+      var ok=document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(ok){ toast('결과가 복사되었습니다'); return; }
+    }catch(e){}
+    // 3단계: 수동 복사 모달
+    showModal(text);
+  }
+
+  // init
+  render();
+})();
+</script>
+</body>
+</html>

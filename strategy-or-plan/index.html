@@ -1,0 +1,989 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>계획인가 전략인가 판별기</title>
+<meta name="description" content="'전략'이라 부르는 문서가 실은 할 일 목록인지 6가지 레드플래그로 즉시 판별합니다." />
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+  />
+</noscript>
+
+<style>
+  :root {
+    --accent: #b8501e;
+    --accent-strong: #963f16;
+    --accent-tint: #fbeee6;
+    --accent-tint-2: #f6e0d3;
+    --ink: #23211f;
+    --ink-soft: #4c4843;
+    --ink-mute: #6d6862;
+    --paper: #fbf8f4;
+    --card: #ffffff;
+    --line: #e7e0d7;
+    --line-strong: #d8cfc2;
+    --good: #2f6f4f;
+    --good-tint: #e8f2ec;
+    --shadow: 0 1px 2px rgba(35, 33, 31, 0.05), 0 6px 20px rgba(35, 33, 31, 0.06);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Pretendard Variable", system-ui, -apple-system,
+      "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 72px;
+  }
+
+  /* ---------- header ---------- */
+  header.hero {
+    margin-bottom: 26px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.28;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+  }
+  .lede {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 60ch;
+  }
+
+  /* ---------- panels ---------- */
+  section.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .panel-head .step {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    flex: none;
+  }
+  .panel-head h2 {
+    font-size: 1.12rem;
+    margin: 0;
+    font-weight: 800;
+  }
+  .panel-sub {
+    color: var(--ink-mute);
+    font-size: 0.92rem;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- optional textarea ---------- */
+  label.field-label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 88px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fdfbf9;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 13px 14px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  textarea::placeholder {
+    color: #a79f95;
+  }
+  .field-hint {
+    font-size: 0.84rem;
+    color: var(--ink-mute);
+    margin: 8px 0 0;
+  }
+
+  /* ---------- checklist ---------- */
+  ul.flags {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  li.flag {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fdfbf9;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  li.flag.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .flag-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 14px 15px;
+    cursor: pointer;
+  }
+  .flag-check {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    margin-top: 1px;
+    border: 2px solid var(--line-strong);
+    border-radius: 7px;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    transition: all 0.15s;
+  }
+  li.flag.on .flag-check {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .flag-check svg {
+    width: 15px;
+    height: 15px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  li.flag.on .flag-check svg {
+    opacity: 1;
+  }
+  .flag-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .flag-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0 0 3px;
+    color: var(--ink);
+  }
+  .flag-probe {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .flag-num {
+    flex: none;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent);
+    width: 20px;
+    text-align: center;
+    margin-top: 2px;
+  }
+  /* native checkbox visually hidden but accessible */
+  .flag-row input.native {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  li.flag:focus-within {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    border-color: var(--accent);
+  }
+
+  /* ---------- actions ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 20px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 11px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.15s, border-color 0.15s;
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--ink-mute);
+    color: var(--ink);
+  }
+
+  /* ---------- result ---------- */
+  #result {
+    scroll-margin-top: 16px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--ink-mute);
+    padding: 26px 12px;
+  }
+  .empty-state .big {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    margin: 4px 0;
+    font-size: 0.94rem;
+  }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+  .verdict.tone-plan {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint-2);
+  }
+  .verdict.tone-mixed {
+    background: #fff6ec;
+    border-color: #f2ddc4;
+  }
+  .verdict.tone-strategy {
+    background: var(--good-tint);
+    border-color: #cfe4d8;
+  }
+  .verdict-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+    margin: 0 0 4px;
+  }
+  .verdict-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .verdict.tone-plan .verdict-title {
+    color: var(--accent-strong);
+  }
+  .verdict.tone-mixed .verdict-title {
+    color: #a35a12;
+  }
+  .verdict.tone-strategy .verdict-title {
+    color: var(--good);
+  }
+  .verdict-desc {
+    margin: 0;
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+  }
+
+  .meter {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 4px;
+  }
+  .pip {
+    flex: 1 1 0;
+    height: 9px;
+    border-radius: 5px;
+    background: #e9e2d8;
+  }
+  .pip.lit {
+    background: var(--accent);
+  }
+  .verdict.tone-strategy .pip.lit {
+    background: var(--good);
+  }
+  .meter-caption {
+    font-size: 0.85rem;
+    color: var(--ink-mute);
+    margin: 6px 0 0;
+    font-weight: 600;
+  }
+
+  .blank-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .blank-item {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 13px 15px;
+    background: #fdfbf9;
+  }
+  .blank-item .bi-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin: 0 0 4px;
+  }
+  .blank-item .bi-fix {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .blank-item .bi-cascade {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .clean-note {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    background: var(--good-tint);
+    border: 1px solid #cfe4d8;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin: 0;
+  }
+
+  .result-block-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin: 22px 0 10px;
+  }
+
+  /* prompt box */
+  .prompt-wrap {
+    position: relative;
+  }
+  pre.prompt {
+    margin: 0;
+    background: #2a2724;
+    color: #f3ede4;
+    border-radius: 12px;
+    padding: 16px 15px;
+    font-size: 0.86rem;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-family: "Pretendard", system-ui, "Malgun Gothic", sans-serif;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .copy-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 11px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.94rem;
+    padding: 11px 18px;
+  }
+  .btn-copy:hover {
+    background: #000;
+  }
+  .copy-status {
+    font-size: 0.88rem;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  /* modal */
+  .modal-back {
+    position: fixed;
+    inset: 0;
+    background: rgba(35, 33, 31, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 40;
+  }
+  .modal-back.open {
+    display: flex;
+  }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 540px;
+    width: 100%;
+    padding: 20px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  }
+  .modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+  .modal p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .modal textarea {
+    min-height: 150px;
+    overflow-y: auto;
+  }
+
+  footer.foot {
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-mute);
+    line-height: 1.7;
+  }
+  footer.foot .src {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.45rem;
+    }
+    .wrap {
+      padding: 22px 14px 60px;
+    }
+    .btn-primary {
+      min-width: 100%;
+    }
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+    .no-print,
+    #input-panel,
+    .actions,
+    .copy-row,
+    footer.foot {
+      display: none !important;
+    }
+    section.panel {
+      box-shadow: none;
+      border-color: #ccc;
+    }
+    pre.prompt {
+      background: #f4f4f4;
+      color: #000;
+      border: 1px solid #ccc;
+      max-height: none;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">전략 진단 · Playing to Win</span>
+    <h1>계획인가 전략인가 판별기</h1>
+    <p class="lede">
+      '전략'이라 부르는 그 문서, 사실은 할 일 목록 아닌가요? 6가지 레드플래그로
+      즉시 판별하고, 비어 있는 칸을 짚어 드립니다.
+    </p>
+  </header>
+
+  <section class="panel" id="input-panel">
+    <div class="panel-head">
+      <span class="step">STEP 1</span>
+      <h2>진단할 문서 (선택)</h2>
+    </div>
+    <p class="panel-sub">
+      전략이라 부르는 문서·계획서의 핵심 항목을 붙여넣으면, 아래 심화 프롬프트에
+      함께 담깁니다. 비워 두어도 판정은 됩니다.
+    </p>
+    <label class="field-label" for="doc">전략/계획 내용</label>
+    <textarea
+      id="doc"
+      placeholder="예) 1. 신규 온라인 채널 확대  2. 브랜드 리뉴얼 추진  3. 우수 인재 채용 강화  4. 고객 만족도 개선 ..."
+    ></textarea>
+    <p class="field-hint">입력한 내용은 이 브라우저 밖으로 전송되지 않습니다.</p>
+  </section>
+
+  <section class="panel" id="checklist-panel">
+    <div class="panel-head">
+      <span class="step">STEP 2</span>
+      <h2>6가지 레드플래그 체크</h2>
+    </div>
+    <p class="panel-sub">
+      내 문서에 해당하는 신호를 모두 선택하세요. 많이 켜질수록 '전략'이 아니라
+      '계획'입니다.
+    </p>
+    <ul class="flags" id="flags"></ul>
+
+    <div class="actions">
+      <button class="btn-primary" id="diagnose">판정하기</button>
+      <button class="btn-ghost" id="reset">초기화</button>
+    </div>
+  </section>
+
+  <section class="panel" id="result-panel">
+    <div class="panel-head">
+      <span class="step">STEP 3</span>
+      <h2>판정 결과</h2>
+    </div>
+    <div id="result">
+      <div class="empty-state">
+        <div class="big" aria-hidden="true">◔</div>
+        <p><strong>아직 판정 전입니다.</strong></p>
+        <p>레드플래그를 체크하고 '판정하기'를 누르세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <span class="src">판단 근거:</span> 로저 마틴 &amp; A.G. 래플리,
+      <em>Playing to Win</em> (2013)의 전략 선택 캐스케이드와 '계획 vs 전략'
+      진단 기준. 계획은 내가 통제하는 비용을 다루고, 전략은 통제할 수 없는
+      결과(고객이 우리를 선택하는 것)에 거는 하나의 이론입니다.
+    </p>
+    <p>
+      이 도구는 사고를 돕는 진단 보조 도구이며, 전략을 대신 확정해 주지
+      않습니다. 결과는 스스로 판단할 재료로 활용하세요.
+    </p>
+  </footer>
+</div>
+
+<!-- manual copy fallback modal -->
+<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">아래 내용을 직접 복사하세요</h3>
+    <p>자동 복사가 차단되었습니다. 아래 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="modal-select">전체 선택</button>
+      <button class="btn-ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  // 6 red flags — sourced from playing-to-win SKILL.md "0단계. 계획인가 전략인가"
+  var FLAGS = [
+    {
+      id: "todo",
+      title: "항목이 '할 일 목록'이다",
+      probe: "개선한다 · 확대한다 · 추진한다 · 강화한다 같은 동사로 끝나는 항목의 나열인가?",
+      blankTitle: "'어떻게 이길까(How to Win)'가 없다",
+      fix: "행동의 합은 전략이 되지 않습니다. 각 항목이 '무엇을 한다'가 아니라 '그래서 고객이 왜 우리를 고르게 되는가'로 이어지는지 다시 쓰세요.",
+      cascade: "→ 3. 어떻게 이길까",
+    },
+    {
+      id: "why-us",
+      title: "고객이 우리를 고를 이유가 없다",
+      probe: "'왜 고객이 경쟁사가 아니라 우리를 선택하는가'에 대한 명확한 이론이 문서에 있는가?",
+      blankTitle: "고객 선택의 이론이 비어 있다",
+      fix: "전략의 핵심은 통제 불가능한 결과, 즉 '고객이 우리를 선택하는 것'에 거는 이론입니다. 그 이론을 한 문장으로 세우세요.",
+      cascade: "→ 3. 어떻게 이길까",
+    },
+    {
+      id: "controllable",
+      title: "통제 가능한 것만 담겨 있다",
+      probe: "모든 항목이 우리가 통제하는 비용·자원·내부 활동뿐인가?",
+      blankTitle: "통제할 수 없는 경쟁 결과에 대한 베팅이 없다",
+      fix: "계획은 통제 가능한 비용을, 전략은 통제 불가능한 경쟁 결과를 다룹니다. 시장·경쟁·고객이라는 외부 결과에 거는 선택을 넣으세요.",
+      cascade: "→ 1. 승리의 열망",
+    },
+    {
+      id: "not-play",
+      title: "'어디서 안 싸울지'가 없다",
+      probe: "명시적으로 포기한 시장·고객·제품(where NOT to play)이 문서에 적혀 있는가?",
+      blankTitle: "'어디서 싸울까(Where to Play)'의 포기 목록이 없다",
+      fix: "선택은 곧 포기입니다. 모두를 노리면 아무도 못 잡습니다. 하지 않기로 한 시장·고객·채널을 명시하세요.",
+      cascade: "→ 2. 어디서 싸울까",
+    },
+    {
+      id: "incoherent",
+      title: "항목들이 서로 맞물리지 않는다",
+      probe: "부서별 희망사항을 모아 놓은 것에 가깝고, 항목 사이에 일관성이 없는가?",
+      blankTitle: "캐스케이드 내부 일관성이 없다",
+      fix: "전략은 서로를 강화하는 선택의 묶음입니다. 승리의 열망부터 역량·시스템까지가 하나의 결과에서 역산되어 맞물리는지 점검하세요.",
+      cascade: "→ 4. 핵심 역량 · 5. 경영 시스템",
+    },
+    {
+      id: "no-angst",
+      title: "불안이 전혀 없다 (통제 환상)",
+      probe: "통제 가능한 일만 골라 담아 마음이 편안한가? 전략에 따르는 불안(angst)이 느껴지지 않는가?",
+      blankTitle: "전략적 베팅이 없다는 신호",
+      fix: "전략은 사전에 증명할 수 없어 불안을 동반합니다. 불안이 전혀 없다면 통제 가능한 계획으로 후퇴한 것입니다. 검증 안 된 도약 가정을 찾으세요.",
+      cascade: "→ 검증: 무엇이 참이어야 하는가",
+    },
+  ];
+
+  var checked = {};
+
+  // ---- render checklist ----
+  var flagsEl = document.getElementById("flags");
+  var checkSvg =
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 12.5L10 17.5L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  FLAGS.forEach(function (f, i) {
+    var li = document.createElement("li");
+    li.className = "flag";
+    li.dataset.id = f.id;
+    li.innerHTML =
+      '<label class="flag-row">' +
+      '<input type="checkbox" class="native" data-id="' + f.id + '" />' +
+      '<span class="flag-num" aria-hidden="true">' + (i + 1) + "</span>" +
+      '<span class="flag-check">' + checkSvg + "</span>" +
+      '<span class="flag-body">' +
+      '<p class="flag-title">' + f.title + "</p>" +
+      '<p class="flag-probe">' + f.probe + "</p>" +
+      "</span>" +
+      "</label>";
+    flagsEl.appendChild(li);
+  });
+
+  flagsEl.addEventListener("change", function (e) {
+    var box = e.target;
+    if (!box.classList.contains("native")) return;
+    var id = box.dataset.id;
+    checked[id] = box.checked;
+    var li = box.closest("li.flag");
+    if (li) li.classList.toggle("on", box.checked);
+  });
+
+  // ---- auto-grow textarea ----
+  var doc = document.getElementById("doc");
+  function grow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  doc.addEventListener("input", function () {
+    grow(doc);
+  });
+
+  // ---- diagnose ----
+  var resultEl = document.getElementById("result");
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function bandFor(n) {
+    if (n === 0)
+      return {
+        tone: "strategy",
+        label: "레드플래그 0개",
+        title: "전략에 가깝습니다",
+        desc: "위험 신호가 잡히지 않았습니다. 다만 방심은 금물입니다. '무엇이 참이어야 하는가'로 가장 위험한 도약 가정을 한 번 더 시험해 보세요.",
+      };
+    if (n <= 2)
+      return {
+        tone: "strategy",
+        label: "레드플래그 " + n + "개",
+        title: "대체로 전략, 일부 빈칸",
+        desc: "전략의 골격은 있으나 몇 칸이 비어 있습니다. 아래 지적된 칸을 채우면 이기는 이론에 더 가까워집니다.",
+      };
+    if (n <= 4)
+      return {
+        tone: "mixed",
+        label: "레드플래그 " + n + "개",
+        title: "계획과 전략이 섞여 있습니다",
+        desc: "지금은 계획의 성격이 강합니다. '선택(어디서 싸우고 어떻게 이길지)'이 흐릿합니다. 아래 칸을 메워 전략으로 끌어올리세요.",
+      };
+    return {
+      tone: "plan",
+      label: "레드플래그 " + n + "개",
+      title: "이것은 전략이 아니라 계획입니다",
+      desc: "할 일 목록에 '전략'이라는 이름표를 붙인 상태에 가깝습니다. 고객이 왜 우리를 선택하는가에 대한 이론부터 다시 세워야 합니다.",
+    };
+  }
+
+  function buildPrompt(hits, docText) {
+    var lines = [];
+    lines.push("당신은 로저 마틴과 A.G. 래플리의 'Playing to Win' 전략 프레임워크에 정통한 전략 코치입니다.");
+    lines.push("아래 문서를 진단해, '계획'을 '이기는 전략'으로 끌어올리도록 도와주세요.");
+    lines.push("");
+    lines.push("【자가 진단 결과】");
+    lines.push("전체 6개 레드플래그 중 " + hits.length + "개가 감지되었습니다:");
+    if (hits.length === 0) {
+      lines.push("- (감지된 레드플래그 없음 — 대신 가장 위험한 도약 가정을 찾아 주세요)");
+    } else {
+      hits.forEach(function (f, i) {
+        lines.push(i + 1 + ". " + f.title + " → 빈칸: " + f.blankTitle);
+      });
+    }
+    lines.push("");
+    if (docText && docText.trim()) {
+      lines.push("【진단 대상 문서】");
+      lines.push(docText.trim());
+      lines.push("");
+    } else {
+      lines.push("【진단 대상 문서】");
+      lines.push("(사용자가 별도로 붙여넣을 예정입니다. 먼저 문서를 요청하세요.)");
+      lines.push("");
+    }
+    lines.push("【요청 사항】");
+    lines.push("1. 이 문서가 계획인지 전략인지, 위 레드플래그를 근거로 진단해 주세요.");
+    lines.push("2. 전략 선택 캐스케이드 5개 질문의 빈칸을 채우는 날카로운 질문을 던져 주세요.");
+    lines.push("   (1) 승리의 열망  (2) 어디서 싸울까 / 어디서 안 싸울까");
+    lines.push("   (3) 어떻게 이길까  (4) 핵심 역량  (5) 경영 시스템");
+    lines.push("3. 결론을 대신 내리지 말고, 제가 스스로 선택하도록 증거와 질문을 먼저 제시한 뒤 당신의 해석을 비교용으로 덧붙여 주세요.");
+    lines.push("4. 마지막으로 '이 전략이 옳으려면 무엇이 참이어야 하는가(WWHTBT)'를 물어, 가장 확신이 약한 도약 가정과 그것을 검증할 가장 싸고 빠른 테스트를 제안해 주세요.");
+    lines.push("5. 근거 없는 전략어(시너지·초격차 등)로 빈칸을 덮지 말고, 모르면 저에게 사실을 물어 주세요.");
+    return lines.join("\n");
+  }
+
+  var lastPrompt = "";
+
+  document.getElementById("diagnose").addEventListener("click", function () {
+    var hits = FLAGS.filter(function (f) {
+      return checked[f.id];
+    });
+    var n = hits.length;
+    var band = bandFor(n);
+    var docText = doc.value;
+
+    var html = "";
+
+    // verdict
+    html += '<div class="verdict tone-' + band.tone + '">';
+    html += '<p class="verdict-label">' + esc(band.label) + "</p>";
+    html += '<p class="verdict-title">' + esc(band.title) + "</p>";
+    html += '<p class="verdict-desc">' + esc(band.desc) + "</p>";
+    html += '<div class="meter" role="img" aria-label="6개 중 ' + n + '개 레드플래그">';
+    for (var p = 0; p < 6; p++) {
+      html += '<span class="pip' + (p < n ? " lit" : "") + '"></span>';
+    }
+    html += "</div>";
+    html += '<p class="meter-caption">' + n + " / 6 레드플래그</p>";
+    html += "</div>";
+
+    // blanks
+    if (n === 0) {
+      html +=
+        '<p class="clean-note">감지된 빈칸이 없습니다. 그래도 전략은 한 번 짜고 끝나는 게 아니라 가정이 깨지는지 지켜보는 여정입니다. 아래 프롬프트로 도약 가정을 시험해 보세요.</p>';
+    } else {
+      html += '<div class="result-block-title">채워야 할 빈칸</div>';
+      html += '<ul class="blank-list">';
+      hits.forEach(function (f) {
+        html += '<li class="blank-item">';
+        html += '<p class="bi-title">' + esc(f.blankTitle) + "</p>";
+        html += '<p class="bi-fix">' + esc(f.fix) + "</p>";
+        html += '<span class="bi-cascade">' + esc(f.cascade) + "</span>";
+        html += "</li>";
+      });
+      html += "</ul>";
+    }
+
+    // prompt
+    lastPrompt = buildPrompt(hits, docText);
+    html += '<div class="result-block-title">심화: AI에 붙여넣을 프롬프트</div>';
+    html +=
+      '<p class="panel-sub" style="margin-bottom:11px">아래 프롬프트를 ChatGPT·Claude 등에 붙여넣으면, 이 진단을 바탕으로 전략 캐스케이드를 함께 채워 줍니다.</p>';
+    html += '<div class="prompt-wrap">';
+    html += '<pre class="prompt" id="prompt-text">' + esc(lastPrompt) + "</pre>";
+    html += "</div>";
+    html += '<div class="copy-row no-print">';
+    html += '<button class="btn-copy" id="copyBtn">프롬프트 복사</button>';
+    html += '<button class="btn-ghost" id="printBtn">인쇄 / PDF</button>';
+    html += '<span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>';
+    html += "</div>";
+
+    resultEl.innerHTML = html;
+    wireResultButtons();
+    resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- reset ----
+  document.getElementById("reset").addEventListener("click", function () {
+    checked = {};
+    doc.value = "";
+    grow(doc);
+    Array.prototype.forEach.call(
+      flagsEl.querySelectorAll("input.native"),
+      function (b) {
+        b.checked = false;
+        b.closest("li.flag").classList.remove("on");
+      }
+    );
+    resultEl.innerHTML =
+      '<div class="empty-state"><div class="big" aria-hidden="true">◔</div>' +
+      "<p><strong>아직 판정 전입니다.</strong></p>" +
+      "<p>레드플래그를 체크하고 '판정하기'를 누르세요.</p></div>";
+    document.getElementById("checklist-panel").scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+
+  // ---- copy (3-tier fallback) + print ----
+  function wireResultButtons() {
+    var copyBtn = document.getElementById("copyBtn");
+    var printBtn = document.getElementById("printBtn");
+    if (copyBtn) copyBtn.addEventListener("click", doCopy);
+    if (printBtn)
+      printBtn.addEventListener("click", function () {
+        window.print();
+      });
+  }
+
+  function flashStatus(msg) {
+    var s = document.getElementById("copyStatus");
+    if (!s) return;
+    s.textContent = msg;
+    setTimeout(function () {
+      if (s) s.textContent = "";
+    }, 2600);
+  }
+
+  function doCopy() {
+    var text = lastPrompt;
+    // tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          flashStatus("복사되었습니다");
+        },
+        function () {
+          legacyCopy(text);
+        }
+      );
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    // tier 2: execCommand with return-value check
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    if (ok) {
+      flashStatus("복사되었습니다");
+    } else {
+      // tier 3: manual modal
+      openModal(text);
+    }
+  }
+
+  // ---- manual modal ----
+  var modal = document.getElementById("modal");
+  var modalText = document.getElementById("modal-text");
+
+  function openModal(text) {
+    modalText.value = text;
+    modal.classList.add("open");
+    setTimeout(function () {
+      modalText.focus();
+      modalText.select();
+    }, 60);
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-select").addEventListener("click", function () {
+    modalText.focus();
+    modalText.select();
+    modalText.setSelectionRange(0, modalText.value.length);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
+</script>

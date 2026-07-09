@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>상시근로자 수 산정·적용 법규 진단기</title>
+<meta name="description" content="한 달 근무 인원을 넣으면 상시근로자 수를 산정하고 5인 기준 적용 노동법 조항을 정리합니다." />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+  :root{
+    --bg:#FBFAF8;
+    --card:#FFFFFF;
+    --ink:#1F2937;
+    --ink-soft:#4B5563;
+    --ink-faint:#6B7280;
+    --line:#E7E2DA;
+    --line-soft:#F0ECE6;
+    --accent:#B45309;
+    --accent-strong:#92400E;
+    --accent-tint:#FFF7ED;
+    --accent-tint-2:#FDECD8;
+    --ok:#15803D;
+    --ok-tint:#ECFDF3;
+    --ok-line:#BBE7C6;
+    --off:#9A3412;
+    --off-tint:#FBEDE7;
+    --off-line:#F0CFC0;
+    --warn-tint:#FEF6E7;
+    --warn-line:#F3DFA6;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(31,41,55,.04),0 6px 20px rgba(31,41,55,.06);
+    --font: "Pretendard", system-ui, -apple-system, "Malgun Gothic", "Apple SD Gothic Neo", "Segoe UI", Roboto, sans-serif;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font);
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    -webkit-text-size-adjust:100%;
+    font-size:16px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px 64px;}
+
+  /* Header */
+  header.hero{padding:14px 2px 6px;}
+  .kicker{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;letter-spacing:.02em;color:var(--accent);background:var(--accent-tint);border:1px solid var(--accent-tint-2);padding:5px 11px;border-radius:999px;}
+  h1{font-size:24px;line-height:1.3;margin:14px 0 8px;font-weight:800;letter-spacing:-.01em;}
+  .lede{font-size:15px;color:var(--ink-soft);margin:0;max-width:60ch;}
+
+  /* Disclaimer (always visible) */
+  .disclaimer{
+    display:flex;gap:10px;align-items:flex-start;
+    background:var(--warn-tint);border:1px solid var(--warn-line);
+    border-radius:12px;padding:12px 14px;margin:16px 0 4px;
+    font-size:13px;color:#5b4a1e;line-height:1.55;
+  }
+  .disclaimer .dot{flex:0 0 auto;font-size:15px;line-height:1.4;}
+  .disclaimer strong{color:#7a5a12;font-weight:700;}
+
+  /* Cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px;margin-top:16px;}
+  .card h2{font-size:16.5px;margin:0 0 4px;font-weight:800;letter-spacing:-.01em;}
+  .card .sub{font-size:13px;color:var(--ink-faint);margin:0 0 14px;}
+
+  /* Segmented mode toggle */
+  .seg{display:flex;gap:6px;background:var(--line-soft);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:16px;}
+  .seg button{flex:1;appearance:none;border:0;background:transparent;color:var(--ink-soft);font-family:inherit;font-size:14px;font-weight:700;padding:10px 8px;border-radius:9px;cursor:pointer;transition:.15s;}
+  .seg button[aria-selected="true"]{background:var(--card);color:var(--accent-strong);box-shadow:0 1px 3px rgba(31,41,55,.1);}
+
+  label.fld{display:block;margin-bottom:14px;}
+  label.fld .lab{display:block;font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+  label.fld .hint{font-size:12.5px;font-weight:400;color:var(--ink-faint);margin-left:2px;}
+  input[type="number"],textarea{
+    width:100%;font-family:inherit;font-size:16px;color:var(--ink);
+    background:#fff;border:1.5px solid var(--line);border-radius:10px;
+    padding:11px 12px;transition:border-color .15s,box-shadow .15s;
+  }
+  input[type="number"]:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(180,83,9,.14);}
+  textarea{resize:none;overflow:hidden;min-height:52px;line-height:1.7;}
+
+  .row2{display:flex;flex-direction:column;gap:12px;}
+  .fillbar{display:flex;flex-direction:column;gap:10px;background:var(--accent-tint);border:1px solid var(--accent-tint-2);border-radius:12px;padding:12px;margin-bottom:14px;}
+  .fillbar .frow{display:flex;flex-direction:column;gap:8px;}
+  .fillbar label{font-size:12.5px;font-weight:700;color:var(--accent-strong);}
+  .fillbar input{border-color:var(--accent-tint-2);}
+
+  .btn{appearance:none;border:0;cursor:pointer;font-family:inherit;font-weight:700;border-radius:11px;transition:.15s;}
+  .btn-primary{width:100%;background:var(--accent-strong);color:#fff;font-size:16px;padding:14px 16px;letter-spacing:.01em;}
+  .btn-primary:hover{background:#7c360b;}
+  .btn-primary:active{transform:translateY(1px);}
+  .btn-ghost{background:#fff;border:1.5px solid var(--line);color:var(--accent-strong);font-size:13.5px;padding:9px 12px;}
+  .btn-ghost:hover{background:var(--accent-tint);}
+
+  .miss{font-size:12.5px;color:var(--off);margin-top:2px;min-height:0;}
+
+  /* Empty state */
+  .empty{border:1.5px dashed var(--line);border-radius:var(--radius);padding:30px 18px;text-align:center;color:var(--ink-faint);font-size:14px;background:#fff;margin-top:16px;}
+  .empty .ic{font-size:26px;display:block;margin-bottom:8px;opacity:.85;}
+
+  /* Result */
+  #result{display:none;}
+  .verdict{border-radius:var(--radius);padding:18px 16px;text-align:center;border:1px solid;margin-bottom:14px;}
+  .verdict.ge{background:var(--ok-tint);border-color:var(--ok-line);}
+  .verdict.lt{background:var(--off-tint);border-color:var(--off-line);}
+  .verdict .badge{display:inline-block;font-size:12.5px;font-weight:800;letter-spacing:.03em;padding:4px 12px;border-radius:999px;margin-bottom:8px;color:#fff;}
+  .verdict.ge .badge{background:var(--ok);}
+  .verdict.lt .badge{background:var(--off);}
+  .verdict .big{font-size:27px;font-weight:800;letter-spacing:-.01em;margin:2px 0 2px;}
+  .verdict.ge .big{color:var(--ok);}
+  .verdict.lt .big{color:var(--off);}
+  .verdict .calc{font-size:13px;color:var(--ink-soft);}
+
+  .metrics{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .metric{flex:1 1 46%;min-width:130px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px 12px;}
+  .metric .k{font-size:12px;color:var(--ink-faint);font-weight:600;}
+  .metric .v{font-size:16px;color:var(--ink);font-weight:800;margin-top:2px;}
+
+  .adjust{font-size:13px;color:var(--ink-soft);background:var(--accent-tint);border:1px solid var(--accent-tint-2);border-radius:11px;padding:11px 13px;margin-bottom:16px;line-height:1.6;}
+  .adjust b{color:var(--accent-strong);}
+
+  .maplist h3{font-size:14px;font-weight:800;margin:18px 0 8px;display:flex;align-items:center;gap:8px;}
+  .maplist h3 .tag{font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:999px;}
+  .tag.on{background:var(--ok-tint);color:var(--ok);border:1px solid var(--ok-line);}
+  .tag.off{background:var(--off-tint);color:var(--off);border:1px solid var(--off-line);}
+  .tag.always{background:var(--accent-tint);color:var(--accent-strong);border:1px solid var(--accent-tint-2);}
+  ul.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;}
+  ul.items li{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:#fff;}
+  ul.items li .mk{flex:0 0 auto;font-size:15px;font-weight:800;line-height:1.5;width:18px;text-align:center;}
+  li.applies .mk{color:var(--ok);}
+  li.notapplies .mk{color:var(--ink-faint);}
+  li.always .mk{color:var(--accent);}
+  ul.items li .txt{flex:1;}
+  ul.items li .nm{font-size:14px;font-weight:700;color:var(--ink);}
+  li.notapplies .nm{color:var(--ink-faint);text-decoration:line-through;text-decoration-color:rgba(107,114,128,.4);}
+  ul.items li .law{font-size:12px;color:var(--ink-faint);margin-top:1px;}
+
+  .notes-fld{margin-top:16px;}
+  .actions{display:flex;flex-direction:column;gap:9px;margin-top:16px;}
+
+  .foot{margin-top:26px;font-size:12px;color:var(--ink-faint);text-align:center;line-height:1.7;}
+  .foot .basis{color:var(--ink-soft);}
+
+  /* Copy modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(31,41,55,.5);display:none;align-items:center;justify-content:center;padding:18px;z-index:50;}
+  .modal-bg.show{display:flex;}
+  .modal{background:#fff;border-radius:14px;max-width:520px;width:100%;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+  .modal h4{margin:0 0 6px;font-size:15px;font-weight:800;}
+  .modal p{margin:0 0 10px;font-size:13px;color:var(--ink-soft);}
+  .modal textarea{min-height:180px;overflow:auto;font-size:13px;line-height:1.6;}
+  .modal .mrow{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;}
+
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13.5px;font-weight:600;padding:11px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:60;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media (min-width:560px){
+    .wrap{padding:28px 24px 72px;}
+    h1{font-size:27px;}
+    .row2{flex-direction:row;}
+    .row2 > *{flex:1;}
+    .fillbar .frow{flex-direction:row;align-items:flex-end;}
+    .fillbar .frow > label{flex:1;}
+    .fillbar .frow > .btn{flex:0 0 auto;}
+  }
+
+  @media print{
+    body{background:#fff;}
+    .seg,.actions,.notes-fld,.btn,.modal-bg,.toast,.fillbar,#inputCard .miss{display:none !important;}
+    .card{box-shadow:none;border-color:#ccc;break-inside:avoid;}
+    #inputCard{display:none;}
+    .disclaimer{border-color:#bbb;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <span class="kicker">노동법 진단 · 무료 도구</span>
+    <h1>상시근로자 수 산정 &amp; 5인 기준 적용 법규 진단기</h1>
+    <p class="lede">최근 1개월 근무 인원을 넣으면 <b>상시근로자 수</b>를 산정하고, 사업장이 <b>5인 이상/미만</b> 중 어디에 해당하는지, 그에 따라 어떤 노동법 조항이 적용되는지 정리해 드립니다.</p>
+  </header>
+
+  <div class="disclaimer">
+    <span class="dot">⚖️</span>
+    <span><strong>참고용 안내입니다.</strong> 본 도구는 근로기준법 및 시행령에 기반한 일반 정보 제공용 참고 자료이며, 개별 사안의 최종 판단(해고·수당·분쟁 등)은 공인노무사·변호사 등 전문가 상담이 필요합니다. 계산 결과는 법적 효력이 있는 의견이 아닙니다.</span>
+  </div>
+
+  <!-- INPUT -->
+  <section class="card" id="inputCard">
+    <h2>근무 인원 입력</h2>
+    <p class="sub">산정 기준: 근로기준법 시행령 제7조의2 (사유 발생일 전 1개월)</p>
+
+    <div class="seg" role="tablist" aria-label="입력 방식">
+      <button role="tab" id="tabDaily" aria-selected="true" onclick="setMode('daily')">일자별 정밀</button>
+      <button role="tab" id="tabSimple" aria-selected="false" onclick="setMode('simple')">간편 산정</button>
+    </div>
+
+    <!-- Daily mode -->
+    <div id="modeDaily">
+      <div class="fillbar">
+        <div class="frow">
+          <label>가동일수(영업일)
+            <input type="number" id="fillDays" min="1" max="31" step="1" inputmode="numeric" placeholder="예: 26" />
+          </label>
+          <label>매일 동일 인원
+            <input type="number" id="fillHead" min="0" step="1" inputmode="numeric" placeholder="예: 5" />
+          </label>
+          <button type="button" class="btn btn-ghost" onclick="quickFill()">일괄 채우기</button>
+        </div>
+        <div style="font-size:12px;color:var(--accent-strong);">동일 인원으로 먼저 채운 뒤, 아래에서 다른 날만 숫자를 고치면 됩니다.</div>
+      </div>
+
+      <label class="fld">
+        <span class="lab">가동일별 근무 인원 <span class="hint">쉼표·공백·줄바꿈으로 구분해 순서대로 입력</span></span>
+        <textarea id="dailyInput" placeholder="예) 5, 5, 4, 6, 5, 5, 3, 5, 5, 6"></textarea>
+      </label>
+      <div class="miss" id="missDaily"></div>
+      <p class="sub" style="margin:8px 0 0;">입력한 숫자의 개수 = 가동일수, 합계 = 연인원으로 계산합니다. 일자별 값이 있어야 <b>1/2 보정</b> 판단까지 가능합니다.</p>
+    </div>
+
+    <!-- Simple mode -->
+    <div id="modeSimple" style="display:none;">
+      <div class="row2">
+        <label class="fld">
+          <span class="lab">가동일수(영업일)</span>
+          <input type="number" id="simpleDays" min="1" max="31" step="1" inputmode="numeric" placeholder="예: 26" />
+        </label>
+        <label class="fld">
+          <span class="lab">연인원 <span class="hint">1개월간 매일 인원의 총합</span></span>
+          <input type="number" id="simplePeople" min="0" step="1" inputmode="numeric" placeholder="예: 130" />
+        </label>
+      </div>
+      <div class="miss" id="missSimple"></div>
+      <p class="sub" style="margin:2px 0 0;">간편 모드는 산정값만 계산합니다. 결과가 5명 경계에 가까우면 일자별 정밀 모드를 권장합니다(1/2 보정).</p>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top:6px;" onclick="diagnose()">상시근로자 수 진단하기</button>
+
+    <p class="sub" style="margin:14px 0 0;line-height:1.6;">
+      <b>산정 대상 포함/제외</b> · 정규·기간제·단시간·일용 등 고용형태 무관 포함 / 파견근로자는 제외(파견사업주 소속) / 대표이사 등 사용자 본인, 동거하는 친족만으로 이뤄진 경우는 제외됩니다.
+    </p>
+  </section>
+
+  <!-- EMPTY -->
+  <div class="empty" id="emptyState">
+    <span class="ic">📊</span>
+    근무 인원을 입력하고 <b>진단하기</b>를 누르면<br />여기에 산정 결과와 적용 법규가 표시됩니다.
+  </div>
+
+  <!-- RESULT -->
+  <section class="card" id="result" aria-live="polite">
+    <div class="verdict" id="verdict">
+      <span class="badge" id="verdictBadge"></span>
+      <div class="big" id="verdictTitle"></div>
+      <div class="calc" id="verdictCalc"></div>
+    </div>
+
+    <div class="metrics" id="metrics"></div>
+
+    <div class="adjust" id="adjustBox"></div>
+
+    <div class="maplist">
+      <h3>5인 이상 사업장 전용 규정 <span class="tag" id="fpTag"></span></h3>
+      <ul class="items" id="fpList"></ul>
+
+      <h3>규모와 무관하게 적용 <span class="tag always">5인 미만도 준수</span></h3>
+      <ul class="items" id="alwaysList"></ul>
+    </div>
+
+    <label class="fld notes-fld">
+      <span class="lab">메모 / 특이사항 <span class="hint">복사본 하단에 함께 담깁니다 (선택)</span></span>
+      <textarea id="notes" placeholder="예) 성수기로 6~8월 인원 변동 큼, 파견 2명 별도 등"></textarea>
+    </label>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="copyResult()">진단 결과 복사</button>
+      <button class="btn btn-ghost" onclick="window.print()">인쇄 / PDF 저장</button>
+    </div>
+
+    <p class="sub" style="margin:16px 0 0;line-height:1.6;">
+      ⚖️ 본 진단은 근로기준법 제11조·시행령 제7조의2에 근거한 참고 정보입니다. 실제 적용은 취업규칙·근로계약·구체적 사실관계에 따라 달라질 수 있으므로, 중요한 결정 전 공인노무사 등 전문가의 확인을 받으시기 바랍니다.
+    </p>
+  </section>
+
+  <p class="foot">
+    <span class="basis">근거: 근로기준법 제11조(적용범위), 시행령 제7조의2(상시 근로자 수 산정), 제56·60·23·28·46·73조 등</span><br />
+    상시근로자 수 산정·적용 법규 진단기 · 오프라인에서도 동작하는 단일 파일 도구
+  </p>
+</div>
+
+<!-- Copy fallback modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h4>결과 복사</h4>
+    <p>자동 복사가 제한된 환경입니다. 아래 내용을 길게 눌러 전체 선택 후 복사하세요.</p>
+    <textarea id="modalText" readonly></textarea>
+    <div class="mrow">
+      <button class="btn btn-ghost" onclick="closeModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---- Law mapping (grounded in 근로기준법 / 시행령) ----
+  var FIVE_PLUS = [
+    {nm:"연장·야간·휴일근로 가산수당", law:"근로기준법 제56조 · 통상임금 50% 이상 가산"},
+    {nm:"연차유급휴가", law:"근로기준법 제60조"},
+    {nm:"해고 등의 제한(정당한 이유 필요)", law:"근로기준법 제23조제1항"},
+    {nm:"부당해고 구제신청", law:"근로기준법 제28조 · 노동위원회, 해고일부터 3개월 이내"},
+    {nm:"법정근로시간·연장근로 한도", law:"근로기준법 제50조·제53조 · 주 40시간, 연장 주 12시간"},
+    {nm:"휴업수당", law:"근로기준법 제46조 · 평균임금 70% 이상"},
+    {nm:"생리휴가", law:"근로기준법 제73조 · 월 1일(무급)"},
+    {nm:"직장 내 괴롭힘 금지·조치 의무", law:"근로기준법 제76조의2·제76조의3"}
+  ];
+  var ALWAYS = [
+    {nm:"근로계약서 서면 작성·교부", law:"근로기준법 제17조"},
+    {nm:"최저임금 보장", law:"최저임금법 제3조"},
+    {nm:"주휴일·주휴수당", law:"근로기준법 제55조제1항"},
+    {nm:"휴게시간", law:"근로기준법 제54조"},
+    {nm:"해고예고(30일 전 또는 30일분 통상임금)", law:"근로기준법 제26조"},
+    {nm:"퇴직급여(퇴직금)", law:"근로자퇴직급여보장법 제4조 · 계속근로 1년 이상"},
+    {nm:"출산전후휴가(90일)", law:"근로기준법 제74조"},
+    {nm:"육아휴직", law:"남녀고용평등법 제19조"},
+    {nm:"4대보험·산재보험 가입", law:"산업재해보상보험법 등"}
+  ];
+
+  var mode = "daily";
+  var lastText = "";
+
+  window.setMode = function(m){
+    mode = m;
+    document.getElementById("modeDaily").style.display = (m==="daily")?"block":"none";
+    document.getElementById("modeSimple").style.display = (m==="simple")?"block":"none";
+    document.getElementById("tabDaily").setAttribute("aria-selected", m==="daily");
+    document.getElementById("tabSimple").setAttribute("aria-selected", m==="simple");
+  };
+
+  // auto-grow textareas
+  function grow(el){ el.style.height="auto"; el.style.height=(el.scrollHeight)+"px"; }
+  ["dailyInput","notes"].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){ el.addEventListener("input",function(){grow(el);}); }
+  });
+
+  window.quickFill = function(){
+    var d = parseInt(document.getElementById("fillDays").value,10);
+    var h = document.getElementById("fillHead").value;
+    var hn = parseInt(h,10);
+    if(!d || d<1){ flash("가동일수를 먼저 입력하세요."); return; }
+    if(h==="" || isNaN(hn) || hn<0){ flash("매일 동일 인원을 입력하세요."); return; }
+    if(d>31) d=31;
+    var arr=[]; for(var i=0;i<d;i++) arr.push(hn);
+    var ta=document.getElementById("dailyInput");
+    ta.value = arr.join(", ");
+    grow(ta);
+    document.getElementById("missDaily").textContent="";
+  };
+
+  function parseDaily(str){
+    var nums = (str||"").split(/[^0-9.]+/).filter(function(s){return s!=="";})
+                .map(function(s){return parseFloat(s);})
+                .filter(function(n){return !isNaN(n)&&n>=0;});
+    return nums;
+  }
+
+  window.diagnose = function(){
+    var days, people, perDay=null;
+
+    if(mode==="daily"){
+      perDay = parseDaily(document.getElementById("dailyInput").value);
+      if(perDay.length===0){
+        document.getElementById("missDaily").textContent="가동일별 인원을 하나 이상 입력하세요.";
+        return;
+      }
+      document.getElementById("missDaily").textContent="";
+      days = perDay.length;
+      people = perDay.reduce(function(a,b){return a+b;},0);
+    } else {
+      days = parseInt(document.getElementById("simpleDays").value,10);
+      people = parseFloat(document.getElementById("simplePeople").value);
+      var msg="";
+      if(!days || days<1) msg="가동일수를 1 이상 입력하세요.";
+      else if(isNaN(people) || people<0) msg="연인원을 입력하세요.";
+      if(msg){ document.getElementById("missSimple").textContent=msg; return; }
+      document.getElementById("missSimple").textContent="";
+    }
+
+    var raw = people/days;                 // 상시근로자 수
+    var rawRound = Math.round(raw*100)/100;
+
+    // Judgement
+    var finalGe;      // true = 5인 이상
+    var adjustHtml;
+    var daysGe5=null, daysLt5=null, adjusted=false;
+
+    if(perDay){
+      daysGe5 = perDay.filter(function(n){return n>=5;}).length;
+      daysLt5 = days - daysGe5;
+      if(raw >= 5){
+        finalGe = !(daysLt5 >= days/2);   // 5미만인 날 절반 이상이면 5인 미만으로 봄
+        adjusted = !finalGe;
+      } else {
+        finalGe = (daysGe5 >= days/2);    // 5이상인 날 절반 이상이면 5인 이상으로 봄
+        adjusted = finalGe;
+      }
+      var base = (raw>=5) ? "산정값 5명 이상" : "산정값 5명 미만";
+      if(adjusted){
+        var reason = (raw>=5)
+          ? ("5명 미만인 날이 "+daysLt5+"일로 가동일수의 1/2 이상 → <b>5인 미만</b>으로 보정")
+          : ("5명 이상인 날이 "+daysGe5+"일로 가동일수의 1/2 이상 → <b>5인 이상</b>으로 보정");
+        adjustHtml = "<b>1/2 보정 적용.</b> "+base+"이지만, "+reason+"됩니다. (근로기준법 시행령 제7조의2 제2항)";
+      } else {
+        adjustHtml = "1/2 보정 결과 판정이 유지됩니다. "+base+", 5명 "+(raw>=5?"미만":"이상")+"인 날이 가동일수의 1/2 미만입니다.";
+      }
+    } else {
+      finalGe = raw >= 5;
+      var near = (raw>=4 && raw<6);
+      adjustHtml = "간편 모드는 일자별 <b>1/2 보정</b>을 반영하지 않습니다. 산정값만으로 판정했습니다."
+        + (near ? " 산정값이 5명 경계(4~6명)에 있으므로, 정확한 판정을 위해 <b>일자별 정밀 모드</b> 사용을 권장합니다." : "");
+    }
+
+    render(days, people, rawRound, finalGe, adjustHtml, daysGe5, daysLt5, perDay!=null);
+  };
+
+  function esc(s){ return String(s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];}); }
+
+  function render(days, people, rawRound, finalGe, adjustHtml, daysGe5, daysLt5, hasDaily){
+    document.getElementById("emptyState").style.display="none";
+    var res=document.getElementById("result");
+    res.style.display="block";
+
+    var v=document.getElementById("verdict");
+    v.className="verdict "+(finalGe?"ge":"lt");
+    document.getElementById("verdictBadge").textContent = finalGe ? "5인 이상 사업장" : "5인 미만 사업장";
+    document.getElementById("verdictTitle").textContent = finalGe
+      ? "근로기준법 전면 적용 대상" : "근로기준법 일부만 적용";
+    document.getElementById("verdictCalc").innerHTML =
+      "상시근로자 수 <b>"+rawRound+"명</b> = 연인원 "+people+" ÷ 가동일수 "+days;
+
+    // metrics
+    var m="";
+    m+='<div class="metric"><div class="k">가동일수</div><div class="v">'+days+'일</div></div>';
+    m+='<div class="metric"><div class="k">연인원(합계)</div><div class="v">'+people+'명</div></div>';
+    m+='<div class="metric"><div class="k">상시근로자 수</div><div class="v">'+rawRound+'명</div></div>';
+    if(hasDaily){
+      m+='<div class="metric"><div class="k">5명 이상인 날 / 미만인 날</div><div class="v">'+daysGe5+'일 / '+daysLt5+'일</div></div>';
+    } else {
+      m+='<div class="metric"><div class="k">판정 근거</div><div class="v">산정값 기준</div></div>';
+    }
+    document.getElementById("metrics").innerHTML=m;
+
+    document.getElementById("adjustBox").innerHTML=adjustHtml;
+
+    // 5+ list
+    var fp="";
+    FIVE_PLUS.forEach(function(it){
+      var cls = finalGe ? "applies" : "notapplies";
+      var mk = finalGe ? "✔" : "—";
+      fp+='<li class="'+cls+'"><span class="mk">'+mk+'</span><span class="txt"><span class="nm">'+esc(it.nm)+'</span><span class="law">'+esc(it.law)+'</span></span></li>';
+    });
+    document.getElementById("fpList").innerHTML=fp;
+    var fpTag=document.getElementById("fpTag");
+    fpTag.className="tag "+(finalGe?"on":"off");
+    fpTag.textContent = finalGe ? "이 사업장: 적용" : "이 사업장: 미적용";
+
+    // always list
+    var al="";
+    ALWAYS.forEach(function(it){
+      al+='<li class="always"><span class="mk">✔</span><span class="txt"><span class="nm">'+esc(it.nm)+'</span><span class="law">'+esc(it.law)+'</span></span></li>';
+    });
+    document.getElementById("alwaysList").innerHTML=al;
+
+    lastText = buildText(days, people, rawRound, finalGe, daysGe5, daysLt5, hasDaily);
+
+    res.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  function buildText(days, people, rawRound, finalGe, daysGe5, daysLt5, hasDaily){
+    var L=[];
+    L.push("[상시근로자 수 산정·적용 법규 진단]");
+    L.push("산정 근거: 근로기준법 제11조 · 시행령 제7조의2");
+    L.push("");
+    L.push("· 가동일수: "+days+"일 / 연인원: "+people+"명");
+    L.push("· 상시근로자 수: "+rawRound+"명 (연인원 ÷ 가동일수)");
+    if(hasDaily){
+      L.push("· 일별 판단: 5명 이상인 날 "+daysGe5+"일 / 5명 미만인 날 "+daysLt5+"일 (1/2 보정 반영)");
+    } else {
+      L.push("· 판정 근거: 산정값 기준(1/2 보정 미반영)");
+    }
+    L.push("· 최종 판정: "+(finalGe?"5인 이상 사업장 (근로기준법 전면 적용)":"5인 미만 사업장 (근로기준법 일부 적용)"));
+    L.push("");
+    L.push("[5인 이상 사업장 전용 규정] - 이 사업장: "+(finalGe?"적용":"미적용"));
+    FIVE_PLUS.forEach(function(it){
+      L.push("  "+(finalGe?"[적용] ":"[미적용] ")+it.nm+" ("+it.law+")");
+    });
+    L.push("");
+    L.push("[규모와 무관하게 적용] - 5인 미만도 준수 의무");
+    ALWAYS.forEach(function(it){
+      L.push("  [적용] "+it.nm+" ("+it.law+")");
+    });
+    var notes=document.getElementById("notes").value.trim();
+    if(notes){ L.push(""); L.push("[메모] "+notes); }
+    L.push("");
+    L.push("※ 본 진단은 일반 정보 제공용 참고 자료입니다. 개별 사안의 최종 판단은 공인노무사·변호사 등 전문가 상담이 필요합니다.");
+    return L.join("\n");
+  }
+
+  // ---- Copy with 3-tier fallback ----
+  window.copyResult = function(){
+    if(!lastText){ flash("먼저 진단을 실행하세요."); return; }
+    // Tier 1: async clipboard
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(lastText).then(function(){
+        flash("결과가 복사되었습니다.");
+      }).catch(function(){
+        tier2();
+      });
+    } else {
+      tier2();
+    }
+  };
+  function tier2(){
+    try{
+      var ta=document.createElement("textarea");
+      ta.value=lastText;
+      ta.style.position="fixed"; ta.style.top="-1000px"; ta.style.opacity="0";
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      var ok=document.execCommand("copy");
+      document.body.removeChild(ta);
+      if(ok){ flash("결과가 복사되었습니다."); }
+      else { tier3(); }
+    }catch(e){ tier3(); }
+  }
+  function tier3(){
+    document.getElementById("modalText").value=lastText;
+    document.getElementById("modalBg").classList.add("show");
+  }
+  window.closeModal=function(){ document.getElementById("modalBg").classList.remove("show"); };
+  document.getElementById("modalBg").addEventListener("click",function(e){
+    if(e.target===this) closeModal();
+  });
+
+  var toastTimer;
+  function flash(msg){
+    var t=document.getElementById("toast");
+    t.textContent=msg; t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){t.classList.remove("show");},2200);
+  }
+})();
+</script>
+</body>
+</html>

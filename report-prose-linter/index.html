@@ -1,0 +1,543 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>보고서 문장 군살·번역투 하이라이터</title>
+<style>
+  /* ---- Font: Pretendard (CDN) with offline-safe fallback ---- */
+  @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+
+  :root{
+    --accent:#c15f3c;        /* warm terracotta */
+    --accent-dark:#9c4322;
+    --accent-soft:#f7ede7;
+    --ink:#20242b;           /* body text */
+    --ink-soft:#4b515c;      /* secondary text (AA on paper) */
+    --ink-faint:#6b7280;
+    --paper:#fbf8f4;
+    --card:#ffffff;
+    --line:#e7e1d8;
+    --line-strong:#d6cec2;
+
+    /* highlight category tints (dark ink stays on top -> AA) */
+    --c-meta-bg:#fde6c6;   --c-meta-bd:#c2740c;
+    --c-fill-bg:#dbe8fb;   --c-fill-bd:#2563eb;
+    --c-trans-bg:#fbe0ee;  --c-trans-bd:#c31d75;
+    --c-pass-bg:#e7e0fb;   --c-pass-bd2:#6d3af0;
+    --c-hedge-bg:#d8f2df;  --c-hedge-bd:#178a44;
+
+    --radius:14px;
+    --shadow:0 1px 2px rgba(30,20,10,.04), 0 8px 28px rgba(60,40,20,.06);
+    --font:"Pretendard","Pretendard Variable",system-ui,-apple-system,"Segoe UI",
+           "Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--font);
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.65;
+    /* Korean line-break safety */
+    word-break:keep-all;
+    overflow-wrap:break-word;
+    -webkit-text-size-adjust:100%;
+  }
+  :root{word-break:keep-all;overflow-wrap:break-word;}
+
+  .wrap{max-width:820px;margin:0 auto;padding:28px 18px 80px}
+
+  /* ---- Header ---- */
+  header{margin:8px 0 22px}
+  .eyebrow{
+    display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.04em;
+    color:var(--accent-dark);background:var(--accent-soft);
+    padding:5px 11px;border-radius:999px;margin-bottom:12px;
+  }
+  h1{font-size:clamp(22px,5.2vw,30px);line-height:1.25;margin:0 0 8px;font-weight:800;letter-spacing:-.01em}
+  .lede{font-size:15.5px;color:var(--ink-soft);margin:0;max-width:56ch}
+
+  /* ---- Cards ---- */
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:18px;margin-top:18px;
+  }
+  .card h2{font-size:15px;font-weight:800;margin:0 0 4px;letter-spacing:-.01em}
+  .card .hint{font-size:13px;color:var(--ink-faint);margin:0 0 12px}
+
+  /* ---- Textarea ---- */
+  textarea{
+    width:100%;min-height:180px;resize:none;overflow:hidden;
+    font-family:var(--font);font-size:15.5px;line-height:1.7;color:var(--ink);
+    background:#fffdfb;border:1.5px solid var(--line-strong);border-radius:10px;
+    padding:14px 15px;
+    word-break:keep-all;overflow-wrap:break-word;
+  }
+  textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(193,95,60,.15)}
+  textarea::placeholder{color:#a9a196}
+
+  /* ---- Buttons ---- */
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+  button{font-family:var(--font);cursor:pointer;border-radius:10px;font-weight:700;
+    font-size:14.5px;border:1.5px solid transparent;transition:.15s;}
+  .btn-primary{background:var(--accent);color:#fff;padding:11px 22px;flex:0 0 auto}
+  .btn-primary:hover{background:var(--accent-dark)}
+  .btn-ghost{background:transparent;color:var(--ink-soft);border-color:var(--line-strong);padding:10px 16px}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent-dark)}
+  .spacer{flex:1 1 auto}
+  .count{font-size:13px;color:var(--ink-faint);white-space:nowrap}
+
+  /* ---- Legend / filter chips ---- */
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;
+    padding:6px 11px;border-radius:999px;border:1.5px solid var(--line);
+    background:#fff;color:var(--ink-soft);cursor:pointer;user-select:none;transition:.12s;
+  }
+  .chip .dot{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
+  .chip .n{font-weight:800;color:var(--ink)}
+  .chip[aria-pressed="false"]{opacity:.42;text-decoration:line-through;text-decoration-color:var(--ink-faint)}
+  .chip:hover{border-color:var(--line-strong)}
+
+  /* ---- Result ---- */
+  #result{margin-top:18px}
+  .empty{
+    text-align:center;color:var(--ink-faint);font-size:14.5px;
+    padding:34px 16px;border:1.5px dashed var(--line-strong);border-radius:var(--radius);
+    background:#fffdfb;
+  }
+  .empty strong{display:block;color:var(--ink-soft);font-size:15.5px;margin-bottom:6px}
+
+  .summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px;margin-bottom:4px}
+  .summary .big{font-size:26px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .summary .big.clean{color:#178a44}
+  .summary .sub{font-size:13.5px;color:var(--ink-faint)}
+
+  .preview{
+    margin-top:14px;padding:16px;border-radius:10px;background:#fffdfb;
+    border:1px solid var(--line);font-size:15.5px;line-height:2.05;color:var(--ink);
+  }
+  mark.hl{
+    padding:1px 2px;border-radius:4px;border-bottom:2.5px solid;color:var(--ink);
+    cursor:help;position:relative;
+  }
+  .hl-meta {background:var(--c-meta-bg); border-color:var(--c-meta-bd)}
+  .hl-fill {background:var(--c-fill-bg); border-color:var(--c-fill-bd)}
+  .hl-trans{background:var(--c-trans-bg);border-color:var(--c-trans-bd)}
+  .hl-pass {background:var(--c-pass-bg); border-color:var(--c-pass-bd2)}
+  .hl-hedge{background:var(--c-hedge-bg);border-color:var(--c-hedge-bd)}
+
+  /* findings list */
+  .findings{margin-top:20px}
+  .fgroup{margin-top:16px}
+  .fgroup-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .fgroup-head .dot{width:12px;height:12px;border-radius:3px}
+  .fgroup-head h3{font-size:14px;font-weight:800;margin:0}
+  .fgroup-head .gn{font-size:12.5px;color:var(--ink-faint);font-weight:700}
+  .fitem{
+    display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;
+    padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;
+    margin-bottom:8px;
+  }
+  .fitem .phrase{font-weight:700;color:var(--ink)}
+  .fitem .phrase .q{color:var(--accent-dark)}
+  .fitem .freq{font-size:12px;color:var(--ink-faint);white-space:nowrap;font-weight:700;align-self:start}
+  .fitem .tip{grid-column:1 / -1;font-size:13.5px;color:var(--ink-soft);line-height:1.55}
+  .fitem .tip b{color:var(--accent-dark)}
+
+  /* copy bar */
+  .copybar{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+
+  /* toast */
+  #toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+    background:#20242b;color:#fff;padding:11px 20px;border-radius:999px;font-size:14px;font-weight:600;
+    opacity:0;pointer-events:none;transition:.25s;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.25)
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* manual-copy modal */
+  #modal{position:fixed;inset:0;background:rgba(20,16,10,.5);display:none;
+    align-items:center;justify-content:center;padding:18px;z-index:60}
+  #modal.show{display:flex}
+  .modal-card{background:#fff;border-radius:14px;max-width:560px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .modal-card h3{margin:0 0 6px;font-size:16px;font-weight:800}
+  .modal-card p{margin:0 0 12px;font-size:13.5px;color:var(--ink-soft)}
+  .modal-card textarea{min-height:200px;overflow:auto}
+  .modal-card .row{justify-content:flex-end;margin-top:12px}
+
+  footer{margin-top:30px;text-align:center;font-size:12.5px;color:var(--ink-faint);line-height:1.7}
+  footer .disc{max-width:60ch;margin:0 auto}
+
+  @media (max-width:560px){
+    .wrap{padding:20px 14px 70px}
+    .btn-primary{flex:1 1 100%;order:-1}
+    .fitem{grid-template-columns:1fr}
+    .fitem .freq{justify-self:start}
+  }
+
+  /* ---- Print: findings report ---- */
+  @media print{
+    body{background:#fff}
+    .card:first-of-type, .copybar, #toast, #modal, .btn-primary, .btn-ghost, footer .noprint{display:none !important}
+    .card{box-shadow:none;border:1px solid #ccc}
+    .preview{border:1px solid #ccc}
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">무료 · 설치 불필요 · 브라우저에서 바로</span>
+    <h1>보고서 문장 군살·번역투 하이라이터</h1>
+    <p class="lede">한국어 보고서·기획서에서 군더더기, 번역투, 공허한 메타 문구를 찾아 하이라이트하고, 담백한 대체안을 알려 드립니다. 문장은 브라우저 안에서만 처리되며 어디로도 전송되지 않습니다.</p>
+  </header>
+
+  <!-- INPUT -->
+  <section class="card">
+    <h2>1. 검사할 문장 붙여넣기</h2>
+    <p class="hint">보고서 한 문단이나 전체를 붙여넣으세요. 길어도 됩니다.</p>
+    <textarea id="input" placeholder="예) 본 보고서는 금번 프로젝트의 성과에 대해 살펴보고자 한다. 다양한 측면에서 매우 중요한 결과가 도출되었다고 할 수 있다..."></textarea>
+    <div class="row">
+      <button class="btn-primary" id="run">문장 검사하기</button>
+      <button class="btn-ghost" id="sample">샘플 넣기</button>
+      <button class="btn-ghost" id="clear">지우기</button>
+      <span class="spacer"></span>
+      <span class="count" id="charcount">0자</span>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <div id="result">
+    <div class="empty">
+      <strong>아직 검사 결과가 없습니다</strong>
+      문장을 붙여넣고 <b>문장 검사하기</b>를 누르면, 손볼 표현이 색으로 표시됩니다.
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- manual copy fallback modal -->
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+  <div class="modal-card">
+    <h3 id="mtitle">직접 복사하기</h3>
+    <p>자동 복사가 차단되었습니다. 아래 내용을 전체 선택(Ctrl/Cmd+A) 후 복사(Ctrl/Cmd+C)하세요.</p>
+    <textarea id="modalText" readonly></textarea>
+    <div class="row">
+      <button class="btn-ghost" id="modalClose">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   내장 사전: 정규식 린터 규칙
+   근거: skills/academic/thesis-refiner (메타 문구 제거, 스캐폴딩 삭제,
+   중복 진술, 과장 형용사 정리)를 한국어 보고서 문체로 적응.
+   각 규칙 = { pat(부분 문자열), cat(범주), tip(대체안/이유) }
+   ===================================================================== */
+const CATS = {
+  meta : {label:"공허한 메타 문구", color:"var(--c-meta-bd)", desc:"내용을 말하지 않고 '말하겠다'고 예고하는 표현"},
+  fill : {label:"군더더기",         color:"var(--c-fill-bd)", desc:"빼도 뜻이 그대로인 채우기 표현"},
+  trans: {label:"번역투",           color:"var(--c-trans-bd)",desc:"영어 어순·구문을 옮긴 어색한 한국어"},
+  pass : {label:"이중·불필요 피동",  color:"var(--c-pass-bd2)",desc:"'-되어지다' 등 겹친 피동, 불필요한 수동"},
+  hedge: {label:"과장·상투 수식어",  color:"var(--c-hedge-bd)",desc:"근거 없이 무게만 싣는 강조어"}
+};
+
+const RULES = [
+  /* ---------- 공허한 메타 문구 (meta) ---------- */
+  {pat:"본 보고서는", cat:"meta", tip:"'본 보고서는' 없이 결과·주장부터 서술. 제목이 이미 무엇인지 알려 줍니다."},
+  {pat:"본 보고서에서는", cat:"meta", tip:"'본 보고서에서는'을 빼고 곧장 내용으로 시작하세요."},
+  {pat:"본 문서는", cat:"meta", tip:"'본 문서는' 없이 바로 요지를 서술하세요."},
+  {pat:"본 장에서는", cat:"meta", tip:"'본 장에서는' 예고 대신 핵심 내용을 먼저 제시하세요."},
+  {pat:"살펴보고자 한다", cat:"meta", tip:"'살펴보고자 한다' 예고 대신 살펴본 결과를 바로 쓰세요."},
+  {pat:"알아보고자 한다", cat:"meta", tip:"예고를 빼고 결론을 먼저 제시하세요."},
+  {pat:"에 대해 살펴보면", cat:"meta", tip:"'~에 대해 살펴보면'을 지우고 대상 자체를 서술하세요."},
+  {pat:"에 대해 알아보자", cat:"meta", tip:"예고를 빼고 내용으로 바로 들어가세요."},
+  {pat:"고 할 수 있다", cat:"meta", tip:"단정하세요. '~이다'로 끝내면 문장에 힘이 생깁니다. (도출되었다고 할 수 있다 → 도출되었다)"},
+  {pat:"라 할 수 있다", cat:"meta", tip:"'~이다'로 단정하세요."},
+  {pat:"고 볼 수 있다", cat:"meta", tip:"근거가 있으면 '~이다'로 단정, 없으면 근거를 붙이세요."},
+  {pat:"라고 생각된다", cat:"meta", tip:"보고서에서는 '~이다' 또는 근거 제시로 바꾸세요."},
+  {pat:"라고 판단된다", cat:"meta", tip:"판단 근거를 함께 쓰거나 '~이다'로 단정하세요."},
+  {pat:"임을 알 수 있다", cat:"meta", tip:"데이터가 보여 준 결과를 직접 서술하고 '알 수 있다'는 삭제하세요."},
+  {pat:"음을 알 수 있다", cat:"meta", tip:"결과를 바로 서술하고 '알 수 있다'는 대체로 삭제하세요."},
+  {pat:"주목할 만한 점은", cat:"meta", tip:"무엇이 중요한지 바로 말하세요. 예고어는 뺍니다."},
+  {pat:"주목할 점은", cat:"meta", tip:"예고 없이 핵심을 먼저 제시하세요."},
+  {pat:"중요한 것은", cat:"meta", tip:"'중요한 것은' 없이 그 내용을 바로 쓰세요."},
+  {pat:"의미가 있다", cat:"meta", tip:"어떤 의미인지 구체적으로 쓰거나 삭제하세요."},
+  {pat:"중요하다고 할 수 있다", cat:"meta", tip:"왜 중요한지 근거로 보여 주세요. 선언은 뺍니다."},
+  {pat:"다시 말해", cat:"meta", tip:"앞 문장이 명확하면 재진술은 삭제하세요."},
+  {pat:"다시 말하면", cat:"meta", tip:"같은 말 반복이면 한 번만 남기세요."},
+  {pat:"즉, 다시", cat:"meta", tip:"중복 진술입니다. 한 문장으로 합치세요."},
+
+  /* ---------- 군더더기 (fill) ---------- */
+  {pat:"에 있어서", cat:"fill", tip:"'~에서' 또는 조사로 바꾸면 깔끔합니다. (예: 업무에 있어서 → 업무에서)"},
+  {pat:"에 있어", cat:"fill", tip:"'~에서'로 줄이세요."},
+  {pat:"적인 측면에서", cat:"fill", tip:"'~에서'나 명사로 직접 연결하세요. (비용적인 측면에서 → 비용에서)"},
+  {pat:"측면에서", cat:"fill", tip:"'~에서/~로'로 바꾸거나 삭제해 보세요."},
+  {pat:"의 경우", cat:"fill", tip:"주어를 직접 쓰면 '~의 경우'는 대개 뺄 수 있습니다."},
+  {pat:"라는 것", cat:"fill", tip:"'~라는 것'을 명사로 압축하세요. (성공한다는 것 → 성공)"},
+  {pat:"다는 것이다", cat:"fill", tip:"'~다는 것이다'를 '~다'로 끝내세요."},
+  {pat:"하는 부분", cat:"fill", tip:"'부분'은 대개 군더더기입니다. 대상을 직접 지칭하세요."},
+  {pat:"부분이 있다", cat:"fill", tip:"'~한 점이 있다' 또는 그냥 서술로 줄이세요."},
+  {pat:"기본적으로", cat:"fill", tip:"뜻을 바꾸지 않으면 삭제하세요."},
+  {pat:"사실상", cat:"fill", tip:"근거가 있으면 삭제, 없으면 남용을 줄이세요."},
+  {pat:"일종의", cat:"fill", tip:"대개 삭제 가능한 완충어입니다."},
+  {pat:"어떻게 보면", cat:"fill", tip:"단정을 흐리는 표현입니다. 삭제하세요."},
+  {pat:"와 관련하여", cat:"fill", tip:"'~에 대해/~의'로 줄이거나 조사로 연결하세요."},
+  {pat:"와 관련해서", cat:"fill", tip:"조사로 직접 연결하면 짧아집니다."},
+  {pat:"라고 하는", cat:"fill", tip:"'~라는'으로 줄이거나 삭제하세요."},
+  {pat:"등을 포함한", cat:"fill", tip:"핵심 항목만 남기고 '등을 포함한'은 줄이세요."},
+
+  /* ---------- 번역투 (trans) ---------- */
+  {pat:"에 의해", cat:"trans", tip:"능동으로 바꾸세요. (A에 의해 결정된다 → A가 결정한다)"},
+  {pat:"에 의한", cat:"trans", tip:"'~의' 또는 능동 구문으로 바꾸세요."},
+  {pat:"을 가지고 있다", cat:"trans", tip:"영어 have 번역투. '~이 있다'로 바꾸세요. (강점을 가지고 있다 → 강점이 있다)"},
+  {pat:"를 가지고 있다", cat:"trans", tip:"'~이 있다'로 바꾸세요."},
+  {pat:"을 가진다", cat:"trans", tip:"'~이 있다/~한다'로 바꾸세요."},
+  {pat:"를 갖는다", cat:"trans", tip:"'~이 있다/~한다'로 바꾸세요."},
+  {pat:"중의 하나", cat:"trans", tip:"'one of' 번역투. '주요 ~' 또는 대상을 바로 지칭하세요."},
+  {pat:"중 하나이다", cat:"trans", tip:"'대표적인 ~이다'처럼 다듬으세요."},
+  {pat:"을 필요로 한다", cat:"trans", tip:"'~이 필요하다'로 바꾸세요."},
+  {pat:"를 필요로 한다", cat:"trans", tip:"'~이 필요하다'로 바꾸세요."},
+  {pat:"에 위치하고 있다", cat:"trans", tip:"'~에 있다'로 바꾸세요."},
+  {pat:"에 위치한다", cat:"trans", tip:"'~에 있다'로 바꾸세요."},
+  {pat:"을 요구한다", cat:"trans", tip:"'~이 필요하다/~해야 한다'로 바꾸세요."},
+  {pat:"아무리 강조해도 지나치지 않", cat:"trans", tip:"상투적 번역투. '매우 중요하다'로 간명하게, 또는 이유를 대세요."},
+  {pat:"에 다름 아니", cat:"trans", tip:"'바로 ~이다'로 바꾸세요."},
+  {pat:"에 기반하여", cat:"trans", tip:"'~을 바탕으로/~에 따라'로 바꾸세요."},
+  {pat:"에 기반한", cat:"trans", tip:"'~을 바탕으로 한/~에 따른'으로 바꾸세요."},
+  {pat:"와 같은", cat:"trans", tip:"such as 번역투. 예시는 '예를 들어 ~'로 풀거나 '~ 등'으로 줄이세요."},
+  {pat:"로부터", cat:"trans", tip:"'~에서/~에게서'로 바꾸면 자연스럽습니다."},
+  {pat:"함에 있어", cat:"trans", tip:"'~할 때/~하면서'로 바꾸세요."},
+
+  /* ---------- 이중·불필요 피동 (pass) ---------- */
+  {pat:"되어지", cat:"pass", tip:"이중 피동. '-되다'로 충분합니다. (결정되어진다 → 결정된다)"},
+  {pat:"보여진", cat:"pass", tip:"이중 피동. '보이다/나타난다'로 바꾸세요. (보여진다 → 보인다)"},
+  {pat:"보여지", cat:"pass", tip:"'보인다/나타난다'로 바꾸세요."},
+  {pat:"잊혀", cat:"pass", tip:"이중 피동. '잊히다'가 바른 표현입니다. (잊혀진 → 잊힌)"},
+  {pat:"쓰여지", cat:"pass", tip:"이중 피동. '쓰이다'로 바꾸세요."},
+  {pat:"생각되어지", cat:"pass", tip:"이중 피동. '생각된다' 또는 능동으로 바꾸세요."},
+  {pat:"모여지", cat:"pass", tip:"이중 피동. '모인다/모으다'로 바꾸세요."},
+  {pat:"이루어질 수 있", cat:"pass", tip:"'~할 수 있다'로 능동화하면 주체가 분명해집니다."},
+
+  /* ---------- 과장·상투 수식어 (hedge) ---------- */
+  {pat:"매우", cat:"hedge", tip:"근거 수치가 있으면 강조어 대신 수치를 쓰세요."},
+  {pat:"정말", cat:"hedge", tip:"보고서 문체에서는 대개 삭제하세요."},
+  {pat:"굉장히", cat:"hedge", tip:"구어체 강조입니다. 삭제하거나 수치로 대체하세요."},
+  {pat:"너무나", cat:"hedge", tip:"삭제하거나 구체적 근거로 바꾸세요."},
+  {pat:"핵심적인", cat:"hedge", tip:"중요하지 않은 것은 쓰지 않았을 테니 대개 삭제 가능합니다."},
+  {pat:"결정적인", cat:"hedge", tip:"왜 결정적인지 근거를 보여 주세요."},
+  {pat:"궁극적으로", cat:"hedge", tip:"대개 삭제해도 뜻이 통합니다."},
+  {pat:"무엇보다도", cat:"hedge", tip:"우선순위가 사실이면 근거로, 아니면 삭제하세요."},
+  {pat:"다양한", cat:"hedge", tip:"몇 가지인지, 어떤 것인지 구체적으로 쓰세요."},
+  {pat:"여러 가지", cat:"hedge", tip:"항목 수나 실제 예시로 바꾸세요."},
+  {pat:"지대한", cat:"hedge", tip:"'큰' 또는 구체적 영향으로 바꾸세요."}
+];
+
+const SAMPLE =
+"본 보고서는 금번 신제품 출시 프로젝트의 성과에 대해 살펴보고자 한다. "+
+"먼저, 매출 측면에서 다양한 긍정적 결과가 도출되었다고 할 수 있다. "+
+"특히 고객 만족도는 경쟁사에 의해 설정된 기준을 크게 상회하는 강점을 가지고 있다. "+
+"이는 매우 중요한 성과이며, 아무리 강조해도 지나치지 않는다. "+
+"또한 이번 프로젝트는 우리 팀의 핵심적인 역량이 발휘된 대표 사례 중의 하나로 보여진다. "+
+"기본적으로 향후에도 지속적인 개선이 요구된다는 것이다.";
+
+/* ---------- 유틸 ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const escAttr = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+
+const input = $("#input");
+let activeCats = new Set(Object.keys(CATS));
+let lastText = "";
+
+/* auto-grow textarea */
+function grow(el){ el.style.height="auto"; el.style.height=Math.max(el.scrollHeight,120)+"px"; }
+input.addEventListener("input",()=>{ grow(input); $("#charcount").textContent = input.value.length.toLocaleString()+"자"; });
+
+/* ---------- 분석 ---------- */
+function analyze(text){
+  const matches=[];
+  for(const rule of RULES){
+    const re=new RegExp(escRe(rule.pat),"g");
+    let m;
+    while((m=re.exec(text))){
+      if(m.index===re.lastIndex) re.lastIndex++;
+      matches.push({start:m.index,end:m.index+m[0].length,cat:rule.cat,tip:rule.tip,text:m[0]});
+    }
+  }
+  // 이른 시작 + 긴 것 우선, 겹치면 버림
+  matches.sort((a,b)=> a.start-b.start || (b.end-b.start)-(a.end-a.start));
+  const chosen=[]; let lastEnd=-1;
+  for(const mt of matches){
+    if(mt.start>=lastEnd){ chosen.push(mt); lastEnd=mt.end; }
+  }
+  return chosen;
+}
+
+/* ---------- 렌더 ---------- */
+function render(text){
+  lastText = text;
+  const all = analyze(text);
+  const shown = all.filter(m=>activeCats.has(m.cat));
+  const res = $("#result");
+
+  if(text.trim()===""){
+    res.innerHTML = `<div class="empty"><strong>검사할 문장이 비어 있습니다</strong>위에 문장을 붙여넣고 다시 시도하세요.</div>`;
+    return;
+  }
+
+  // counts per category (based on ALL matches so legend은 항상 전체 반영)
+  const counts={}; Object.keys(CATS).forEach(k=>counts[k]=0);
+  all.forEach(m=>counts[m.cat]++);
+  const total = all.length;
+
+  // highlighted preview
+  let html="", i=0;
+  const sortedShown = shown.slice().sort((a,b)=>a.start-b.start);
+  for(const mt of sortedShown){
+    html += esc(text.slice(i,mt.start));
+    html += `<mark class="hl hl-${mt.cat}" title="${escAttr(CATS[mt.cat].label+" · "+mt.tip)}">${esc(mt.text)}</mark>`;
+    i = mt.end;
+  }
+  html += esc(text.slice(i));
+  html = html.replace(/\n/g,"<br>");
+
+  // legend chips
+  const legend = Object.keys(CATS).map(k=>{
+    const on = activeCats.has(k);
+    return `<button class="chip" data-cat="${k}" aria-pressed="${on}">
+      <span class="dot" style="background:${CATS[k].color}"></span>${CATS[k].label}
+      <span class="n">${counts[k]}</span></button>`;
+  }).join("");
+
+  // findings grouped
+  let findingsHTML="";
+  for(const k of Object.keys(CATS)){
+    const inCat = all.filter(m=>m.cat===k);
+    if(inCat.length===0) continue;
+    // aggregate by phrase text
+    const agg=new Map();
+    for(const m of inCat){
+      const key=m.text;
+      if(!agg.has(key)) agg.set(key,{text:m.text,tip:m.tip,n:0});
+      agg.get(key).n++;
+    }
+    const items=[...agg.values()].sort((a,b)=>b.n-a.n).map(it=>`
+      <div class="fitem">
+        <div class="phrase"><span class="q">&ldquo;${esc(it.text)}&rdquo;</span></div>
+        <div class="freq">${it.n}회</div>
+        <div class="tip">${escAttr(it.tip)}</div>
+      </div>`).join("");
+    findingsHTML += `
+      <div class="fgroup">
+        <div class="fgroup-head">
+          <span class="dot" style="background:${CATS[k].color}"></span>
+          <h3>${CATS[k].label}</h3>
+          <span class="gn">${inCat.length}건 · ${CATS[k].desc}</span>
+        </div>
+        ${items}
+      </div>`;
+  }
+
+  const bigClass = total===0 ? "big clean" : "big";
+  const headline = total===0
+    ? `<div class="summary"><span class="${bigClass}">군더더기 0건</span><span class="sub">깔끔한 문장입니다. 손볼 상투 표현이 없습니다.</span></div>`
+    : `<div class="summary"><span class="${bigClass}">${total}건</span><span class="sub">손보면 좋은 표현을 찾았습니다. 색을 눌러 범주별로 켜고 끌 수 있어요.</span></div>`;
+
+  res.innerHTML = `
+    <section class="card">
+      <h2>2. 검사 결과</h2>
+      ${headline}
+      <div class="legend" id="legend">${legend}</div>
+      <div class="preview">${html || "<span style='color:var(--ink-faint)'>표시할 문장이 없습니다.</span>"}</div>
+      ${ total>0 ? `<div class="findings">${findingsHTML}</div>` : "" }
+      ${ total>0 ? `<div class="copybar">
+          <button class="btn-primary" id="copyReport">지적 목록 복사</button>
+          <button class="btn-ghost" id="printBtn">인쇄 / PDF 저장</button>
+        </div>` : "" }
+    </section>`;
+
+  // wire legend toggles
+  res.querySelectorAll(".chip").forEach(chip=>{
+    chip.addEventListener("click",()=>{
+      const c=chip.dataset.cat;
+      if(activeCats.has(c)) activeCats.delete(c); else activeCats.add(c);
+      if(activeCats.size===0){ activeCats.add(c); } // 최소 1개 유지
+      render(lastText);
+    });
+  });
+  const cr=$("#copyReport"); if(cr) cr.addEventListener("click",()=>copyReport(all));
+  const pb=$("#printBtn"); if(pb) pb.addEventListener("click",()=>window.print());
+}
+
+/* ---------- 복사 리포트 생성 ---------- */
+function buildReport(all){
+  const lines=[];
+  lines.push("[보고서 문장 군살·번역투 점검]");
+  lines.push("총 지적 "+all.length+"건");
+  lines.push("");
+  for(const k of Object.keys(CATS)){
+    const inCat=all.filter(m=>m.cat===k);
+    if(!inCat.length) continue;
+    lines.push("■ "+CATS[k].label+" ("+inCat.length+"건)");
+    const agg=new Map();
+    for(const m of inCat){ if(!agg.has(m.text)) agg.set(m.text,{tip:m.tip,n:0}); agg.get(m.text).n++; }
+    [...agg.entries()].sort((a,b)=>b[1].n-a[1].n).forEach(([t,v])=>{
+      lines.push("  - \""+t+"\" ("+v.n+"회) → "+v.tip);
+    });
+    lines.push("");
+  }
+  lines.push("* 자동 점검 결과입니다. 문맥에 따라 옳은 표현일 수 있으니 최종 판단은 작성자가 하세요.");
+  return lines.join("\n");
+}
+
+/* ---------- 3단 복사 폴백 ---------- */
+async function copyReport(all){
+  const txt = buildReport(all);
+  // 1) navigator.clipboard
+  if(navigator.clipboard && window.isSecureContext){
+    try{ await navigator.clipboard.writeText(txt); toast("지적 목록을 복사했습니다"); return; }
+    catch(e){ /* fall through */ }
+  }
+  // 2) execCommand + 반환값 확인
+  try{
+    const ta=document.createElement("textarea");
+    ta.value=txt; ta.style.position="fixed"; ta.style.top="-9999px";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    const ok=document.execCommand("copy");
+    document.body.removeChild(ta);
+    if(ok){ toast("지적 목록을 복사했습니다"); return; }
+  }catch(e){ /* fall through */ }
+  // 3) 수동 복사 모달
+  $("#modalText").value=txt;
+  $("#modal").classList.add("show");
+  $("#modalText").select();
+}
+
+/* ---------- toast / modal ---------- */
+let toastTimer;
+function toast(msg){
+  const t=$("#toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),1900);
+}
+$("#modalClose").addEventListener("click",()=>$("#modal").classList.remove("show"));
+$("#modal").addEventListener("click",e=>{ if(e.target.id==="modal") $("#modal").classList.remove("show"); });
+
+/* ---------- 버튼 ---------- */
+$("#run").addEventListener("click",()=>{ render(input.value); document.getElementById("result").scrollIntoView({behavior:"smooth",block:"start"}); });
+$("#sample").addEventListener("click",()=>{ input.value=SAMPLE; grow(input); $("#charcount").textContent=input.value.length.toLocaleString()+"자"; render(input.value); });
+$("#clear").addEventListener("click",()=>{ input.value=""; grow(input); $("#charcount").textContent="0자"; activeCats=new Set(Object.keys(CATS)); render(""); });
+
+/* Ctrl/Cmd+Enter 로 검사 */
+input.addEventListener("keydown",e=>{ if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){ render(input.value); } });
+
+grow(input);
+</script>
+
+<div class="wrap" style="padding-top:0">
+  <footer>
+    <p class="disc">이 도구는 내장 규칙 사전에 따른 <b>자동 문체 점검</b>입니다. 표시된 표현이 문맥상 옳은 경우도 있으니, 최종 수정 여부는 작성자가 판단하세요. 입력한 문장은 브라우저 안에서만 처리되며 서버로 전송되지 않습니다.</p>
+  </footer>
+</div>

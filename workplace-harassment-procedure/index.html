@@ -1,0 +1,1035 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>직장 내 괴롭힘 대응 절차 가이드</title>
+<style>
+  /* ---------- Fonts (CDN with offline-safe fallback stack) ---------- */
+  @font-face {
+    font-family: 'Pretendard';
+    font-weight: 45 920;
+    font-style: normal;
+    font-display: swap;
+    src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
+  }
+
+  :root {
+    --font: 'Pretendard', system-ui, -apple-system, 'Malgun Gothic', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
+
+    --paper: #fbf8f4;
+    --card: #ffffff;
+    --ink: #1f2430;
+    --ink-soft: #4b5162;
+    --muted: #6c7180;
+    --line: #e7e1d8;
+    --line-soft: #efe9e0;
+
+    --accent: #b4531f;          /* warm terracotta */
+    --accent-deep: #8f3f16;
+    --accent-tint: #fbeee5;
+    --accent-tint-2: #f7e3d5;
+
+    --ok: #2f7d5b;
+    --ok-tint: #e6f2ec;
+    --warn: #a6521a;
+    --danger: #b23a3a;
+    --danger-tint: #fbeaea;
+
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(31,36,48,.05), 0 8px 26px rgba(31,36,48,.06);
+
+    /* Korean line-break safety baseline */
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    line-height: 1.62;
+  }
+
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 22px 18px 72px;
+  }
+
+  /* ---------- Header ---------- */
+  header.hero {
+    padding: 8px 0 6px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    color: var(--accent-deep);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-tint-2);
+    padding: 5px 11px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: clamp(24px, 5.4vw, 34px);
+    line-height: 1.28;
+    font-weight: 800;
+    margin: 0 0 10px;
+    letter-spacing: -.01em;
+  }
+  .lede {
+    font-size: clamp(15px, 3.4vw, 17px);
+    color: var(--ink-soft);
+    margin: 0 0 18px;
+    max-width: 46ch;
+  }
+
+  /* ---------- Standing disclaimer ---------- */
+  .disclaimer {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: #fff7ef;
+    border: 1px solid var(--accent-tint-2);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 13.5px;
+    color: #6a4a30;
+    margin: 0 0 24px;
+  }
+  .disclaimer b { color: var(--accent-deep); }
+  .disclaimer .ic { flex: none; font-weight: 800; color: var(--accent); }
+
+  /* ---------- Cards / sections ---------- */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px 18px;
+    margin: 0 0 20px;
+  }
+  .card h2 {
+    font-size: 15px;
+    font-weight: 800;
+    margin: 0 0 4px;
+    letter-spacing: -.01em;
+  }
+  .card .sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 16px;
+  }
+
+  /* ---------- Form ---------- */
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  label.lbl {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 7px;
+  }
+  label.lbl .hint {
+    font-weight: 500;
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+  input[type="date"], input[type="number"], select, textarea {
+    width: 100%;
+    font-family: var(--font);
+    font-size: 15px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 12px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 46px;
+    line-height: 1.55;
+    overflow: hidden;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 560px) {
+    .row2 { grid-template-columns: 1fr; }
+  }
+
+  .seg { display: flex; flex-wrap: wrap; gap: 8px; }
+  .seg label {
+    flex: 1 1 auto;
+    min-width: 44%;
+    position: relative;
+  }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg span {
+    display: block;
+    text-align: center;
+    padding: 11px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all .14s;
+    min-height: 44px;
+  }
+  .seg input:checked + span {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    color: var(--accent-deep);
+    font-weight: 700;
+  }
+  .seg input:focus-visible + span { box-shadow: 0 0 0 3px var(--accent-tint); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--font);
+    font-size: 15.5px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 11px;
+    padding: 14px 20px;
+    width: 100%;
+    min-height: 50px;
+    cursor: pointer;
+    transition: background .15s, transform .05s;
+  }
+  .btn:hover { background: var(--accent-deep); }
+  .btn:active { transform: translateY(1px); }
+  .btn.ghost {
+    color: var(--accent-deep);
+    background: #fff;
+    border: 1px solid var(--accent-tint-2);
+    width: auto;
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  .btn.ghost:hover { background: var(--accent-tint); }
+
+  /* ---------- Empty state ---------- */
+  #empty {
+    text-align: center;
+    padding: 30px 16px 26px;
+    color: var(--muted);
+  }
+  #empty .big { font-size: 34px; margin-bottom: 8px; }
+  #empty p { margin: 0; font-size: 14px; }
+
+  /* ---------- Results ---------- */
+  #results { display: none; }
+  .result-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .result-head h2 { font-size: 18px; font-weight: 800; margin: 0; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .meta-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 20px;
+  }
+  .chip {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 12px;
+  }
+  .chip b { color: var(--accent-deep); }
+
+  .progress-wrap { margin: 4px 0 22px; }
+  .progress-bar {
+    height: 8px;
+    background: var(--line-soft);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0;
+    background: var(--ok);
+    border-radius: 999px;
+    transition: width .3s ease;
+  }
+  .progress-label {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  /* ---------- Step cards ---------- */
+  .step {
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    padding: 0;
+    margin-bottom: 14px;
+    overflow: hidden;
+    background: #fff;
+    transition: border-color .15s;
+  }
+  .step.done { border-color: var(--ok); background: #fcfefc; }
+
+  .step-top {
+    display: flex;
+    gap: 12px;
+    padding: 15px 16px;
+    align-items: flex-start;
+  }
+  .step-check {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    margin-top: 2px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: all .15s;
+    padding: 0;
+  }
+  .step-check:hover { border-color: var(--accent); }
+  .step-check svg { width: 15px; height: 15px; opacity: 0; transition: opacity .12s; }
+  .step.done .step-check { background: var(--ok); border-color: var(--ok); }
+  .step.done .step-check svg { opacity: 1; }
+  .step-check:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-tint); }
+
+  .step-headtext { flex: 1 1 auto; min-width: 0; }
+  .step-idx {
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: .05em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .step-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ink);
+    margin: 1px 0 0;
+    letter-spacing: -.01em;
+  }
+  .step.done .step-title { color: var(--ok); }
+
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+  .badge {
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+  .badge.law { background: var(--accent-tint); color: var(--accent-deep); }
+  .badge.due { background: #eef3ff; color: #2c4a86; border: 1px solid #dbe4f7; }
+  .badge.date { background: var(--ok-tint); color: #1f6045; }
+  .badge.cond { background: #f2efe9; color: #6a6355; }
+
+  .step-body {
+    padding: 0 16px 16px 54px;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  @media (max-width: 480px) {
+    .step-body { padding-left: 16px; }
+  }
+  .step-body ul { margin: 0 0 12px; padding-left: 18px; }
+  .step-body li { margin-bottom: 5px; }
+  .step-body .blk-label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: .03em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin: 12px 0 5px;
+  }
+  .step-body .forms {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .step-body .forms span {
+    font-size: 12.5px;
+    background: #f6f2ec;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    padding: 4px 10px;
+    border-radius: 7px;
+    font-weight: 600;
+  }
+  .caution {
+    background: #fff7ef;
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 13px;
+    color: #6a4a30;
+    margin-top: 10px;
+  }
+
+  /* ---------- Sanctions box ---------- */
+  .sanctions {
+    background: var(--danger-tint);
+    border: 1px solid #f0d3d3;
+    border-radius: 13px;
+    padding: 16px 18px;
+    margin-top: 6px;
+  }
+  .sanctions h3 {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--danger);
+    margin: 0 0 12px;
+  }
+  .sanctions .item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-top: 1px solid #f0d3d3;
+    font-size: 13.5px;
+    color: #6b3838;
+  }
+  .sanctions .item:first-of-type { border-top: none; }
+  .sanctions .pen {
+    flex: none;
+    font-weight: 800;
+    color: var(--danger);
+    min-width: 120px;
+  }
+  @media (max-width: 480px) {
+    .sanctions .item { flex-direction: column; gap: 2px; }
+    .sanctions .pen { min-width: 0; }
+  }
+
+  .footnote {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 20px;
+    line-height: 1.7;
+  }
+  .footnote b { color: var(--ink-soft); }
+
+  /* ---------- Copy modal ---------- */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(31,36,48,.5);
+    z-index: 50;
+    padding: 18px;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    max-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  }
+  .modal-h {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--line);
+    font-weight: 800;
+    font-size: 15px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-h button {
+    background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted);
+    line-height: 1; padding: 0 4px;
+  }
+  .modal p { padding: 12px 18px 0; margin: 0; font-size: 13.5px; color: var(--ink-soft); }
+  .modal textarea {
+    margin: 12px 18px 18px;
+    width: calc(100% - 36px);
+    min-height: 200px;
+    font-size: 13px;
+    line-height: 1.55;
+    resize: vertical;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    overflow: auto;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    z-index: 60;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ---------- Print ---------- */
+  @media print {
+    body { background: #fff; }
+    .wrap { max-width: none; padding: 0; }
+    .no-print, #inputCard, #empty, .toolbar, .step-check { display: none !important; }
+    .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+    .step { break-inside: avoid; }
+    .disclaimer { break-inside: avoid; }
+    h1 { font-size: 22px; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">인사 · 고충처리 실무 가이드</span>
+    <h1>직장 내 괴롭힘 대응 절차 가이드</h1>
+    <p class="lede">신고가 접수되면 조사 · 보호 · 조치 · 통보의 법정 절차와 기한, 필요 서식을 순서대로 안내합니다.</p>
+  </header>
+
+  <div class="disclaimer" role="note">
+    <span class="ic" aria-hidden="true">!</span>
+    <span><b>본 도구는 일반 정보 제공용 참고 자료입니다.</b> 근로기준법 제76조의2·제76조의3을 근거로 절차를 안내하지만, 개별 사안의 성립 여부와 최종 판단은 공인노무사 · 변호사 등 전문가 상담이 필요합니다.</span>
+  </div>
+
+  <!-- INPUT -->
+  <section class="card no-print" id="inputCard">
+    <h2>신고 정보 입력</h2>
+    <p class="sub">접수일을 기준으로 각 단계의 권장 목표일을 함께 계산합니다.</p>
+
+    <div class="field">
+      <label class="lbl" for="reportDate">신고 접수일 <span class="hint">(또는 사용자가 괴롭힘 사실을 인지한 날)</span></label>
+      <input type="date" id="reportDate">
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label class="lbl" for="investDays">조사 목표 완료일수 <span class="hint">(권장·법정 기한 아님)</span></label>
+        <input type="number" id="investDays" min="1" max="90" value="20" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label class="lbl" for="empSize">상시 근로자 수</label>
+        <select id="empSize">
+          <option value="ge10">10명 이상</option>
+          <option value="lt10">10명 미만</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="lbl">신고자 유형</label>
+      <div class="seg" id="reporterType">
+        <label><input type="radio" name="rt" value="victim" checked><span>피해자 본인 신고</span></label>
+        <label><input type="radio" name="rt" value="third"><span>제3자 신고 · 사용자 인지</span></label>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:4px">
+      <button class="btn" id="genBtn" type="button">절차 체크리스트 생성</button>
+    </div>
+  </section>
+
+  <!-- EMPTY -->
+  <section class="card" id="empty">
+    <div class="big" aria-hidden="true">📋</div>
+    <p>신고 접수일을 입력하고 <b>생성</b>을 누르면<br>단계별 대응 절차가 여기에 표시됩니다.</p>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results">
+    <div class="card">
+      <div class="result-head">
+        <h2>대응 절차 체크리스트</h2>
+        <div class="toolbar no-print">
+          <button class="btn ghost" id="copyBtn" type="button">텍스트 복사</button>
+          <button class="btn ghost" id="printBtn" type="button">인쇄</button>
+        </div>
+      </div>
+
+      <div class="meta-strip" id="metaStrip"></div>
+
+      <div class="progress-wrap no-print">
+        <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+        <div class="progress-label" id="progLabel">0 / 0 단계 완료</div>
+      </div>
+
+      <div id="steps"></div>
+
+      <div class="sanctions" id="sanctions">
+        <h3>위반 시 제재 (근로기준법)</h3>
+        <div class="item">
+          <span class="pen">3년↓ 징역 / 3천만원↓ 벌금</span>
+          <span>신고자 · 피해자에게 해고 등 <b>불리한 처우</b> (제76조의3 제6항 위반 → 제109조)</span>
+        </div>
+        <div class="item">
+          <span class="pen">1천만원↓ 과태료</span>
+          <span>사용자 또는 그 친족인 근로자가 <b>직접 괴롭힘</b>을 한 경우 (제76조의2 위반 → 제116조 제1항)</span>
+        </div>
+        <div class="item">
+          <span class="pen">500만원↓ 과태료</span>
+          <span>조사 · 피해자 조치 · 행위자 조치 · 비밀유지 <b>의무 위반</b> (제76조의3 제2·4·5·7항 위반 → 제116조 제2항)</span>
+        </div>
+      </div>
+
+      <div class="footnote">
+        <b>법 연혁</b> · 직장 내 괴롭힘 금지 제도 시행 2019.7.16, 조사 · 조치 의무 구체화 및 과태료 신설 개정 시행 2021.10.14.<br>
+        <b>취업규칙</b> · 상시 10명 이상 사업장은 취업규칙에 예방 및 발생 시 조치 사항을 필수 기재해야 합니다 (제93조 제11호).<br>
+        <b>법정 기한</b> · 조사 · 조치는 법문상 "지체 없이" 하도록 규정되어 있으며, 화면의 목표일은 실무 관리용 권장 일정으로 법정 기한이 아닙니다.
+      </div>
+    </div>
+  </section>
+
+  <p class="footnote no-print" style="text-align:center;margin-top:8px">
+    알밤(albaaam.com) 무료 도구 · 오프라인에서도 동작하는 단일 HTML
+  </p>
+</div>
+
+<!-- Copy fallback modal -->
+<div class="modal-backdrop" id="copyModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="복사용 텍스트">
+    <div class="modal-h">
+      <span>아래 내용을 직접 복사하세요</span>
+      <button type="button" id="modalClose" aria-label="닫기">×</button>
+    </div>
+    <p>자동 복사가 차단되었습니다. 텍스트를 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea id="copyArea" readonly></textarea>
+  </div>
+</div>
+
+<div class="toast" id="toast">복사되었습니다</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (s) { return document.querySelector(s); };
+
+  /* ---------- Step definitions (grounded in 근로기준법 제76조의2·3) ---------- */
+  // offset = 권장 목표일 계산용 기준(신고 접수일 D 기준 일수). null = 조사완료 이후 기준.
+  var STEPS = [
+    {
+      idx: "STEP 1",
+      title: "신고 접수 · 사실 인지",
+      law: "제76조의3 ①②",
+      due: "즉시 절차 개시",
+      offset: 0,
+      after: null,
+      body: [
+        { type: "list", label: "핵심 조치", items: [
+          "누구든지 괴롭힘 사실을 사용자에게 신고할 수 있음(제76조의3 ①)",
+          "사용자는 신고를 접수하거나 발생 사실을 인지하면 조사 의무가 발생(제76조의3 ②)",
+          "접수 창구 · 담당자 · 접수 사실을 기록으로 남김"
+        ]},
+        { type: "forms", items: ["직장 내 괴롭힘 신고서", "접수대장 · 접수확인서"] },
+        { type: "caution", text: "익명 · 구두 신고나 제3자 제보라도 사용자가 인지한 이상 조사 의무가 발생합니다." }
+      ]
+    },
+    {
+      idx: "STEP 2",
+      title: "피해근로자 보호조치 (조사 기간 중)",
+      law: "제76조의3 ③",
+      due: "필요 시 즉시",
+      offset: 0,
+      after: null,
+      body: [
+        { type: "list", label: "핵심 조치", items: [
+          "조사 기간 동안 필요하면 근무장소 변경, 유급휴가 명령 등 보호조치 시행",
+          "가해 지목자와의 분리를 원칙으로 하되, 피해자를 불리하게 격리하지 않음",
+          "피해근로자등의 의사에 반하는 조치 금지"
+        ]},
+        { type: "forms", items: ["보호조치 요청 · 시행 확인서"] },
+        { type: "caution", text: "보호를 명목으로 피해자에게 불이익한 배치를 하면 오히려 위법 소지가 있습니다." }
+      ]
+    },
+    {
+      idx: "STEP 3",
+      title: "사실 확인 조사 실시",
+      law: "제76조의3 ②, ⑦",
+      due: "지체 없이",
+      offset: null,      // uses invest target
+      useInvest: true,
+      after: null,
+      body: [
+        { type: "list", label: "핵심 조치", items: [
+          "당사자(피해자 · 행위자)와 참고인을 대상으로 객관적 조사 실시",
+          "물적 증거(메시지, 이메일, CCTV, 근태 등) 확보 및 진술 기록",
+          "조사 과정에서 알게 된 비밀을 피해자 의사에 반해 누설 금지(제76조의3 ⑦)"
+        ]},
+        { type: "forms", items: ["조사계획서", "진술서(피해자·행위자·참고인)", "증거목록", "비밀유지 서약서"] },
+        { type: "caution", text: "조사자 · 보고받은 자 · 참여자 모두 비밀유지 의무를 집니다(위반 시 500만원 이하 과태료)." }
+      ]
+    },
+    {
+      idx: "STEP 4",
+      title: "괴롭힘 성립 여부 판정",
+      law: "제76조의2",
+      due: "조사 종료 직후",
+      offset: null,
+      afterInvest: true,   // 조사완료일 기준
+      afterDays: 0,
+      body: [
+        { type: "list", label: "3대 성립 요건 (제76조의2)", items: [
+          "① 직장에서의 지위 또는 관계 등의 우위 이용",
+          "② 업무상 적정범위를 넘는 행위",
+          "③ 신체적 · 정신적 고통을 주거나 근무환경을 악화"
+        ]},
+        { type: "forms", items: ["조사결과 보고서"] },
+        { type: "caution", text: "세 요건을 모두 충족해야 괴롭힘이 성립합니다. 성립 여부가 애매하면 전문가 자문을 받으세요." }
+      ]
+    },
+    {
+      idx: "STEP 5",
+      title: "피해자 요청에 따른 조치 (괴롭힘 확인 시)",
+      law: "제76조의3 ④",
+      due: "피해자 요청 시",
+      offset: null,
+      afterInvest: true,
+      afterDays: 1,
+      cond: true,
+      body: [
+        { type: "list", label: "핵심 조치", items: [
+          "괴롭힘 사실이 확인되면 피해자가 요청하는 경우 근무장소 변경 · 배치전환 · 유급휴가 등 조치",
+          "피해자 의사를 우선 반영"
+        ]},
+        { type: "forms", items: ["피해자 조치 요청서", "조치 시행 확인서"] }
+      ]
+    },
+    {
+      idx: "STEP 6",
+      title: "행위자에 대한 조치 + 피해자 의견청취 (괴롭힘 확인 시)",
+      law: "제76조의3 ⑤",
+      due: "지체 없이",
+      offset: null,
+      afterInvest: true,
+      afterDays: 1,
+      cond: true,
+      body: [
+        { type: "list", label: "핵심 조치", items: [
+          "행위자에 대해 징계 · 근무장소 변경 등 필요한 조치를 지체 없이 시행",
+          "징계 등 조치 전 반드시 피해자의 의견을 청취(제76조의3 ⑤ 후단)",
+          "취업규칙 · 인사규정의 징계 절차 준수"
+        ]},
+        { type: "forms", items: ["피해자 의견청취서", "징계위원회 의결서", "행위자 조치 통보서"] },
+        { type: "caution", text: "피해자 의견청취 없이 징계를 진행하면 의무 위반(500만원 이하 과태료) 소지가 있습니다." }
+      ]
+    },
+    {
+      idx: "STEP 7",
+      title: "신고자 · 피해자 불리한 처우 금지 (상시 준수)",
+      law: "제76조의3 ⑥",
+      due: "전 과정 상시",
+      offset: 0,
+      after: null,
+      body: [
+        { type: "list", label: "핵심 조치", items: [
+          "신고 또는 피해를 이유로 해고, 징계, 부당 인사, 따돌림 유발 등 불리한 처우 금지",
+          "형사처벌 대상(3년 이하 징역 또는 3천만원 이하 벌금)임을 관리자에게 공유"
+        ]},
+        { type: "caution", text: "이 의무 위반은 과태료가 아닌 형사처벌 대상으로, 제재 수위가 가장 높습니다." }
+      ]
+    },
+    {
+      idx: "STEP 8",
+      title: "결과 통보 · 기록 보존 · 재발방지",
+      law: "제93조 제11호 등",
+      due: "조치 완료 후",
+      offset: null,
+      afterInvest: true,
+      afterDays: 2,
+      body: [
+        { type: "list", label: "핵심 조치", items: [
+          "조사 · 조치 결과를 당사자에게 통보",
+          "신고서 · 조사기록 · 조치내역을 분리 보관하여 비밀 유지",
+          "취업규칙에 예방 및 조치 사항 반영 여부 점검(10명 이상 사업장, 제93조 제11호)",
+          "예방교육 · 재발방지 대책 수립"
+        ]},
+        { type: "forms", items: ["결과 통보서", "사건 종결 보고서"] }
+      ]
+    }
+  ];
+
+  var state = { steps: [], done: {} };
+
+  /* ---------- Date helpers ---------- */
+  function addDays(date, n) {
+    var d = new Date(date.getTime());
+    d.setDate(d.getDate() + n);
+    return d;
+  }
+  function fmt(d) {
+    if (!d) return "";
+    var days = ["일","월","화","수","목","금","토"];
+    return d.getFullYear() + "." +
+      String(d.getMonth() + 1).padStart(2, "0") + "." +
+      String(d.getDate()).padStart(2, "0") +
+      " (" + days[d.getDay()] + ")";
+  }
+
+  /* ---------- Generate ---------- */
+  function generate() {
+    var val = $("#reportDate").value;
+    if (!val) {
+      $("#reportDate").focus();
+      $("#reportDate").style.borderColor = "var(--danger)";
+      showToast("신고 접수일을 입력해 주세요");
+      return;
+    }
+    $("#reportDate").style.borderColor = "";
+
+    var base = new Date(val + "T00:00:00");
+    var investDays = Math.max(1, Math.min(90, parseInt($("#investDays").value, 10) || 20));
+    var investDone = addDays(base, investDays);
+    var size = $("#empSize").value;
+    var reporter = document.querySelector('input[name="rt"]:checked').value;
+
+    // meta strip
+    var meta = [
+      '<span class="chip">접수일 <b>' + fmt(base) + '</b></span>',
+      '<span class="chip">조사 목표 완료 <b>' + fmt(investDone) + '</b> (권장 D+' + investDays + ')</span>',
+      '<span class="chip">' + (size === "ge10" ? "상시 10명 이상" : "상시 10명 미만") + '</span>',
+      '<span class="chip">' + (reporter === "victim" ? "피해자 본인 신고" : "제3자 신고·인지") + '</span>'
+    ].join("");
+    $("#metaStrip").innerHTML = meta;
+
+    // build steps with target dates
+    state.steps = STEPS.map(function (s, i) {
+      var target = null;
+      if (s.useInvest) {
+        target = investDone;
+      } else if (s.afterInvest) {
+        target = addDays(investDone, s.afterDays || 0);
+      } else if (s.offset !== null && s.offset !== undefined) {
+        target = addDays(base, s.offset);
+      }
+      return { def: s, id: i, target: target };
+    });
+    state.done = {};
+
+    renderSteps();
+    $("#empty").style.display = "none";
+    $("#results").style.display = "block";
+    updateProgress();
+    $("#results").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function esc(t) {
+    return String(t).replace(/[&<>]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c];
+    });
+  }
+
+  function renderSteps() {
+    var html = state.steps.map(function (st) {
+      var s = st.def;
+      var badges = '<span class="badge law">' + esc(s.law) + '</span>' +
+                   '<span class="badge due">기한 · ' + esc(s.due) + '</span>';
+      if (st.target) {
+        badges += '<span class="badge date">목표 ' + fmt(st.target) + '</span>';
+      }
+      if (s.cond) {
+        badges += '<span class="badge cond">괴롭힘 확인 시</span>';
+      }
+
+      var body = s.body.map(function (b) {
+        if (b.type === "list") {
+          return '<span class="blk-label">' + esc(b.label) + '</span><ul>' +
+            b.items.map(function (it) { return "<li>" + esc(it) + "</li>"; }).join("") + "</ul>";
+        }
+        if (b.type === "forms") {
+          return '<span class="blk-label">필요 서식</span><div class="forms">' +
+            b.items.map(function (it) { return "<span>" + esc(it) + "</span>"; }).join("") + "</div>";
+        }
+        if (b.type === "caution") {
+          return '<div class="caution">' + esc(b.text) + "</div>";
+        }
+        return "";
+      }).join("");
+
+      var checkSvg = '<svg viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+      return '<div class="step" data-id="' + st.id + '">' +
+        '<div class="step-top">' +
+          '<button class="step-check" type="button" aria-label="완료 표시" data-check="' + st.id + '">' + checkSvg + '</button>' +
+          '<div class="step-headtext">' +
+            '<div class="step-idx">' + esc(s.idx) + '</div>' +
+            '<div class="step-title">' + esc(s.title) + '</div>' +
+            '<div class="badges">' + badges + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="step-body">' + body + '</div>' +
+      '</div>';
+    }).join("");
+
+    $("#steps").innerHTML = html;
+
+    Array.prototype.forEach.call(document.querySelectorAll(".step-check"), function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-check");
+        state.done[id] = !state.done[id];
+        var step = document.querySelector('.step[data-id="' + id + '"]');
+        step.classList.toggle("done", !!state.done[id]);
+        updateProgress();
+      });
+    });
+  }
+
+  function updateProgress() {
+    var total = state.steps.length;
+    var done = Object.keys(state.done).filter(function (k) { return state.done[k]; }).length;
+    var pct = total ? Math.round((done / total) * 100) : 0;
+    $("#progFill").style.width = pct + "%";
+    $("#progLabel").textContent = done + " / " + total + " 단계 완료";
+  }
+
+  /* ---------- Plain-text export ---------- */
+  function buildText() {
+    var lines = [];
+    lines.push("직장 내 괴롭힘 대응 절차 체크리스트");
+    lines.push("=".repeat(34));
+    var strip = $("#metaStrip").textContent.replace(/\s+/g, " ").trim();
+    lines.push(strip);
+    lines.push("");
+    state.steps.forEach(function (st) {
+      var s = st.def;
+      var mark = state.done[st.id] ? "[v]" : "[ ]";
+      lines.push(mark + " " + s.idx + ". " + s.title);
+      lines.push("    - 근거: 근로기준법 " + s.law + " / 기한: " + s.due +
+        (st.target ? " / 목표 " + fmt(st.target) : "") + (s.cond ? " (괴롭힘 확인 시)" : ""));
+      s.body.forEach(function (b) {
+        if (b.type === "list") {
+          b.items.forEach(function (it) { lines.push("    · " + it); });
+        } else if (b.type === "forms") {
+          lines.push("    · 서식: " + b.items.join(", "));
+        } else if (b.type === "caution") {
+          lines.push("    · 주의: " + b.text);
+        }
+      });
+      lines.push("");
+    });
+    lines.push("[ 위반 시 제재 ]");
+    lines.push("- 신고자·피해자 불리한 처우(제76조의3⑥): 3년 이하 징역 또는 3천만원 이하 벌금(제109조)");
+    lines.push("- 사용자·친족 근로자의 직접 괴롭힘(제76조의2): 1천만원 이하 과태료(제116조①)");
+    lines.push("- 조사·조치·비밀유지 의무 위반(제76조의3 ②·④·⑤·⑦): 500만원 이하 과태료(제116조②)");
+    lines.push("");
+    lines.push("※ 본 자료는 일반 정보 제공용 참고 자료이며, 개별 사안의 최종 판단은 공인노무사·변호사 등 전문가 상담이 필요합니다.");
+    lines.push("법정 기한 '지체 없이' 기준. 목표일은 실무 관리용 권장 일정입니다.");
+    return lines.join("\n");
+  }
+
+  /* ---------- Copy: 3-tier fallback ---------- */
+  function copyResult() {
+    var text = buildText();
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        showToast("복사되었습니다");
+      }).catch(function () {
+        legacyCopy(text);
+      });
+      return;
+    }
+    legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    if (ok) {
+      showToast("복사되었습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  function openModal(text) {
+    $("#copyArea").value = text;
+    $("#copyModal").classList.add("open");
+    var area = $("#copyArea");
+    area.focus();
+    area.select();
+  }
+  function closeModal() { $("#copyModal").classList.remove("open"); }
+
+  /* ---------- Toast ---------- */
+  var toastTimer;
+  function showToast(msg) {
+    var t = $("#toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("show"); }, 1900);
+  }
+
+  /* ---------- Wire up ---------- */
+  $("#genBtn").addEventListener("click", generate);
+  $("#copyBtn").addEventListener("click", copyResult);
+  $("#printBtn").addEventListener("click", function () { window.print(); });
+  $("#modalClose").addEventListener("click", closeModal);
+  $("#copyModal").addEventListener("click", function (e) {
+    if (e.target === $("#copyModal")) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeModal();
+  });
+
+  // default date = today
+  (function () {
+    var d = new Date();
+    $("#reportDate").value = d.getFullYear() + "-" +
+      String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
+  })();
+})();
+</script>

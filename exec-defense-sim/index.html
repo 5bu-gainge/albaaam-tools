@@ -1,0 +1,836 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>임원 앞 발표 디펜스 시뮬레이터</title>
+<style>
+  /* ---- Fonts: Pretendard CDN with offline-safe fallback stack ---- */
+  @font-face {
+    font-family: 'Pretendard';
+    font-weight: 45 920;
+    font-style: normal;
+    font-display: swap;
+    src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
+  }
+
+  :root {
+    --accent: #b5471f;
+    --accent-soft: #f2e6df;
+    --accent-tint: #fbf4ef;
+    --ink: #23201d;
+    --ink-2: #4b463f;
+    --ink-3: #6b6459;
+    --line: #e4ddd3;
+    --bg: #faf7f2;
+    --card: #ffffff;
+    --shadow: 0 1px 2px rgba(35,32,29,.05), 0 8px 24px rgba(35,32,29,.06);
+    --radius: 14px;
+    /* Korean line-break safety baseline */
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Pretendard', system-ui, -apple-system, 'Malgun Gothic',
+                 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+
+  /* ---- Header ---- */
+  header { margin-bottom: 26px; }
+  .kicker {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: var(--accent);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-soft);
+    padding: 4px 11px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: clamp(24px, 5.4vw, 34px);
+    line-height: 1.25;
+    font-weight: 800;
+    margin: 0 0 10px;
+    letter-spacing: -.01em;
+  }
+  .lede {
+    font-size: clamp(15px, 3.6vw, 17px);
+    color: var(--ink-2);
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  /* ---- Cards / panels ---- */
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  .panel h2 {
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .panel .hint {
+    font-size: 13.5px;
+    color: var(--ink-3);
+    margin: 0 0 18px;
+  }
+  .step-num {
+    display: inline-grid;
+    place-items: center;
+    width: 24px; height: 24px;
+    border-radius: 7px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    flex: none;
+  }
+
+  /* ---- Form fields ---- */
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  label.flabel {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 7px;
+    color: var(--ink);
+  }
+  label.flabel .req { color: var(--accent); }
+  label.flabel .opt {
+    font-weight: 500;
+    color: var(--ink-3);
+    font-size: 12.5px;
+  }
+  input[type="text"], textarea {
+    width: 100%;
+    font: inherit;
+    color: var(--ink);
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 13px;
+    line-height: 1.55;
+    transition: border-color .15s, box-shadow .15s;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    resize: none;
+    overflow: hidden;
+    min-height: 52px;
+  }
+  input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .fielderr {
+    font-size: 12.5px;
+    color: #b42318;
+    margin-top: 6px;
+    display: none;
+  }
+  .field.invalid input, .field.invalid textarea { border-color: #d5573f; }
+  .field.invalid .fielderr { display: block; }
+
+  /* ---- Persona weight chips ---- */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--line);
+    background: #fff;
+    color: var(--ink-2);
+    border-radius: 999px;
+    padding: 7px 14px;
+    transition: all .14s;
+    min-height: 40px;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .chip[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* ---- Buttons ---- */
+  .btn {
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 11px;
+    border: 1.5px solid transparent;
+    padding: 13px 20px;
+    min-height: 48px;
+    transition: transform .06s, background .15s, border-color .15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    width: 100%;
+    font-size: 16px;
+  }
+  .btn-primary:hover { background: #9c3c19; }
+  .btn-ghost {
+    background: #fff;
+    border-color: var(--line);
+    color: var(--ink-2);
+    font-size: 14px;
+    padding: 10px 16px;
+    min-height: 44px;
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---- Result area ---- */
+  #result { display: none; }
+  #result.show { display: block; }
+
+  .empty {
+    text-align: center;
+    color: var(--ink-3);
+    padding: 34px 18px;
+    border: 1.5px dashed var(--line);
+    border-radius: var(--radius);
+    background: #fff;
+    font-size: 14.5px;
+  }
+  .empty .big { font-size: 26px; margin-bottom: 8px; }
+
+  .result-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .result-head h2 { margin: 0; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* persona blocks */
+  .persona {
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: 11px;
+    padding: 16px 16px 14px;
+    margin-bottom: 14px;
+    background: #fff;
+  }
+  .persona.dim { opacity: .82; }
+  .persona-top {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    margin-bottom: 4px;
+  }
+  .persona-name { font-size: 16px; font-weight: 800; }
+  .persona-focus, .persona-tone { }
+  .badge {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-soft);
+    padding: 2px 9px;
+    border-radius: 999px;
+  }
+  .badge.hot { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .axis {
+    font-size: 13px;
+    color: var(--ink-3);
+    margin: 0 0 11px;
+  }
+  .qlist { margin: 0; padding: 0; list-style: none; }
+  .qlist li {
+    position: relative;
+    padding: 8px 0 8px 26px;
+    border-top: 1px solid #f0ebe3;
+    font-size: 14.5px;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .qlist li:first-child { border-top: none; }
+  .qlist li::before {
+    content: "Q";
+    position: absolute;
+    left: 0; top: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #fff;
+    background: var(--ink-3);
+    width: 18px; height: 18px;
+    border-radius: 5px;
+    display: grid;
+    place-items: center;
+  }
+
+  .defense-note {
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-soft);
+    border-radius: 11px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    margin-bottom: 16px;
+  }
+  .defense-note b { color: var(--accent); }
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .flow span {
+    font-size: 12.5px;
+    font-weight: 700;
+    background: #fff;
+    border: 1px solid var(--accent-soft);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 7px;
+  }
+  .flow .arrow { border: none; background: none; color: var(--ink-3); padding: 3px 0; }
+
+  h3.block-title {
+    font-size: 15px;
+    font-weight: 800;
+    margin: 26px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent-soft);
+  }
+
+  /* avoid list */
+  .avoid { list-style: none; margin: 0; padding: 0; }
+  .avoid li {
+    padding: 7px 0 7px 24px;
+    position: relative;
+    font-size: 14px;
+    color: var(--ink-2);
+    border-top: 1px solid #f0ebe3;
+  }
+  .avoid li:first-child { border-top: none; }
+  .avoid li::before {
+    content: "✕";
+    position: absolute; left: 0; top: 7px;
+    color: #c0492c;
+    font-weight: 800;
+    font-size: 13px;
+  }
+
+  /* prompt output */
+  .prompt-box {
+    position: relative;
+    background: #26221e;
+    color: #f3ece2;
+    border-radius: 12px;
+    padding: 16px 16px 16px;
+    font-size: 13px;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    max-height: 340px;
+    overflow-y: auto;
+    font-family: 'Pretendard', system-ui, 'Malgun Gothic', sans-serif;
+  }
+  .prompt-wrap { position: relative; }
+
+  /* toast */
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: #fff;
+    padding: 11px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    z-index: 60;
+    box-shadow: 0 8px 24px rgba(0,0,0,.22);
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* manual-copy modal */
+  .modal-back {
+    position: fixed; inset: 0;
+    background: rgba(35,32,29,.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 70;
+  }
+  .modal-back.show { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 22px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  }
+  .modal h3 { margin: 0 0 6px; font-size: 17px; }
+  .modal p { margin: 0 0 12px; font-size: 13.5px; color: var(--ink-3); }
+  .modal textarea {
+    width: 100%; min-height: 180px; height: 200px;
+    overflow: auto; resize: vertical;
+    font-size: 12.5px;
+  }
+  .modal .row { display: flex; justify-content: flex-end; margin-top: 12px; }
+
+  .disclaimer {
+    font-size: 12.5px;
+    color: var(--ink-3);
+    text-align: center;
+    margin-top: 30px;
+    line-height: 1.6;
+  }
+
+  /* ---- Responsive: stack toolbar on narrow ---- */
+  @media (max-width: 520px) {
+    .wrap { padding: 20px 15px 70px; }
+    .panel { padding: 18px; }
+    .result-head { flex-direction: column; align-items: stretch; }
+    .toolbar .btn-ghost { flex: 1; }
+  }
+
+  /* ---- Print ---- */
+  @media print {
+    body { background: #fff; }
+    .no-print, #generateBtn, .toolbar, header .lede, #toast, .modal-back { display: none !important; }
+    .panel { box-shadow: none; border-color: #ccc; page-break-inside: avoid; }
+    .persona, .defense-note { page-break-inside: avoid; }
+    .prompt-box { max-height: none; color: #000; background: #f4f1ec; border: 1px solid #ccc; }
+    #inputPanel { display: none; }
+    #result { display: block !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="kicker">발표 리허설 · 무료 도구</span>
+    <h1>임원 앞 발표 디펜스 시뮬레이터</h1>
+    <p class="lede">발표 주제와 핵심 메시지를 넣으면, 4종 청중 페르소나가 던질 날카로운 질문과
+      &lsquo;인정 → 근거 → 공감 → 결론&rsquo; 구조의 방어 답변 프롬프트를 뽑아 드립니다.</p>
+  </header>
+
+  <!-- INPUT -->
+  <section class="panel" id="inputPanel">
+    <h2><span class="step-num">1</span> 발표 정보 입력</h2>
+    <p class="hint">필수 두 칸만 채워도 작동합니다. 청중 정보를 더하면 페르소나 가중치가 정교해집니다.</p>
+
+    <div class="field" id="f-topic">
+      <label class="flabel" for="topic">발표 주제 <span class="req">*</span></label>
+      <input type="text" id="topic" placeholder="예: 신규 고객 세그먼트 확장 전략" maxlength="120" autocomplete="off">
+      <div class="fielderr">발표 주제를 입력해 주세요.</div>
+    </div>
+
+    <div class="field" id="f-message">
+      <label class="flabel" for="message">핵심 메시지 <span class="req">*</span></label>
+      <textarea id="message" rows="1" maxlength="600"
+        placeholder="예: 40대 직장인 세그먼트에 집중하면 12개월 안에 재구매율을 18% 끌어올릴 수 있다"></textarea>
+      <div class="fielderr">이번 발표에서 관철하려는 한 문장을 입력해 주세요.</div>
+    </div>
+
+    <div class="field">
+      <label class="flabel" for="audience">청중 구성 · 상황 <span class="opt">(선택)</span></label>
+      <textarea id="audience" rows="1" maxlength="400"
+        placeholder="예: 대표이사와 사업본부장 5명, 사내 임원회의, Q&A 10분"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="flabel">가장 부담되는 청중 <span class="opt">(선택 · 복수 가능 · 해당 페르소나 강조)</span></label>
+      <div class="chips" id="weightChips" role="group" aria-label="강조할 페르소나 선택">
+        <button type="button" class="chip" data-key="analyst" aria-pressed="false">깐깐한 분석가</button>
+        <button type="button" class="chip" data-key="practitioner" aria-pressed="false">회의적 실무자</button>
+        <button type="button" class="chip" data-key="executive" aria-pressed="false">시간 압박 임원</button>
+        <button type="button" class="chip" data-key="political" aria-pressed="false">정치적 청중</button>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:22px;">
+      <button type="button" class="btn btn-primary" id="generateBtn">디펜스 시뮬레이션 생성</button>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" aria-live="polite">
+    <div class="panel">
+      <div class="result-head">
+        <h2><span class="step-num">2</span> 예상 질문 &amp; 방어 설계</h2>
+        <div class="toolbar no-print">
+          <button type="button" class="btn btn-ghost" id="copyBtn">방어 프롬프트 복사</button>
+          <button type="button" class="btn btn-ghost" id="printBtn">인쇄 / PDF</button>
+        </div>
+      </div>
+      <p class="hint" id="resultMeta"></p>
+
+      <div class="defense-note">
+        각 질문의 답변은 아래 흐름으로 설계하면 방어적이지 않으면서 메시지를 못 박습니다.
+        <div class="flow">
+          <span>① 인정</span><span class="arrow">→</span>
+          <span>② 근거</span><span class="arrow">→</span>
+          <span>③ 공감</span><span class="arrow">→</span>
+          <span>④ 결론</span>
+        </div>
+      </div>
+
+      <div id="personas"></div>
+
+      <h3 class="block-title">답변 시 피해야 할 회피 시그널</h3>
+      <ul class="avoid" id="avoidList"></ul>
+
+      <h3 class="block-title">AI에게 붙여넣어 전체 방어 스크립트 받기</h3>
+      <p class="hint">아래 프롬프트를 복사해 ChatGPT · Claude 등에 붙여넣으면, 위 질문 전부에 대한
+        완성된 방어 답변 스크립트를 받을 수 있습니다.</p>
+      <div class="prompt-wrap">
+        <div class="prompt-box" id="promptBox"></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="emptyState" class="empty">
+    <div class="big">🎤</div>
+    발표 정보를 입력하고 <b>생성</b>을 누르면<br>여기에 예상 질문과 방어 설계가 나타납니다.
+  </div>
+
+  <p class="disclaimer">
+    이 도구는 발표 리허설을 돕는 질문 시뮬레이터입니다. 생성되는 질문·프롬프트는 일반적 패턴에 기반한
+    참고용이며, 실제 청중의 반응이나 특정 사실 관계를 보장하지 않습니다. 모든 입력은 브라우저 안에서만
+    처리되며 어디에도 전송·저장되지 않습니다.
+  </p>
+</div>
+
+<!-- toast + modal -->
+<div id="toast" role="status"></div>
+<div class="modal-back" id="modalBack">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="수동 복사">
+    <h3>직접 복사해 주세요</h3>
+    <p>자동 복사가 차단된 환경입니다. 아래 내용을 길게 눌러 전체 선택 후 복사하세요.</p>
+    <textarea id="modalText" readonly></textarea>
+    <div class="row"><button type="button" class="btn btn-ghost" id="modalClose">닫기</button></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Persona domain model (grounded in lecture-defense-lab) ----------
+  var PERSONAS = {
+    analyst: {
+      name: "깐깐한 분석가",
+      axis: "데이터 출처·표본·통계 해석의 신뢰성, 논리의 허점",
+      questions: function (t, m) {
+        return [
+          "방금 말씀하신 결론(“" + m + "”)의 근거 데이터는 어디서 나온 겁니까? 표본 크기와 조사 기간을 알려 주세요.",
+          "그 수치가 상관관계가 아니라 인과관계라는 걸 어떻게 확인하셨습니까?",
+          "“" + t + "”에 불리하게 작용하는 반대 데이터나 예외 사례는 검토하셨나요?",
+          "가정이 바뀌면 이 결론은 얼마나 흔들립니까? 민감도는 따져 보셨습니까?"
+        ];
+      }
+    },
+    practitioner: {
+      name: "회의적 실무자",
+      axis: "“현장에서는 안 통한다” — 이상론 대 실제 실행 가능성",
+      questions: function (t, m) {
+        return [
+          "이론적으로는 맞는데, 저희 현장 상황에서 “" + t + "”이 실제로 돌아갈까요?",
+          "비슷한 시도를 예전에 했다가 실패한 적이 있습니다. 이번엔 무엇이 다릅니까?",
+          "지금 인력과 일정으로 이걸 감당할 수 있습니까? 기존 업무는 누가 합니까?",
+          "“" + m + "” — 좋은 말인데, 첫 30일에 현장에서 실제로 뭘 바꿔야 하는 겁니까?"
+        ];
+      }
+    },
+    executive: {
+      name: "시간 압박 임원",
+      axis: "“한 문장으로 결론”, “그래서 우리가 뭘 해야 하는가”",
+      questions: function (t, m) {
+        return [
+          "핵심만. 한 문장으로, 그래서 결론이 뭡니까?",
+          "우리가 당장 결정해야 하는 건 무엇이고, 비용은 얼마입니까?",
+          "이걸 안 하면 무슨 일이 생깁니까? 안 하는 게 더 위험합니까?",
+          "언제까지, 무엇으로 성과를 확인할 수 있습니까?"
+        ];
+      }
+    },
+    political: {
+      name: "정치적 청중",
+      axis: "사내 정치·이해관계자 충돌, 누가 불편해지는가",
+      questions: function (t, m) {
+        return [
+          "이 방향으로 가면 어느 조직이나 부서가 불편해집니까?",
+          "기존에 이 영역을 담당하던 팀과 역할이 충돌하지 않습니까?",
+          "누구의 예산·권한·평가 지표가 조정되는 겁니까? 그쪽과는 조율됐습니까?",
+          "“" + t + "”이 특정 라인의 성과로만 비치지 않게 할 방법이 있습니까?"
+        ];
+      }
+    }
+  };
+
+  var ORDER = ["analyst", "practitioner", "executive", "political"];
+
+  var AVOID = [
+    "질문을 받자마자 방어부터 하기 — 먼저 질문의 정당성을 인정하고 시작하세요.",
+    "“그건 제 전문 분야가 아니라서” 식의 책임 회피성 표현.",
+    "근거 없이 “믿어 주십시오”, “제 경험상”으로 넘어가기.",
+    "모르는 것을 아는 척하기 — 모르면 솔직히 인정하고 후속 조사를 약속하세요.",
+    "질문자를 가르치려는 태도나 되받아치는 반문(공격적 톤).",
+    "결론을 미루고 배경 설명만 길게 늘어놓아 임원의 시간을 잡아먹기."
+  ];
+
+  // ---------- State ----------
+  var weights = { analyst: false, practitioner: false, executive: false, political: false };
+
+  // ---------- Elements ----------
+  var $ = function (id) { return document.getElementById(id); };
+  var topicEl = $("topic"), messageEl = $("message"), audienceEl = $("audience");
+  var lastPromptText = "";
+
+  // ---------- Auto-grow textareas ----------
+  function autoGrow(el) {
+    el.style.height = "auto";
+    el.style.height = (el.scrollHeight) + "px";
+  }
+  [messageEl, audienceEl].forEach(function (el) {
+    el.addEventListener("input", function () { autoGrow(el); });
+  });
+
+  // ---------- Weight chips ----------
+  $("weightChips").addEventListener("click", function (e) {
+    var btn = e.target.closest(".chip");
+    if (!btn) return;
+    var k = btn.getAttribute("data-key");
+    weights[k] = !weights[k];
+    btn.setAttribute("aria-pressed", weights[k] ? "true" : "false");
+  });
+
+  // ---------- Validation ----------
+  function setInvalid(fieldId, bad) {
+    var f = $(fieldId);
+    if (bad) f.classList.add("invalid"); else f.classList.remove("invalid");
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  // ---------- Build result ----------
+  function generate() {
+    var topic = topicEl.value.trim();
+    var message = messageEl.value.trim();
+    var audience = audienceEl.value.trim();
+
+    var okTopic = topic.length > 0;
+    var okMsg = message.length > 0;
+    setInvalid("f-topic", !okTopic);
+    setInvalid("f-message", !okMsg);
+    if (!okTopic || !okMsg) {
+      (!okTopic ? topicEl : messageEl).focus();
+      return;
+    }
+
+    // Order personas: emphasized first
+    var emphasized = ORDER.filter(function (k) { return weights[k]; });
+    var rest = ORDER.filter(function (k) { return !weights[k]; });
+    var ordered = emphasized.concat(rest);
+
+    // Persona cards
+    var host = $("personas");
+    host.innerHTML = "";
+    ordered.forEach(function (k) {
+      var p = PERSONAS[k];
+      var hot = weights[k];
+      var qs = p.questions(topic, message);
+      // emphasized personas get one extra probing question (4), others 3
+      var count = hot ? qs.length : 3;
+      var lis = qs.slice(0, count).map(function (q) {
+        return "<li>" + esc(q) + "</li>";
+      }).join("");
+      var div = document.createElement("div");
+      div.className = "persona" + (hot ? "" : "");
+      div.innerHTML =
+        '<div class="persona-top">' +
+          '<span class="persona-name">' + esc(p.name) + '</span>' +
+          '<span class="badge' + (hot ? ' hot' : '') + '">' + (hot ? '집중 대비' : '기본') + '</span>' +
+        '</div>' +
+        '<p class="axis">공격 축 · ' + esc(p.axis) + '</p>' +
+        '<ul class="qlist">' + lis + '</ul>';
+      host.appendChild(div);
+    });
+
+    // Avoid list
+    var av = $("avoidList");
+    av.innerHTML = AVOID.map(function (a) { return "<li>" + esc(a) + "</li>"; }).join("");
+
+    // Meta
+    var metaBits = [];
+    if (emphasized.length) {
+      metaBits.push("강조 페르소나: " + emphasized.map(function (k) { return PERSONAS[k].name; }).join(", "));
+    }
+    if (audience) metaBits.push("청중: " + audience);
+    $("resultMeta").textContent = metaBits.length ? metaBits.join("  ·  ") : "4종 페르소나 전체를 균등하게 대비합니다.";
+
+    // Build paste-prompt
+    lastPromptText = buildPrompt(topic, message, audience, ordered);
+    $("promptBox").textContent = lastPromptText;
+
+    // show
+    $("emptyState").style.display = "none";
+    $("result").classList.add("show");
+    $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function buildPrompt(topic, message, audience, ordered) {
+    var lines = [];
+    lines.push("당신은 임원 대상 발표를 앞둔 발표자의 디펜스 코치입니다.");
+    lines.push("아래 발표에 대해, 네 종류의 청중 페르소나가 던질 날카로운 질문과 방어 답변 스크립트를 작성하세요.");
+    lines.push("");
+    lines.push("[발표 주제]");
+    lines.push(topic);
+    lines.push("");
+    lines.push("[핵심 메시지 — 이번 발표에서 반드시 관철할 한 문장]");
+    lines.push(message);
+    if (audience) {
+      lines.push("");
+      lines.push("[청중 구성·상황]");
+      lines.push(audience);
+    }
+    lines.push("");
+    lines.push("[페르소나별 공격 축]");
+    ordered.forEach(function (k, i) {
+      var p = PERSONAS[k];
+      var tag = weights[k] ? " (집중 대비 — 질문을 더 날카롭게)" : "";
+      lines.push((i + 1) + ". " + p.name + " — " + p.axis + tag);
+    });
+    lines.push("");
+    lines.push("[작성 지침]");
+    lines.push("1) 페르소나마다 실제로 던질 법한 질문 3~4개를 만드세요. 과장 없이, 그 청중의 실제 어투로.");
+    lines.push("2) 각 질문에 대해 다음 4단 구조로 방어 답변 스크립트를 작성하세요:");
+    lines.push("   ① 인정: 질문의 정당성을 먼저 인정한다(방어부터 하지 않는다).");
+    lines.push("   ② 근거: 데이터·사례·논리로 핵심 메시지를 뒷받침한다.");
+    lines.push("   ③ 공감: 질문자의 입장·우려에 공감을 표한다.");
+    lines.push("   ④ 결론: 핵심 메시지를 다시 못 박고, 필요한 다음 행동을 제시한다.");
+    lines.push("3) 답변 톤: 전문성을 유지하되 청중을 포용한다. 방어적이거나 공격적이지 않게.");
+    lines.push("4) 시간 압박 임원 질문에는 첫 문장에서 결론을 먼저 말하세요.");
+    lines.push("5) 답하기 어려운 질문은 솔직히 인정하고 후속 조사를 약속하는 답변을 별도로 표시하세요.");
+    lines.push("6) 마지막에 '이 발표의 약점'을 3가지로 정리하세요 — 방어로도 막기 어려워 자료 보강이나 메시지 재정의가 필요한 지점.");
+    return lines.join("\n");
+  }
+
+  // ---------- Copy with 3-tier fallback ----------
+  function showToast(msg) {
+    var t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function () { t.classList.remove("show"); }, 1900);
+  }
+
+  function openModal(text) {
+    $("modalText").value = text;
+    $("modalBack").classList.add("show");
+    var ta = $("modalText");
+    ta.focus();
+    ta.select();
+  }
+
+  function legacyCopy(text) {
+    // returns true on success
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  function doCopy(text) {
+    if (!text) return;
+    // Tier 1: async clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        showToast("방어 프롬프트를 복사했습니다");
+      }).catch(function () {
+        // Tier 2: execCommand
+        if (legacyCopy(text)) showToast("방어 프롬프트를 복사했습니다");
+        else openModal(text); // Tier 3
+      });
+    } else if (legacyCopy(text)) {
+      showToast("방어 프롬프트를 복사했습니다");
+    } else {
+      openModal(text);
+    }
+  }
+
+  // ---------- Wire up ----------
+  $("generateBtn").addEventListener("click", generate);
+  $("copyBtn").addEventListener("click", function () { doCopy(lastPromptText); });
+  $("printBtn").addEventListener("click", function () { window.print(); });
+  $("modalClose").addEventListener("click", function () { $("modalBack").classList.remove("show"); });
+  $("modalBack").addEventListener("click", function (e) {
+    if (e.target === $("modalBack")) $("modalBack").classList.remove("show");
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") $("modalBack").classList.remove("show");
+  });
+
+  // Enter in topic field jumps to message
+  topicEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); messageEl.focus(); }
+  });
+})();
+</script>

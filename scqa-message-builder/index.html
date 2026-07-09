@@ -1,0 +1,732 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>SCQA 핵심 메시지 빌더</title>
+<meta name="description" content="상황·복잡화·질문·답 4칸으로 보고 첫 문단을 짜고, 반대 추천을 대입해도 말이 되는지로 날카로움을 시험합니다." />
+<style>
+  /* ---- Pretendard (font CDN only; offline falls back to system stack) ---- */
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+  :root{
+    --bg:#FAF7F2;
+    --surface:#FFFFFF;
+    --surface-2:#F4EFE7;
+    --ink:#20242E;
+    --ink-soft:#4A505E;
+    --ink-mute:#6B7180;
+    --line:#E4DDD1;
+    --line-strong:#D3C9B8;
+    --accent:#C2410C;
+    --accent-ink:#9A3010;
+    --accent-tint:#FBEDE4;
+    --accent-tint-line:#F0C9B2;
+    --good:#166534;
+    --good-tint:#E7F2EA;
+    --good-line:#BCD9C4;
+    --warn:#9A3010;
+    --warn-tint:#FBEDE4;
+    --warn-line:#F0C9B2;
+    --radius:14px;
+    --radius-sm:10px;
+    --shadow:0 1px 2px rgba(32,36,46,.05), 0 8px 24px rgba(32,36,46,.06);
+    --font:'Pretendard','Pretendard Variable',system-ui,-apple-system,'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+    /* Korean line-break safety baseline */
+    word-break:keep-all;
+    overflow-wrap:break-word;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font);
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    word-break:keep-all;
+    overflow-wrap:break-word;
+    font-size:16px;
+  }
+
+  .wrap{max-width:760px;margin:0 auto;padding:28px 20px 96px;}
+
+  /* ---- Header ---- */
+  header.top{margin:12px 0 22px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:12.5px;font-weight:700;letter-spacing:.04em;
+    color:var(--accent-ink);
+    background:var(--accent-tint);
+    border:1px solid var(--accent-tint-line);
+    padding:5px 11px;border-radius:999px;
+    text-transform:uppercase;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+  h1{
+    font-size:clamp(24px,5.6vw,33px);
+    line-height:1.25;margin:14px 0 8px;font-weight:800;letter-spacing:-.01em;
+  }
+  .lede{font-size:15.5px;color:var(--ink-soft);margin:0;max-width:60ch;}
+
+  /* ---- Help disclosure ---- */
+  details.help{
+    margin:18px 0 4px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    overflow:hidden;
+  }
+  details.help>summary{
+    cursor:pointer;list-style:none;
+    padding:13px 16px;
+    font-size:14.5px;font-weight:700;color:var(--ink);
+    display:flex;align-items:center;gap:9px;
+  }
+  details.help>summary::-webkit-details-marker{display:none;}
+  details.help>summary .chev{
+    margin-left:auto;color:var(--ink-mute);transition:transform .18s ease;font-size:13px;
+  }
+  details.help[open]>summary .chev{transform:rotate(180deg);}
+  .help-body{padding:2px 16px 16px;font-size:14px;color:var(--ink-soft);border-top:1px solid var(--line);}
+  .help-body p{margin:12px 0 10px;}
+  .help-body dl{margin:6px 0 0;display:grid;grid-template-columns:auto 1fr;gap:8px 12px;}
+  .help-body dt{font-weight:700;color:var(--accent-ink);white-space:nowrap;}
+  .help-body dd{margin:0;color:var(--ink-soft);}
+  .src-note{margin:14px 0 0;font-size:12.5px;color:var(--ink-mute);border-top:1px dashed var(--line-strong);padding-top:10px;}
+
+  /* ---- Form card ---- */
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:20px 18px;
+    margin-top:18px;
+  }
+  .field{margin-bottom:16px;}
+  .field:last-of-type{margin-bottom:8px;}
+  .field .lab{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:6px;}
+  .step{
+    width:24px;height:24px;flex:0 0 24px;border-radius:7px;
+    background:var(--accent);color:#fff;font-weight:800;font-size:13px;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .field label{font-weight:800;font-size:15.5px;color:var(--ink);}
+  .field .en{font-size:12.5px;font-weight:600;color:var(--ink-mute);letter-spacing:.02em;}
+  .field .hint{font-size:13px;color:var(--ink-mute);margin:2px 0 8px 33px;}
+  textarea{
+    width:100%;
+    font-family:var(--font);
+    font-size:15.5px;line-height:1.6;color:var(--ink);
+    background:var(--surface);
+    border:1.5px solid var(--line-strong);
+    border-radius:var(--radius-sm);
+    padding:11px 13px;
+    resize:none;overflow:hidden;
+    min-height:52px;
+    word-break:keep-all;overflow-wrap:break-word;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  textarea::placeholder{color:#A9A192;}
+  textarea:focus{
+    outline:none;border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(194,65,12,.14);
+  }
+  textarea.missing{border-color:#D98A5A;box-shadow:0 0 0 3px rgba(194,65,12,.10);}
+
+  .opts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 2px;}
+  .opts .ol{font-size:13px;color:var(--ink-mute);font-weight:600;}
+  select{
+    font-family:var(--font);font-size:13.5px;color:var(--ink);
+    background:var(--surface-2);border:1px solid var(--line-strong);
+    border-radius:8px;padding:7px 10px;cursor:pointer;
+  }
+  select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(194,65,12,.12);}
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+  button{font-family:var(--font);cursor:pointer;}
+  .btn-primary{
+    flex:1 1 auto;min-width:180px;
+    background:var(--accent);color:#fff;font-weight:800;font-size:15.5px;
+    border:none;border-radius:var(--radius-sm);padding:14px 18px;
+    min-height:50px;
+    box-shadow:0 2px 8px rgba(194,65,12,.28);
+    transition:filter .15s ease, transform .05s ease;
+  }
+  .btn-primary:hover{filter:brightness(1.05);}
+  .btn-primary:active{transform:translateY(1px);}
+  .btn-ghost{
+    background:var(--surface);color:var(--ink-soft);font-weight:700;font-size:14.5px;
+    border:1.5px solid var(--line-strong);border-radius:var(--radius-sm);
+    padding:14px 16px;min-height:50px;
+    transition:background .15s ease;
+  }
+  .btn-ghost:hover{background:var(--surface-2);}
+
+  /* ---- States ---- */
+  #stateEmpty,#stateLoading{
+    text-align:center;color:var(--ink-mute);
+    padding:34px 18px;margin-top:20px;
+    border:1.5px dashed var(--line-strong);border-radius:var(--radius);
+    background:linear-gradient(180deg,var(--surface),var(--surface-2));
+  }
+  #stateEmpty .ic{font-size:26px;margin-bottom:8px;}
+  #stateEmpty p{margin:4px 0;font-size:14.5px;}
+  #stateEmpty .big{color:var(--ink-soft);font-weight:700;font-size:15.5px;}
+  .spinner{
+    width:26px;height:26px;border-radius:50%;
+    border:3px solid var(--accent-tint);border-top-color:var(--accent);
+    margin:0 auto 12px;animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ---- Result ---- */
+  #result{margin-top:22px;display:none;}
+  .res-head{display:flex;align-items:center;gap:9px;margin:4px 0 4px;}
+  .res-head h2{font-size:19px;font-weight:800;margin:0;letter-spacing:-.01em;}
+  .res-head .tag{font-size:12px;font-weight:700;color:var(--accent-ink);background:var(--accent-tint);border:1px solid var(--accent-tint-line);padding:3px 9px;border-radius:999px;}
+
+  .para-card{
+    background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:18px 18px 14px;margin-top:10px;
+  }
+  .para-card .ptext{font-size:16.5px;line-height:1.72;color:var(--ink);white-space:pre-wrap;}
+  .para-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);}
+  .mini{
+    background:var(--surface-2);border:1px solid var(--line-strong);color:var(--ink-soft);
+    font-weight:700;font-size:13.5px;border-radius:9px;padding:9px 13px;min-height:40px;
+    display:inline-flex;align-items:center;gap:6px;transition:background .15s ease;
+  }
+  .mini:hover{background:var(--accent-tint);border-color:var(--accent-tint-line);color:var(--accent-ink);}
+  .mini.copied{background:var(--good-tint);border-color:var(--good-line);color:var(--good);}
+
+  .breakdown{display:grid;gap:8px;margin-top:12px;}
+  .bd-row{display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;}
+  .bd-row .k{font-size:12px;font-weight:800;color:#fff;background:var(--ink-soft);border-radius:6px;padding:3px 8px;white-space:nowrap;line-height:1.5;}
+  .bd-row .v{font-size:14.5px;color:var(--ink-soft);}
+  .bd-row.empty .v{color:#B7A98F;font-style:normal;}
+
+  /* Sharpness test */
+  .test{
+    margin-top:24px;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;
+  }
+  .test-h{padding:15px 18px 13px;border-bottom:1px solid var(--line);background:var(--surface-2);}
+  .test-h h3{margin:0 0 3px;font-size:16.5px;font-weight:800;}
+  .test-h p{margin:0;font-size:13.5px;color:var(--ink-soft);}
+  .test-body{padding:16px 18px 18px;}
+
+  .flip-block{background:var(--warn-tint);border:1px solid var(--warn-line);border-radius:var(--radius-sm);padding:13px 14px;}
+  .flip-block .cap{font-size:12.5px;font-weight:800;color:var(--warn);letter-spacing:.02em;margin-bottom:5px;text-transform:uppercase;}
+  .flip-block .flipped{font-size:15px;color:var(--ink);line-height:1.6;}
+  .flip-note{font-size:12.5px;color:var(--ink-mute);margin-top:8px;}
+
+  .askline{margin:16px 0 10px;font-size:15px;font-weight:700;color:var(--ink);}
+  .verdicts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media (max-width:460px){.verdicts{grid-template-columns:1fr;}}
+  .vbtn{
+    text-align:left;background:var(--surface);border:1.5px solid var(--line-strong);
+    border-radius:var(--radius-sm);padding:12px 13px;min-height:64px;transition:all .13s ease;
+  }
+  .vbtn .vt{display:block;font-weight:800;font-size:14.5px;color:var(--ink);margin-bottom:2px;}
+  .vbtn .vd{display:block;font-size:12.5px;color:var(--ink-mute);}
+  .vbtn.sel-weak{border-color:var(--warn);background:var(--warn-tint);}
+  .vbtn.sel-weak .vt{color:var(--warn);}
+  .vbtn.sel-strong{border-color:var(--good);background:var(--good-tint);}
+  .vbtn.sel-strong .vt{color:var(--good);}
+
+  .heur{margin-top:16px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 14px;}
+  .heur-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .meter{flex:1 1 130px;height:9px;background:#E6DECF;border-radius:999px;overflow:hidden;min-width:110px;}
+  .meter>i{display:block;height:100%;border-radius:999px;transition:width .4s ease;}
+  .heur-label{font-size:13.5px;font-weight:800;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px;}
+  .chip{font-size:12px;font-weight:700;padding:4px 9px;border-radius:999px;}
+  .chip.good{background:var(--good-tint);color:var(--good);border:1px solid var(--good-line);}
+  .chip.vague{background:var(--warn-tint);color:var(--warn);border:1px solid var(--warn-line);}
+  .heur-tip{font-size:13px;color:var(--ink-soft);margin-top:11px;line-height:1.6;}
+
+  .verdict-msg{margin-top:14px;padding:12px 14px;border-radius:var(--radius-sm);font-size:14px;line-height:1.6;display:none;}
+  .verdict-msg.show{display:block;}
+  .verdict-msg.weak{background:var(--warn-tint);border:1px solid var(--warn-line);color:var(--ink);}
+  .verdict-msg.strong{background:var(--good-tint);border:1px solid var(--good-line);color:var(--ink);}
+  .verdict-msg b{color:inherit;}
+
+  footer.foot{margin-top:34px;text-align:center;font-size:12.5px;color:var(--ink-mute);line-height:1.7;}
+  footer.foot a{color:var(--accent-ink);}
+
+  /* ---- Manual copy modal ---- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(32,36,46,.5);
+    display:none;align-items:center;justify-content:center;padding:20px;z-index:50;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:var(--surface);border-radius:var(--radius);max-width:520px;width:100%;
+    padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.28);
+  }
+  .modal h4{margin:0 0 6px;font-size:16px;font-weight:800;}
+  .modal p{margin:0 0 12px;font-size:13.5px;color:var(--ink-soft);}
+  .modal textarea{min-height:120px;overflow:auto;}
+  .modal .mrow{display:flex;justify-content:flex-end;margin-top:12px;}
+
+  @media (max-width:520px){
+    .wrap{padding:20px 15px 80px;}
+    .field .hint{margin-left:0;}
+    .btn-primary{min-width:100%;}
+  }
+
+  /* ---- Print ---- */
+  @media print{
+    body{background:#fff;font-size:12pt;}
+    .card,details.help,#stateEmpty,#stateLoading,.actions,.para-tools,.verdicts,footer.foot,.overlay{display:none !important;}
+    #result{display:block !important;}
+    .test,.para-card{box-shadow:none;border:1px solid #ccc;}
+    .wrap{max-width:100%;padding:0;}
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow"><span class="dot"></span>SCQA · 핵심 메시지</span>
+    <h1>SCQA 핵심 메시지 빌더</h1>
+    <p class="lede">상황·복잡화·질문·답 네 칸으로 보고서 첫 문단을 짜고, <b>반대 추천을 대입해도 말이 되는지</b>로 그 문단이 충분히 날카로운지 시험합니다.</p>
+  </header>
+
+  <details class="help">
+    <summary>SCQA가 뭔가요? <span class="chev">▾</span></summary>
+    <div class="help-body">
+      <p>바버라 민토(Barbara Minto, 맥킨지 최초 여성 컨설턴트, 1963)가 정립한 메시지 구조입니다. 의사결정자는 <b>첫 문단</b>을 읽고 계속 읽을지를 정하기 때문에, 그 한 문단이 논증 전체를 짊어져야 합니다.</p>
+      <dl>
+        <dt>S · 상황</dt><dd>다툼 없이 모두가 동의하는 현재 상태를 설정한다.</dd>
+        <dt>C · 복잡화</dt><dd>그 안정을 깨뜨린 변화·긴장·문제를 명명한다.</dd>
+        <dt>Q · 질문</dt><dd>복잡화가 독자의 머릿속에 띄우는 질문을 드러낸다.</dd>
+        <dt>A · 답</dt><dd>그 질문에 대한 당신의 구체적 추천을 답으로 전달한다.</dd>
+      </dl>
+      <p style="margin-top:14px"><b>날카로움 점검</b> — 추천을 소리 내어 읽어 보세요. 반대 추천을 끼워 넣어도 여전히 합리적으로 들린다면, 아직 충분히 구체적이지 않은 것입니다. 반대가 <b>명백히 틀리게</b> 들릴 때까지 다시 씁니다.</p>
+      <p class="src-note">근거: 가인지 Insight Lab 지식노트 「가장 돈이 되는 AI 활용」(260629) 4단계 &mdash; 바버라 민토 SCQA와 날카로움 점검.</p>
+    </div>
+  </details>
+
+  <div class="card" id="form">
+    <div class="field">
+      <div class="lab"><span class="step">S</span><label for="inS">상황</label><span class="en">Situation</span></div>
+      <div class="hint">모두가 동의하는, 다툼 없는 현재 상태.</div>
+      <textarea id="inS" rows="1" placeholder="예: 우리 팀은 지난 3년간 동일한 오프라인 채널로 신규 고객을 확보해 왔다."></textarea>
+    </div>
+    <div class="field">
+      <div class="lab"><span class="step">C</span><label for="inC">복잡화</label><span class="en">Complication</span></div>
+      <div class="hint">그 안정을 깨뜨린 변화·긴장·문제.</div>
+      <textarea id="inC" rows="1" placeholder="예: 올해 들어 채널 단가가 40% 오르면서 신규 고객 획득 비용이 손익분기를 넘어섰다."></textarea>
+    </div>
+    <div class="field">
+      <div class="lab"><span class="step">Q</span><label for="inQ">질문</label><span class="en">Question</span></div>
+      <div class="hint">복잡화가 독자의 머릿속에 띄우는 질문.</div>
+      <textarea id="inQ" rows="1" placeholder="예: 그렇다면 우리는 어디에서 신규 고객을 확보해야 하는가?"></textarea>
+    </div>
+    <div class="field">
+      <div class="lab"><span class="step">A</span><label for="inA">답 (추천)</label><span class="en">Answer</span></div>
+      <div class="hint">그 질문에 대한 당신의 구체적 추천. 수치·기한·방향이 뚜렷할수록 날카롭습니다.</div>
+      <textarea id="inA" rows="1" placeholder="예: 3분기부터 유료 검색 채널로 전환해 획득 비용을 30% 낮춘다."></textarea>
+    </div>
+
+    <div class="opts">
+      <span class="ol">문단 연결</span>
+      <select id="connect" aria-label="문단 연결 방식">
+        <option value="natural">자연스럽게 (하지만·그렇다면)</option>
+        <option value="plain">접속사 없이</option>
+      </select>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="buildBtn">첫 문단 조립 + 날카로움 시험</button>
+      <button class="btn-ghost" id="clearBtn" type="button">비우기</button>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div id="stateEmpty">
+    <div class="ic">✍️</div>
+    <p class="big">네 칸을 채우고 조립을 눌러 보세요</p>
+    <p>완결형 첫 문단과 반대 추천 시험 결과가 여기 나타납니다.</p>
+  </div>
+
+  <!-- Loading state -->
+  <div id="stateLoading" style="display:none">
+    <div class="spinner"></div>
+    <p style="margin:0;font-size:14.5px;color:var(--ink-soft);font-weight:700">첫 문단을 조립하고 반대 추천을 대입하는 중…</p>
+  </div>
+
+  <!-- Result -->
+  <section id="result" aria-live="polite">
+    <div class="res-head"><h2>완결형 첫 문단</h2><span class="tag">S · C · Q · A</span></div>
+    <div class="para-card">
+      <div class="ptext" id="paraText"></div>
+      <div class="para-tools">
+        <button class="mini" id="copyPara">📋 첫 문단 복사</button>
+        <button class="mini" id="copyAll">📋 전체(4칸 포함) 복사</button>
+        <button class="mini" id="printBtn" type="button">🖨️ 인쇄</button>
+      </div>
+    </div>
+
+    <div class="breakdown" id="breakdown"></div>
+
+    <div class="test">
+      <div class="test-h">
+        <h3>날카로움 시험</h3>
+        <p>반대 추천을 대입한 문단을 소리 내어 읽어 보세요. 그래도 말이 되면, 추천이 아직 두루뭉술한 것입니다.</p>
+      </div>
+      <div class="test-body">
+        <div class="flip-block">
+          <div class="cap">반대 추천 (자동 생성)</div>
+          <div class="flipped" id="flipText"></div>
+          <div class="flip-note" id="flipNote"></div>
+        </div>
+
+        <p class="askline">이 반대 버전, 그래도 말이 되나요?</p>
+        <div class="verdicts">
+          <button class="vbtn" id="vWeak" type="button">
+            <span class="vt">그래도 말이 된다</span>
+            <span class="vd">→ 추천이 두루뭉술함. 다시 쓰세요.</span>
+          </button>
+          <button class="vbtn" id="vStrong" type="button">
+            <span class="vt">명백히 틀리게 들린다</span>
+            <span class="vd">→ 충분히 날카로움. 통과.</span>
+          </button>
+        </div>
+        <div class="verdict-msg" id="verdictMsg"></div>
+
+        <div class="heur">
+          <div class="heur-top">
+            <span class="heur-label" id="heurLabel">구체성 신호</span>
+            <div class="meter"><i id="meterFill"></i></div>
+          </div>
+          <div class="chips" id="chips"></div>
+          <div class="heur-tip" id="heurTip"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="foot">
+      SCQA 구조·날카로움 점검은 바버라 민토(Barbara Minto)의 방법에 근거합니다.<br>
+      브라우저 안에서만 동작하며, 입력한 내용은 어디에도 전송되지 않습니다.
+    </footer>
+  </section>
+</div>
+
+<!-- Manual copy fallback modal -->
+<div class="overlay" id="copyOverlay">
+  <div class="modal">
+    <h4>직접 복사해 주세요</h4>
+    <p>자동 복사가 차단됐습니다. 아래 내용을 길게 눌러 전체 선택한 뒤 복사하세요.</p>
+    <textarea id="copyArea" readonly></textarea>
+    <div class="mrow"><button class="btn-ghost" id="closeOverlay" type="button">닫기</button></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var S=$('inS'), C=$('inC'), Q=$('inQ'), A=$('inA');
+  var fields=[S,C,Q,A];
+
+  /* ---------- auto-grow textareas ---------- */
+  function grow(t){ t.style.height='auto'; t.style.height=(t.scrollHeight+2)+'px'; }
+  fields.forEach(function(t){
+    t.addEventListener('input', function(){ grow(t); t.classList.remove('missing'); });
+  });
+
+  /* ---------- text helpers ---------- */
+  function clean(s){ return (s||'').replace(/\s+/g,' ').trim(); }
+  function endPunct(t){ t=clean(t); if(!t) return t; return /[.!?…。]$/.test(t)? t : t+'.'; }
+  function endQ(t){ t=clean(t); if(!t) return t; if(/[?？]$/.test(t)) return t; return t.replace(/[.!。…]$/,'')+'?'; }
+
+  var C_LEAD=/^(하지만|그러나|그런데|그렇지만|한편|반면)/;
+  var Q_LEAD=/^(그렇다면|그러면|그래서|따라서|그러므로|이때)/;
+
+  function assemble(natural){
+    var s=clean(S.value), c=clean(C.value), q=clean(Q.value), a=clean(A.value);
+    var parts=[];
+    if(s) parts.push(endPunct(s));
+    if(c){
+      var cc=c;
+      if(natural && !C_LEAD.test(cc)) cc='하지만 '+cc;
+      parts.push(endPunct(cc));
+    }
+    if(q){
+      var qq=q;
+      if(natural && !Q_LEAD.test(qq)) qq='그렇다면 '+qq;
+      parts.push(endQ(qq));
+    }
+    if(a) parts.push(endPunct(a));
+    return parts.join(' ');
+  }
+
+  /* ---------- opposite-recommendation flip ---------- */
+  // ordered antonym pairs (checked both directions)
+  var ANTO=[
+    ['도입','중단'],['확대','축소'],['진입','철수'],['집중','분산'],
+    ['강화','완화'],['인상','인하'],['상향','하향'],['가속','지연'],
+    ['출시','보류'],['통합','분리'],['내재화','아웃소싱'],['유지','폐지'],
+    ['투자','회수'],['채택','반려'],['확장','축소'],['공격적','보수적'],
+    ['우선','후순위'],['늘린','줄인'],['높인','낮춘'],['키운','줄인'],
+    ['공격','수비'],['전환','유지'],['전면','부분']
+  ];
+  // ending-based negation (applied to last clause)
+  var NEG=[
+    [/해야\s?한다$/, '하지 말아야 한다'],
+    [/해야\s?만\s?한다$/, '해서는 안 된다'],
+    [/하는\s?것이\s?(맞다|옳다|낫다)$/, '하지 않는 것이 $1'],
+    [/필요하다$/, '필요 없다'],
+    [/필요가\s?있다$/, '필요가 없다'],
+    [/해라$/, '하지 마라'],
+    [/하라$/, '하지 마라'],
+    [/하자$/, '하지 말자'],
+    [/한다$/, '하지 않는다'],
+    [/했다$/, '하지 않았다'],
+    [/이다$/, '이 아니다'],
+    [/된다$/, '되지 않는다'],
+    [/있다$/, '없다']
+  ];
+
+  function flipAnswer(a){
+    a=clean(a);
+    if(!a) return {text:'', method:'none'};
+    // 1) antonym swap (first hit)
+    for(var i=0;i<ANTO.length;i++){
+      var p=ANTO[i];
+      if(a.indexOf(p[0])>-1) return {text:a.replace(p[0],p[1]), method:'antonym'};
+      if(a.indexOf(p[1])>-1) return {text:a.replace(p[1],p[0]), method:'antonym'};
+    }
+    // 2) ending negation
+    var core=a.replace(/[.!?…。]+$/,'');
+    for(var j=0;j<NEG.length;j++){
+      if(NEG[j][0].test(core)){
+        return {text:core.replace(NEG[j][0], NEG[j][1]), method:'negation'};
+      }
+    }
+    // 3) fallback wrapper
+    return {text:'오히려 반대로, '+core+' — 그렇게 하지 않는다.', method:'fallback'};
+  }
+
+  /* ---------- specificity heuristic ---------- */
+  var VAGUE=['개선','강화','최적화','효율화','활성화','제고','노력','열심히','적극적','적극','검토','고려','모색','추진','도모','개선한다','잘 ','제대로','최선','신경'];
+  function analyze(a){
+    a=clean(a);
+    var sig=[], vg=[];
+    if(!a) return {score:0, sig:sig, vg:vg};
+    if(/\d/.test(a)) sig.push('수치');
+    if(/[%％]|퍼센트|배\b|억|만원|원\b|개\b|명\b|건\b|시간|주\b|개월|분기|년\b|일\b|회\b|위\b/.test(a)) sig.push('규모·단위');
+    if(/까지|이내|안에|말까지|초까지|분기|상반기|하반기|연말|다음\s?달|월\s?내|Q[1-4]|주\s?내/.test(a)) sig.push('기한');
+    var decisive=['도입','중단','폐지','철수','진입','확대','축소','집중','전환','통합','분리','인상','인하','출시','보류','회수','아웃소싱','내재화','전면','즉시','우선'];
+    for(var i=0;i<decisive.length;i++){ if(a.indexOf(decisive[i])>-1){ sig.push('결단형 동사'); break; } }
+    // proper-noun-ish: quoted or capitalized latin or bracketed
+    if(/[A-Z][A-Za-z]{2,}|['"“”「」『』]|\b[가-힣]+팀\b|채널|고객|시장|제품|부문/.test(a)) sig.push('대상 지목');
+    // uniq
+    sig=sig.filter(function(v,i,s){return s.indexOf(v)===i;});
+    for(var k=0;k<VAGUE.length;k++){ if(a.indexOf(VAGUE[k])>-1 && vg.indexOf(VAGUE[k].trim())<0) vg.push(VAGUE[k].trim()); }
+    var raw=sig.length - Math.min(vg.length,3)*0.8;
+    var score=Math.max(0, Math.min(100, Math.round((raw/4)*100)));
+    return {score:score, sig:sig, vg:vg};
+  }
+
+  /* ---------- render breakdown ---------- */
+  function bdRow(k,label,val){
+    var empty = val? '' : ' empty';
+    var v = val? escapeHtml(val) : '(비어 있음)';
+    return '<div class="bd-row'+empty+'"><span class="k">'+k+'</span><span class="v"><b style="color:var(--ink)">'+label+'</b> '+v+'</span></div>';
+  }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  /* ---------- state ---------- */
+  var stEmpty=$('stateEmpty'), stLoad=$('stateLoading'), result=$('result');
+  var lastParaFlip=''; // paragraph with flipped answer, for read-aloud
+
+  function build(){
+    // validate
+    var missing=false;
+    fields.forEach(function(t){
+      if(!clean(t.value)){ t.classList.add('missing'); missing=true; }
+      else t.classList.remove('missing');
+    });
+    if(missing){
+      stLoad.style.display='none';
+      // shake focus to first missing
+      var first=fields.filter(function(t){return t.classList.contains('missing');})[0];
+      if(first) first.focus();
+      return;
+    }
+
+    // loading
+    stEmpty.style.display='none';
+    result.style.display='none';
+    stLoad.style.display='block';
+
+    setTimeout(function(){
+      render();
+      stLoad.style.display='none';
+      result.style.display='block';
+      result.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 260);
+  }
+
+  function render(){
+    var natural = $('connect').value==='natural';
+    var para = assemble(natural);
+    $('paraText').textContent = para;
+
+    // breakdown
+    $('breakdown').innerHTML =
+      bdRow('S','상황', clean(S.value)) +
+      bdRow('C','복잡화', clean(C.value)) +
+      bdRow('Q','질문', clean(Q.value)) +
+      bdRow('A','답', clean(A.value));
+
+    // flip: rebuild paragraph with flipped answer
+    var flip = flipAnswer(A.value);
+    $('flipText').textContent = flip.text;
+    var noteMap={
+      antonym:'추천 문장의 방향 단어를 반대로 뒤집었습니다.',
+      negation:'추천 문장을 부정형으로 뒤집었습니다.',
+      fallback:'자동 반전이 애매해 감싸는 형태로 만들었습니다. 손으로 자연스럽게 다듬어 읽어 보세요.',
+      none:''
+    };
+    $('flipNote').textContent = (noteMap[flip.method]||'') + ' 자동 생성이라 어색할 수 있으니, 뜻이 반대인지 눈으로 확인하고 소리 내어 읽어 보세요.';
+
+    // full opposite paragraph (for optional read-aloud / copy-all handled separately)
+    lastParaFlip = buildFlippedParagraph(natural, flip.text);
+
+    // heuristic
+    var h = analyze(A.value);
+    $('meterFill').style.width = h.score + '%';
+    var col = h.score>=66 ? 'var(--good)' : (h.score>=34 ? 'var(--accent)' : 'var(--warn)');
+    $('meterFill').style.background = col;
+    var lvl = h.score>=66 ? '구체성 높음' : (h.score>=34 ? '구체성 보통' : '구체성 낮음');
+    $('heurLabel').textContent = '구체성 신호 · ' + lvl;
+
+    var chips='';
+    h.sig.forEach(function(s){ chips += '<span class="chip good">'+escapeHtml(s)+'</span>'; });
+    h.vg.forEach(function(v){ chips += '<span class="chip vague">두루뭉술: '+escapeHtml(v)+'</span>'; });
+    if(!chips) chips='<span class="chip vague">뚜렷한 구체성 신호 없음</span>';
+    $('chips').innerHTML = chips;
+
+    var tip;
+    if(h.score>=66){
+      tip='수치·기한·방향 같은 구체 신호가 잡힙니다. 그래도 최종 판정은 위의 반대 버전을 직접 읽어 확인하세요.';
+    } else if(h.score>=34){
+      tip='절반쯤 구체적입니다. 반대 추천이 여전히 그럴듯하다면, 수치·기한·대상을 하나 더 못 박아 다시 쓰세요.';
+    } else {
+      tip='구체 신호가 약합니다. 반대 추천도 무난히 말이 될 가능성이 큽니다. "무엇을·얼마나·언제까지"를 답에 넣어 다시 써 보세요.';
+    }
+    if(h.vg.length){ tip += ' 두루뭉술한 표현('+h.vg.join('·')+')은 검증 가능한 동작으로 바꾸면 좋습니다.'; }
+    $('heurTip').textContent = tip;
+
+    // reset verdict selection
+    $('vWeak').className='vbtn'; $('vStrong').className='vbtn';
+    $('verdictMsg').className='verdict-msg';
+    $('verdictMsg').textContent='';
+  }
+
+  function buildFlippedParagraph(natural, flippedA){
+    var s=clean(S.value), c=clean(C.value), q=clean(Q.value);
+    var parts=[];
+    if(s) parts.push(endPunct(s));
+    if(c){ var cc=c; if(natural && !C_LEAD.test(cc)) cc='하지만 '+cc; parts.push(endPunct(cc)); }
+    if(q){ var qq=q; if(natural && !Q_LEAD.test(qq)) qq='그렇다면 '+qq; parts.push(endQ(qq)); }
+    if(flippedA) parts.push(endPunct(flippedA));
+    return parts.join(' ');
+  }
+
+  /* ---------- verdict buttons ---------- */
+  $('vWeak').addEventListener('click', function(){
+    $('vWeak').className='vbtn sel-weak'; $('vStrong').className='vbtn';
+    var m=$('verdictMsg'); m.className='verdict-msg weak show';
+    m.innerHTML='<b>다시 쓰세요.</b> 반대 추천을 넣어도 말이 된다는 것은, 지금 추천이 누구나 할 법한 두루뭉술한 말이라는 뜻입니다. 답에 <b>무엇을·얼마나·언제까지</b>를 못 박아, 반대가 명백히 틀리게 들리도록 다듬으세요.';
+  });
+  $('vStrong').addEventListener('click', function(){
+    $('vStrong').className='vbtn sel-strong'; $('vWeak').className='vbtn';
+    var m=$('verdictMsg'); m.className='verdict-msg strong show';
+    m.innerHTML='<b>통과.</b> 반대 추천이 명백히 틀리게 들린다면, 첫 문단이 한쪽으로 분명한 입장을 세운 것입니다. 이 핵심 메시지는 이해관계자별 버전에서도 <b>바꾸지 말고</b> 그대로 유지하세요.';
+  });
+
+  /* ---------- copy (3-tier fallback) ---------- */
+  function fullText(){
+    return '[SCQA 핵심 메시지]\n\n' +
+      '■ 완결형 첫 문단\n' + $('paraText').textContent + '\n\n' +
+      'S · 상황: ' + clean(S.value) + '\n' +
+      'C · 복잡화: ' + clean(C.value) + '\n' +
+      'Q · 질문: ' + clean(Q.value) + '\n' +
+      'A · 답: ' + clean(A.value) + '\n\n' +
+      '■ 날카로움 시험 — 반대 추천(자동): ' + $('flipText').textContent + '\n' +
+      '반대를 넣은 문단: ' + lastParaFlip;
+  }
+
+  function doCopy(text, btn){
+    // tier 1: async clipboard API
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(text).then(function(){
+        flash(btn);
+      }).catch(function(){
+        legacyCopy(text, btn);
+      });
+    } else {
+      legacyCopy(text, btn);
+    }
+  }
+  function legacyCopy(text, btn){
+    // tier 2: execCommand, verify return value
+    var ta=document.createElement('textarea');
+    ta.value=text;
+    ta.setAttribute('readonly','');
+    ta.style.position='fixed'; ta.style.top='-1000px'; ta.style.opacity='0';
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, text.length);
+    var ok=false;
+    try{ ok=document.execCommand('copy'); }catch(e){ ok=false; }
+    document.body.removeChild(ta);
+    if(ok){ flash(btn); }
+    else{ manualCopy(text); } // tier 3
+  }
+  function flash(btn){
+    if(!btn) return;
+    var old=btn.innerHTML;
+    btn.classList.add('copied'); btn.innerHTML='✓ 복사됨';
+    setTimeout(function(){ btn.classList.remove('copied'); btn.innerHTML=old; }, 1600);
+  }
+  function manualCopy(text){
+    $('copyArea').value=text;
+    $('copyOverlay').classList.add('show');
+    var a=$('copyArea'); a.focus(); a.select();
+  }
+  $('copyOverlay').addEventListener('click', function(e){ if(e.target===this) this.classList.remove('show'); });
+  $('closeOverlay').addEventListener('click', function(){ $('copyOverlay').classList.remove('show'); });
+
+  $('copyPara').addEventListener('click', function(){ doCopy($('paraText').textContent, this); });
+  $('copyAll').addEventListener('click', function(){ doCopy(fullText(), this); });
+  $('printBtn').addEventListener('click', function(){ window.print(); });
+
+  /* ---------- build / clear ---------- */
+  $('buildBtn').addEventListener('click', build);
+  $('clearBtn').addEventListener('click', function(){
+    fields.forEach(function(t){ t.value=''; t.classList.remove('missing'); grow(t); });
+    result.style.display='none';
+    stLoad.style.display='none';
+    stEmpty.style.display='block';
+    S.focus();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  // Ctrl/Cmd+Enter to build
+  fields.forEach(function(t){
+    t.addEventListener('keydown', function(e){
+      if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ e.preventDefault(); build(); }
+    });
+  });
+})();
+</script>
